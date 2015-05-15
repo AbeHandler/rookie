@@ -35,7 +35,6 @@ class LensStory:
             year, month, day = [int(y) for y in datestring.split("-")]
             self.date = str(datetime(year, month, day))
             self.text = json_data['full_text']
-            self.headline = json_data['headline'] 
     
     def jsonify(self):
         json_output = {}
@@ -56,8 +55,6 @@ for story_file in corpus.get_files("*json"):
     res = es.index(index="lens", doc_type='news_story', id=counter, body=story.jsonify())
     counter = counter + 1
 
-
-res = es.search(index="lens", body={"query": {"match_all": {}}})
+# to do: add headline
+res = es.search(index="lens", body={"query": {"match_all": {"OPSB"}}})
 print("Got %d Hits:" % res['hits']['total'])
-for hit in res['hits']['hits']:
-    print("%(timestamp)s %(headline)s: %(text)s" % hit["_source"])
