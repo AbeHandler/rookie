@@ -35,6 +35,7 @@ def get_html_summaries():
         i = str(i)
         url = "http://thelensnola.org/page/" + i + "/?s="
         htmls.append(get_page(url))
+        logging.info('Downloading summary | {}'.format(i))
     return htmls
 
 
@@ -62,8 +63,7 @@ def get_links(element):
 summaries = get_html_summaries()
 
 
-for h in summaries:
-    html = "".join(tuple(open(h, 'r')))
+for html in summaries:
     soup = BeautifulSoup(html)
     h3 = soup.find_all('h3')
     for i in h3:
@@ -77,10 +77,11 @@ for h in summaries:
         except KeyError:  # not a link. does not have a title
             pass
 
+logging.info('Total urls | {}'.format(len(urls)))
 
 for url in urls:
-    html = get_page(url)
     try:
+        html = get_page(url)
         soup = BeautifulSoup(html)
         full_text = soup.select(".entry-content")[0]
         time = soup.select("time")[0]
@@ -94,13 +95,15 @@ for url in urls:
         json_text['full_text'] = full_text.text.encode('ascii', 'ignore')
         links = get_links(full_text)
         json_text['links'] = links
+        logging.info('Adding to elastic search| {}, {}'.format(url,
+                                                               get_id(url)))
         res = elasticsearch.index(index="lens",
                                   doc_type='news_story',
                                   id=get_id(url),
                                   body=json_text)
     except ValueError:
-        print "{} value error".format(url)
+        logging.info('ValueError | {}, {}'.format(url, get_id(url)))
     except KeyError:
-        print "{} key error".format(url)
+        logging.info('KeyError | {}, {}'.format(url, get_id(url)))
     except IndexError:
-        print "{} index error".format(url)
+        logging.info('IndexError | {}, {}'.format(url, get_id(url)))

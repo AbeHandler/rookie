@@ -5,9 +5,8 @@ G = nx.Graph()
 
 
 def add_node(nid, headline):
-    if nid in G.nodes():
+    if nid not in G.nodes():
         G.add_node(int(nid), headline=headline)
-
 
 elasticsearch = Elasticsearch(sniff_on_start=True)
 
@@ -26,11 +25,13 @@ for node in G.nodes():
 
 nodes = sorted(node_degress, key=lambda node: node[1], reverse=True)
 
+headlines = nx.get_node_attributes(G, 'headline')
+
 for node in nodes:
-    print node
-
-# print len(results['hits']['hits'])
-
-# for hit in results['hits']['hits']:
-#    print hit.keys()
-#    print("%(timestamp)s %(id)s %(links)s" % hit["_source"])
+    try:
+        print headlines[node[0]]
+        print node
+    except:
+        pass
+        #elasticsearch.get(index="lens", id=int(node[0]))
+        #print elasticsearch.get(index="lens", id=str(node))
