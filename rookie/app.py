@@ -35,5 +35,13 @@ def intro():
     return view
 
 
+@app.route('/rookie/search', methods=['GET'])
+def search():
+    """
+    Do a search
+    """
+    return "hereeee"
+
+
 if __name__ == '__main__':
     app.run(debug=True)
