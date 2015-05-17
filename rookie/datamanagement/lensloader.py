@@ -8,7 +8,7 @@ from elasticsearch import Elasticsearch
 
 logging.basicConfig(filename='lens.log', level=logging.DEBUG)
 
-htmls = glob.glob("*html")
+htmls = []
 
 urls = []
 
@@ -27,6 +27,15 @@ def get_page(url):
     req = urllib2.Request(url, headers={'User-Agent': "Abe Handler: urllib2"})
     con = urllib2.urlopen(req)
     return con.read()
+
+
+def get_html_summaries():
+    htmls = []
+    for i in range(1, 423):
+        i = str(i)
+        url = "http://thelensnola.org/page/" + i + "/?s="
+        htmls.append(get_page(url))
+    return htmls
 
 
 def get_id(url):
@@ -50,7 +59,10 @@ def get_links(element):
     return output
 
 
-for h in htmls:
+summaries = get_html_summaries()
+
+
+for h in summaries:
     html = "".join(tuple(open(h, 'r')))
     soup = BeautifulSoup(html)
     h3 = soup.find_all('h3')
