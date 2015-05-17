@@ -83,24 +83,25 @@ for url in urls:
     try:
         html = get_page(url)
         soup = BeautifulSoup(html)
-        full_text = soup.select(".entry-content")[0]
-        time = soup.select("time")[0]
-        time = time.attrs["datetime"].split("T")[0]
-        json_text = {}
-        year, month, day = [int(y) for y in time.split("-")]
-        pubdate = str(datetime(year, month, day))
-        json_text['timestamp'] = pubdate
-        json_text['id'] = get_id(url)
-        json_text['headline'] = soup.select(".entry-title")[0].text
-        json_text['full_text'] = full_text.text.encode('ascii', 'ignore')
-        links = get_links(full_text)
-        json_text['links'] = links
-        logging.info('Adding to elastic search| {}, {}'.format(url,
-                                                               get_id(url)))
-        res = elasticsearch.index(index="lens",
-                                  doc_type='news_story',
-                                  id=get_id(url),
-                                  body=json_text)
+        if len(soup.select(".opinion-label")) == 0:
+            full_text = soup.select(".entry-content")[0]
+            time = soup.select("time")[0]
+            time = time.attrs["datetime"].split("T")[0]
+            json_text = {}
+            year, month, day = [int(y) for y in time.split("-")]
+            pubdate = str(datetime(year, month, day))
+            json_text['timestamp'] = pubdate
+            json_text['id'] = get_id(url)
+            json_text['headline'] = soup.select(".entry-title")[0].text
+            json_text['full_text'] = full_text.text.encode('ascii', 'ignore')
+            links = get_links(full_text)
+            json_text['links'] = links
+            logst = 'Adding to elastic search| {}, {}'.format(url, get_id(url))
+            logging.info(logst)
+            res = elasticsearch.index(index="lens",
+                                      doc_type='news_story',
+                                      id=get_id(url),
+                                      body=json_text)
     except ValueError:
         logging.info('ValueError | {}, {}'.format(url, get_id(url)))
     except KeyError:

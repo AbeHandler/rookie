@@ -10,7 +10,7 @@ def add_node(nid, headline):
 
 elasticsearch = Elasticsearch(sniff_on_start=True)
 
-results = elasticsearch.search(index="lens", q="OPSB", size=150000)
+results = elasticsearch.search(index="lens", q="Charter schools", size=150000)
 
 for result in results['hits']['hits']:
     headline = result['_source']['headline']
