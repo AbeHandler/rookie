@@ -1,3 +1,4 @@
 *html
 lens_downloader/files/*
 *pyc
+*lens.log
