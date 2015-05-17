@@ -1,10 +1,11 @@
-#! /usr/bin/python
-
 from elasticsearch import Elasticsearch
 
-es = Elasticsearch(sniff_on_start=True)
+elasticsearch = Elasticsearch(sniff_on_start=True)
 
-# to do: add headline
-res = es.search(index="lens", q = "OPSB")
+results = elasticsearch.search(index="lens", q="transportation OPSB", size=15)
 
-print res
+print len(results['hits']['hits'])
+
+
+for hit in results['hits']['hits']:
+    print("%(timestamp)s %(headline)s %(links)s" % hit["_source"])

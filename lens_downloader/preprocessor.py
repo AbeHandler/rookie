@@ -1,14 +1,17 @@
 import glob
 import json
 from bs4 import BeautifulSoup
-from utils import standarizeurl
-files = glob.glob("files/*.txt")
+
+files = glob.glob("files/*.html")
+
+domainlimiter = "thelensnola.org"
 
 
 def get_links(element):
     output = []
     for i in full_text.findChildren('a'):
-        output.append([i.text, standarizeurl(i.attrs['href'])])
+        if domainlimiter in i.attrs['href']:
+            output.append([i.text, i.attrs['href']])
     return output
 
 
@@ -23,7 +26,7 @@ for f in files:
         json_text['time'] = time
         json_text['headline'] = soup.select(".entry-title")[0].text
         json_text['full_text'] = full_text.text.encode('ascii', 'ignore')
-        newfile = f.replace(".txt", '') + ".json"
+        newfile = f.replace(".html", '') + ".json"
         links = get_links(full_text)
         json_text['links'] = links
         with open(newfile, "w") as outfile:

@@ -37,13 +37,16 @@ class LensStory(object):
             self.date = str(datetime(year, month, day))
             self.text = json_data['full_text']
             self.headline = json_data['headline']
+            self.links = [i for i in json_data['links'] if not
+                          ("support-us" in i[1] or "about-us" in i[1])]
 
     def jsonify(self):
         '''Dump out json'''
         json_output = {}
         json_output['text'] = self.text
         json_output['timestamp'] = self.date
-#        json_output['headline'] = self.headline
+        json_output['headline'] = self.headline
+        json_output['links'] = self.links
         return json.dumps(json_output)
 
 
@@ -54,6 +57,7 @@ elasticsearch.indices.delete(index='*')  # clear out everything
 corpus = Corpus("/Users/abramhandler/research/rookie/lens_downloader/files/")
 
 counter = 1
+
 for story_file in corpus.get_files("*json"):
     story = LensStory(story_file)
     res = elasticsearch.index(index="lens",
@@ -61,8 +65,3 @@ for story_file in corpus.get_files("*json"):
                               id=counter,
                               body=story.jsonify())
     counter = counter + 1
-
-
-results = elasticsearch.search(index="lens", q="OPSB")
-
-print "Got %d Hits:" % results['hits']['total']
