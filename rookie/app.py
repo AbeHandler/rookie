@@ -3,14 +3,14 @@ Front-end far an experimental search engine called "Rookie"
 """
 
 import os
+
+from rookie import (
+    log
+)
+
 from flask import Flask, request
 from rookie.models import Models
 from rookie.views import Views
-from contracts import (
-    log,
-    RELOADER,
-    DEBUG
-)
 
 app = Flask(__name__)
 
@@ -25,7 +25,7 @@ def intro():
 
     log.debug(os.environ)
 
-    data = Models().get_home()
+    data = Models().home()
 
     log.debug('/ data:')
     # log.debug(data)
@@ -36,7 +36,4 @@ def intro():
 
 
 if __name__ == '__main__':
-    app.run(
-        use_reloader=RELOADER,
-        debug=DEBUG
-    )
+    app.run(debug=True)

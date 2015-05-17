@@ -49,3 +49,6 @@ class Models(object):
                 print node
             except:
                 pass
+
+    def home(self):
+        return ""
