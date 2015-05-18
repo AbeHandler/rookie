@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    {% include 'head.html' %}
+
+  </head>
+  <body>
+
+    {% include 'banner.html' %}
+
+    <div class="row hide-for-small-only">
+      <div class="small-6 medium-12 small-centered columns">
+        <h1 class="text-center">Search the Lens archive</h1>
+      </div>
+    </div>
+
+    <div class="row">
+      <form>
+          <div class="small-12 medium-12 large-12 columns">
+                    <div class="row collapse">
+                    <div class="small-10 columns">
+                       <input id="search_terms" type="text" placeholder="Search..">
+                    </div>
+                    <div class="small-2 columns">
+                       <a id="search_button" href="#" class="button postfix">Go</a>
+                    </div>
+      </div>
+          </div>
+      </form>
+    </div>
+    <div class="row">
+      <div class="small-8 medium-8 large-8 columns">
+          <div id="results"></div>
+      </div>
+      <div class="small-4 medium-4 large-4 columns">
+          <div id="timeline"></div>
+      </div>
+    </div>
+
+
+    {% include 'footer.html' %}
+
+    {% include 'js.html' %}
+    <script type="text/javascript" src={{ search_js }}></script>
+  </body>
