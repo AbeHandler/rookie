@@ -51,7 +51,7 @@ class Models(object):
         output = []
         for node in nodes:
             try:
-                item = (node[0], node[1], headlines[node[0]])
+                item = (node[1], headlines[node[0]])
                 output.append(item)
             except:
                 pass
