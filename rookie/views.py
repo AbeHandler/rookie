@@ -34,3 +34,16 @@ class Views(object):
         )
 
         return response
+
+    @staticmethod
+    def get_results(results):
+        '''Render home page.'''
+
+        response = make_response(
+            render_template(
+                'results.html',
+                results=results
+            )
+        )
+
+        return response

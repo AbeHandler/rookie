@@ -21,13 +21,10 @@ def intro():
     Intro page for the web app
     """
 
-    log.debug('/')
-
     log.debug(os.environ)
 
     data = Models().home()
 
-    log.debug('/ data:')
     # log.debug(data)
 
     view = Views().get_home(data)
@@ -35,12 +32,16 @@ def intro():
     return view
 
 
-@app.route('/rookie/search', methods=['GET'])
+@app.route('/rookie/search', methods=['POST'])
 def search():
     """
     Do a search
     """
-    return "hereeee"
+    data = Models().search(request)
+
+    view = Views().get_results(data)
+
+    return view
 
 
 if __name__ == '__main__':

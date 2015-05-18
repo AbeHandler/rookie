@@ -2,6 +2,9 @@
 The web app that runs at vault.thelensnola.org/contracts.
 """
 
+from rookie import (
+    log
+)
 
 from elasticsearch import Elasticsearch
 import networkx as nx
@@ -21,11 +24,13 @@ class Models(object):
 
         self.elasticsearch = Elasticsearch(sniff_on_start=True)
 
-    def search(self):
+    def search(self, request):
         '''docstring'''
+        q = request.args.get('q')
+        log.debug("Querying:" + q)
         G = nx.Graph()
         results = self.elasticsearch.search(index="lens",
-                                            q="Charter schools",
+                                            q=q,
                                             size=150000)
 
         for result in results['hits']['hits']:
@@ -43,12 +48,14 @@ class Models(object):
 
         headlines = nx.get_node_attributes(G, 'headline')
 
+        output = []
         for node in nodes:
             try:
-                print headlines[node[0]]
-                print node
+                item = (node[0], node[1], headlines[node[0]])
+                output.append(item)
             except:
                 pass
+        return output
 
     def home(self):
         return ""
