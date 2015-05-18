@@ -42,7 +42,11 @@ class Views(object):
         response = make_response(
             render_template(
                 'results.html',
-                results=results
+                results=results,
+                search_js=SEARCH_JS,
+                lens_css=LENS_CSS,
+                banner_css=BANNER_CSS,
+                contracts_css=CONTRACTS_CSS
             )
         )
 

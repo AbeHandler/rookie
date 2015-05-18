@@ -32,7 +32,7 @@ def intro():
     return view
 
 
-@app.route('/rookie/search', methods=['POST'])
+@app.route('/rookie/search', methods=['GET'])
 def search():
     """
     Do a search
