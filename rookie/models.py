@@ -12,7 +12,8 @@ import networkx as nx
 
 def add_node(G, nid, headline):
     if nid not in G.nodes():
-        G.add_node(int(nid), headline=headline)
+        doc, sentence = nid.split("-")
+        G.add_node(int(doc), headline=headline)
 
 
 class Models(object):
@@ -37,7 +38,8 @@ class Models(object):
             headline = result['_source']['headline']
             add_node(G, result['_id'], headline)
             for link in result['_source']['links']:
-                G.add_edge(int(result['_id']), link[1])
+                doc, sentence = result['_id'].split("-")
+                G.add_edge(int(doc), link[1])
 
         node_degress = []
 

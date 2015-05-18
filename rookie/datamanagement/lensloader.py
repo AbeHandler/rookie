@@ -1,6 +1,7 @@
 import glob
 import urllib2
 import logging
+import nltk.data
 
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -11,6 +12,8 @@ logging.basicConfig(filename='lens.log', level=logging.DEBUG)
 htmls = []
 
 urls = []
+
+TOKENIZEER = nltk.data.load('tokenizers/punkt/english.pickle')
 
 domainlimiter = "thelensnola.org"
 
@@ -96,12 +99,19 @@ for url in urls:
             json_text['full_text'] = full_text.text.encode('ascii', 'ignore')
             links = get_links(full_text)
             json_text['links'] = links
+            sentences = TOKENIZEER.tokenize(json_text['full_text'])
             logst = 'Adding to elastic search| {}, {}'.format(url, get_id(url))
             logging.info(logst)
-            res = elasticsearch.index(index="lens",
-                                      doc_type='news_story',
-                                      id=get_id(url),
-                                      body=json_text)
+            sentence_counter = 1
+            for sentence in sentences:
+                did = str(get_id(url)) + "-" + str(sentence_counter)
+                json_text['full_text'] = sentence
+                res = elasticsearch.index(index="lens",
+                                          doc_type='news_story',
+                                          id=did,
+                                          body=json_text)
+                sentence_counter = sentence_counter + 1
+
     except ValueError:
         logging.info('ValueError | {}, {}'.format(url, get_id(url)))
     except KeyError:
