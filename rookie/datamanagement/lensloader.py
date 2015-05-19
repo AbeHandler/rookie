@@ -95,6 +95,7 @@ for url in urls:
             pubdate = str(datetime(year, month, day))
             json_text['timestamp'] = pubdate
             json_text['id'] = get_id(url)
+            json_text['url'] = url
             json_text['headline'] = soup.select(".entry-title")[0].text
             json_text['full_text'] = full_text.text.encode('ascii', 'ignore')
             links = get_links(full_text)
