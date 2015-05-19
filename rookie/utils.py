@@ -7,10 +7,10 @@ from elasticsearch import Elasticsearch
 def query_elasticsearch(lucene_query):
     ec = Elasticsearch(sniff_on_start=True)
     results = ec.search(index="lens", q=lucene_query)['hits']['hits']
-    return results
+    return [Result(r) for r in results]
 
 
-def get_node_degress(results):
+def get_node_degrees(results):
 
     G = nx.Graph()
 
@@ -20,12 +20,12 @@ def get_node_degress(results):
         for link in result.links:
             G.add_edge(result.docid, link[1])
 
-        node_degress = []
+        node_degrees = {}
 
         for node in G.nodes():
-            node_degress.append((node, nx.degree(G, node)))
+            node_degrees[node] = nx.degree(G, node)
 
-    return node_degress
+    return node_degrees
 
 
 class Link(object):
@@ -56,3 +56,4 @@ class Result(object):
         self.nid = result['_id'].encode('ascii', 'ignore')
         self.docid = int(self.nid.split("-")[0])
         self.links = result['_source']['links']
+        self.link_degree = None

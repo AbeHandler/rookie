@@ -32,7 +32,7 @@
           <div id="results">
             {% if results is defined %}
              	{% for result in results %}
-                {{ result }} <br>
+                {{ result.docid }} <br>
               {% endfor %}
             {% endif %}
           </div>

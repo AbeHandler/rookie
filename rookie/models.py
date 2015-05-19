@@ -14,7 +14,7 @@ from rookie import (
 
 from elasticsearch import Elasticsearch
 from rookie.utils import query_elasticsearch
-from rookie.utils import graph_links
+from rookie.utils import get_node_degrees
 
 
 class Models(object):
@@ -38,13 +38,12 @@ class Models(object):
 
         results = query_elasticsearch(q)
 
-        G = graph_links(results)
+        node_degrees = get_node_degrees(results)
 
-        for node in node_degress:
-            item = self.get_node_as_output(G, node)
-            output.append(item)
+        for result in results:
+            result.link_degree = node_degrees[result.docid]
 
-        return output
+        return results
 
     def home(self):
         return ""
