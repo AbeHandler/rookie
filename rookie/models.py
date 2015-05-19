@@ -10,7 +10,8 @@ from rookie import (
 
 from elasticsearch import Elasticsearch
 import networkx as nx
-
+from rookie.utils import query_elasticsearch
+from rookie.utils import Result
 
 def add_node(G, nid, headline, timestamp, fulltext, url):
     doc_id, sentence_no = [int(i) for i in nid.split("-")]
@@ -21,6 +22,7 @@ def add_node(G, nid, headline, timestamp, fulltext, url):
         G.add_node(int(doc_id), headline=headline, timestamp=timestamp, fulltext=fulltext, url=url, sentencenos=sentence_no)
     return G
 
+
 class Models(object):
 
     '''doctstring'''
@@ -29,7 +31,6 @@ class Models(object):
         '''docstring'''
 
         self.elasticsearch = Elasticsearch(sniff_on_start=True)
-
 
     def get_node_as_output(self, G, node):
     	print node
@@ -49,35 +50,25 @@ class Models(object):
 
     def search(self, request):
         '''docstring'''
-        q = request.args.get('q')
-
+        
         output = []
 
-        if q is None:
+        if request.args.get('q') is None:
             return output
 
-        log.debug("Querying:" + q)
-        G = nx.Graph()
-        results = self.elasticsearch.search(index="lens",
-                                            q=q,
-                                            size=150000)
+        q = request.args.get('q')
 
-        for result in results['hits']['hits']:
-            headline = result['_source']['headline'].encode('ascii','ignore')
-            timestamp = result['_source']['timestamp'].encode('ascii','ignore')
-            fulltext = result['_source']['full_text'].encode('ascii','ignore')
-            url = result['_source']['url'].encode('ascii','ignore')
-            nid = result['_id'].encode('ascii','ignore')
-            G = add_node(G, nid, headline, timestamp, fulltext, url)
-            for link in result['_source']['links']:
-                doc, sentence = nid.split("-")
-                G.add_edge(int(doc), link[1])
+        results = query_elasticsearch(q)
+
+        G = nx.Graph()
+
+        for result in results:
+            G = add_node(result.docid)
+            for link in result.links:
+                G.add_edge(result.docid, link[1])
 
         node_degress = []
  
-        print G.nodes()
-        print 2570 in G.nodes()
-
         for node in G.nodes():
             node_degress.append((node, nx.degree(G, node)))
 
