@@ -25,8 +25,6 @@ def intro():
 
     data = Models().home()
 
-    # log.debug(data)
-
     view = Views().get_home(data)
 
     return view
