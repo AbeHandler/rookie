@@ -5,6 +5,8 @@ function search_records(){
 	if ($("#search_terms").val() != ""){
         url = url + $("#search_terms").val();
     }
+    console.log(url);
+    window.location = url;
 }
 
 $("#search_button").on("click", function(){
