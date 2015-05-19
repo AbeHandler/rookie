@@ -32,7 +32,8 @@
           <div id="results">
             {% if results is defined %}
              	{% for result in results %}
-                {{ result.docid }} <br>
+               <a href={{ result.url }}>{{ result.fulltext }}</a>
+               <br>
               {% endfor %}
             {% endif %}
           </div>

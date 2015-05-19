@@ -55,5 +55,16 @@ class Result(object):
         self.url = result['_source']['url'].encode('ascii', 'ignore')
         self.nid = result['_id'].encode('ascii', 'ignore')
         self.docid = int(self.nid.split("-")[0])
+        self.sentence_id = int(self.nid.split("-")[1])
         self.links = result['_source']['links']
         self.link_degree = None
+
+    def as_dictionary(self):
+        output = {}
+        output['headline'] = self.headline
+        output['timestamp'] = self.timestamp
+        output['fulltext'] = self.fulltext
+        output['url'] = self.url
+        output['sentence_id'] = self.sentence_id
+        output['link_degree'] = self.link_degree
+        return output
