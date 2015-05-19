@@ -37,7 +37,11 @@ def search():
     """
     Do a search
     """
+
     data = Models().search(request)
+
+    if len(data) == 0:
+        data = ["No results"]
 
     view = Views().get_results(data)
 

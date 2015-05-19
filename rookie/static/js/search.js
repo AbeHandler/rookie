@@ -1,12 +1,11 @@
-function search_records(){
-    var query_string = '?q=' + $("#search_terms").val();
-    console.log(query_string);
-    $.post('/rookie/search' + query_string, function(results){
-        $("#results").html(results);
-        $("#timeline").html("Insert semantic timeline here");
-    });
-}
+var url;
 
+function search_records(){
+	url  = 'http://localhost:5000/rookie/search?q=';
+	if ($("#search_terms").val() != ""){
+        url = url + $("#search_terms").val();
+    }
+}
 
 $("#search_button").on("click", function(){
    search_records();

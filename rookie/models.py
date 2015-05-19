@@ -28,6 +28,12 @@ class Models(object):
     def search(self, request):
         '''docstring'''
         q = request.args.get('q')
+
+        output = []
+
+        if q is None:
+            return output
+
         log.debug("Querying:" + q)
         G = nx.Graph()
         results = self.elasticsearch.search(index="lens",
@@ -50,13 +56,13 @@ class Models(object):
 
         headlines = nx.get_node_attributes(G, 'headline')
 
-        output = []
         for node in nodes:
             try:
                 item = (node[1], headlines[node[0]])
                 output.append(item)
             except:
                 pass
+
         return output
 
     def home(self):
