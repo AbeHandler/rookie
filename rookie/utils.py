@@ -6,7 +6,7 @@ from elasticsearch import Elasticsearch
 
 def query_elasticsearch(lucene_query):
     ec = Elasticsearch(sniff_on_start=True)
-    results = ec.search(index="lens", q=lucene_query)['hits']['hits']
+    results = ec.search(index="lens", q=lucene_query, size=10000)['hits']['hits']
     return [Result(r) for r in results]
 
 

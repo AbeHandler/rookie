@@ -105,7 +105,7 @@ for url in urls:
             sentence_counter = 1
             for sentence in sentences:
                 did = str(get_id(url)) + "-" + str(sentence_counter)
-                json_text['full_text'] = sentence
+                json_text['full_text'] = sentence.replace("\n", "")
                 res = elasticsearch.index(index="lens",
                                           doc_type='news_story',
                                           id=did,

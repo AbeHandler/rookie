@@ -1,9 +1,16 @@
 import logging
+import os
+
+
+LOG_PATH = "app.log"
+
+# Logging
+if os.path.isfile(LOG_PATH):
+    os.remove(LOG_PATH)
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
-LOG_PATH = "app.log"
 filehandler = logging.FileHandler(LOG_PATH)
 filehandler.setLevel(logging.DEBUG)
 
@@ -15,6 +22,8 @@ filehandler.setFormatter(formatter)
 
 # Add the handlers to the logger
 log.addHandler(filehandler)
+
+# CSS and JS locations
 
 LENS_CSS = '/static/css/lens.css'
 BANNER_CSS = '/static/css/banner.css'
