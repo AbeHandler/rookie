@@ -40,7 +40,7 @@
           window.data = [
             {% if results is defined %}
               {% for result in results %}
-                   {"url": "{{ result.url }}", "headline": "{{ result.headline }}", "fulltext": "{{ result.fulltext }}", "pubdate": "{{ result.timestamp }}", "article_degree": "{{ result.link_degree }}", "sentence_number": "{{ result.sentence_id }}"},
+                   {"url": "{{ result.url }}", "headline": "{{ result.headline }}", "fulltext": "{{ result.fulltext }}", "pubdate": "{{ result.timestamp }}", "article_degree": "{{ result.link_degree }}", "score": "{{ result.score }}", "sentence_number": "{{ result.sentence_id }}"},
               {% endfor %}
             {% endif %}
             ];

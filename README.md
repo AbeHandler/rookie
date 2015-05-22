@@ -1,0 +1,1 @@
+Rookie is an experimental search engine developed at [The Lens](http://www.thelensnola.org "The Lens") in New Orleans through the Knight Prototype Fund.

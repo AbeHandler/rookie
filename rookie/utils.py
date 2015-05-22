@@ -70,4 +70,5 @@ class Result(object):
         output['url'] = self.url
         output['sentence_id'] = self.sentence_id
         output['link_degree'] = self.link_degree
+        output['score'] = self.score
         return output

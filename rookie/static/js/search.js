@@ -21,8 +21,8 @@ $("body").keypress(function(e) {
 
  $( document ).ready(function() {
     $(window.data).each(function(e) {
-      var compiled = _.template("<%= url %><br><%= headline %>");
-      var temp = compiled({url: this.url, headline: this.headline});
+      var compiled = _.template("<a href='<%= url %>'><%= fulltext %></a></br>"); 
+      var temp = compiled({url: this.url, fulltext: this.fulltext});
       $("#results").append(temp);
     });
 });
