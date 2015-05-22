@@ -8,6 +8,7 @@
   <body>
 
     {% include 'banner.html' %}
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js" ></script>
 
     <div class="row hide-for-small-only">
       <div class="small-6 medium-12 small-centered columns">
@@ -39,7 +40,7 @@
           window.data = [
             {% if results is defined %}
               {% for result in results %}
-                   {"url": "{{ result.url }}", "fulltext": "{{ result.fulltext }}", "pubdate": "{{ result.timestamp }}", "article_degree": "{{ result.link_degree }}", "sentence_number": "{{ result.sentence_id }}"},
+                   {"url": "{{ result.url }}", "headline": "{{ result.headline }}", "fulltext": "{{ result.fulltext }}", "pubdate": "{{ result.timestamp }}", "article_degree": "{{ result.link_degree }}", "sentence_number": "{{ result.sentence_id }}"},
               {% endfor %}
             {% endif %}
             ];

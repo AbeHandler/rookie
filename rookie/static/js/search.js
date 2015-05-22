@@ -18,3 +18,11 @@ $("body").keypress(function(e) {
     search_records();
   }
 });
+
+ $( document ).ready(function() {
+    $(window.data).each(function(e) {
+      var compiled = _.template("<%= url %><br><%= headline %>");
+      var temp = compiled({url: this.url, headline: this.headline});
+      $("#results").append(temp);
+    });
+});
