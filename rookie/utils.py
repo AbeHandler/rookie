@@ -6,7 +6,9 @@ from elasticsearch import Elasticsearch
 
 def query_elasticsearch(lucene_query):
     ec = Elasticsearch(sniff_on_start=True)
-    results = ec.search(index="lens", q=lucene_query, size=10000)['hits']['hits']
+    results = ec.search(index="lens",
+                        q=lucene_query,
+                        size=10000)['hits']['hits']
     return [Result(r) for r in results]
 
 
@@ -57,6 +59,7 @@ class Result(object):
         self.docid = int(self.nid.split("-")[0])
         self.sentence_id = int(self.nid.split("-")[1])
         self.links = result['_source']['links']
+        self.score = result['_score']
         self.link_degree = None
 
     def as_dictionary(self):
