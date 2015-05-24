@@ -3,10 +3,10 @@ var url;
 function search_records(){
 	url  = 'http://localhost:5000/rookie/search?q=';
 	if ($("#search_terms").val() != ""){
-        url = url + $("#search_terms").val();
-    }
-    console.log(url);
-    window.location = url;
+    url = url + $("#search_terms").val();
+  }
+  console.log(url);
+  window.location = url;
 }
 
 $("#search_button").on("click", function(){
@@ -20,6 +20,7 @@ $("body").keypress(function(e) {
 });
 
  $( document ).ready(function() {
+     var headlines = _.uniq(window.data, function(item) { return item.headline; });
     $(window.data).each(function(e) {
       var compiled = _.template("<a href='<%= url %>'><%= fulltext %></a></br>"); 
       var temp = compiled({url: this.url, fulltext: this.fulltext});

@@ -16,13 +16,13 @@ def get_node_degrees(results):
 
     G = nx.Graph()
 
+    node_degrees = {}
+
     for result in results:
         if result.docid not in G.nodes():
             G.add_node(result.docid)
         for link in result.links:
             G.add_edge(result.docid, link[1])
-
-        node_degrees = {}
 
         for node in G.nodes():
             node_degrees[node] = nx.degree(G, node)
