@@ -20,10 +20,10 @@ $("body").keypress(function(e) {
 });
 
  $( document ).ready(function() {
-     var headlines = _.uniq(window.data, function(item) { return item.headline; });
-    $(window.data).each(function(e) {
-      var compiled = _.template("<a href='<%= url %>'><%= fulltext %></a></br>"); 
-      var temp = compiled({url: this.url, fulltext: this.fulltext});
+    var headlines = _.uniq(window.data, function(item) { return item.headline; });
+    $(headlines).each(function(e) {
+      var compiled = _.template("<a href='<%= url %>'><%= headline %></a></br>"); 
+      var temp = compiled({url: this.url, headline: this.headline});
       $("#results").append(temp);
     });
 });

@@ -6,9 +6,6 @@ from bs4 import BeautifulSoup
 from elasticsearch import Elasticsearch
 from rookie import log
 
-
-htmls = []
-
 TOKENIZEER = nltk.data.load('tokenizers/punkt/english.pickle')
 
 domainlimiter = "thelensnola.org"
@@ -111,7 +108,7 @@ def process_story_url(url):
     except IndexError:
         log.info('IndexError | {}, {}'.format(url, get_id(url)))
 
-for i in range(1, 2):
+for i in range(1, 435):
     summary = get_html_summary(i)
     for html in summary:
         urls = get_urls_from_summary(html)
