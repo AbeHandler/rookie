@@ -10,7 +10,9 @@ from rookie import (
     LENS_CSS,
     BANNER_CSS,
     CONTRACTS_CSS,
-    SEARCH_JS
+    SEARCH_JS,
+    CLOUD_JS,
+    CLOUD_LAYOUT_JS
 )
 
 
@@ -44,6 +46,8 @@ class Views(object):
                 'results.html',
                 results=results,
                 search_js=SEARCH_JS,
+                cloud_js=CLOUD_JS,
+                cloud_layout_js=CLOUD_LAYOUT_JS,
                 lens_css=LENS_CSS,
                 banner_css=BANNER_CSS,
                 contracts_css=CONTRACTS_CSS

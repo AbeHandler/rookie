@@ -9,6 +9,7 @@
 
     {% include 'banner.html' %}
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js" ></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" ></script>
 
     <div class="row hide-for-small-only">
       <div class="small-6 medium-12 small-centered columns">
@@ -34,7 +35,7 @@
           </div>
       </div>
       <div class="small-4 medium-4 large-4 columns">
-          <div id="timeline"></div>
+          <div id="vis"></div>
       </div>
       <script language="JavaScript">
           window.data = [
@@ -52,4 +53,6 @@
 
     {% include 'js.html' %}
     <script type="text/javascript" src={{ search_js }}></script>
+    <script type="text/javascript" src={{ cloud_layout_js }}></script>
+    <script type="text/javascript" src={{ cloud_js }}></script>
   </body>
