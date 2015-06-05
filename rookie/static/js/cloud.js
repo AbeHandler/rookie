@@ -1,33 +1,72 @@
-  var fill = d3.scale.category20();
 
-  d3.layout.cloud().size([300, 300])
-      .words([
-        "Hello", "world", "normally", "you", "want", "more", "words",
-        "than", "this"].map(function(d) {
-        return {text: d, size: 10 + Math.random() * 90};
-      }))
-      .padding(5)
-      .rotate(function() { return ~~(Math.random() * 2) * 90; })
-      .font("Impact")
-      .fontSize(function(d) { return d.size; })
-      .on("end", draw)
-      .start();
+      //Width and height
+      var w = 300;
+      var h = 500;
 
-  function draw(words) {
-    d3.select("#vis").append("svg")
-        .attr("width", 300)
-        .attr("height", 300)
-      .append("g")
-        .attr("transform", "translate(150,150)")
-      .selectAll("text")
-        .data(words)
-      .enter().append("text")
-        .style("font-size", function(d) { return d.size + "px"; })
-        .style("font-family", "Impact")
-        .style("fill", function(d, i) { return fill(i); })
-        .attr("text-anchor", "middle")
-        .attr("transform", function(d) {
-          return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+      //Original data
+      var dataset = [
+        [
+          { x: 0, y: 5 }
+        ],
+        [
+          { x: 0, y: 10 }
+        ],
+        [
+          { x: 0, y: 22 }
+        ]
+      ];
+
+      //Set up stack method
+      var stack = d3.layout.stack();
+
+      //Data, stacked
+      stack(dataset);
+
+      //Set up scales
+      var xScale = d3.scale.ordinal()
+        .domain(d3.range(dataset[0].length))
+        .rangeRoundBands([0, w], 0.05);
+    
+      var yScale = d3.scale.linear()
+        .domain([0,       
+          d3.max(dataset, function(d) {
+            return d3.max(d, function(d) {
+              return d.y0 + d.y;
+            });
+          })
+        ])
+        .range([0, h]);
+        
+      //Easy colors accessible via a 10-step ordinal scale
+      var colors = d3.scale.category10();
+    
+      //Create SVG element
+      var svg = d3.select("#vis")
+            .append("svg")
+            .attr("width", w)
+            .attr("height", h);
+  
+      // Add a group for each row of data
+      var groups = svg.selectAll("g")
+        .data(dataset)
+        .enter()
+        .append("g")
+        .style("fill", function(d, i) {
+          return colors(i);
+        });
+  
+      // Add a rect for each data value
+      var rects = groups.selectAll("rect")
+        .data(function(d) { return d; })
+        .enter()
+        .append("rect")
+        .attr("x", function(d, i) {
+          return xScale(i);
         })
-        .text(function(d) { return d.text; });
-  }
+        .attr("y", function(d) {
+          return yScale(d.y0);
+        })
+        .attr("height", function(d) {
+          return yScale(d.y);
+        })
+        .attr("width", xScale.rangeBand());
