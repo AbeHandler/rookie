@@ -88,18 +88,13 @@ def process_story_url(url):
         json_text['full_text'] = full_text.text.encode('ascii', 'ignore')
         links = get_links(full_text)
         json_text['links'] = links
-        sentences = TOKENIZEER.tokenize(json_text['full_text'])
         logst = 'Adding to elastic search| {}, {}'.format(url, get_id(url))
         log.info(logst)
-        sentence_counter = 1
-        for sentence in sentences:
-            did = str(get_id(url)) + "-" + str(sentence_counter)
-            json_text['full_text'] = sentence.replace("\n", "")
-            res = elasticsearch.index(index="lens",
-                                      doc_type='news_story',
-                                      id=did,
-                                      body=json_text)
-            sentence_counter = sentence_counter + 1
+        did = str(get_id(url))
+        res = elasticsearch.index(index="lens",
+                                  doc_type='news_story',
+                                  id=did,
+                                  body=json_text)
 
     except ValueError:
         log.info('ValueError | {}, {}'.format(url, get_id(url)))
