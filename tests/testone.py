@@ -11,12 +11,6 @@ class GenericTestCase(unittest.TestCase):
         dummylist = []
         self.assertEqual(type(results), type(dummylist))
 
-    def test_create_result(self):
-        results = query_elasticsearch("OPSB")
-        result = results.pop()
-        print result.nid
-        self.assertTrue("-" in result.nid)
-
     def test_len_result(self):
         results = query_elasticsearch("OPSB")
         result = results.pop()
@@ -31,7 +25,12 @@ class GenericTestCase(unittest.TestCase):
     def test_node_degrees(self):
         results = query_elasticsearch("OPSB")
         degrees = get_node_degrees(results)
-        print degrees
+        self.assertTrue(1 == 1)
+
+    def test_node_degrees(self):
+        results = query_elasticsearch("OPSB")
+        result = results.pop()
+        self.assertTrue(len(result.entities.keys()) > 0)
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,10 +1,15 @@
 import urllib2
 import nltk.data
+import ner
+import json
 
 from datetime import datetime
 from bs4 import BeautifulSoup
 from elasticsearch import Elasticsearch
 from rookie import log
+
+# Python interface to the StanfordNER
+TAGGER = ner.SocketNER(host='localhost', port=8080)
 
 TOKENIZEER = nltk.data.load('tokenizers/punkt/english.pickle')
 
@@ -86,6 +91,8 @@ def process_story_url(url):
         json_text['url'] = url
         json_text['headline'] = soup.select(".entry-title")[0].text
         json_text['full_text'] = full_text.text.encode('ascii', 'ignore')
+        entities = TAGGER.json_entities(json_text['full_text'])
+        json_text['entities'] = json.loads(entities)
         links = get_links(full_text)
         json_text['links'] = links
         logst = 'Adding to elastic search| {}, {}'.format(url, get_id(url))

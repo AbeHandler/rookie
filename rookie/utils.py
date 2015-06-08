@@ -45,7 +45,6 @@ class Result(object):
 
     def __init__(self, result):
         '''Initialize with a result'''
-
         self.headline = result['_source']['headline'].encode('ascii', 'ignore')
         timestamp = result['_source']['timestamp'].encode('ascii', 'ignore')
         timestamp = timestamp.split(" ")[0]
@@ -56,10 +55,10 @@ class Result(object):
         self.fulltext = fulltext
         self.url = result['_source']['url'].encode('ascii', 'ignore')
         self.nid = result['_id'].encode('ascii', 'ignore')
-        self.docid = int(self.nid.split("-")[0])
-        self.sentence_id = int(self.nid.split("-")[1])
+        self.docid = self.nid
         self.links = result['_source']['links']
         self.score = result['_score']
+        self.entities = result['_source']['entities']
         self.link_degree = None
 
     def as_dictionary(self):
@@ -71,4 +70,5 @@ class Result(object):
         output['sentence_id'] = self.sentence_id
         output['link_degree'] = self.link_degree
         output['score'] = self.score
+        output['entities'] = self.entities
         return output
