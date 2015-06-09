@@ -117,6 +117,10 @@ def get_article_full_text(sentences):
     article_full_text = ""
     for sentence in sentences:
         tags = POS_tag(sentence)
+        dummy = []
+        pdb.set_trace()
+        if type(tags) == type(dummy):
+            tags = tags[0]
         words = [standardize(t) for t in tags]
         sentence_full_text = " ".join([word for word in words])
         article_full_text = article_full_text + " " + sentence_full_text

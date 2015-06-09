@@ -21,7 +21,6 @@ def penn_to_wordnet(tag):
 def POS_tag(sentence):
     st = POSTagger(tagger_loc, tagger_jar)
     tags = st.tag(sentence.split())
-    pdb.set_trace()
     return tags
 
 
