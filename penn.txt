@@ -1,0 +1,36 @@
+CC	Coordinating conjunction	o
+CD	Cardinal number	o
+DT	Determiner	o
+EX	Existential there	o
+FW	Foreign word	o
+IN	Preposition or subordinating conjunction	o
+JJ	Adjective	a
+JJR	Adjective, comparative	a
+JJS	Adjective, superlative	a
+LS	List item marker	o
+MD	Modal	o
+NN	Noun, singular or mass	n
+NNS	Noun, plural	n
+NNP	Proper noun, singular	n
+NNPS	Prope[r noun, plural	n
+PDT	Predeterminer	o
+POS	Possessive ending	o
+PRP	Personal pronoun	o
+PRP$	Possessive pronoun	o
+RB	Adverb	a
+RBR	Adverb, comparative	r
+RBS	Adverb, superlative	r
+RP	Particle	o
+SYM	Symbol	o
+TO	to	o
+UH	Interjection	o
+VB	Verb, base form	v
+VBD	Verb, past tense	v
+VBG	Verb, gerund or present participle	v
+VBN	Verb, past participle	v
+VBP	Verb, non-3rd person singular present	v
+VBZ	Verb, 3rd person singular present	v
+WDT	Wh-determiner	o
+WP	Wh-pronoun	o
+WP$	Possessive wh-pronoun	o
+WRB	Wh-adverb	o

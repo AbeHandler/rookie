@@ -33,5 +33,5 @@ CLOUD_JS = '/static/js/cloud.js'
 CLOUD_LAYOUT_JS = '/static/js/d3.layout.cloud.js'
 
 tagger_base = "/Volumes/USB/stanford-postagger-2015-04-20/"
-tagger_loc = "models/english-bidirectional-distsim.tagger"
-tagger_jar = "stanford-postagger.jar"
+tagger_loc = tagger_base + "models/english-bidirectional-distsim.tagger"
+tagger_jar = tagger_base + "stanford-postagger.jar"

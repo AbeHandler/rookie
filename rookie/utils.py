@@ -7,6 +7,17 @@ from stemming.porter2 import stem
 from rookie import tagger_loc
 from rookie import tagger_jar
 from nltk.tag.stanford import POSTagger
+from nltk.stem.wordnet import WordNetLemmatizer
+
+
+
+def penn_to_wordnet(tag):
+    '''
+    Map a penn tag to a wordnet category
+    '''
+    tags = tuple(open("penn.txt", "r"))  # maps from penn tag to wordnet class
+    tag = [t.split("\t")[2] for t in tags if t.split("\t")[0] == tag]
+    return tag.pop().strip("\n")  # strip the newline character
 
 
 def POS_tag(sentence):

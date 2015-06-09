@@ -2,17 +2,19 @@ import urllib2
 import nltk.data
 import ner
 import json
+import pdb
 
 from stemming.porter2 import stem
 from datetime import datetime
 from bs4 import BeautifulSoup
 from elasticsearch import Elasticsearch
 from rookie import log
+from rookie.utils import POS_tag
+from rookie.utils import penn_to_wordnet
+from nltk.stem.wordnet import WordNetLemmatizer
 
 # Python interface to the StanfordNER
 TAGGER = ner.SocketNER(host='localhost', port=8080)
-
-TOKENIZEER = nltk.data.load('tokenizers/punkt/english.pickle')
 
 domainlimiter = "thelensnola.org"
 
@@ -23,11 +25,21 @@ counter = 1
 elasticsearch = Elasticsearch(sniff_on_start=True)
 
 elasticsearch.indices.delete(index='*')  # clear out everything
+wnl = WordNetLemmatizer()
 
 
-def standardize(word):
+def standardize(tag):
+    '''
+    Takes a tagged word from Stanford POS tagger and
+    returns a lemmaed word from NLTK's Wordnet Lemmatizer
+
+    Sample input: (u'are', u'VBP')
+    '''
+    word = tag[0]
+    tag = tag[1]
+    tag = penn_to_wordnet(tag)
+    word = wnl.lemmatize(word, tag)
     word = word.lower()
-    word = stem(word)
     return word
 
 
@@ -101,10 +113,11 @@ def process_story_url(url):
         entities = TAGGER.json_entities(full_text.text.encode(
                             'ascii', 'ignore'))
         json_text['entities'] = json.loads(entities)
-        full_text = " ".join([standardize(word)
-                             for word in full_text.text.encode(
-                            'ascii', 'ignore').split(" ")])
+        tags = POS_tag(full_text.text.encode('ascii', 'ignore'))
+        words = [standardize(t) for t in tags]
+        full_text = " ".join([word for word in words])
         json_text['full_text'] = full_text
+        print full_text
         json_text['links'] = links
         logst = 'Adding to elastic search| {}, {}'.format(url, get_id(url))
         log.info(logst)
