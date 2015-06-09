@@ -3,7 +3,6 @@ import nltk.data
 import ner
 import json
 import pdb
-from pylru import lrudecorator
 
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -31,7 +30,6 @@ elasticsearch.indices.delete(index='*')  # clear out everything
 wnl = WordNetLemmatizer()
 
 
-@lrudecorator(10000)
 def standardize(tag):
     '''
     Takes a tagged word from Stanford POS tagger and
