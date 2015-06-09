@@ -23,7 +23,7 @@ def query_results_to_bag_o_words(results):
     STOPWORDS = get_stopwords()
     bag_o_query_words = []
     for r in results:
-        words = [word.lower() for word in r.fulltext.split(" ")]
+        words = r.fulltext.split(" ")
         words = [word for word in words if word not in STOPWORDS]
         bag_o_query_words = bag_o_query_words + words
     return bag_o_query_words

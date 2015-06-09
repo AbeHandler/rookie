@@ -90,10 +90,12 @@ def process_story_url(url):
         json_text['timestamp'] = pubdate
         json_text['url'] = url
         json_text['headline'] = soup.select(".entry-title")[0].text
-        json_text['full_text'] = full_text.text.encode('ascii', 'ignore')
+        links = get_links(full_text)
+        full_text = " ".join([word.lower() for word in full_text.text.encode(
+                    'ascii', 'ignore')])
+        json_text['full_text'] = full_text
         entities = TAGGER.json_entities(json_text['full_text'])
         json_text['entities'] = json.loads(entities)
-        links = get_links(full_text)
         json_text['links'] = links
         logst = 'Adding to elastic search| {}, {}'.format(url, get_id(url))
         log.info(logst)
@@ -102,6 +104,7 @@ def process_story_url(url):
                                   doc_type='news_story',
                                   id=did,
                                   body=json_text)
+        print res
 
     except ValueError:
         log.info('ValueError | {}, {}'.format(url, get_id(url)))
