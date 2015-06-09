@@ -37,7 +37,9 @@ def standardize(tag):
 
     Sample input: (u'are', u'VBP')
     '''
+    pdb.set_trace()
     word = tag[0]
+    pdb.set_trace()
     tag = tag[1]
     tag = penn_to_wordnet(tag)
     pdb.set_trace()
