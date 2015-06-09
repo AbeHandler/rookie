@@ -98,13 +98,14 @@ def process_story_url(url):
         json_text['url'] = url
         json_text['headline'] = soup.select(".entry-title")[0].text
         links = get_links(full_text)
-        full_text = "".join([standardize(word)
+        entities = TAGGER.json_entities(full_text.text.encode(
+                            'ascii', 'ignore'))
+        json_text['entities'] = json.loads(entities)
+        full_text = " ".join([standardize(word)
                              for word in full_text.text.encode(
-                            'ascii', 'ignore')])
+                            'ascii', 'ignore').split(" ")])
         print full_text
         json_text['full_text'] = full_text
-        entities = TAGGER.json_entities(json_text['full_text'])
-        json_text['entities'] = json.loads(entities)
         json_text['links'] = links
         logst = 'Adding to elastic search| {}, {}'.format(url, get_id(url))
         log.info(logst)
