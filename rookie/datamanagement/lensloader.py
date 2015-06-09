@@ -37,12 +37,10 @@ def standardize(tag):
 
     Sample input: (u'are', u'VBP')
     '''
-    pdb.set_trace()
+    print tag
     word = tag[0]
-    pdb.set_trace()
     tag = tag[1]
     tag = penn_to_wordnet(tag)
-    pdb.set_trace()
     if tag in WORDNET_TAGS:
         word = wnl.lemmatize(word, tag)
     else:
@@ -117,8 +115,9 @@ def get_article_full_text(sentences):
     article_full_text = ""
     for sentence in sentences:
         tags = POS_tag(sentence)
+        # this is a dumb workaround. For some reason pos_tag ret a list
+        # on the umass servers
         dummy = []
-        pdb.set_trace()
         if type(tags) == type(dummy):
             tags = tags[0]
         words = [standardize(t) for t in tags]
