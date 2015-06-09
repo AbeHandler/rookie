@@ -1,7 +1,5 @@
 import datetime
 import networkx as nx
-import pdb
-
 from nltk.corpus import stopwords
 from elasticsearch import Elasticsearch
 from rookie import tagger_loc

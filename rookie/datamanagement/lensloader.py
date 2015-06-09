@@ -2,7 +2,7 @@ import urllib2
 import nltk.data
 import ner
 import json
-import pdb
+
 
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -37,7 +37,6 @@ def standardize(tag):
 
     Sample input: (u'are', u'VBP')
     '''
-    print tag
     word = tag[0]
     tag = tag[1]
     tag = penn_to_wordnet(tag)
