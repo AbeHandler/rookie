@@ -14,7 +14,6 @@ def penn_to_wordnet(tag):
     Map a penn tag to a wordnet category
     '''
     tags = tuple(open("penn.txt", "r"))  # maps from penn tag to wordnet class
-    pdb.set_trace()
     tag = [t.split("\t")[2] for t in tags if t.split("\t")[0] == tag[1]]
     return tag.pop().strip("\n")  # strip the newline character
 

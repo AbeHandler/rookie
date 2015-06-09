@@ -41,6 +41,7 @@ def standardize(tag):
     tag = tag[1]
     tag = penn_to_wordnet(tag)
     if tag in WORDNET_TAGS:
+        pdb.set_trace()
         word = wnl.lemmatize(word, tag)
     else:
         # if no pos given, wn will assume is a noun
