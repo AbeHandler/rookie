@@ -31,3 +31,7 @@ CONTRACTS_CSS = '/static/css/contracts.css'
 SEARCH_JS = '/static/js/search.js'
 CLOUD_JS = '/static/js/cloud.js'
 CLOUD_LAYOUT_JS = '/static/js/d3.layout.cloud.js'
+
+tagger_base = "/Volumes/USB/stanford-postagger-2015-04-20/"
+tagger_loc = "models/english-bidirectional-distsim.tagger"
+tagger_jar = "stanford-postagger.jar"

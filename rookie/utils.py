@@ -4,6 +4,15 @@ import networkx as nx
 from nltk.corpus import stopwords
 from elasticsearch import Elasticsearch
 from stemming.porter2 import stem
+from rookie import tagger_loc
+from rookie import tagger_jar
+from nltk.tag.stanford import POSTagger
+
+
+def POS_tag(sentence):
+    st = POSTagger(tagger_loc, tagger_jar)
+    tags = st.tag(sentence.split())
+    return tags
 
 
 def get_stopwords():

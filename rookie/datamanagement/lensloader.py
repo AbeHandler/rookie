@@ -104,7 +104,6 @@ def process_story_url(url):
         full_text = " ".join([standardize(word)
                              for word in full_text.text.encode(
                             'ascii', 'ignore').split(" ")])
-        print full_text
         json_text['full_text'] = full_text
         json_text['links'] = links
         logst = 'Adding to elastic search| {}, {}'.format(url, get_id(url))
