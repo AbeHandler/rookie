@@ -3,9 +3,11 @@ from rookie.utils import query_elasticsearch
 from rookie.utils import query_results_to_bag_o_words
 from rookie.utils import POS_tag
 from rookie.utils import penn_to_wordnet
+from rookie.datamanagement.lensloader import extract_article_entities
+
+import pdb
 import time
 import collections
-from stemming.porter2 import stem
 
 
 class GenericTestCase(unittest.TestCase):
@@ -41,6 +43,11 @@ class GenericTestCase(unittest.TestCase):
 
     def test_penn_to_wordnet_2(self):
         wn_tag = penn_to_wordnet('NNP')
+        self.assertEqual("n", wn_tag)
+
+    def test_extrat_article_entities(self):
+        sentence = "Professor James Duncan teaches at the Univerisity of Utah"
+        entities = extract_article_entities([sentence])
         self.assertEqual("n", wn_tag)
 
     def test_word_split(self):
