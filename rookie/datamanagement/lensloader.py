@@ -3,6 +3,7 @@ import nltk.data
 import ner
 import json
 
+from stemming.porter2 import stem
 from datetime import datetime
 from bs4 import BeautifulSoup
 from elasticsearch import Elasticsearch
@@ -22,6 +23,12 @@ counter = 1
 elasticsearch = Elasticsearch(sniff_on_start=True)
 
 elasticsearch.indices.delete(index='*')  # clear out everything
+
+
+def standardize(word):
+    word = word.lower()
+    word = stem(word)
+    return word
 
 
 def get_page(url):
@@ -91,8 +98,10 @@ def process_story_url(url):
         json_text['url'] = url
         json_text['headline'] = soup.select(".entry-title")[0].text
         links = get_links(full_text)
-        full_text = " ".join([word.lower() for word in full_text.text.encode(
-                    'ascii', 'ignore')])
+        full_text = "".join([standardize(word)
+                             for word in full_text.text.encode(
+                            'ascii', 'ignore')])
+        print full_text
         json_text['full_text'] = full_text
         entities = TAGGER.json_entities(json_text['full_text'])
         json_text['entities'] = json.loads(entities)

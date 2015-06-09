@@ -3,12 +3,14 @@ import networkx as nx
 
 from nltk.corpus import stopwords
 from elasticsearch import Elasticsearch
+from stemming.porter2 import stem
 
 
 def get_stopwords():
     temp = stopwords.words("english")
     temp = temp + ['new', 'orleans', 'said', 'would', 'city', 'state',
                    'parish', 'louisiana', '', '|']
+    temp = [stem(word) for word in temp]
     return temp
 
 

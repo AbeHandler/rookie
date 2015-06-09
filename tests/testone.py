@@ -3,6 +3,7 @@ from rookie.utils import query_elasticsearch
 from rookie.utils import query_results_to_bag_o_words
 import time
 import collections
+from stemming.porter2 import stem
 
 
 class GenericTestCase(unittest.TestCase):
@@ -30,7 +31,7 @@ class GenericTestCase(unittest.TestCase):
 
     def test_word_split(self):
         start_time = time.time()
-        results = query_elasticsearch("Sheriff")
+        results = query_elasticsearch(stem("sheriff"))
         bag_o_query_words = query_results_to_bag_o_words(results)
         words = collections.Counter(bag_o_query_words)
         print("--- %s seconds ---" % (time.time() - start_time))
