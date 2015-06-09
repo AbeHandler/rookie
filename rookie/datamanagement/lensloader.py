@@ -3,6 +3,7 @@ import nltk.data
 import ner
 import json
 import pdb
+from pylru import lrudecorator
 
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -30,6 +31,7 @@ elasticsearch.indices.delete(index='*')  # clear out everything
 wnl = WordNetLemmatizer()
 
 
+@lrudecorator(10000)
 def standardize(tag):
     '''
     Takes a tagged word from Stanford POS tagger and
@@ -160,15 +162,14 @@ def process_story_url(url):
         links = get_links(full_text)
         full_text = full_text.text.encode('ascii', 'ignore')
         sentences = SENTENCE_TOKENIZER.tokenize(full_text)
+        print "about to get article full text"
         article_full_text = get_article_full_text(sentences)
-        article_entities = {}
-        for key in ENTITY_KEYS:
-            article_entities['key'] = []
-        article_entities = get_article_entities(sentences)
+        print "about to get entities"
+        sentence_entities = extract_article_entities(sentences)
+        article_entities = merge_sentence_entities(sentence_entities)
         article_full_text = get_article_full_text(sentences)
         json_text['full_text'] = article_full_text
-        json_text['entities'] = json.loads(article_entities)
-        print full_text
+        json_text['entities'] = article_entities
         json_text['links'] = links
         logst = 'Adding to elastic search| {}, {}'.format(url, get_id(url))
         log.info(logst)
@@ -180,11 +181,13 @@ def process_story_url(url):
         print res
 
     except ValueError:
-        log.info('ValueError | {}, {}'.format(url, get_id(url)))
+        log.info('ValueError| {}, {}'.format(url, get_id(url)))
     except KeyError:
-        log.info('KeyError | {}, {}'.format(url, get_id(url)))
+        log.info('KeyError| {}, {}'.format(url, get_id(url)))
     except IndexError:
-        log.info('IndexError | {}, {}'.format(url, get_id(url)))
+        log.info('IndexError| {}, {}'.format(url, get_id(url)))
+    except OSError:
+        log.info('OSError| {} {} {}'.format(url, get_id(url), "out of memory"))
 
 if __name__ == '__main__':
     for i in range(1, 435):
