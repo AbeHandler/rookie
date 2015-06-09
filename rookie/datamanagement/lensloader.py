@@ -3,6 +3,7 @@ import nltk.data
 import ner
 import json
 import pdb
+import nltk.data
 
 from stemming.porter2 import stem
 from datetime import datetime
@@ -12,6 +13,9 @@ from rookie import log
 from rookie.utils import POS_tag
 from rookie.utils import penn_to_wordnet
 from nltk.stem.wordnet import WordNetLemmatizer
+nltk.internals.config_java(options='-xmx2G')
+
+SENTENCE_TOKENIZER = nltk.data.load('tokenizers/punkt/english.pickle')
 
 # Python interface to the StanfordNER
 TAGGER = ner.SocketNER(host='localhost', port=8080)
@@ -101,22 +105,32 @@ def process_story_url(url):
         html = get_page(url)
         soup = BeautifulSoup(html)
         full_text = soup.select(".entry-content")[0]
+
+        # todo this should be broken into a method and tested.
         time = soup.select("time")[0]
         time = time.attrs["datetime"].split("T")[0]
         json_text = {}
         year, month, day = [int(y) for y in time.split("-")]
         pubdate = str(datetime(year, month, day))
+
         json_text['timestamp'] = pubdate
         json_text['url'] = url
         json_text['headline'] = soup.select(".entry-title")[0].text
         links = get_links(full_text)
-        entities = TAGGER.json_entities(full_text.text.encode(
-                            'ascii', 'ignore'))
-        json_text['entities'] = json.loads(entities)
-        tags = POS_tag(full_text.text.encode('ascii', 'ignore'))
-        words = [standardize(t) for t in tags]
-        full_text = " ".join([word for word in words])
+        full_text = full_text.text.encode('ascii', 'ignore')
+        sentences = SENTENCE_TOKENIZER.tokenize(full_text)
+        article_full_text = ""
+        total_entities = []
+        for sentence in sentences:
+            tags = POS_tag(sentence)
+            words = [standardize(t) for t in tags]
+            sentence_full_text = " ".join([word for word in words])
+            article_full_text = article_full_text + " " + sentence_full_text
+            sentence_entities = TAGGER.json_entities(full_text)
+            total_entities = total_entities + [sentence_entities]
+        # to do merge the entities
         json_text['full_text'] = full_text
+        json_text['entities'] = json.loads(entities)
         print full_text
         json_text['links'] = links
         logst = 'Adding to elastic search| {}, {}'.format(url, get_id(url))

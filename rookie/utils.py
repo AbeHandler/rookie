@@ -7,8 +7,7 @@ from stemming.porter2 import stem
 from rookie import tagger_loc
 from rookie import tagger_jar
 from nltk.tag.stanford import POSTagger
-from nltk.stem.wordnet import WordNetLemmatizer
-
+nltk.internals.config_java(options='-xmx2G')
 
 
 def penn_to_wordnet(tag):
