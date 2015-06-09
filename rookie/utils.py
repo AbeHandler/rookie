@@ -1,7 +1,32 @@
 import datetime
 import networkx as nx
 
+from nltk.corpus import stopwords
 from elasticsearch import Elasticsearch
+
+
+def get_stopwords():
+    temp = stopwords.words("english")
+    temp = temp + ['new', 'orleans', 'said', 'would', 'city', 'state',
+                   'parish', 'louisiana', '', '|']
+    return temp
+
+
+def query_results_to_bag_o_words(results):
+    '''
+    Takes a list of elastic search results and returns
+    a bag of words
+    :param request: Result objects
+    :type request: list
+    :returns: list. Naievely Tokenized words
+    '''
+    STOPWORDS = get_stopwords()
+    bag_o_query_words = []
+    for r in results:
+        words = [word.lower() for word in r.fulltext.split(" ")]
+        words = [word for word in words if word not in STOPWORDS]
+        bag_o_query_words = bag_o_query_words + words
+    return bag_o_query_words
 
 
 def query_elasticsearch(lucene_query):
