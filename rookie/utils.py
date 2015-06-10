@@ -16,8 +16,11 @@ def penn_to_wordnet(tag):
     tags = tuple(open("penn.txt", "r"))  # maps from penn tag to wordnet class
     # some kind of wierdness going on here related to pos_tag
     tag = [t.split("\t")[2] for t in tags if t.split("\t")[0] == tag]
-    log.info(tag)
-    return tag.pop().strip("\n")  # strip the newline character
+    if len(tag) == 0:
+        tag = "unknown"
+    else:
+        tag = tag.pop().strip("\n")
+    return tag  # strip the newline character
 
 
 def POS_tag(sentence):
