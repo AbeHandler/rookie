@@ -186,8 +186,8 @@ def process_story_url(url):
         log.info('ValueError| {}, {}'.format(url, get_id(url)))
     except KeyError:
         log.info('KeyError| {}, {}'.format(url, get_id(url)))
-#    except IndexError:
-#        log.info('IndexError| {}, {}'.format(url, get_id(url)))
+    except IndexError:
+        log.info('IndexError| {}, {}'.format(url, get_id(url)))
     except OSError:
         log.info('OSError| {} {} {}'.format(url, get_id(url), "out of memory"))
 
