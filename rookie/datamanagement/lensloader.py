@@ -104,7 +104,6 @@ def get_urls_from_summary(html):
 def get_pub_date(soup):
     time = soup.select("time")[0]
     time = time.attrs["datetime"].split("T")[0]
-    json_text = {}
     year, month, day = [int(y) for y in time.split("-")]
     pubdate = str(datetime(year, month, day))
     return pubdate
