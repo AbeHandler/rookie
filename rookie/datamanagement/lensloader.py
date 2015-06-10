@@ -112,7 +112,6 @@ def get_pub_date(soup):
 def get_article_full_text(sentences):
     article_full_text = ""
     for sentence in sentences:
-        log.info(sentence)
         tags = POS_tag(sentence)
         # this is a dumb workaround. For some reason pos_tag ret a list
         # on the umass servers

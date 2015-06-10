@@ -5,14 +5,12 @@ from elasticsearch import Elasticsearch
 from rookie import tagger_loc
 from rookie import tagger_jar
 from nltk.tag.stanford import POSTagger
-from rookie import log
 
 
 def penn_to_wordnet(tag):
     '''
     Map a penn tag to a wordnet category
     '''
-    log.info(tag)
     tags = tuple(open("penn.txt", "r"))  # maps from penn tag to wordnet class
     # some kind of wierdness going on here related to pos_tag
     tag = [t.split("\t")[2] for t in tags if t.split("\t")[0] == tag]
