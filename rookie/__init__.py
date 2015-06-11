@@ -35,7 +35,7 @@ CLOUD_LAYOUT_JS = '/static/js/d3.layout.cloud.js'
 
 if socket.getfqdn() == 'hobbes.cs.umass.edu':
     tagger_base = "/home/ahandler/rookie/resources/stanford-postagger-2015-04-20/"
-elif socket.getfqdn() == 'abrams-air-3.att.net':
+else:
     tagger_base = "/Volumes/USB/stanford-postagger-2015-04-20/"
 
 tagger_loc = tagger_base + "models/english-bidirectional-distsim.tagger"

@@ -2,10 +2,9 @@ import unittest
 from rookie.utils import query_elasticsearch
 from rookie.utils import query_results_to_bag_o_words
 from rookie.utils import POS_tag
+from rookie.utils import clean_punctuation
 from rookie.utils import penn_to_wordnet
 from rookie.datamanagement.lensloader import extract_article_entities
-
-import pdb
 import time
 import collections
 
@@ -16,6 +15,12 @@ class GenericTestCase(unittest.TestCase):
         results = query_elasticsearch("OPSB")
         dummylist = []
         self.assertEqual(type(results), type(dummylist))
+
+    def test_clean_punctuation(self):
+        string = "I think . this should clean all ? of the ! punctuation"
+        new_string = clean_punctuation(string)
+        target = "I think  this should clean all  of the  punctuation"
+        self.assertEqual(new_string, target)
 
     def test_len_result(self):
         results = query_elasticsearch("OPSB")
@@ -52,7 +57,7 @@ class GenericTestCase(unittest.TestCase):
 
     def test_word_split(self):
         start_time = time.time()
-        results = query_elasticsearch(stem("sheriff"))
+        results = query_elasticsearch("sheriff")
         bag_o_query_words = query_results_to_bag_o_words(results)
         words = collections.Counter(bag_o_query_words)
         print("--- %s seconds ---" % (time.time() - start_time))

@@ -1,5 +1,6 @@
 import datetime
 import networkx as nx
+import string
 from nltk.corpus import stopwords
 from elasticsearch import Elasticsearch
 from rookie import tagger_loc
@@ -30,7 +31,7 @@ def POS_tag(sentence):
 def get_stopwords():
     temp = stopwords.words("english")
     temp = temp + ['new', 'orleans', 'said', 'would', 'city', 'state',
-                   'parish', 'louisiana', '', '|']
+                   'parish', 'louisiana', '', '|', 'said']
     return temp
 
 
@@ -75,6 +76,15 @@ def get_node_degrees(results):
             node_degrees[node] = nx.degree(G, node)
 
     return node_degrees
+
+
+def clean_punctuation(input_string):
+    '''
+    Assumes ASCII input. TODO: Error handling.
+    '''
+    for punctuation in string.punctuation:
+        input_string = input_string.replace(punctuation, "")
+    return input_string
 
 
 class Link(object):
