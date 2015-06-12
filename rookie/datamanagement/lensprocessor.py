@@ -48,7 +48,7 @@ def get_pub_date(soup):
 def process_story_url(url):
     try:
         hash_url = hashlib.sha224(url).hexdigest()
-        if os.path.exists(hash_url):
+        if os.path.exists(processed_location + hash_url):
             print("Already processed {}".format(url))
             return
         SENTENCE_TOKENIZER = nltk.data.load('tokenizers/punkt/english.pickle')
