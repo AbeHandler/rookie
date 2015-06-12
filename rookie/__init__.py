@@ -34,15 +34,12 @@ CLOUD_JS = '/static/js/cloud.js'
 CLOUD_LAYOUT_JS = '/static/js/d3.layout.cloud.js'
 
 if socket.getfqdn() == 'hobbes.cs.umass.edu':
-    processed_location = "/Volumes/USB/lens_processed/"
+    processed_location = "/home/ahandler/corpora/lens_processed/"
     tagger_base = "/home/ahandler/rookie/resources/stanford-postagger-2015-04-20/"
     corpus_loc = "/home/ahandler/lens/"
-    core_nlp_location = "/Volumes/USB/stanford-corenlp-full-2015-04-20/*"
+    core_nlp_location = "/home/sw/corenlp/stanford-corenlp-full-2015-04-20/*"
 else:
     processed_location = "/Volumes/USB/lens_processed/"
     tagger_base = "/Volumes/USB/stanford-postagger-2015-04-20/"
     corpus_loc = "/Volumes/USB/lens/"
     core_nlp_location = "/Volumes/USB/stanford-corenlp-full-2015-04-20/*"
-
-tagger_loc = tagger_base + "models/english-bidirectional-distsim.tagger"
-tagger_jar = tagger_base + "stanford-postagger.jar"
