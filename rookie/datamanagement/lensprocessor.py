@@ -62,7 +62,7 @@ def process_story_url(url):
         json_text['headline'] = soup.select(".entry-title")[0].text
         json_text['links'] = get_links(full_text)
         full_text = full_text.text.encode('ascii', 'ignore')
-        json_text['lines'] = proc.parse_doc(sentence)
+        json_text['lines'] = proc.parse_doc(full_text)
         hash_url = hashlib.sha224(url).hexdigest()
         with open(processed_location + hash_url, "w") as hashfile:
             print(json_text, file=hashfile)
