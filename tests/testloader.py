@@ -2,6 +2,7 @@ import unittest
 from rookie.utils import get_node_degrees
 from rookie.utils import query_elasticsearch
 from rookie.utils import Result
+from rookie.datamanagement.lensdownloader import get_page
 
 
 class GenericTestCase(unittest.TestCase):
