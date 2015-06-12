@@ -36,7 +36,7 @@ CLOUD_LAYOUT_JS = '/static/js/d3.layout.cloud.js'
 if socket.getfqdn() == 'hobbes.cs.umass.edu':
     processed_location = "/home/ahandler/corpora/lens_processed/"
     tagger_base = "/home/ahandler/rookie/resources/stanford-postagger-2015-04-20/"
-    corpus_loc = "/home/ahandler/lens/"
+    corpus_loc = "/home/ahandler/corpora/lens/"
     core_nlp_location = "/home/sw/corenlp/stanford-corenlp-full-2015-04-20/*"
 else:
     processed_location = "/Volumes/USB/lens_processed/"
