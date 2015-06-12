@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import nltk.data
 import hashlib
+import os
 
 from datetime import datetime
 from stanford_corenlp_pywrapper import sockwrap
@@ -12,7 +13,7 @@ from rookie import processed_location
 from rookie.datamanagement.lensdownloader import get_all_urls
 from rookie.datamanagement.lensdownloader import get_page
 
-proc = sockwrap.SockWrap("ner", corenlp_jars=[core_nlp_location])
+proc = sockwrap.SockWrap("coref", corenlp_jars=[core_nlp_location])
 
 domainlimiter = "thelensnola"
 
@@ -24,12 +25,15 @@ counter = 1
 def get_links(full_text):
     output = []
     for i in full_text.findChildren('a'):
-        linkurl = i.attrs['href']
-        if domainlimiter in linkurl:
-            if "support-us" in linkurl or "about-us" in linkurl:
-                pass
-            else:
-                output.append([i.text, i.attrs['href']])
+        try:
+            linkurl = i.attrs['href']
+            if domainlimiter in linkurl:
+                if "support-us" in linkurl or "about-us" in linkurl:
+                    pass
+                else:
+                    output.append([i.text, i.attrs['href']])
+        except KeyError:
+            pass
     return output
 
 
@@ -43,6 +47,10 @@ def get_pub_date(soup):
 
 def process_story_url(url):
     try:
+        hash_url = hashlib.sha224(url).hexdigest()
+        if os.path.exists(hash_url):
+            print("Already processed {}".format(url))
+            return
         SENTENCE_TOKENIZER = nltk.data.load('tokenizers/punkt/english.pickle')
         json_text = {}
         log.info(url)
@@ -54,12 +62,7 @@ def process_story_url(url):
         json_text['headline'] = soup.select(".entry-title")[0].text
         json_text['links'] = get_links(full_text)
         full_text = full_text.text.encode('ascii', 'ignore')
-        sentences = SENTENCE_TOKENIZER.tokenize(full_text)
-        lines = []
-        for sentence in sentences:
-            output = proc.parse_doc(sentence)
-            lines = lines + [output]
-        json_text['lines'] = lines
+        json_text['lines'] = proc.parse_doc(sentence)
         hash_url = hashlib.sha224(url).hexdigest()
         with open(processed_location + hash_url, "w") as hashfile:
             print(json_text, file=hashfile)
