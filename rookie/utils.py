@@ -8,6 +8,28 @@ from rookie import tagger_jar
 from nltk.tag.stanford import POSTagger
 
 
+def query_results_to_bag_o_entities(results):
+    '''
+    Return a bag of entities
+    '''
+    bag_o_entities = {}
+    bag_o_entities['TIME'] = []
+    bag_o_entities['LOCATION'] = []
+    bag_o_entities['ORGANIZATION'] = []
+    bag_o_entities['PERSON'] = []
+    bag_o_entities['MONEY'] = []
+    bag_o_entities['PERCENT'] = []
+    bag_o_entities['DATE'] = []
+
+    for r in results:
+        entities = r.entities
+        keys = entities.keys()
+        for key in keys:
+            bag_o_entities[key] = bag_o_entities[key] + entities[key]
+
+    return bag_o_entities
+
+
 def penn_to_wordnet(tag):
     '''
     Map a penn tag to a wordnet category
@@ -31,7 +53,7 @@ def POS_tag(sentence):
 def get_stopwords():
     temp = stopwords.words("english")
     temp = temp + ['new', 'orleans', 'said', 'would', 'city', 'state',
-                   'parish', 'louisiana', '', '|', 'said']
+                   'parish', 'louisiana', '', '|', 'said', 'say']
     return temp
 
 

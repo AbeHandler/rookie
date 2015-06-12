@@ -1,12 +1,10 @@
 import unittest
-from rookie.utils import query_elasticsearch
-from rookie.utils import query_results_to_bag_o_words
-from rookie.utils import POS_tag
-from rookie.utils import clean_punctuation
-from rookie.utils import penn_to_wordnet
-from rookie.datamanagement.lensloader import extract_article_entities
 import time
 import collections
+from rookie.utils import query_elasticsearch
+from rookie.utils import query_results_to_bag_o_words
+from rookie.utils import clean_punctuation
+from rookie.utils import penn_to_wordnet
 
 
 class GenericTestCase(unittest.TestCase):
@@ -38,21 +36,12 @@ class GenericTestCase(unittest.TestCase):
         result = results.pop()
         self.assertTrue(len(result.entities.keys()) > 0)
 
-    def test_POS_tag(self):
-        tags = POS_tag("Hello operator, please give me number nine")
-        self.assertEqual(tags[1][1], "NN")  # operator is noun in PENN tbank
-
     def test_penn_to_wordnet(self):
         wn_tag = penn_to_wordnet('WRB')
         self.assertEqual("o", wn_tag)
 
     def test_penn_to_wordnet_2(self):
         wn_tag = penn_to_wordnet('NNP')
-        self.assertEqual("n", wn_tag)
-
-    def test_extrat_article_entities(self):
-        sentence = "Professor James Duncan teaches at the Univerisity of Utah"
-        entities = extract_article_entities([sentence])
         self.assertEqual("n", wn_tag)
 
     def test_word_split(self):

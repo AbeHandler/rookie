@@ -2,7 +2,6 @@ import urllib2
 import nltk.data
 import ner
 import json
-import string
 
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -26,7 +25,6 @@ counter = 1
 
 elasticsearch = Elasticsearch(sniff_on_start=True)
 
-elasticsearch.indices.delete(index='*')  # clear out everything
 wnl = WordNetLemmatizer()
 
 
@@ -125,7 +123,6 @@ def get_article_full_text(sentences):
 
 
 def extract_article_entities(sentences):
-    article_entities = {}
     sentence_entities = []
     # Python interface to the StanfordNER
     TAGGER = ner.SocketNER(host='localhost', port=8080)
@@ -192,6 +189,7 @@ def process_story_url(url):
         log.info('OSError| {} {} {}'.format(url, get_id(url), "out of memory"))
 
 if __name__ == '__main__':
+    elasticsearch.indices.delete(index='*')  # clear out everything
     for i in range(1, 435):
         summary = get_html_summary(i)
         for html in summary:
