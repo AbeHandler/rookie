@@ -3,6 +3,7 @@ from __future__ import print_function
 import nltk.data
 import hashlib
 import os
+import json
 
 from datetime import datetime
 from stanford_corenlp_pywrapper import sockwrap
