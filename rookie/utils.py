@@ -3,8 +3,6 @@ import networkx as nx
 import string
 from nltk.corpus import stopwords
 from elasticsearch import Elasticsearch
-from rookie import tagger_loc
-from rookie import tagger_jar
 from nltk.tag.stanford import POSTagger
 
 

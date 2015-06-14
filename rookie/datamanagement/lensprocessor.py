@@ -55,6 +55,9 @@ def process_story_url(url):
         json_text = {}
         log.info(url)
         html = get_page(url)
+        if '<span class="opinion-label">Opinion</span>' in html:
+            print("URL is opinion. Skipping {}".format(url))
+            return
         soup = BeautifulSoup(html)
         full_text = soup.select(".entry-content")[0]
         json_text['timestamp'] = get_pub_date(soup)
@@ -65,7 +68,7 @@ def process_story_url(url):
         json_text['lines'] = proc.parse_doc(full_text)
         hash_url = hashlib.sha224(url).hexdigest()
         with open(processed_location + hash_url, "w") as hashfile:
-            print(json_text, file=hashfile)
+            print(json.dumps(json_text), file=hashfile)
 
     except ValueError:
         log.info('ValueError| {} '.format(url))
