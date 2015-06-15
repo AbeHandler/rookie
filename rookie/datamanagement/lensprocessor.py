@@ -4,6 +4,7 @@ import nltk.data
 import hashlib
 import os
 import json
+import sys
 
 from datetime import datetime
 from stanford_corenlp_pywrapper import sockwrap
@@ -11,16 +12,9 @@ from bs4 import BeautifulSoup
 from rookie import log
 from rookie import core_nlp_location
 from rookie import processed_location
-from rookie.datamanagement.lensdownloader import get_all_urls
 from rookie.datamanagement.lensdownloader import get_page
 
 proc = sockwrap.SockWrap("coref", corenlp_jars=[core_nlp_location])
-
-domainlimiter = "thelensnola"
-
-ids = {}
-
-counter = 1
 
 
 def get_links(full_text):
@@ -78,8 +72,4 @@ def process_story_url(url):
     except OSError:
         log.info('OSError| {} '.format(url))
 
-
-if __name__ == '__main__':
-    urls = get_all_urls()
-    for url in urls:
-        process_story_url(url)
+process_story_url(sys.argv[1])
