@@ -41,13 +41,14 @@ def get_pub_date(soup):
     return pubdate
 
 
-def process_story_url(url):
+def process_story_url(url, portno):
     try:
+        log.info('running url {} on portno {}'.format(url, portno))
         hash_url = hashlib.sha224(url).hexdigest()
         if os.path.exists(processed_location + hash_url):
             print("Already processed {}".format(url))
             return
-        proc = sockwrap.SockWrap("coref", corenlp_jars=[core_nlp_location])
+        proc = sockwrap.SockWrap("coref", corenlp_jars=[core_nlp_location], server_port=portno)
         SENTENCE_TOKENIZER = nltk.data.load('tokenizers/punkt/english.pickle')
         json_text = {}
         log.info(url)
@@ -74,4 +75,4 @@ def process_story_url(url):
     except OSError:
         log.info('OSError| {} '.format(url))
 
-process_story_url(sys.argv[1])
+process_story_url(sys.argv[1], sys.argv[2])
