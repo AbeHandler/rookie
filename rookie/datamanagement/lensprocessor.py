@@ -16,6 +16,8 @@ from rookie.datamanagement.lensdownloader import get_page
 
 proc = sockwrap.SockWrap("coref", corenlp_jars=[core_nlp_location])
 
+domainlimiter = "thelensnola"
+
 
 def get_links(full_text):
     output = []
