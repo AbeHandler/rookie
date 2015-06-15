@@ -14,7 +14,6 @@ from rookie import core_nlp_location
 from rookie import processed_location
 from rookie.datamanagement.lensdownloader import get_page
 
-proc = sockwrap.SockWrap("coref", corenlp_jars=[core_nlp_location])
 
 domainlimiter = "thelensnola"
 
@@ -48,6 +47,7 @@ def process_story_url(url):
         if os.path.exists(processed_location + hash_url):
             print("Already processed {}".format(url))
             return
+        proc = sockwrap.SockWrap("coref", corenlp_jars=[core_nlp_location])
         SENTENCE_TOKENIZER = nltk.data.load('tokenizers/punkt/english.pickle')
         json_text = {}
         log.info(url)
