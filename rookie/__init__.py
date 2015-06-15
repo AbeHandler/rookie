@@ -5,10 +5,6 @@ import socket
 
 LOG_PATH = "app.log"
 
-# Logging
-if os.path.isfile(LOG_PATH):
-    os.remove(LOG_PATH)
-
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
