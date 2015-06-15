@@ -66,7 +66,7 @@ def process_story_url(url):
         hash_url = hashlib.sha224(url).hexdigest()
         with open(processed_location + hash_url, "w") as hashfile:
             print(json.dumps(json_text), file=hashfile)
-
+            log.info('Processed| {} into {}'.format(url, hash_url))
     except ValueError:
         log.info('ValueError| {} '.format(url))
     except IndexError:
