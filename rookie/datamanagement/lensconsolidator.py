@@ -1,167 +1,85 @@
-import urllib2
-import nltk.data
 import ner
 import json
-
-from bs4 import BeautifulSoup
-from rookie import log
-from rookie.utils import POS_tag
-from rookie.utils import penn_to_wordnet
-
-# Valid parts of speech in wordnet
-WORDNET_TAGS = ['n', 'v', 'a', 's', 'r']
-
-ENTITY_KEYS = ["TIME", "LOCATION", "ORGANIZATION",
-               "PERSON", "MONEY", "PERCENT", "DATE"]
-
-domainlimiter = "thelensnola.org"
-
-ids = {}
-
-counter = 1
+import glob
 
 
-def standardize(tag):
-    '''
-    Takes a tagged word from Stanford POS tagger and
-    returns a lemmaed word from NLTK's Wordnet Lemmatizer
-
-    Sample input: (u'are', u'VBP')
-    '''
-    word = tag[0]
-    tag = tag[1]
-    tag = penn_to_wordnet(tag)
-    if tag in WORDNET_TAGS:
-        word = wnl.lemmatize(word, tag)
-    else:
-        # if no pos given, wn will assume is a noun
-        word = wnl.lemmatize(word)
-    word = word.lower()
-    return word
+to_process = glob.glob('/Volumes/USB 1/lens_processed/*')
 
 
-def get_page(url):
-    req = urllib2.Request(url, headers={'User-Agent': "Abe Handler: urllib2"})
-    con = urllib2.urlopen(req)
-    return con.read()
-
-
-def get_html_summary(i):
-    htmls = []
-    i = str(i)
-    url = "http://thelensnola.org/page/" + i + "/?s="
-    htmls.append(get_page(url))
-    log.info('Downloading summary | {}'.format(i))
-    return htmls
-
-
-def get_id(url):
-    global counter
-    if url not in ids.keys():
-        ids[url] = counter
-        log.info('Assign id | {} | {}'.format(url, counter))
-        counter = counter + 1
-    return ids[url]
-
-
-def get_urls_from_summary(html):
-    urls = []
-    soup = BeautifulSoup(html)
-    h3 = soup.find_all('h3')
-    for i in h3:
-        try:
-            if "Permalink" in i.contents[0].attrs['title']:
-                url = i.contents[0].attrs['href']
-                urls.append(url.strip("/"))
-        except AttributeError:  # can skip elements that don't have hrefs
-            pass
-        except KeyError:  # not a link. does not have a title
-            pass
-    return urls
-
-
-def get_article_full_text(sentences):
-    article_full_text = ""
+def get_full_text(data):
+    sentences = data['lines']['sentences']
+    full_text = []
     for sentence in sentences:
-        tags = POS_tag(sentence)
-        # this is a dumb workaround. For some reason pos_tag ret a list
-        # on the umass servers
-        dummy = []
-        if type(tags) == type(dummy):
-            tags = tags[0]
-        words = [standardize(t) for t in tags]
-        sentence_full_text = " ".join([word for word in words])
-        article_full_text = article_full_text + " " + sentence_full_text
-    return article_full_text
+        full_text = full_text + sentence['lemmas']
+    return " ".join(full_text).encode('ascii', 'ignore')
 
 
-def extract_article_entities(sentences):
-    sentence_entities = []
-    # Python interface to the StanfordNER
-    TAGGER = ner.SocketNER(host='localhost', port=8080)
+def get_doc_tokens(data):
+    sentences = data['lines']['sentences']
+    tokens = []
+    for s in sentences:
+        tokens = tokens + s['tokens']
+    return tokens
+
+
+def get_ner(data):
+    tokens = get_doc_tokens(data)
+    output = []
+    sentences = data['lines']['sentences']
     for sentence in sentences:
-        entnites = json.loads(TAGGER.json_entities(sentence))
-        sentence_entities.append(entnites)
-    return sentence_entities
+        mentions = sentence['entitymentions']
+        for m in mentions:
+            token = " ".join(tokens[m['tokspan'][0]:m['tokspan'][1]])
+            ner_type = m['type']
+            output.append([token, ner_type])
+    return output
 
 
-def merge_sentence_entities(sentence_entities):
-    ENTITY_KEYS = ["TIME", "LOCATION", "ORGANIZATION",
-                   "PERSON", "MONEY", "PERCENT", "DATE"]
-    article_entities = {}
-    for key in ENTITY_KEYS:
-        entity_kind_total = []
-        for sentence in sentence_entities:
-            try:
-                entity_kind_total.extend(sentence[key])
-            except KeyError:
-                pass  # no hits for type $key in this sentence
-        article_entities[key] = entity_kind_total
-    return article_entities
+def get_co_references(data):
+    entity_groups = data['lines']['entities']
+    output = []
+    for e in entity_groups:
+        group = []
+        if len(e['mentions']) > 1 and not e['mentions'] is None:
+            for m in e['mentions']:
+                group.append((m['sentence'], m['tokspan_in_sentence']))
+        if len(group) > 0:
+            output.append(group)
+    groups = []
+    for coref in output:
+        coref_group = []
+        for mention in coref:
+            sentence = mention[0]
+            span = mention[1]
+            coref_group.append(" ".join(sentences[sentence]['tokens'][span[0]: span[1]]))
+        groups.append(coref_group)
+    return groups
 
 
-def process_story_url(url):
+def correct_ner(ner, corefs):
+    for n in ner:
+        for c in corefs:
+            if n[0] in c and n[0] != c[0] and len(c[0]) < 30 and (str(n[1])=='ORGANIZATION' or str(n[1])=='PERSON'):
+                n[0] = c[0]
+    return ner
+
+
+for p in to_process:
     try:
-        SENTENCE_TOKENIZER = nltk.data.load('tokenizers/punkt/english.pickle')
-        json_text = {}
-        log.info(url)
-        html = get_page(url)
-        soup = BeautifulSoup(html)
-        full_text = soup.select(".entry-content")[0]
-        json_text['timestamp'] = get_pub_date(soup)
-        json_text['url'] = url
-        json_text['headline'] = soup.select(".entry-title")[0].text
-        links = get_links(full_text)
-        full_text = full_text.text.encode('ascii', 'ignore')
-        sentences = SENTENCE_TOKENIZER.tokenize(full_text)
-        print "about to get article full text"
-        article_full_text = get_article_full_text(sentences)
-        print "about to get entities"
-        sentence_entities = extract_article_entities(sentences)
-        article_entities = merge_sentence_entities(sentence_entities)
-        article_full_text = get_article_full_text(sentences)
-        json_text['full_text'] = article_full_text
-        json_text['entities'] = article_entities
-        json_text['links'] = links
-        logst = 'Adding to elastic search| {}, {}'.format(url, get_id(url))
-        log.info(logst)
-        did = str(get_id(url))
-        res = elasticsearch.index(index="lens",
-                                  doc_type='news_story',
-                                  id=did,
-                                  body=json_text)
-        print res
-
+        with open(p, 'r') as processed:
+            data = json.load(processed)
+            full_text = get_full_text(data)
+            url = data['url']
+            timestamp = data['timestamp']
+            links = data['links']
+            links = data['headline']
+            sentences = data['lines']['sentences']
+            tokens = get_doc_tokens(data)
+            ner = get_ner(data)
+            corefs = get_co_references(data)
+            new_ner = correct_ner(ner, corefs)
+            print new_ner
     except ValueError:
-        log.info('ValueError| {}, {}'.format(url, get_id(url)))
-    except KeyError:
-        log.info('KeyError| {}, {}'.format(url, get_id(url)))
-    except IndexError:
-        log.info('IndexError| {}, {}'.format(url, get_id(url)))
-    except OSError:
-        log.info('OSError| {} {} {}'.format(url, get_id(url), "out of memory"))
-
-with open('/Volumes/USB 1/lens_processed/023cf52cf3892b48ec36ce4f445b543e15628b2f845a3620a96320a3', 'r') as processed:
-    data = json.load(processed)
-    sentences = data['sentences']
-    print sentences
+        print 've'
+    except TypeError:
+        print 'te'
