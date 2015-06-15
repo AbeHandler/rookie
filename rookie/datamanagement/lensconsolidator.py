@@ -1,8 +1,12 @@
-import ner
 import json
 import glob
 import re
 
+from elasticsearch import Elasticsearch
+
+elasticsearch = Elasticsearch(sniff_on_start=True)
+
+elasticsearch.indices.delete(index='*')
 
 TO_PROCESS = glob.glob('/Volumes/USB 1/lens_processed/*')
 
@@ -83,28 +87,36 @@ def correct_ner_to_first_mention(ner, corefs):
 
 
 def correct_dates(ner, timestamp):
+    output = []
     for n in ner:
         if n[1] == "DATE" and "XXXX" in n[0]:
-            n[0] == timestamp  # if XXXX for yr, just guess pub year
-    return ner
+            # if XXXX for yr, just guess pub year
+            n[0] = n[0].replace("XXXX", timestamp)
+            output.append([n[0], n[1]])
+        else:
+            output.append(n)
+    return output
 
 
 for process_file in TO_PROCESS:
     try:
+        output = {}
         with open(process_file, 'r') as processed:
             data = json.load(processed)
-            full_text = get_full_text(data)
-            url = data['url']
-            timestamp = data['timestamp']
-            links = data['links']
-            links = data['headline']
+            output['full_text'] = get_full_text(data)
+            output['url'] = data['url']
+            output['timestamp'] = data['timestamp']
+            output['links'] = data['links']
+            output['headline'] = data['headline']
             sentences = data['lines']['sentences']
             tokens = get_doc_tokens(data)
             ner = get_ner(data)
-            ner = correct_dates(ner, timestamp[0:4])
+            ner = correct_dates(ner, data['timestamp'][0:4])
             corefs = get_co_references(data)
-            new_ner = correct_ner_to_first_mention(ner, corefs)
-            print new_ner
+            output['entities'] = correct_ner_to_first_mention(ner, corefs)
+            res = elasticsearch.index(index="lens",
+                                      doc_type='news_story',
+                                      body=output)
     except ValueError:
         print 've'
     except TypeError:
