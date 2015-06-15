@@ -43,6 +43,8 @@ def get_pub_date(soup):
 
 def process_story_url(url, portno):
     try:
+        portno = int(portno) + 12340
+        log.info(type(portno))
         log.info('running url {} on portno {}'.format(url, portno))
         hash_url = hashlib.sha224(url).hexdigest()
         if os.path.exists(processed_location + hash_url):
