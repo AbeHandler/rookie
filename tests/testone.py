@@ -4,7 +4,6 @@ import collections
 from rookie.utils import query_elasticsearch
 from rookie.utils import query_results_to_bag_o_words
 from rookie.utils import clean_punctuation
-from rookie.utils import penn_to_wordnet
 
 
 class GenericTestCase(unittest.TestCase):
@@ -35,14 +34,6 @@ class GenericTestCase(unittest.TestCase):
         results = query_elasticsearch("OPSB")
         result = results.pop()
         self.assertTrue(len(result.entities.keys()) > 0)
-
-    def test_penn_to_wordnet(self):
-        wn_tag = penn_to_wordnet('WRB')
-        self.assertEqual("o", wn_tag)
-
-    def test_penn_to_wordnet_2(self):
-        wn_tag = penn_to_wordnet('NNP')
-        self.assertEqual("n", wn_tag)
 
     def test_word_split(self):
         start_time = time.time()

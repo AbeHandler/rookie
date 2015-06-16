@@ -20,11 +20,13 @@ $("body").keypress(function(e) {
 });
 
  $( document ).ready(function() {
-  /*
-    var headlines = _.uniq(window.data, function(item) { return item.headline; });
-    $(headlines).each(function(e) {
-      var compiled = _.template("<a href='<%= url %>'><%= headline %></a></br>"); 
-      var temp = compiled({url: this.url, headline: this.headline});
-      $("#results").append(temp);
-    }); */
+  for(var i=0; i<window.people.length; i++) {
+    $("#people").append(window.people[i].name + "<br>");
+  }
+  for(var i=0; i<window.organizations.length; i++) {
+    $("#organizations").append(window.organizations[i].name + "<br>");
+  }
+  for(var i=0; i<window.results.length; i++) {
+    $("#results").append('<a href="'+ window.results[i].url + '">' + window.results[i].headline + '</a><br>');
+  }
 });

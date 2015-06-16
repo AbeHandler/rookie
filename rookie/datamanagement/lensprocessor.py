@@ -44,14 +44,14 @@ def get_pub_date(soup):
 def process_story_url(url, portno):
     try:
         portno = int(portno) + 12340
-        log.info(type(portno))
         log.info('running url {} on portno {}'.format(url, portno))
         hash_url = hashlib.sha224(url).hexdigest()
         if os.path.exists(processed_location + hash_url):
             print("Already processed {}".format(url))
             return
-        proc = sockwrap.SockWrap("coref", corenlp_jars=[core_nlp_location], server_port=portno)
-        SENTENCE_TOKENIZER = nltk.data.load('tokenizers/punkt/english.pickle')
+        proc = sockwrap.SockWrap("coref",
+                                 corenlp_jars=[core_nlp_location],
+                                 server_port=portno)
         json_text = {}
         log.info(url)
         html = get_page(url)
@@ -60,13 +60,12 @@ def process_story_url(url, portno):
             return
         soup = BeautifulSoup(html)
         full_text = soup.select(".entry-content")[0]
+        full_text = full_text.text.encode('ascii', 'ignore')
         json_text['timestamp'] = get_pub_date(soup)
         json_text['url'] = url
         json_text['headline'] = soup.select(".entry-title")[0].text
         json_text['links'] = get_links(full_text)
-        full_text = full_text.text.encode('ascii', 'ignore')
         json_text['lines'] = proc.parse_doc(full_text)
-        hash_url = hashlib.sha224(url).hexdigest()
         with open(processed_location + hash_url, "w") as hashfile:
             print(json.dumps(json_text), file=hashfile)
             log.info('Processed| {} into {}'.format(url, hash_url))

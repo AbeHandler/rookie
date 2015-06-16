@@ -1,51 +1,37 @@
-import datetime
 import networkx as nx
 import string
+import collections
+import pdb
+from flask.ext.cache import Cache
 from nltk.corpus import stopwords
 from elasticsearch import Elasticsearch
-from nltk.tag.stanford import POSTagger
+from rookie.classes import Result
+from rookie.classes import QueryResult
+from rookie.classes import EntityCount
+
+# cache = Cache(config={'CACHE_TYPE': 'simple'})
 
 
 def query_results_to_bag_o_entities(results):
     '''
     Return a bag of entities
     '''
+
     bag_o_entities = {}
-    bag_o_entities['TIME'] = []
-    bag_o_entities['LOCATION'] = []
-    bag_o_entities['ORGANIZATION'] = []
-    bag_o_entities['PERSON'] = []
-    bag_o_entities['MONEY'] = []
-    bag_o_entities['PERCENT'] = []
-    bag_o_entities['DATE'] = []
+
+    bag_o_keys = ['TIME', 'LOCATION', 'ORGANIZATION', 'PERSON', 'MONEY',
+                  'PERCENT', 'NUMBER', 'DATE']
+
+    for key in bag_o_keys:
+        bag_o_entities[key] = []
 
     for r in results:
-        entities = r.entities
+        entities = r['_source']['entities']
         keys = entities.keys()
         for key in keys:
             bag_o_entities[key] = bag_o_entities[key] + entities[key]
 
     return bag_o_entities
-
-
-def penn_to_wordnet(tag):
-    '''
-    Map a penn tag to a wordnet category
-    '''
-    tags = tuple(open("penn.txt", "r"))  # maps from penn tag to wordnet class
-    # some kind of wierdness going on here related to pos_tag
-    tag = [t.split("\t")[2] for t in tags if t.split("\t")[0] == tag]
-    if len(tag) == 0:
-        tag = "unknown"
-    else:
-        tag = tag.pop().strip("\n")
-    return tag  # strip the newline character
-
-
-def POS_tag(sentence):
-    st = POSTagger(tagger_loc, tagger_jar)
-    tags = st.tag(sentence.split())
-    return tags
 
 
 def get_stopwords():
@@ -65,19 +51,36 @@ def query_results_to_bag_o_words(results):
     '''
     STOPWORDS = get_stopwords()
     bag_o_query_words = []
-    for r in results:
-        words = r.fulltext.split(" ")
+    for result in results:
+        words = result['_source']['full_text'].split(" ")
         words = [word for word in words if word not in STOPWORDS]
         bag_o_query_words = bag_o_query_words + words
     return bag_o_query_words
 
 
+# @cache.memoize(10000)
 def query_elasticsearch(lucene_query):
     ec = Elasticsearch(sniff_on_start=True)
     results = ec.search(index="lens",
                         q=lucene_query,
                         size=10000)['hits']['hits']
-    return [Result(r) for r in results]
+    entities = query_results_to_bag_o_entities(results)
+    persons = [EntityCount(e) for e in
+               collections.Counter(entities['PERSON']).most_common(25)]
+    orgs = [EntityCount(e) for e in
+            collections.Counter(entities['ORGANIZATION']).most_common(25)]
+    locations = [EntityCount(e) for e in
+                 collections.Counter(entities['LOCATION']).most_common(25)]
+    money = [EntityCount(e) for e in
+             collections.Counter(entities['MONEY']).most_common(25)]
+    dates = [EntityCount(e) for e in
+             collections.Counter(entities['DATE']).most_common(25)]
+    bag = query_results_to_bag_o_words(results)
+    words = collections.Counter(bag).most_common(25)
+    results = [Result(r) for r in results]
+    query_result = QueryResult(words, persons, orgs,
+                               locations, money, dates, results)
+    return query_result
 
 
 def get_node_degrees(results):
@@ -105,47 +108,3 @@ def clean_punctuation(input_string):
     for punctuation in string.punctuation:
         input_string = input_string.replace(punctuation, "")
     return input_string
-
-
-class Link(object):
-
-    def __init__(self, link):
-        '''Initialize with a result'''
-
-        self.link_text = link[0]
-        self.link_num = link[1]
-
-
-class Result(object):
-
-    '''An elastic search result'''
-
-    def __init__(self, result):
-        '''Initialize with a result'''
-        self.headline = result['_source']['headline'].encode('ascii', 'ignore')
-        timestamp = result['_source']['timestamp'].encode('ascii', 'ignore')
-        timestamp = timestamp.split(" ")[0]
-        year, month, day = timestamp.split("-")
-        pubdate = datetime.date(int(year), int(month), int(day))
-        self.timestamp = pubdate
-        fulltext = result['_source']['full_text'].encode('ascii', 'ignore')
-        self.fulltext = fulltext
-        self.url = result['_source']['url'].encode('ascii', 'ignore')
-        self.nid = result['_id'].encode('ascii', 'ignore')
-        self.docid = self.nid
-        self.links = result['_source']['links']
-        self.score = result['_score']
-        self.entities = result['_source']['entities']
-        self.link_degree = None
-
-    def as_dictionary(self):
-        output = {}
-        output['headline'] = self.headline
-        output['timestamp'] = self.timestamp
-        output['fulltext'] = self.fulltext
-        output['url'] = self.url
-        output['sentence_id'] = self.sentence_id
-        output['link_degree'] = self.link_degree
-        output['score'] = self.score
-        output['entities'] = self.entities
-        return output

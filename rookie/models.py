@@ -5,7 +5,6 @@ Any non-application logic (ex. querying ES
 and making sense of the queries) is in utils
 """
 
-import datetime
 import pdb
 
 from rookie import (
@@ -19,7 +18,7 @@ from rookie.utils import get_node_degrees
 
 class Models(object):
 
-    '''doctstring'''
+    '''Handles logic for the Flask app'''
 
     def __init__(self):
         '''docstring'''
@@ -27,7 +26,7 @@ class Models(object):
         self.elasticsearch = Elasticsearch(sniff_on_start=True)
 
     def search(self, request):
-        '''docstring'''
+        '''search elastic search and return results'''
 
         output = []
 
@@ -38,11 +37,11 @@ class Models(object):
 
         results = query_elasticsearch(q)
 
-        node_degrees = get_node_degrees(results)
+        # node_degrees = get_node_degrees(results)
 
-        for result in results:
-            result.link_degree = node_degrees[result.docid]
-
+        # for result in results:
+        #    result.link_degree = node_degrees[result.docid]
+        # pdb.set_trace()
         return results
 
     def home(self):

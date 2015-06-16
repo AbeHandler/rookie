@@ -27,7 +27,6 @@ class Views(object):
         response = make_response(
             render_template(
                 'index.html',
-                results=results,
                 search_js=SEARCH_JS,
                 lens_css=LENS_CSS,
                 banner_css=BANNER_CSS,
@@ -44,7 +43,12 @@ class Views(object):
         response = make_response(
             render_template(
                 'results.html',
-                results=results,
+                persons=results.persons,
+                organizations=results.organizations,
+                locations=results.locations,
+                money=results.money,
+                dates=results.dates,
+                results=results.results,
                 search_js=SEARCH_JS,
                 cloud_js=CLOUD_JS,
                 cloud_layout_js=CLOUD_LAYOUT_JS,

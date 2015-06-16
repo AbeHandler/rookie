@@ -21,8 +21,6 @@ def intro():
     Intro page for the web app
     """
 
-    log.debug(os.environ)
-
     data = Models().home()
 
     view = Views().get_home(data)
@@ -37,9 +35,6 @@ def search():
     """
 
     data = Models().search(request)
-
-    if len(data) == 0:
-        data = ["No results"]
 
     view = Views().get_results(data)
 

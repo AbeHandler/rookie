@@ -9,7 +9,7 @@ c = collections.Counter()
 
 es = Elasticsearch()
 
-results = query_elasticsearch("Sheriff")
+results = query_elasticsearch("OPSB")
 
 entities = query_results_to_bag_o_entities(results)
 

@@ -1,14 +1,17 @@
 import json
 import glob
-import re
 
+from rookie.utils import clean_punctuation
 from elasticsearch import Elasticsearch
 
 elasticsearch = Elasticsearch(sniff_on_start=True)
 
 elasticsearch.indices.delete(index='*')
 
-TO_PROCESS = glob.glob('/Volumes/USB 1/lens_processed/*')
+TO_PROCESS = glob.glob('/Volumes/USB/lens_processed/*')
+
+ENTITY_KEYS = ["TIME", "LOCATION", "ORGANIZATION",
+               "PERSON", "MONEY", "NUMBER", "DATE"]
 
 
 def get_full_text(data):
@@ -16,7 +19,9 @@ def get_full_text(data):
     full_text = []
     for sentence in sentences:
         full_text = full_text + sentence['lemmas']
-    return " ".join(full_text).encode('ascii', 'ignore')
+    full_text = " ".join(full_text).encode('ascii', 'ignore').lower()
+    full_text = clean_punctuation(full_text)
+    return full_text
 
 
 def get_doc_tokens(data):
@@ -28,30 +33,25 @@ def get_doc_tokens(data):
 
 
 def get_ner(data):
-    tokens = get_doc_tokens(data)
     output = []
     sentences = data['lines']['sentences']
     for sentence in sentences:
-        mentions = sentence['entitymentions']
-        for m in mentions:
-            token = " ".join(tokens[m['tokspan'][0]:m['tokspan'][1]])
-            ner_type = m['type']
-            if ner_type == 'ORDINAL' or ner_type == 'NUMBER':
-                pass
-            if ner_type == 'DATE':
+        ner = sentence['ner']
+        counter = 0
+        while counter < len(ner):
+            ne = ner[counter]
+            if ne != "O" and ne in ENTITY_KEYS:
+                ner_to_add = sentence['tokens'][counter]
                 try:
-                    valu = re.findall("value=\".+\"", m['timex_xml'])[0]
-                    valu = valu.replace('value=', '').replace('"', "")
-                    if not any(char.isdigit() for char in valu):
-                        pass
-                    elif "temporalFunction=true" in valu or "WXX" in valu:
-                        pass
-                    else:
-                        output.append([valu, ner_type])
-                except KeyError:
+                    while ner[counter + 1] == ne:
+                        ne = ner[counter + 1]
+                        counter = counter + 1
+                        next_tok = sentence['tokens'][counter]
+                        ner_to_add = ner_to_add + " " + next_tok
+                except IndexError:
                     pass
-            else:
-                output.append([token, ner_type])
+                output.append([ner_to_add, ne])
+            counter = counter + 1
     return output
 
 
@@ -98,6 +98,15 @@ def correct_dates(ner, timestamp):
     return output
 
 
+def dictionaryfy(entities):
+    output = {}
+    for key in ENTITY_KEYS:
+        output[key] = []
+    for entitiy in entities:
+        output[entitiy[1]] = output[entitiy[1]] + [entitiy[0]]
+    return output
+
+
 for process_file in TO_PROCESS:
     try:
         output = {}
@@ -113,11 +122,12 @@ for process_file in TO_PROCESS:
             ner = get_ner(data)
             ner = correct_dates(ner, data['timestamp'][0:4])
             corefs = get_co_references(data)
-            output['entities'] = correct_ner_to_first_mention(ner, corefs)
+            ner = correct_ner_to_first_mention(ner, corefs)
+            output['entities'] = dictionaryfy(ner)
             res = elasticsearch.index(index="lens",
                                       doc_type='news_story',
                                       body=output)
     except ValueError:
-        print 've'
+        print 'value error'
     except TypeError:
-        print 'te'
+        print 'type error'
