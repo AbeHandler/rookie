@@ -15,7 +15,7 @@ from rookie.datamanagement.lensdownloader import get_all_urls
 WORDNET_TAGS = ['n', 'v', 'a', 's', 'r']
 
 ENTITY_KEYS = ["TIME", "LOCATION", "ORGANIZATION",
-               "PERSON", "MONEY", "PERCENT", "DATE"]
+               "PERSON", "MONEY", "DATE"]
 
 domainlimiter = "thelensnola.org"
 
@@ -69,6 +69,15 @@ def get_id(url):
         log.info('Assign id | {} | {}'.format(url, counter))
         counter = counter + 1
     return ids[url]
+
+
+def dictionaryfy(entities):
+    output = {}
+    for key in ENTITY_KEYS:
+        output[key] = []
+    for entitiy in entities:
+        output[entitiy[0]] = output[entitiy[0]] + [entity[1]]
+    return output
 
 
 def get_urls_from_summary(html):
@@ -146,6 +155,7 @@ def process_story_url(url):
         print "about to get entities"
         sentence_entities = extract_article_entities(sentences)
         article_entities = merge_sentence_entities(sentence_entities)
+        article_entities = dictionaryfy(article_entities)
         article_full_text = get_article_full_text(sentences)
         json_text['full_text'] = article_full_text
         json_text['entities'] = article_entities
