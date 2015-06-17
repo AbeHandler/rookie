@@ -3,14 +3,12 @@ import string
 import collections
 import pdb
 from rookie import log
-from flask.ext.cache import Cache
 from nltk.corpus import stopwords
 from elasticsearch import Elasticsearch
 from rookie.classes import Result
 from rookie.classes import QueryResult
 from rookie.classes import EntityCount
-
-cache = Cache(config={'CACHE_TYPE': 'simple'})
+from repoze.lru import lru_cache
 
 
 def query_results_to_bag_o_entities(results):
@@ -60,30 +58,30 @@ def query_results_to_bag_o_words(results):
     return bag_o_query_words
 
 
-@cache.memoize(10000)
+@lru_cache(maxsize=10000)
 def query_elasticsearch(lucene_query):
     log.info("querying elastic search")
-    with Elasticsearch(sniff_on_start=True) as ec:
-        results = ec.search(index="lens",
-                            q=lucene_query,
-                            size=10000)['hits']['hits']
-        entities = query_results_to_bag_o_entities(results)
-        persons = [EntityCount(e) for e in
-                   collections.Counter(entities['PERSON']).most_common(25)]
-        orgs = [EntityCount(e) for e in
-                collections.Counter(entities['ORGANIZATION']).most_common(25)]
-        locations = [EntityCount(e) for e in
-                     collections.Counter(entities['LOCATION']).most_common(25)]
-        money = [EntityCount(e) for e in
-                 collections.Counter(entities['MONEY']).most_common(25)]
-        dates = [EntityCount(e) for e in
-                 collections.Counter(entities['DATE']).most_common(25)]
-        bag = query_results_to_bag_o_words(results)
-        words = [EntityCount(e) for e in
-                 collections.Counter(bag).most_common(25)]
-        results = [Result(r) for r in results]
-        query_result = QueryResult(words, persons, orgs,
-                                   locations, money, dates, results)
+    ec = Elasticsearch(sniff_on_start=True)
+    results = ec.search(index="lens",
+                        q=lucene_query,
+                        size=10000)['hits']['hits']
+    entities = query_results_to_bag_o_entities(results)
+    persons = [EntityCount(e) for e in
+               collections.Counter(entities['PERSON']).most_common(25)]
+    orgs = [EntityCount(e) for e in
+            collections.Counter(entities['ORGANIZATION']).most_common(25)]
+    locations = [EntityCount(e) for e in
+                 collections.Counter(entities['LOCATION']).most_common(25)]
+    money = [EntityCount(e) for e in
+             collections.Counter(entities['MONEY']).most_common(25)]
+    dates = [EntityCount(e) for e in
+             collections.Counter(entities['DATE']).most_common(25)]
+    bag = query_results_to_bag_o_words(results)
+    words = [EntityCount(e) for e in
+             collections.Counter(bag).most_common(25)]
+    results = [Result(r) for r in results]
+    query_result = QueryResult(words, persons, orgs,
+                               locations, money, dates, results)
     return query_result
 
 

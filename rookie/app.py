@@ -40,6 +40,8 @@ def search():
     Do a search
     """
 
+    log.debug("this crashes")
+
     log.info("/rookie/search" + request.args.get('q'))
 
     data = Models().search(request)
