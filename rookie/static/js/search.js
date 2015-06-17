@@ -1,7 +1,7 @@
 var url;
 
 function search_records(){
-	url  = 'http://localhost:5000/rookie/search?q=';
+	url  = 'http://rookie.thelensnola.org/rookie/search?q=';
 	if ($("#search_terms").val() != ""){
     url = url + $("#search_terms").val();
   }
