@@ -29,7 +29,7 @@ $("body").keypress(function(e) {
   for(var i=0; i<window.results.length; i++) {
     $("#results").append('<a href="'+ window.results[i].url + '">' + window.results[i].headline + '</a><br>');
   }
-  for(var i=0; i<window.results.length; i++) {
+  for(var i=0; i<window.words.length; i++) {
     $("#words").append(window.words[i].name + '<br>');
   }
   if (document.location.href.split("q=").length===2){

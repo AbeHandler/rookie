@@ -9,7 +9,7 @@ from rookie.classes import Result
 from rookie.classes import QueryResult
 from rookie.classes import EntityCount
 
-# cache = Cache(config={'CACHE_TYPE': 'simple'})
+cache = Cache(config={'CACHE_TYPE': 'simple'})
 
 
 def query_results_to_bag_o_entities(results):
@@ -37,7 +37,8 @@ def query_results_to_bag_o_entities(results):
 def get_stopwords():
     temp = stopwords.words("english")
     temp = temp + ['new', 'orleans', 'said', 'would', 'city', 'state',
-                   'parish', 'louisiana', '', '|', 'said', 'say']
+                   'parish', 'louisiana', '', '|', 'said', 'say', 'story',
+                   'we', 'cover', 'lens']
     return temp
 
 
@@ -58,7 +59,7 @@ def query_results_to_bag_o_words(results):
     return bag_o_query_words
 
 
-# @cache.memoize(10000)
+@cache.memoize(10000)
 def query_elasticsearch(lucene_query):
     ec = Elasticsearch(sniff_on_start=True)
     results = ec.search(index="lens",
