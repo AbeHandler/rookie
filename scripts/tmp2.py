@@ -1,31 +1,22 @@
 from elasticsearch import Elasticsearch
 from rookie.utils import query_elasticsearch
-from rookie.utils import query_results_to_bag_o_words
-from rookie.utils import query_results_to_bag_o_entities
+from rookie.classes import Result
 
 import collections
 
 c = collections.Counter()
 
-es = Elasticsearch()
+results = query_elasticsearch("Gusman")
 
-results = query_elasticsearch("OPSB")
+# query = {"query": {"match": {"PERSON": results.persons[0].name}}}
 
-entities = query_results_to_bag_o_entities(results)
+# res = es.search(index="lens",
+#                body=query,
+#                size=10000)
 
-print collections.Counter(entities['PERSON']).most_common(25)
+# hits = res['hits']['hits']
 
-bag = query_results_to_bag_o_words(results)
+# hits = [Result(r) for r in hits]
 
-#print collections.Counter(bag).most_common(10)
-
-'''
-query = {"query": {"match": {"PERSON": "Johnson"}}}
-
-
-res = es.search(index="lens", body=query)
-print("Got %d Hits:" % res['hits']['total'])
-for hit in res['hits']['hits']:
-    print("%(headline)s" % hit["_source"])
-#    print("%(entities)s" % hit["_source"])
-'''
+# for h in hits:
+#    print h

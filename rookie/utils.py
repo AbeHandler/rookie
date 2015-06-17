@@ -58,7 +58,32 @@ def query_results_to_bag_o_words(results):
     return bag_o_query_words
 
 
-@lru_cache(maxsize=10000)
+def get_timestamps(name, type_entity, results):
+    timestamps = [r['_source']['timestamp'] for r in results if name
+                  in r['_source']['entities'][type_entity]]
+    return timestamps
+
+
+def get_entity_counts(entities, etype, results):
+    ents = [EntityCount(e) for e in
+            collections.Counter(entities[etype]).most_common(25)]
+    for e in ents:
+        e.timestamps = get_timestamps(e.name, etype, results)
+    return ents
+
+
+def get_word_counts(results):
+    bag = query_results_to_bag_o_words(results)
+    words = collections.Counter(bag).most_common(25)
+    word_entities = []
+    for word in words:
+        timestamps = [r['_source']['timestamp'] for r in results if word[0]
+                      in r['_source']['full_text']]
+        word_entities.append(EntityCount(word, timestamps))
+    return word_entities
+
+
+# @lru_cache(maxsize=10000)
 def query_elasticsearch(lucene_query):
     log.info("querying elastic search")
     ec = Elasticsearch(sniff_on_start=True)
@@ -66,22 +91,13 @@ def query_elasticsearch(lucene_query):
                         q=lucene_query,
                         size=10000)['hits']['hits']
     entities = query_results_to_bag_o_entities(results)
-    persons = [EntityCount(e) for e in
-               collections.Counter(entities['PERSON']).most_common(25)]
-    orgs = [EntityCount(e) for e in
-            collections.Counter(entities['ORGANIZATION']).most_common(25)]
-    locations = [EntityCount(e) for e in
-                 collections.Counter(entities['LOCATION']).most_common(25)]
-    money = [EntityCount(e) for e in
-             collections.Counter(entities['MONEY']).most_common(25)]
-    dates = [EntityCount(e) for e in
-             collections.Counter(entities['DATE']).most_common(25)]
-    bag = query_results_to_bag_o_words(results)
-    words = [EntityCount(e) for e in
-             collections.Counter(bag).most_common(25)]
+    keys = ["PERSON", "LOCATION", "MONEY", "DATE", "ORGANIZATION"]
+    entity_dict = {}
+    for key in keys:
+        entity_dict[key] = get_entity_counts(entities, key, results)
+    words = get_word_counts(results)
     results = [Result(r) for r in results]
-    query_result = QueryResult(words, persons, orgs,
-                               locations, money, dates, results)
+    query_result = QueryResult(words, entity_dict, results)
     return query_result
 
 

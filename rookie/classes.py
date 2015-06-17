@@ -12,25 +12,26 @@ class Link(object):
 
 class EntityCount(object):
 
-    def __init__(self, tup):
+    def __init__(self, tup, timestamps=None):
         '''A named entity, and how many times it shows up in query'''
 
         self.name = tup[0]
         self.count = tup[1]
+        # pub date of each time entity shows up in results
+        self.timestamps = timestamps
 
 
 class QueryResult(object):
 
-    def __init__(self, words, persons, organizations,
-                 locations, money, dates, results):
+    def __init__(self, words, entity_dict, results):
         '''Output from an elastic search query'''
 
         self.words = words
-        self.persons = persons
-        self.organizations = organizations
-        self.locations = locations
-        self.money = money
-        self.dates = dates
+        self.persons = entity_dict['PERSON']
+        self.organizations = entity_dict['ORGANIZATION']
+        self.locations = entity_dict['LOCATION']
+        self.money = entity_dict['MONEY']
+        self.dates = entity_dict['DATE']
         self.results = results
 
 
