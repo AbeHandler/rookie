@@ -21,9 +21,13 @@ def intro():
     Intro page for the web app
     """
 
+    log.info("/rookie")
+
     data = Models().home()
 
     view = Views().get_home(data)
+
+    log.info("/rookie returning view")
 
     return view
 
@@ -34,9 +38,13 @@ def search():
     Do a search
     """
 
+    log.info("/rookie/search" + request.args.get('q'))
+
     data = Models().search(request)
 
     view = Views().get_results(data)
+
+    log.info("/rookie/search returning view")
 
     return view
 

@@ -13,6 +13,8 @@ TO_PROCESS = glob.glob('/Volumes/USB/lens_processed/*')
 ENTITY_KEYS = ["TIME", "LOCATION", "ORGANIZATION",
                "PERSON", "MONEY", "NUMBER", "DATE"]
 
+STOP_ENTITIES = ['Lens', 'The Lens', 'Matt Davis', 'Jessica Williams']
+
 
 def get_full_text(data):
     sentences = data['lines']['sentences']
@@ -50,7 +52,8 @@ def get_ner(data):
                         ner_to_add = ner_to_add + " " + next_tok
                 except IndexError:
                     pass
-                output.append([ner_to_add, ne])
+                if ner_to_add not in STOP_ENTITIES:
+                    output.append([ner_to_add, ne])
             counter = counter + 1
     return output
 
