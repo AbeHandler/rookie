@@ -7,9 +7,7 @@ and making sense of the queries) is in utils
 
 import pdb
 
-from rookie import (
-    log
-)
+from rookie import log
 
 from elasticsearch import Elasticsearch
 from rookie.utils import query_elasticsearch
