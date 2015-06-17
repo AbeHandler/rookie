@@ -8,6 +8,9 @@ c = collections.Counter()
 
 results = query_elasticsearch("Gusman")
 
+for p in results.persons:
+    print p.timestamps
+
 # query = {"query": {"match": {"PERSON": results.persons[0].name}}}
 
 # res = es.search(index="lens",

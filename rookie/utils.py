@@ -9,6 +9,7 @@ from rookie.classes import Result
 from rookie.classes import QueryResult
 from rookie.classes import EntityCount
 from repoze.lru import lru_cache
+import datetime
 
 
 def query_results_to_bag_o_entities(results):
@@ -58,8 +59,17 @@ def query_results_to_bag_o_words(results):
     return bag_o_query_words
 
 
+def time_stamp_to_date(timestamp):
+    timestamp = timestamp.split(" ")[0]
+    yr = int(timestamp.split("-")[0])
+    mo = int(timestamp.split("-")[1])
+    dy = int(timestamp.split("-")[2])
+    return datetime.date(yr, mo, dy)
+
+
 def get_timestamps(name, type_entity, results):
-    timestamps = [r['_source']['timestamp'] for r in results if name
+    timestamps = [time_stamp_to_date(r['_source']['timestamp']) for r in
+                  results if name
                   in r['_source']['entities'][type_entity]]
     return timestamps
 
@@ -77,7 +87,8 @@ def get_word_counts(results):
     words = collections.Counter(bag).most_common(25)
     word_entities = []
     for word in words:
-        timestamps = [r['_source']['timestamp'] for r in results if word[0]
+        timestamps = [time_stamp_to_date(r['_source']['timestamp'])
+                      for r in results if word[0]
                       in r['_source']['full_text']]
         word_entities.append(EntityCount(word, timestamps))
     return word_entities
