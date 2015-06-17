@@ -25,6 +25,8 @@ def intro():
 
     data = Models().home()
 
+    log.debug("got data")
+
     view = Views().get_home(data)
 
     log.info("/rookie returning view")
