@@ -76,7 +76,8 @@ def query_elasticsearch(lucene_query):
     dates = [EntityCount(e) for e in
              collections.Counter(entities['DATE']).most_common(25)]
     bag = query_results_to_bag_o_words(results)
-    words = collections.Counter(bag).most_common(25)
+    words = [EntityCount(e) for e in
+             collections.Counter(bag).most_common(25)]
     results = [Result(r) for r in results]
     query_result = QueryResult(words, persons, orgs,
                                locations, money, dates, results)

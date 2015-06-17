@@ -40,6 +40,11 @@
                    {"name": "{{ date.name }}", "count": "{{ date.count }}"},
               {% endfor %}
             ];
+            window.words = [
+              {% for word in words %}
+                   {"name": "{{ word.name }}", "count": "{{ word.count }}"},
+              {% endfor %}
+            ];
     </script>
 
     {% include 'banner.html' %}
@@ -66,7 +71,7 @@
     </div>
     <div class="row">
       <div class="small-12 medium-12 large-12 columns">
-          <div id="results" class="small-8 columns">
+          <div id="results" class="small-6 columns">
             <h6><b>results</b></h6>
           </div>
           <div id="people" class="small-2 columns">
@@ -74,6 +79,9 @@
           </div>
           <div id="organizations" class="small-2 columns">
             <h6><b>organizations</b></h6>
+          </div>
+          <div id="words" class="small-2 columns">
+            <h6><b>words</b></h6>
           </div>
          <!-- <div id="moneys">
           </div>

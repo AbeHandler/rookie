@@ -48,6 +48,7 @@ class Views(object):
                 locations=results.locations,
                 money=results.money,
                 dates=results.dates,
+                words=results.words,
                 results=results.results,
                 search_js=SEARCH_JS,
                 cloud_js=CLOUD_JS,
