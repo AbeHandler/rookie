@@ -30,7 +30,10 @@ class Models(object):
 
         output = []
 
+        log.debug(len(output))
+
         if request.args.get('q') is None:
+            log.debug("no parameters")
             return output
 
         q = request.args.get('q')
@@ -45,4 +48,5 @@ class Models(object):
         return results
 
     def home(self):
+        log.debug("home model")
         return ""
