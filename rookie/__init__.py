@@ -22,12 +22,12 @@ log.addHandler(filehandler)
 
 # CSS and JS locations
 
-LENS_CSS = '/static/css/lens.css'
-BANNER_CSS = '/static/css/banner.css'
-CONTRACTS_CSS = '/static/css/contracts.css'
-SEARCH_JS = '/static/js/search.js'
-CLOUD_JS = '/static/js/cloud.js'
-CLOUD_LAYOUT_JS = '/static/js/d3.layout.cloud.js'
+LENS_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/lens.css'
+BANNER_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/banner.css'
+CONTRACTS_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/contracts.css'
+SEARCH_JS = 'http://s3-us-west-2.amazonaws.com/rookielens/js/search.js'
+CLOUD_JS = 'http://s3-us-west-2.amazonaws.com/rookielens/js/cloud.js'
+CLOUD_LAYOUT_JS = 'http://s3-us-west-2.amazonaws.com/rookielens/js/d3.layout.cloud.js'
 
 if socket.getfqdn() == 'hobbes.cs.umass.edu':
     processed_location = "/home/ahandler/corpora/lens_processed/"
