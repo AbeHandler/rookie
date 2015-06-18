@@ -1,7 +1,7 @@
 import networkx as nx
 import string
 import collections
-import pdb
+import nltk
 from rookie import log
 from nltk.corpus import stopwords
 from elasticsearch import Elasticsearch
@@ -108,7 +108,9 @@ def query_elasticsearch(lucene_query):
         entity_dict[key] = get_entity_counts(entities, key, results)
     words = get_word_counts(results)
     results = [Result(r) for r in results]
-    query_result = QueryResult(words, entity_dict, results)
+    bigrams = nltk.bigrams(words)
+    trigrams = nltk.trigrams(words)
+    query_result = QueryResult(words, bigrams, trigrams, entity_dict, results)
     return query_result
 
 

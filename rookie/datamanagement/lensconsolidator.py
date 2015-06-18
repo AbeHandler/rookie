@@ -17,13 +17,16 @@ STOP_ENTITIES = ['Lens', 'The Lens', 'Matt Davis', 'Jessica Williams']
 
 
 def get_full_text(data):
-    sentences = data['lines']['sentences']
-    full_text = []
-    for sentence in sentences:
-        full_text = full_text + sentence['lemmas']
-    full_text = " ".join(full_text).encode('ascii', 'ignore').lower()
-    full_text = clean_punctuation(full_text)
-    return full_text
+    try:
+        sentences = data['lines']['sentences']
+        full_text = []
+        for sentence in sentences:
+            full_text = full_text + sentence['lemmas']
+        full_text = " ".join(full_text).encode('ascii', 'ignore').lower()
+        full_text = clean_punctuation(full_text)
+        return full_text
+    except TypeError:
+        return ""
 
 
 def get_doc_tokens(data):
@@ -110,7 +113,7 @@ def dictionaryfy(entities):
     return output
 
 
-for process_file in TO_PROCESS:
+def add_to_elastic_search(process_file):
     try:
         output = {}
         with open(process_file, 'r') as processed:
@@ -132,5 +135,8 @@ for process_file in TO_PROCESS:
                                       body=output)
     except ValueError:
         print 'value error'
-    except TypeError:
-        print 'type error'
+
+
+if __name__ == "__main__":
+    for process_file in TO_PROCESS:
+        add_to_elastic_search(process_file)
