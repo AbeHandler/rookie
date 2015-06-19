@@ -1,15 +1,8 @@
-from elasticsearch import Elasticsearch
 from rookie.utils import query_elasticsearch
-from rookie.classes import Result
 
-import collections
+result = query_elasticsearch("Gusman")
 
-c = collections.Counter()
-
-results = query_elasticsearch("Gusman")
-
-for p in results.persons:
-    print p.timestamps
+print result.trigrams
 
 # query = {"query": {"match": {"PERSON": results.persons[0].name}}}
 

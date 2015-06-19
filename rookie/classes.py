@@ -26,7 +26,7 @@ class QueryResult(object):
     def __init__(self, unigrams, bigrams, trigrams, entity_dict, results):
         '''Output from an elastic search query'''
 
-        self.words = unigrams
+        self.unigrams = unigrams
         self.bigrams = bigrams
         self.trigrams = trigrams
         self.persons = entity_dict['PERSON']

@@ -1,11 +1,10 @@
 import json
 import glob
 
-from rookie.utils import clean_punctuation
+from rookie.utils import get_full_text
 from elasticsearch import Elasticsearch
 
 elasticsearch = Elasticsearch(sniff_on_start=True)
-
 elasticsearch.indices.delete(index='*')
 
 TO_PROCESS = glob.glob('/Volumes/USB/lens_processed/*')
@@ -14,19 +13,6 @@ ENTITY_KEYS = ["TIME", "LOCATION", "ORGANIZATION",
                "PERSON", "MONEY", "NUMBER", "DATE"]
 
 STOP_ENTITIES = ['Lens', 'The Lens', 'Matt Davis', 'Jessica Williams']
-
-
-def get_full_text(data):
-    try:
-        sentences = data['lines']['sentences']
-        full_text = []
-        for sentence in sentences:
-            full_text = full_text + sentence['lemmas']
-        full_text = " ".join(full_text).encode('ascii', 'ignore').lower()
-        full_text = clean_punctuation(full_text)
-        return full_text
-    except TypeError:
-        return ""
 
 
 def get_doc_tokens(data):
@@ -63,6 +49,7 @@ def get_ner(data):
 
 def get_co_references(data):
     entity_groups = data['lines']['entities']
+    sentences = data['lines']['sentences']
     output = []
     for e in entity_groups:
         group = []
@@ -139,4 +126,7 @@ def add_to_elastic_search(process_file):
 
 if __name__ == "__main__":
     for process_file in TO_PROCESS:
-        add_to_elastic_search(process_file)
+        try:
+            add_to_elastic_search(process_file)
+        except TypeError:
+            pass

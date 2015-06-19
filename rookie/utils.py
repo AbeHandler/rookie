@@ -12,6 +12,31 @@ from repoze.lru import lru_cache
 import datetime
 
 
+def get_grams(text):
+    unigrams = text.split(" ")
+    bigrams = nltk.bigrams(unigrams)
+    trigrams = nltk.trigrams(unigrams)
+    return (unigrams, bigrams, trigrams)
+
+
+def get_full_text(data):
+    try:
+        sentences = data['lines']['sentences']
+        full_text = []
+        for sentence in sentences:
+            full_text = full_text + sentence['lemmas']
+        full_text = " ".join(full_text).encode('ascii', 'ignore').lower()
+        full_text = clean_punctuation(full_text)
+        return full_text
+    except TypeError:
+        return ""
+
+
+def lidstone(phrase, counter, delta):
+    lidstone = (counter[phrase] + delta) / (len(counter.keys()) + delta)  # n ?
+    return lidstone
+
+
 def query_results_to_bag_o_entities(results):
     '''
     Return a bag of entities
@@ -106,11 +131,13 @@ def query_elasticsearch(lucene_query):
     entity_dict = {}
     for key in keys:
         entity_dict[key] = get_entity_counts(entities, key, results)
-    words = get_word_counts(results)
     results = [Result(r) for r in results]
-    bigrams = nltk.bigrams(words)
-    trigrams = nltk.trigrams(words)
-    query_result = QueryResult(words, bigrams, trigrams, entity_dict, results)
+    texts = " ".join([r.fulltext for r in results])
+    grams = get_grams(texts)
+    unigrams = collections.Counter(grams[0])
+    bigrams = collections.Counter(grams[1])
+    trigrams = collections.Counter(grams[2])
+    query_result = QueryResult(unigrams, bigrams, trigrams, entity_dict, results)
     return query_result
 
 
