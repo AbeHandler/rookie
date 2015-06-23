@@ -1,13 +1,20 @@
 import glob
 import json
 import collections
+import pickle
 
 from rookie import log
 from rookie.utils import get_full_text
 from rookie.utils import get_grams
 
 
-files = glob.glob("/Volumes/USB/lens_processed/*")
+# To do: just dumping out raw json is apparently faster than
+# pickle and apparently you can get word ngrams way
+# faster than nltk using just itertools. But like, not the point
+# at this stage.
+
+files = glob.glob("/Volumes/USB 1/lens_processed/*")
+
 
 all_1 = []
 all_2 = []
@@ -26,23 +33,16 @@ for f in files:
     except ValueError:
         pass
 
-with open('data/3-grams', 'w') as outfile:
-    out = {}
-    counter = collections.Counter(all_3)
-    for key in counter.keys():
-        out[" ".join(key)] = counter[key]
-    json.dump(out, outfile)
 
-with open('data/2-grams', 'w') as outfile:
-    out = {}
-    counter = collections.Counter(all_2)
-    for key in counter.keys():
-        out[" ".join(key)] = counter[key]
-    json.dump(out, outfile)
+def write_grams(filename, grams):
+    with open(filename, 'wb') as outfile:
+        out = {}
+        counter = collections.Counter(grams)
+        for key in counter.keys():
+            out[key] = counter[key]
+        pickle.dump(out, outfile)
 
-with open('data/1-grams', 'w') as outfile:
-    out = {}
-    counter = collections.Counter(all_1)
-    for key in counter.keys():
-        out[" ".join(key)] = counter[key]
-    json.dump(out, outfile)
+
+write_grams("data/3-grams.p", all_3)
+write_grams("data/2-grams.p", all_2)
+write_grams("data/1-grams.p", all_1)

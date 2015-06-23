@@ -107,6 +107,14 @@ def get_entity_counts(entities, etype, results):
     return ents
 
 
+@lru_cache(maxsize=10000)
+def get_corpus_counts(grams):
+    fname = "data/{}-grams.p".format(grams)
+    with open(fname, "rb") as gram_file:
+        grams = pickle.load(gram_file)
+    return grams
+
+
 def get_word_counts(results):
     bag = query_results_to_bag_o_words(results)
     words = collections.Counter(bag).most_common(25)
@@ -137,7 +145,8 @@ def query_elasticsearch(lucene_query):
     unigrams = collections.Counter(grams[0])
     bigrams = collections.Counter(grams[1])
     trigrams = collections.Counter(grams[2])
-    query_result = QueryResult(unigrams, bigrams, trigrams, entity_dict, results)
+    query_result = QueryResult(unigrams, bigrams, trigrams,
+                               entity_dict, results)
     return query_result
 
 

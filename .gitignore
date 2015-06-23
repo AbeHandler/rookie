@@ -1,3 +1,4 @@
 lens_downloader/files/*
 *pyc
 *log
+*.p
