@@ -4,6 +4,8 @@ Front-end far an experimental search engine called "Rookie"
 
 import os
 
+from rookie.utils import get_corpus_counts
+
 from rookie import (
     log
 )
@@ -52,6 +54,26 @@ def search():
 
     return view
 
+
+@app.route('/rookie/test', methods=['GET'])
+def seasrch():
+    """
+    Do a search
+    """
+
+    log.debug("test")
+
+    get_corpus_counts("2")
+
+    log.debug("test")
+
+    get_corpus_counts("2")
+
+    log.debug("test")
+
+    get_corpus_counts("2")
+
+    return "ss"
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,7 +1,10 @@
-import networkx as nx
 import string
 import collections
 import nltk
+import pickle
+import redis
+import math
+from time import gmtime, strftime
 from rookie import log
 from nltk.corpus import stopwords
 from elasticsearch import Elasticsearch
@@ -12,6 +15,23 @@ from repoze.lru import lru_cache
 import datetime
 
 
+REDIS = redis.StrictRedis(host='localhost', port=6379, db=0)
+
+
+def load_ngrams(number):
+    to_cache = get_corpus_counts(number)
+    for k in to_cache.keys():
+        log.info("caching | {} | {}").format(" ".join(k), to_cache[k])
+        REDIS.set(" ".join(k), to_cache[k])
+
+
+def load_cache():
+    load_ngrams("1")
+    load_ngrams("2")
+    load_ngrams("3")
+
+
+@lru_cache(maxsize=10000)
 def get_grams(text):
     unigrams = text.split(" ")
     bigrams = nltk.bigrams(unigrams)
@@ -30,11 +50,6 @@ def get_full_text(data):
         return full_text
     except TypeError:
         return ""
-
-
-def lidstone(phrase, counter, delta):
-    lidstone = (counter[phrase] + delta) / (len(counter.keys()) + delta)  # n ?
-    return lidstone
 
 
 def query_results_to_bag_o_entities(results):
@@ -127,6 +142,36 @@ def get_word_counts(results):
     return word_entities
 
 
+@lru_cache(maxsize=10000)
+def get_denominator(counter_keys_len, delta):
+    return math.log(float(counter_keys_len + delta))
+
+
+# counter can be either phrase or corpus wide
+def lidstone(phrase, counter, delta):
+    try:
+        numerator = math.log(float(counter[phrase] + delta))
+        denominator = get_denominator(len(counter.keys()), delta)
+        lidstone = numerator / denominator
+        return lidstone
+    except KeyError:
+        print phrase
+        return 0
+
+
+def get_lidstones(query_counter, corpus_counter):
+    delta = .5
+    lidstone_output = []
+    print str(len(query_counter.keys())) + " to check"
+    for phrase in query_counter.keys():
+        if all(len(i) > 0 for i in phrase):
+            p_phrase_given_corpus = lidstone(phrase, corpus_counter, delta)
+            p_phrase_given_query = lidstone(phrase, query_counter, delta)
+            lidstone_output.append((phrase, p_phrase_given_query /
+                                    p_phrase_given_corpus))
+    return lidstone_output
+
+
 # @lru_cache(maxsize=10000)
 def query_elasticsearch(lucene_query):
     log.info("querying elastic search")
@@ -142,30 +187,28 @@ def query_elasticsearch(lucene_query):
     results = [Result(r) for r in results]
     texts = " ".join([r.fulltext for r in results])
     grams = get_grams(texts)
+
+    log.debug(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
     unigrams = collections.Counter(grams[0])
+    # filter out cases where unigram count is only 1
+    unigrams = collections.Counter(el for el in unigrams.elements()
+                                   if unigrams[el] > 2)
+
+    # lidstone_unigrams = get_lidstones(corpus_unigrams, unigrams)
+    log.debug(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
     bigrams = collections.Counter(grams[1])
+    bigrams = collections.Counter(el for el in bigrams.elements()
+                                  if bigrams[el] > 2)
+
+    log.debug(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
     trigrams = collections.Counter(grams[2])
+    trigrams = collections.Counter(el for el in trigrams.elements() if
+                                   trigrams[el] > 2)
+
     query_result = QueryResult(unigrams, bigrams, trigrams,
                                entity_dict, results)
+    log.debug(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
     return query_result
-
-
-def get_node_degrees(results):
-
-    G = nx.Graph()
-
-    node_degrees = {}
-
-    for result in results:
-        if result.docid not in G.nodes():
-            G.add_node(result.docid)
-        for link in result.links:
-            G.add_edge(result.docid, link[1])
-
-        for node in G.nodes():
-            node_degrees[node] = nx.degree(G, node)
-
-    return node_degrees
 
 
 def clean_punctuation(input_string):
@@ -173,5 +216,5 @@ def clean_punctuation(input_string):
     Assumes ASCII input. TODO: Error handling.
     '''
     for punctuation in string.punctuation:
-        input_string = input_string.replace(punctuation, "")
+        input_string = input_string.replace(punctuation, " ")
     return input_string

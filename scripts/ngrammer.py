@@ -20,6 +20,7 @@ all_1 = []
 all_2 = []
 all_3 = []
 
+
 for f in files:
     try:
         with open(f, "r") as data_file:
@@ -27,6 +28,8 @@ for f in files:
             data = json.load(data_file)
             full_text = get_full_text(data)
             grams = get_grams(full_text)
+            if "yeargusman" in grams[0]:
+                print data_file
             all_1 = all_1 + grams[0]
             all_2 = all_2 + [i for i in grams[1]]
             all_3 = all_3 + [j for j in grams[2]]
@@ -39,7 +42,8 @@ def write_grams(filename, grams):
         out = {}
         counter = collections.Counter(grams)
         for key in counter.keys():
-            out[key] = counter[key]
+            if all(len(item) > 0 for item in key):
+                out[key] = counter[key]
         pickle.dump(out, outfile)
 
 

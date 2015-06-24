@@ -7,7 +7,7 @@ from elasticsearch import Elasticsearch
 elasticsearch = Elasticsearch(sniff_on_start=True)
 elasticsearch.indices.delete(index='*')
 
-TO_PROCESS = glob.glob('/Volumes/USB/lens_processed/*')
+TO_PROCESS = glob.glob('/Volumes/USB 1/lens_processed/*')
 
 ENTITY_KEYS = ["TIME", "LOCATION", "ORGANIZATION",
                "PERSON", "MONEY", "NUMBER", "DATE"]
