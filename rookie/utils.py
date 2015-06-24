@@ -4,6 +4,8 @@ import nltk
 import pickle
 import redis
 import math
+import pdb
+import itertools
 from time import gmtime, strftime
 from rookie import log
 from nltk.corpus import stopwords
@@ -155,7 +157,6 @@ def lidstone(phrase, counter, delta):
         lidstone = numerator / denominator
         return lidstone
     except KeyError:
-        print phrase
         return 0
 
 
@@ -167,9 +168,21 @@ def get_lidstones(query_counter, corpus_counter):
         if all(len(i) > 0 for i in phrase):
             p_phrase_given_corpus = lidstone(phrase, corpus_counter, delta)
             p_phrase_given_query = lidstone(phrase, query_counter, delta)
-            lidstone_output.append((phrase, p_phrase_given_query /
-                                    p_phrase_given_corpus))
+            if p_phrase_given_corpus == 0:
+                lidstone_output.append((phrase, 0))
+            else:
+                lidstone_output.append((phrase, p_phrase_given_query /
+                                       p_phrase_given_corpus))
     return lidstone_output
+
+
+def list_to_counter(input):
+    trigrams = list(itertools.chain(*input))
+    trigrams = [tuple(x) for x in trigrams]
+    trigrams = collections.Counter(trigrams)
+    trigrams = collections.Counter(el for el in trigrams.elements()
+                                   if trigrams[el] > 2)
+    return trigrams
 
 
 # @lru_cache(maxsize=10000)
@@ -185,27 +198,14 @@ def query_elasticsearch(lucene_query):
     for key in keys:
         entity_dict[key] = get_entity_counts(entities, key, results)
     results = [Result(r) for r in results]
-    texts = " ".join([r.fulltext for r in results])
-    grams = get_grams(texts)
 
-    log.debug(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
-    unigrams = collections.Counter(grams[0])
-    # filter out cases where unigram count is only 1
-    unigrams = collections.Counter(el for el in unigrams.elements()
-                                   if unigrams[el] > 2)
+    trigrams = [r.trigrams for r in results]
+    trigrams = list_to_counter(trigrams)
 
-    # lidstone_unigrams = get_lidstones(corpus_unigrams, unigrams)
-    log.debug(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
-    bigrams = collections.Counter(grams[1])
-    bigrams = collections.Counter(el for el in bigrams.elements()
-                                  if bigrams[el] > 2)
+    bigrams = [r.bigrams for r in results]
+    bigrams = list_to_counter(bigrams)
 
-    log.debug(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
-    trigrams = collections.Counter(grams[2])
-    trigrams = collections.Counter(el for el in trigrams.elements() if
-                                   trigrams[el] > 2)
-
-    query_result = QueryResult(unigrams, bigrams, trigrams,
+    query_result = QueryResult(bigrams, trigrams,
                                entity_dict, results)
     log.debug(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
     return query_result

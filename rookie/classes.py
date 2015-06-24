@@ -1,12 +1,17 @@
 import datetime
 import json
 import re
+import pdb
 
 from itertools import tee, izip, islice
 
 
 class N_Grammer(object):
 
+    '''
+    Takes a line of output from python-Stanford wraper
+    and finds the syntactically valid ngrams
+    '''
     # https://stackoverflow.com/questions/21883108/fast-optimize-n-gram-implementations-in-python
 
     # valid_two_grams = ["NN", "AN"]
@@ -91,10 +96,9 @@ class EntityCount(object):
 
 class QueryResult(object):
 
-    def __init__(self, unigrams, bigrams, trigrams, entity_dict, results):
+    def __init__(self, bigrams, trigrams, entity_dict, results):
         '''Output from an elastic search query'''
 
-        self.unigrams = unigrams
         self.bigrams = bigrams
         self.trigrams = trigrams
         self.persons = entity_dict['PERSON']
@@ -125,16 +129,5 @@ class Result(object):
         self.links = result['_source']['links']
         self.score = result['_score']
         self.entities = result['_source']['entities']
-        self.link_degree = None
-
-    def as_dictionary(self):
-        output = {}
-        output['headline'] = self.headline
-        output['timestamp'] = self.timestamp
-        output['fulltext'] = self.fulltext
-        output['url'] = self.url
-        output['sentence_id'] = self.sentence_id
-        output['link_degree'] = self.link_degree
-        output['score'] = self.score
-        output['entities'] = self.entities
-        return output
+        self.trigrams = result['_source']['three_grams']
+        self.bigrams = result['_source']['two_grams']

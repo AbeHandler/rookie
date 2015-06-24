@@ -1,5 +1,6 @@
 import unittest
 import redis
+import pdb
 
 from time import gmtime, strftime
 from rookie.utils import query_elasticsearch
@@ -24,7 +25,7 @@ class GenericTestCase(unittest.TestCase):
         self.assertEqual(new_string, target)
 
     def test_len_result(self):
-        results = query_elasticsearch("OPSB")
+        results = query_elasticsearch("Sheriff")
         result = results.results.pop()
         self.assertTrue(len(result.headline) > 0)
 
@@ -33,14 +34,15 @@ class GenericTestCase(unittest.TestCase):
         self.assertTrue(len(grams.keys()) > 0)
 
     def test_get_lidstones(self):
+        result = query_elasticsearch("KIPP")
         print strftime("%Y-%m-%d %H:%M:%S", gmtime())
-        trigrams = query_elasticsearch("OPSB").trigrams
+        counts = get_corpus_counts("3")
         print strftime("%Y-%m-%d %H:%M:%S", gmtime())
-        bigrams = get_lidstones(trigrams, get_corpus_counts("3"))
+        trigrams = get_lidstones(result.trigrams, counts)
         print strftime("%Y-%m-%d %H:%M:%S", gmtime())
-        bigrams = sorted(bigrams,
+        trigrams = sorted(trigrams,
                          key=lambda x: x[1],
                          reverse=True)
-        print bigrams[0:75]
+        print trigrams[0:75]
 if __name__ == '__main__':
     unittest.main()
