@@ -1,4 +1,5 @@
 lens_downloader/files/*
+redis-stable/*
 *pyc
 *log
 *.p
