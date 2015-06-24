@@ -2,6 +2,7 @@ import json
 import glob
 
 from rookie.utils import get_full_text
+from rookie.classes import N_Grammer
 from elasticsearch import Elasticsearch
 
 elasticsearch = Elasticsearch(sniff_on_start=True)
@@ -111,6 +112,8 @@ def add_to_elastic_search(process_file):
             output['links'] = data['links']
             output['headline'] = data['headline']
             sentences = data['lines']['sentences']
+            output['two_grams'] = N_Grammer(process_file).twograms
+            output['three_grams'] = N_Grammer(process_file).threegrams
             tokens = get_doc_tokens(data)
             ner = get_ner(data)
             ner = correct_dates(ner, data['timestamp'][0:4])
