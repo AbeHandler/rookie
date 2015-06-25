@@ -22,8 +22,10 @@ class GenericTestCase(unittest.TestCase):
         with open("data/sample_wrapper_output_2.json", "r") as to_read:
             py_wrapper_output = json.loads(to_read.read())
         doc = Document(py_wrapper_output)
-        ner = doc.sentences[0].ner
-        pdb.set_trace()
+        ner = doc.sentences[0].ner[0]
+        self.assertEqual(ner.type, "ORGANIZATION")
+        org_name = " ".join([i.raw for i in ner.tokens])
+        self.assertEqual(org_name, "New Orleans Civil Service Commission")
 
 '''
     def test_get_lidstones(self):
