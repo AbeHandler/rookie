@@ -20,16 +20,17 @@ class N_Grammer(object):
     # A = any adjective (PTB tag starts with JJ)
     # N = any noun (PTB tag starts with NN)
 
-    def __init__(self, filename):
-        with open(filename, 'r') as processed:
-            data = json.load(processed)
-            sentences = data['lines']['sentences']
-            two_grams = []
-            three_grams = []
-            for sentence in sentences:
-                grams = self.get_grams(sentence['parse'])
-                two_grams = two_grams + grams[0]
-                three_grams = three_grams + grams[1]
+    def __init__(self, data):
+        sentences = data['lines']['sentences']
+        two_grams = []
+        three_grams = []
+        for sentence in sentences:
+            for i in range(0, len(self.get_tokens(sentence['parse']))):
+                print self.get_tokens(sentence['parse'])[i]
+#                print sentence['lemmas'][i]
+            grams = self.get_grams(sentence['parse'])
+            two_grams = two_grams + grams[0]
+            three_grams = three_grams + grams[1]
             self.twograms = two_grams
             self.threegrams = three_grams
 
@@ -52,14 +53,18 @@ class N_Grammer(object):
     def zipngram2(self, words, n=2):
         return self.pairwise(words, n)
 
+    def get_tokens(parse_string):
+        pattern = "((?<=\()([A-Z]+\$?|\.) [^)^()]+(?=\)))"
+        return re.findall(pattern, parse_string)
+
     def get_grams(self, s):
-        p = "((?<=\()[A-Z]+ [^)^()]+(?=\)))"
-        twograms = [i for i in self.zipngram2(re.findall(p, s))]
+        tokens = self.get_tokens(s)
+        twograms = [i for i in self.zipngram2(tokens)]
         twograms = [t for t in twograms if (self.is_adjective(t[0]) or
                     self.is_noun(t[0])) and self.is_noun(t[1])]
         twograms = [(t[0].split(" ")[1], t[1].split(" ")[1]) for t in twograms]
 
-        threegrams = [i for i in self.zipngram2(re.findall(p, s), 3)]
+        threegrams = [i for i in self.zipngram2(tokens, 3)]
 
         threegrams = [t for t in threegrams if self.is_noun(t[2]) and
                       (
@@ -131,3 +136,83 @@ class Result(object):
         self.entities = result['_source']['entities']
         self.trigrams = result['_source']['three_grams']
         self.bigrams = result['_source']['two_grams']
+
+
+class Document(object):
+
+    '''
+    This is an abstraction over output from proc.document_parse()
+    running in "ner" mode from the python NLP wrapper
+    '''
+
+    def __init__(self, json_output):
+        '''
+        Initialize w/ the json output
+        '''
+        sentences_json = json_output['sentences']
+        sentences = []
+        for sentence_json in sentences_json:
+            sentence = Sentence(sentence_json)
+            sentences.append(sentence)
+        self.sentences = sentences
+
+
+class Sentence(object):
+
+    def get_ner(self, json_sentence, tokens):
+        ner = json_sentence['ner']
+        counter = 0
+        output = []
+        while counter < len(ner):
+            ne_type = ner[counter]
+            if ne_type != "O":
+                ner_to_add = [tokens[counter]]
+                try:
+                    while ner[counter + 1] == ne_type:
+                        ne_type = ner[counter + 1]
+                        counter = counter + 1
+                        next_token = tokens[counter]
+                        ner_to_add.append(next_token)
+                except IndexError:  # reached the end of the ner
+                    pass
+                output.append(NER(ner_to_add, ne_type))
+            counter = counter + 1
+        return output
+
+    def __init__(self, json_sentence):
+        '''
+        Initialize w/ the json output
+        '''
+        tokens = json_sentence['tokens']
+        lemmas = json_sentence['lemmas']
+        poses = json_sentence['pos']
+        assert(len(tokens) == len(lemmas))
+        assert(len(poses) == len(lemmas))
+        assert(len(tokens) == len(poses))
+        sentence_tokens = []
+        for i in range(0, len(tokens)):
+            t = Token(tokens[i], poses[i], lemmas[i])
+            sentence_tokens.append(t)
+        self.tokens = sentence_tokens
+        self.ner = self.get_ner(json_sentence, self.tokens)
+
+
+class Token(object):
+
+    def __init__(self, raw_token, pos, lemma_form):
+        '''
+        Initialize w/ the json output
+        '''
+        self.raw = raw_token
+        self.pos = pos
+        self.lemma_form = lemma_form
+
+
+class NER(object):
+
+    def __init__(self, tokens, type_of_ner):
+        '''
+        Initialize w/ the json output
+        '''
+        self.tokens = tokens
+        self.type = type_of_ner

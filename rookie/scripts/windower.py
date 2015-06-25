@@ -1,6 +1,7 @@
 import json
 import glob
 import pdb
+import pickle
 from rookie.classes import N_Grammer
 from rookie.utils import get_full_text
 from rookie.utils import standardize_ner
@@ -183,3 +184,5 @@ if __name__ == "__main__":
             print len(windows.keys())
         except TypeError:
             pass
+    with open("data/windows.p", "wb") as outfile:
+        pickle.dump(windows, outfile)
