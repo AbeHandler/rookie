@@ -4,7 +4,7 @@ import nltk
 import pickle
 import redis
 import math
-import pdb
+import re
 import itertools
 from time import gmtime, strftime
 from rookie import log
@@ -41,6 +41,12 @@ def get_grams(text):
     return (unigrams, bigrams, trigrams)
 
 
+def clean_whitespace(full_text):
+    pattern = re.compile("\ {2,}")  # clean any big spaces left over
+    full_text = pattern.sub(" ", full_text)  # replace w/ small spaces
+    return full_text
+
+
 def get_full_text(data):
     try:
         sentences = data['lines']['sentences']
@@ -49,9 +55,20 @@ def get_full_text(data):
             full_text = full_text + sentence['lemmas']
         full_text = " ".join(full_text).encode('ascii', 'ignore').lower()
         full_text = clean_punctuation(full_text)
-        return full_text
+        return clean_whitespace(full_text)
     except TypeError:
         return ""
+
+
+def clean_titles(entity):
+    with open("data/titles.txt", "r") as processed:
+        to_clean = [i.replace("\n", "") for i in processed.readlines()]
+        if any(c in entity for c in to_clean):
+            in_ner = entity
+            for c in to_clean:
+                entity = entity.replace(c, "").strip()
+            print "cleaned {} to {}".format(in_ner, entity)
+    return entity
 
 
 def query_results_to_bag_o_entities(results):
@@ -82,6 +99,14 @@ def get_stopwords():
                    'parish', 'louisiana', '', '|', 'said', 'say', 'story',
                    'we', 'cover', 'lens']
     return temp
+
+
+def standardize_ner(n):
+    n = n.lower()
+    n = clean_punctuation(n)
+    n = clean_whitespace(n)
+    n = n.strip()
+    return n
 
 
 def query_results_to_bag_o_words(results):
@@ -201,9 +226,17 @@ def query_elasticsearch(lucene_query):
 
     trigrams = [r.trigrams for r in results]
     trigrams = list_to_counter(trigrams)
+    trigrams = get_lidstones(trigrams, get_corpus_counts("3"))
+    trigrams = sorted(trigrams,
+                      key=lambda x: x[1],
+                      reverse=True)
 
     bigrams = [r.bigrams for r in results]
     bigrams = list_to_counter(bigrams)
+    bigrams = get_lidstones(bigrams, get_corpus_counts("2"))
+    bigrams = sorted(bigrams,
+                     key=lambda x: x[1],
+                     reverse=True)
 
     query_result = QueryResult(bigrams, trigrams,
                                entity_dict, results)

@@ -2,18 +2,14 @@ import unittest
 import redis
 import pdb
 
+from rookie.scripts.windower import get_window
 from time import gmtime, strftime
 from rookie.utils import query_elasticsearch
+from rookie.utils import clean_titles
 from rookie.utils import clean_punctuation
 from rookie.utils import get_corpus_counts
 from rookie.utils import get_lidstones
 from rookie.utils import load_cache
-
-REDIS = redis.StrictRedis(host='localhost', port=6379, db=0)
-
-if REDIS.get("corpus_grams") is None:
-    load_cache()
-    REDIS.set('corpus_grams', "set")
 
 
 class GenericTestCase(unittest.TestCase):
@@ -33,6 +29,19 @@ class GenericTestCase(unittest.TestCase):
         grams = get_corpus_counts("1")
         self.assertTrue(len(grams.keys()) > 0)
 
+    def test_entity_cleaning(self):
+        entity = "Gov. Bobby Jindal"
+        entity = clean_titles(entity)
+        self.assertEqual(entity, "Bobby Jindal")
+
+    def test_windower(self):
+        doc = "hello my name is mitch landrieu i am the mayor of new orleans"
+        tokens = doc.split(" ")
+        ner = "mitch lanrieu"
+        get_window(tokens, ner, 3)
+
+
+'''
     def test_get_lidstones(self):
         result = query_elasticsearch("KIPP")
         print strftime("%Y-%m-%d %H:%M:%S", gmtime())
@@ -41,8 +50,10 @@ class GenericTestCase(unittest.TestCase):
         trigrams = get_lidstones(result.trigrams, counts)
         print strftime("%Y-%m-%d %H:%M:%S", gmtime())
         trigrams = sorted(trigrams,
-                         key=lambda x: x[1],
-                         reverse=True)
+                          key=lambda x: x[1],
+                          reverse=True)
         print trigrams[0:75]
+'''
+
 if __name__ == '__main__':
     unittest.main()

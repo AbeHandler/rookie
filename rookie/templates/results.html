@@ -40,9 +40,14 @@
                    {"name": "{{ date.name }}", "count": "{{ date.count }}"},
               {% endfor %}
             ];
-            window.words = [
-              {% for word in words %}
-                   {"name": "{{ word.name }}", "count": "{{ word.count }}"},
+            window.bigrams = [
+              {% for word in bigrams %}
+                   "{{word}}",
+              {% endfor %}
+            ];
+            window.trigrams = [
+              {% for word in trigrams %}
+                   "{{word}}",
               {% endfor %}
             ];
     </script>
@@ -71,17 +76,17 @@
     </div>
     <div class="row">
       <div class="small-12 medium-12 large-12 columns">
-          <div id="results" class="small-6 columns">
-            <h6><b>results</b></h6>
-          </div>
-          <div id="people" class="small-2 columns">
+          <div id="people" class="small-3 columns">
             <h6><b>people</b></h6>
           </div>
-          <div id="organizations" class="small-2 columns">
+          <div id="organizations" class="small-3 columns">
             <h6><b>organizations</b></h6>
           </div>
-          <div id="words" class="small-2 columns">
-            <h6><b>words</b></h6>
+          <div id="bigrams" class="small-3 columns">
+            <h6><b>bigrams</b></h6>
+          </div>
+          <div id="trigrams" class="small-3 columns">
+            <h6><b>trigrams</b></h6>
           </div>
          <!-- <div id="moneys">
           </div>

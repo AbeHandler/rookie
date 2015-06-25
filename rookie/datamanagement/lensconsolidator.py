@@ -1,7 +1,8 @@
 import json
 import glob
-
+import pdb
 from rookie.utils import get_full_text
+from rookie.utils import clean_titles
 from rookie.classes import N_Grammer
 from elasticsearch import Elasticsearch
 
@@ -119,7 +120,10 @@ def add_to_elastic_search(process_file):
             ner = correct_dates(ner, data['timestamp'][0:4])
             corefs = get_co_references(data)
             ner = correct_ner_to_first_mention(ner, corefs)
-            output['entities'] = dictionaryfy(ner)
+            ner = dictionaryfy(ner)
+            # remove peoples titles to ease coreference
+            ner['PERSON'] = [clean_titles(p) for p in ner['PERSON']]
+            output['entities'] = ner
             res = elasticsearch.index(index="lens",
                                       doc_type='news_story',
                                       body=output)
