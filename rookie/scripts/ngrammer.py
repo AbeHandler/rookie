@@ -28,8 +28,6 @@ for f in files:
             data = json.load(data_file)
             full_text = get_full_text(data)
             grams = get_grams(full_text)
-            if "yeargusman" in grams[0]:
-                print data_file
             all_1 = all_1 + grams[0]
             all_2 = all_2 + [i for i in grams[1]]
             all_3 = all_3 + [j for j in grams[2]]
