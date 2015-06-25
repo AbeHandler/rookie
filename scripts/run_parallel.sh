@@ -1,1 +1,0 @@
-cat allurls.txt | parallel -j20 --eta 'python rookie/datamanagement/lensprocessor.py {} {#}'
