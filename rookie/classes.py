@@ -4,9 +4,27 @@ import pdb
 from itertools import tee, izip, islice
 
 
+def propagate_first_mentions(document):
+    '''
+    This is more trouble than it is worth for now
+    '''
+    for group in document.coreferences.groups:
+        first_mention = group[0]
+        sentence = document.sentences[first_mention.sentence]
+        start = first_mention.span_start
+        end = first_mention.span_end
+        first_mention_tokens = sentence.tokens[start:end]
+        if all(t.ner_tag == "PERSON" or t.ner_tag == "ORGANIZATION" for
+               t in first_mention_tokens):
+            for mention in group[1:]:  # slice_off first token
+                pass
+                # expand it, theoretically
+
+
 class Window(object):
 
-    def get_window(self, sentence, ner, window_size):
+    @staticmethod
+    def get_window(sentence, ner, window_size):
         tokens = sentence.tokens
         start_ner = [i.raw for i in sentence.tokens].index(ner.tokens[0].raw)
         end_ner = start_ner + len(ner.tokens)
@@ -52,6 +70,22 @@ class N_Grammer(object):
 
     def get_ngrams(self, words, n=2):
         return self.pairwise(words, n)
+
+    def is_syntactically_valid(self, ngram):
+        valid_two_grams = ["NN", "AN"]
+        valid_three_grams = ["AAN", "NNN", "ANN"]
+        pattern = "".join([(j.abreviated_pos()) for j in ngram])
+        if pattern in valid_two_grams and len(pattern) == 2:
+            return True
+        if pattern in valid_three_grams and len(pattern) == 3:
+            return True
+
+    def get_syntactic_ngrams(self, words, n=2):
+        bigrams = [i for i in self.get_ngrams(words, 2) if
+                   self.is_syntactically_valid(i)]
+        trigrams = [i for i in self.get_ngrams(words, 3) if
+                    self.is_syntactically_valid(i)]
+        return (bigrams, trigrams)
 
 
 class Link(object):
@@ -131,39 +165,7 @@ class Document(object):
             sentence = Sentence(sentences_json[i], i)
             sentences.append(sentence)
         self.sentences = sentences
-        self.coreference = coreferences
-
-    def is_coreference_ner(self, coreference_group):
-        for mention in coreference_group:
-            sentence_no = mention[0]
-            tok_span = mention[1]
-            start_span = tok_span[0]
-            end_span = tok_span[1]
-            sentence = self.sentences[sentence_no]
-            ners = sentence.ner
-            for ner in ners:
-                ner_start = ner.tokens[0]
-                ner_end = ner.tokens[len(ner.tokens)-1]
-                if ner_start.token_no == start_span and \
-                   ner_end.token_no == end_span:
-                    return True
-        return False
-
-    def get_ner_coreference_type(self, coreference_group):
-        for mention in coreference_group:
-            sentence_no = mention[0]
-            tok_span = mention[1]
-            start_span = tok_span[0]
-            end_span = tok_span[1]
-            sentence = self.sentences[sentence_no]
-            ners = sentence.ner
-            for ner in ners:
-                ner_start = ner.tokens[0]
-                ner_end = ner.tokens[len(ner.tokens)-1]
-                if ner_start.token_no == start_span and \
-                   ner_end.token_no == end_span:
-                    return ner.type
-        return "0"
+        self.coreferences = coreferences
 
 
 class Sentence(object):
@@ -196,12 +198,13 @@ class Sentence(object):
         tokens = json_sentence['tokens']
         lemmas = json_sentence['lemmas']
         poses = json_sentence['pos']
+        ner = json_sentence['ner']
         assert(len(tokens) == len(lemmas))
         assert(len(poses) == len(lemmas))
         assert(len(tokens) == len(poses))
         sentence_tokens = []
         for i in range(0, len(tokens)):
-            t = Token(tokens[i], poses[i], lemmas[i], i, sentence_no)
+            t = Token(tokens[i], poses[i], lemmas[i], i, sentence_no, ner[i])
             sentence_tokens.append(t)
         self.tokens = sentence_tokens
         self.ner = self.get_ner(json_sentence, self.tokens)
@@ -209,12 +212,13 @@ class Sentence(object):
 
 class Token(object):
 
-    def __init__(self, raw_token, pos, lemma_form, token_no, sentence_no):
+    def __init__(self, raw_token, pos, lemma_form, token_no, sentence_no, ner):
         '''
         Initialize w/ the json output
         '''
         self.raw = raw_token
         self.pos = pos
+        self.ner_tag = ner
         self.lemma_form = lemma_form
         self.token_no = token_no
         self.sentence_no = sentence_no
@@ -268,3 +272,5 @@ class Mention(object):
     def __init__(self, json_input):
         self.sentence = json_input['sentence']
         self.tokspan = json_input['tokspan_in_sentence']
+        self.span_start = self.tokspan[0]
+        self.span_end = self.tokspan[1]

@@ -7,9 +7,7 @@ from rookie.classes import Document
 from rookie.classes import Window
 from rookie.classes import Coreferences
 from rookie.classes import N_Grammer
-
-valid_two_grams = ["NN", "AN"]
-valid_three_grams = ["AAN", "NNN", "ANN"]
+from rookie.classes import propagate_first_mentions
 
 
 class GenericTestCase(unittest.TestCase):
@@ -45,17 +43,12 @@ class GenericTestCase(unittest.TestCase):
         doc = Document(py_wrapper_output)
         sentence = doc.sentences[0]
         grammer = N_Grammer()
-        bigrams = [i for i in grammer.get_ngrams(sentence.tokens)]
-        for bigram in bigrams:
-            pattern = "".join([(j.abreviated_pos()) for j in bigram])
-            if pattern in valid_two_grams:
-                self.assertTrue(bigram[0].is_noun() or
-                                bigram[0].is_adjective())
-        trigrams = [i for i in grammer.get_ngrams(sentence.tokens, 3)]
-        for trigram in trigrams:
-            pattern = "".join([j.abreviated_pos() for j in trigram])
-            if pattern in valid_three_grams:
-                self.assertTrue(trigram[0].is_noun())
+        bigrams = grammer.get_syntactic_ngrams(sentence.tokens)
+        self.assertTrue(all(bigram[0].is_noun() or
+                            bigram[0].is_adjective()) for b in bigrams)
+        trigrams = grammer.get_syntactic_ngrams(sentence.tokens, 3)
+        self.assertTrue(all(bigram[0].is_noun() or
+                        bigram[0].is_adjective()) for b in trigrams)
 
     def test_find_window(self):
         with open("data/sample_wrapper_output_2.json", "r") as to_read:
@@ -73,6 +66,38 @@ class GenericTestCase(unittest.TestCase):
         corefs = Coreferences(py_wrapper_output)
         doc = Document(py_wrapper_output, corefs)
         self.assertTrue(len(corefs.groups) > -1)
+
+    def test_coref_groups(self):
+        with open("data/sample_wrapper_output_2.json", "r") as to_read:
+            py_wrapper_output = json.loads(to_read.read())
+        corefs = Coreferences(py_wrapper_output)
+        doc = Document(py_wrapper_output, corefs)
+        for group in [doc.coreferences.groups[155]]:
+            for mention in [group[0]]:
+                alltoks = doc.sentences[mention.sentence].tokens
+                mentiontokens = alltoks[mention.span_start:mention.span_end]
+                raws = [t.raw for t in mentiontokens]
+                tags = [t.ner_tag for t in mentiontokens]
+                self.assertEqual(raws[0], "Alexandra")
+                self.assertEqual(tags[0], "PERSON")
+
+    def test_first_mention_person_or_org(self):
+        with open("data/sample_wrapper_output_2.json", "r") as to_read:
+            py_wrapper_output = json.loads(to_read.read())
+        corefs = Coreferences(py_wrapper_output)
+        doc = Document(py_wrapper_output, corefs)
+        propagate_first_mentions(doc)
+
+    def test_get_windows(self):
+        with open("data/sample_wrapper_output_2.json", "r") as to_read:
+            py_wrapper_output = json.loads(to_read.read())
+        corefs = Coreferences(py_wrapper_output)
+        doc = Document(py_wrapper_output, corefs)
+        for sentence in doc.sentences:
+            for ner in sentence.ner:
+                window = Window.get_window(sentence, ner, 10)
+                print " ".join([t.raw for t in window]) + " surround "
+                print " ".join([i.raw for i in ner.tokens])
 
 if __name__ == '__main__':
     unittest.main()
