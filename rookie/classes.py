@@ -1,6 +1,35 @@
 import datetime
+import pdb
 
 from itertools import tee, izip, islice
+
+
+class Window(object):
+
+    def get_window(self, sentence, ner, window_size):
+        tokens = sentence.tokens
+        start_ner = [i.raw for i in sentence.tokens].index(ner.tokens[0].raw)
+        end_ner = start_ner + len(ner.tokens)
+        start = start_ner - window_size
+        end = end_ner + window_size
+
+        # if start of window is before start of tokens, set to zero
+        if start < 0:
+            start = 0
+
+        # if end of window is after end of tokens, set to len(tokens)
+        if end > len(tokens):
+            end = len(tokens)
+
+        output = tokens[start: end]
+
+        for token in ner.tokens:
+            try:
+                output.remove(token)
+            except ValueError:
+                pass
+
+        return output
 
 
 class N_Grammer(object):
@@ -91,9 +120,10 @@ class Document(object):
     running in "ner" mode from the python NLP wrapper
     '''
 
-    def __init__(self, json_output):
+    def __init__(self, json_output, coreferences=None):
         '''
-        Initialize w/ the json output
+        Initialize w/ the json output.
+        Coreferences are optional
         '''
         sentences_json = json_output['sentences']
         sentences = []
@@ -101,6 +131,39 @@ class Document(object):
             sentence = Sentence(sentences_json[i], i)
             sentences.append(sentence)
         self.sentences = sentences
+        self.coreference = coreferences
+
+    def is_coreference_ner(self, coreference_group):
+        for mention in coreference_group:
+            sentence_no = mention[0]
+            tok_span = mention[1]
+            start_span = tok_span[0]
+            end_span = tok_span[1]
+            sentence = self.sentences[sentence_no]
+            ners = sentence.ner
+            for ner in ners:
+                ner_start = ner.tokens[0]
+                ner_end = ner.tokens[len(ner.tokens)-1]
+                if ner_start.token_no == start_span and \
+                   ner_end.token_no == end_span:
+                    return True
+        return False
+
+    def get_ner_coreference_type(self, coreference_group):
+        for mention in coreference_group:
+            sentence_no = mention[0]
+            tok_span = mention[1]
+            start_span = tok_span[0]
+            end_span = tok_span[1]
+            sentence = self.sentences[sentence_no]
+            ners = sentence.ner
+            for ner in ners:
+                ner_start = ner.tokens[0]
+                ner_end = ner.tokens[len(ner.tokens)-1]
+                if ner_start.token_no == start_span and \
+                   ner_end.token_no == end_span:
+                    return ner.type
+        return "0"
 
 
 class Sentence(object):
@@ -138,7 +201,7 @@ class Sentence(object):
         assert(len(tokens) == len(poses))
         sentence_tokens = []
         for i in range(0, len(tokens)):
-            t = Token(tokens[i], poses[i], lemmas[i], i)
+            t = Token(tokens[i], poses[i], lemmas[i], i, sentence_no)
             sentence_tokens.append(t)
         self.tokens = sentence_tokens
         self.ner = self.get_ner(json_sentence, self.tokens)
@@ -146,7 +209,7 @@ class Sentence(object):
 
 class Token(object):
 
-    def __init__(self, raw_token, pos, lemma_form, token_no):
+    def __init__(self, raw_token, pos, lemma_form, token_no, sentence_no):
         '''
         Initialize w/ the json output
         '''
@@ -154,6 +217,7 @@ class Token(object):
         self.pos = pos
         self.lemma_form = lemma_form
         self.token_no = token_no
+        self.sentence_no = sentence_no
 
     def abreviated_pos(self):
         if self.is_adjective():
@@ -184,3 +248,23 @@ class NER(object):
         '''
         self.tokens = tokens
         self.type = type_of_ner
+
+
+class Coreferences(object):
+
+    def __init__(self, data):
+        entity_groups = data['entities']
+        self.groups = []  # start with no coref groups
+        for e in entity_groups:
+            if not e['mentions'] is None:
+                group = []
+                for m in e['mentions']:
+                    group.append(Mention(m))
+                self.groups.append(group)
+
+
+class Mention(object):
+
+    def __init__(self, json_input):
+        self.sentence = json_input['sentence']
+        self.tokspan = json_input['tokspan_in_sentence']
