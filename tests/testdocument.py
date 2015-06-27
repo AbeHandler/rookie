@@ -43,10 +43,10 @@ class GenericTestCase(unittest.TestCase):
         doc = Document(py_wrapper_output)
         sentence = doc.sentences[0]
         grammer = N_Grammer()
-        bigrams = grammer.get_syntactic_ngrams(sentence.tokens)
+        bigrams = grammer.get_syntactic_ngrams(sentence.tokens)[0]
         self.assertTrue(all(bigram[0].is_noun() or
                             bigram[0].is_adjective()) for b in bigrams)
-        trigrams = grammer.get_syntactic_ngrams(sentence.tokens, 3)
+        trigrams = grammer.get_syntactic_ngrams(sentence.tokens)[1]
         self.assertTrue(all(bigram[0].is_noun() or
                         bigram[0].is_adjective()) for b in trigrams)
 
@@ -96,8 +96,19 @@ class GenericTestCase(unittest.TestCase):
         for sentence in doc.sentences:
             for ner in sentence.ner:
                 window = Window.get_window(sentence, ner, 10)
-                print " ".join([t.raw for t in window]) + " surround "
-                print " ".join([i.raw for i in ner.tokens])
+                self.assertTrue(len(window) - len(ner.tokens),
+                                20 - len(ner.tokens))
+
+    def test_get_windows(self):
+        with open("data/sample_wrapper_output_2.json", "r") as to_read:
+            py_wrapper_output = json.loads(to_read.read())
+        corefs = Coreferences(py_wrapper_output)
+        doc = Document(py_wrapper_output, corefs)
+        for sentence in doc.sentences:
+            for ner in sentence.ner:
+                window = Window.get_window(sentence, ner, 10)
+                self.assertTrue(len(window) - len(ner.tokens),
+                                20 - len(ner.tokens))
 
 if __name__ == '__main__':
     unittest.main()

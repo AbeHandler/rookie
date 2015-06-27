@@ -80,7 +80,7 @@ class N_Grammer(object):
         if pattern in valid_three_grams and len(pattern) == 3:
             return True
 
-    def get_syntactic_ngrams(self, words, n=2):
+    def get_syntactic_ngrams(self, words):
         bigrams = [i for i in self.get_ngrams(words, 2) if
                    self.is_syntactically_valid(i)]
         trigrams = [i for i in self.get_ngrams(words, 3) if
@@ -253,18 +253,26 @@ class NER(object):
         self.tokens = tokens
         self.type = type_of_ner
 
+    def __repr__(self):
+            return " ".join([i.raw for i in self.tokens])
+
 
 class Coreferences(object):
 
     def __init__(self, data):
-        entity_groups = data['entities']
-        self.groups = []  # start with no coref groups
-        for e in entity_groups:
-            if not e['mentions'] is None:
-                group = []
-                for m in e['mentions']:
-                    group.append(Mention(m))
-                self.groups.append(group)
+        try:
+            entity_groups = data['entities']
+            self.groups = []  # start with no coref groups
+            for e in entity_groups:
+                if not e['mentions'] is None:
+                    group = []
+                    for m in e['mentions']:
+                        group.append(Mention(m))
+                    self.groups.append(group)
+        except KeyError:
+            self.groups = []
+        except TypeError:
+            self.groups = []
 
 
 class Mention(object):
