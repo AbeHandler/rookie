@@ -1,4 +1,5 @@
 import json
+import collections
 import pickle
 import pdb
 from rookie.classes import Coreferences
@@ -11,7 +12,7 @@ ner_grams = {}
 
 file_loc = "/Users/abramhandler/research/rookie/data/lens_processed/*"
 
-files_to_check = glob.glob(file_loc)
+files_to_check = glob.glob(file_loc)[0:1000]
 
 
 def add_grams_to_dict(ner, grams):
@@ -21,6 +22,22 @@ def add_grams_to_dict(ner, grams):
         ner_grams[ner] = temp
     else:
         ner_grams[ner] = grams
+
+
+def grams_to_list(grams):
+    grams_list = []
+    for ngram in grams:
+        raw = " ".join(tok.raw for tok in ngram)
+        grams_list.append(raw)
+    return grams_list
+
+
+def filter_counter_to_bigger_than_one(counter):
+    out = {}
+    for key in counter.keys():
+        if counter[key] > 1:
+            out[key] = counter[key]
+    return out
 
 
 def get_grams(fn):
@@ -35,20 +52,31 @@ def get_grams(fn):
                 grams = ng.get_syntactic_ngrams(window)
                 bigrams = grams[0]
                 trigrams = grams[1]
-                add_grams_to_dict(ner, bigrams)
-                add_grams_to_dict(ner, trigrams)
+                add_grams_to_dict(repr(ner), bigrams)
+                add_grams_to_dict(repr(ner), trigrams)
 
-counter = 0
-for f in files_to_check:
-    try:
-        get_grams(f)
-        counter = counter + 1
-        print counter
-    except ValueError:
-        pass
-    except KeyError:
-        pass
-    except TypeError:
-        pass
+if __name__ == "__main__":
+    counter = 0
+    for f in files_to_check:
+        try:
+            get_grams(f)
+            counter = counter + 1
+            print counter
+        except ValueError:
+            pass
+        except KeyError:
+            pass
+        except TypeError:
+            pass
+    pickle.dump(ner_grams, open("data/tmp.p", "wb"))
 
-pickle.dump(ner_grams, open("data/window.p", "wb"))
+    for key in ner_grams.keys():
+        grams = [i for i in ner_grams[key]]
+        grams_list = grams_to_list(grams)
+        counter = collections.Counter(grams_list)
+        filtered = filter_counter_to_bigger_than_one(counter)
+
+        if key == "Mitch Landrieu":
+            pdb.set_trace()
+
+    pickle.dump(output, open("data/window.p", "wb"))
