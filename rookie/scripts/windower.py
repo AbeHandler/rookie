@@ -1,4 +1,6 @@
 import json
+import pickle
+import pdb
 from rookie.classes import Coreferences
 from rookie.classes import Document
 from rookie.classes import Window
@@ -7,7 +9,10 @@ import glob
 
 ner_grams = {}
 
-files_to_check = glob.glob("/Volumes/USB/lens_processed/*")
+file_loc = "/Users/abramhandler/research/rookie/data/lens_processed/*"
+
+files_to_check = glob.glob(file_loc)
+
 
 def add_grams_to_dict(ner, grams):
     if ner in ner_grams.keys():
@@ -29,11 +34,16 @@ def get_grams(fn):
                 ng = N_Grammer()
                 grams = ng.get_syntactic_ngrams(window)
                 bigrams = grams[0]
-                add_grams_to_dict(repr(ner), bigrams)
+                trigrams = grams[1]
+                add_grams_to_dict(ner, bigrams)
+                add_grams_to_dict(ner, trigrams)
 
+counter = 0
 for f in files_to_check:
     try:
         get_grams(f)
+        counter = counter + 1
+        print counter
     except ValueError:
         pass
     except KeyError:
@@ -41,4 +51,4 @@ for f in files_to_check:
     except TypeError:
         pass
 
-print ner_grams['Mitch Landrieu']
+pickle.dump(ner_grams, open("data/window.p", "wb"))

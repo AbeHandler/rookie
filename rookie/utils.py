@@ -17,22 +17,6 @@ from repoze.lru import lru_cache
 import datetime
 
 
-REDIS = redis.StrictRedis(host='localhost', port=6379, db=0)
-
-
-def load_ngrams(number):
-    to_cache = get_corpus_counts(number)
-    for k in to_cache.keys():
-        log.info("caching | {} | {}").format(" ".join(k), to_cache[k])
-        REDIS.set(" ".join(k), to_cache[k])
-
-
-def load_cache():
-    load_ngrams("1")
-    load_ngrams("2")
-    load_ngrams("3")
-
-
 @lru_cache(maxsize=10000)
 def get_grams(text):
     unigrams = text.split(" ")
@@ -45,19 +29,6 @@ def clean_whitespace(full_text):
     pattern = re.compile("\ {2,}")  # clean any big spaces left over
     full_text = pattern.sub(" ", full_text)  # replace w/ small spaces
     return full_text
-
-
-def get_full_text(data):
-    try:
-        sentences = data['lines']['sentences']
-        full_text = []
-        for sentence in sentences:
-            full_text = full_text + sentence['lemmas']
-        full_text = " ".join(full_text).encode('ascii', 'ignore').lower()
-        full_text = clean_punctuation(full_text)
-        return clean_whitespace(full_text)
-    except TypeError:
-        return ""
 
 
 def clean_titles(entity):

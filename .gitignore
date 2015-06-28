@@ -3,3 +3,4 @@ redis-stable/*
 *pyc
 *log
 *.p
+data/lens_processed/*

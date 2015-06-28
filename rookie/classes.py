@@ -1,7 +1,7 @@
 import datetime
 import pdb
 
-from itertools import tee, izip, islice
+from itertools import tee, izip, islice, chain
 
 
 def propagate_first_mentions(document):
@@ -166,6 +166,8 @@ class Document(object):
             sentences.append(sentence)
         self.sentences = sentences
         self.coreferences = coreferences
+        sentence_tokens = [s.tokens for s in self.sentences]
+        self.tokens = list(chain(*sentence_tokens))
 
 
 class Sentence(object):

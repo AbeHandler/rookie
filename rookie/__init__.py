@@ -38,7 +38,7 @@ elif socket.getfqdn() == 'rookie':
     corpus_loc = "/home/ubuntu/corpora/lens/"
     core_nlp_location = "/home/sw/corenlp/stanford-corenlp-full-2015-04-20/*"
 else:
-    processed_location = "/Volumes/USB/lens_processed/"
+    processed_location = '/Users/abramhandler/research/rookie/data/lens_processed/*'
     tagger_base = "/Volumes/USB/stanford-postagger-2015-04-20/"
     corpus_loc = "/Volumes/USB/lens/"
     core_nlp_location = "/Volumes/USB/stanford-corenlp-full-2015-04-20/*"
