@@ -24,13 +24,16 @@ def propagate_first_mentions(document):
 class Window(object):
 
     @staticmethod
-    def get_window(sentence, ner, window_size):
+    def get_window(sentence, npe_tokens, window_size=10):
+        '''
+        Returns the token around an npe in a sentence. An npe
+        is either an entity or an ngram -- a (n)oun (p)hrase or (e)ntity
+        '''
         tokens = sentence.tokens
-        start_ner = [i.raw for i in sentence.tokens].index(ner.tokens[0].raw)
-        end_ner = start_ner + len(ner.tokens)
+        start_ner = [i.raw for i in sentence.tokens].index(npe_tokens[0].raw)
+        end_ner = start_ner + len(npe_tokens)
         start = start_ner - window_size
         end = end_ner + window_size
-
         # if start of window is before start of tokens, set to zero
         if start < 0:
             start = 0
@@ -41,7 +44,7 @@ class Window(object):
 
         output = tokens[start: end]
 
-        for token in ner.tokens:
+        for token in npe_tokens:
             try:
                 output.remove(token)
             except ValueError:
@@ -168,6 +171,13 @@ class Document(object):
         self.coreferences = coreferences
         sentence_tokens = [s.tokens for s in self.sentences]
         self.tokens = list(chain(*sentence_tokens))
+        self.ner = self.get_ner()
+
+    def get_ner(self):
+        ner = []
+        for sentence in self.sentences:
+            ner = ner + sentence.ner
+        return ner
 
 
 class Sentence(object):
@@ -284,3 +294,15 @@ class Mention(object):
         self.tokspan = json_input['tokspan_in_sentence']
         self.span_start = self.tokspan[0]
         self.span_end = self.tokspan[1]
+
+
+class NPE(object):
+    '''
+    An NPE is a set of tokens that match syntactically valid
+    pattern or represent a named entity
+    '''
+    def __init__(self, tokens):
+        self.tokens = tokens
+
+    def __repr__(self):
+        return " ".join([i.raw for i in self.tokens])
