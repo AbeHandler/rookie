@@ -1,8 +1,7 @@
 import unittest
 import json
-import pdb
-import glob
 
+from rookie.classes import Span
 from rookie.classes import Document
 from rookie.classes import Window
 from rookie.classes import Coreferences
@@ -56,7 +55,7 @@ class GenericTestCase(unittest.TestCase):
         doc = Document(py_wrapper_output)
         sentence = doc.sentences[0]
         window = Window()
-        out = window.get_window(sentence, sentence.ner[3], 1)
+        out = window.get_window(sentence, sentence.ner[3].tokens, 1)
         self.assertEqual(str(out[0].raw), "Mayor")
         self.assertEqual(str(out[1].raw), "Great")
 
@@ -106,9 +105,57 @@ class GenericTestCase(unittest.TestCase):
         doc = Document(py_wrapper_output, corefs)
         for sentence in doc.sentences:
             for ner in sentence.ner:
-                window = Window.get_window(sentence, ner, 10)
+                window = Window.get_window(sentence, ner.tokens, 10)
                 self.assertTrue(len(window) - len(ner.tokens),
                                 20 - len(ner.tokens))
+
+    def test_span(self):
+        with open("data/sample_wrapper_output_2.json", "r") as to_read:
+            py_wrapper_output = json.loads(to_read.read())
+        doc = Document(py_wrapper_output)
+        ner = doc.ner
+        grams = doc.ngrams
+        npe_one = [l for l in ner[0].tokens]
+        npe_two = [l for l in grams[3]]
+        span = Span(npe_one, npe_two, doc)
+        # span is zero. they overlap
+        self.assertTrue(span.distance == 0)
+
+        # same with the swap
+        span2 = Span(npe_two, npe_one, doc)
+        self.assertTrue(span2.distance == 0)
+
+    def test_span_2(self):
+        with open("data/sample_wrapper_output_2.json", "r") as to_read:
+            py_wrapper_output = json.loads(to_read.read())
+        doc = Document(py_wrapper_output)
+        ner = doc.ner
+        grams = doc.ngrams
+        npe_one = [l for l in ner[0].tokens]
+        npe_two = [l for l in grams[5]]
+        span = Span(npe_one, npe_two, doc)
+        # the distance is 11, same sentence
+        self.assertTrue(span.distance == 11)
+        span2 = Span(npe_two, npe_one, doc)
+        # distance should still be 11 even if swapped
+        self.assertTrue(span2.distance == 11)
+
+    def test_span_3(self):
+        with open("data/sample_wrapper_output_2.json", "r") as to_read:
+            py_wrapper_output = json.loads(to_read.read())
+        doc = Document(py_wrapper_output)
+        ner = doc.ner
+        grams = doc.ngrams
+        npe_one = [l for l in ner[0].tokens]
+        npe_two = [l for l in grams[22]]
+        s1 = doc.sentences[npe_one[0].sentence_no]
+        s2 = doc.sentences[npe_two[0].sentence_no]
+        span = Span(npe_one, npe_two, doc)
+        # the distance is 11, same sentence
+        self.assertTrue(span.distance == 58)
+        span2 = Span(npe_two, npe_one, doc)
+        # distance should still be 11 even if swapped
+        self.assertTrue(span2.distance == 58)
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,4 +1,5 @@
 import datetime
+
 import pdb
 
 from itertools import tee, izip, islice, chain
@@ -30,7 +31,7 @@ class Window(object):
         is either an entity or an ngram -- a (n)oun (p)hrase or (e)ntity
         '''
         tokens = sentence.tokens
-        start_ner = [i.raw for i in sentence.tokens].index(npe_tokens[0].raw)
+        start_ner = [i.raw for i in tokens].index(npe_tokens[0].raw)
         end_ner = start_ner + len(npe_tokens)
         start = start_ner - window_size
         end = end_ner + window_size
@@ -84,6 +85,10 @@ class N_Grammer(object):
             return True
 
     def get_syntactic_ngrams(self, words):
+        '''
+        :param words: a list of word tokens
+        :type words: Token
+        '''
         bigrams = [i for i in self.get_ngrams(words, 2) if
                    self.is_syntactically_valid(i)]
         trigrams = [i for i in self.get_ngrams(words, 3) if
@@ -172,12 +177,19 @@ class Document(object):
         sentence_tokens = [s.tokens for s in self.sentences]
         self.tokens = list(chain(*sentence_tokens))
         self.ner = self.get_ner()
+        self.ngrams = self.get_ngrams()
 
     def get_ner(self):
         ner = []
         for sentence in self.sentences:
             ner = ner + sentence.ner
         return ner
+
+    def get_ngrams(self):
+        ngrams = []
+        for sentence in self.sentences:
+            ngrams = ngrams + sentence.bigrams + sentence.trigrams
+        return ngrams
 
 
 class Sentence(object):
@@ -202,6 +214,15 @@ class Sentence(object):
             counter = counter + 1
         return output
 
+    def get_ngrams(self):
+        '''
+        :param words: a list of all word tokens in a document
+        :type words: Token
+        '''
+        ng = N_Grammer()
+        grams = ng.get_syntactic_ngrams(self.tokens)
+        return grams
+
     def __init__(self, json_sentence, sentence_no):
         '''
         Initialize w/ the json output
@@ -220,6 +241,9 @@ class Sentence(object):
             sentence_tokens.append(t)
         self.tokens = sentence_tokens
         self.ner = self.get_ner(json_sentence, self.tokens)
+        # TODO, get_ngrams should take a parameter, n
+        self.bigrams = self.get_ngrams()[0]
+        self.trigrams = self.get_ngrams()[1]
 
 
 class Token(object):
@@ -294,6 +318,57 @@ class Mention(object):
         self.tokspan = json_input['tokspan_in_sentence']
         self.span_start = self.tokspan[0]
         self.span_end = self.tokspan[1]
+
+
+class Span(object):
+
+    '''
+    Oh man this is ugly. refactor
+    '''
+    def __init__(self, npe_one, npe_two, document):
+        sentence_one = document.sentences[npe_one[0].sentence_no]
+        sentence_two = document.sentences[npe_two[0].sentence_no]
+        if sentence_two.sentence_no < sentence_one.sentence_no:
+            tmp = npe_one
+            npe_one = npe_two
+            npe_two = tmp
+
+        s1 = document.sentences[npe_one[0].sentence_no]
+        s2 = document.sentences[npe_two[0].sentence_no]
+        assert s1 <= s2
+
+        distance = 0
+
+        # if the npes are in the same sentence
+        if (npe_one[0].sentence_no == npe_two[0].sentence_no):
+            start_tok_npe_one = npe_one[0].token_no
+            end_tok_npe_one = npe_one[len(npe_one) - 1].token_no
+            start_tok_npe_two = npe_two[0].token_no
+            end_tok_npe_two = npe_two[len(npe_two) - 1].token_no
+            # if tok1 before tok 2
+            if start_tok_npe_one <= start_tok_npe_two:
+                # and tok 1 ends before tok2
+                if end_tok_npe_one <= start_tok_npe_two:
+                    distance = start_tok_npe_two - end_tok_npe_one
+                else:
+                    distance = 0  # TODO: if distance zero, then no E on graph
+            else:
+                assert(start_tok_npe_two < start_tok_npe_one)
+                if start_tok_npe_one > end_tok_npe_two:
+                    distance = start_tok_npe_one - end_tok_npe_two
+
+        else:
+            for i in range(npe_one[0].sentence_no + 1,
+                           npe_two[0].sentence_no):
+                sentence = document.sentences[i]
+                distance = distance + len(sentence.tokens)
+            npe_one_sentence = document.sentences[npe_one[0].sentence_no]
+            npe_one_last_token = npe_one[len(npe_one) - 1]
+            remaining_tokens = s1.tokens[npe_one_last_token.token_no + 1:]
+            remaining_sentence1 = len(remaining_tokens)
+            remaining_sentence2 = npe_two[0].token_no
+            distance = distance + remaining_sentence1 + remaining_sentence2
+        self.distance = distance
 
 
 class NPE(object):

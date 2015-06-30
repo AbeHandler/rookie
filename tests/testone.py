@@ -2,8 +2,9 @@ import unittest
 import redis
 import pdb
 
-from rookie.scripts.windower import get_window
+
 from time import gmtime, strftime
+from rookie.classes import Window
 from rookie.utils import query_elasticsearch
 from rookie.utils import clean_titles
 from rookie.utils import clean_punctuation
