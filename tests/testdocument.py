@@ -1,5 +1,6 @@
 import unittest
 import json
+import pdb
 
 from rookie.classes import Span
 from rookie.classes import Document
@@ -151,11 +152,23 @@ class GenericTestCase(unittest.TestCase):
         s1 = doc.sentences[npe_one[0].sentence_no]
         s2 = doc.sentences[npe_two[0].sentence_no]
         span = Span(npe_one, npe_two, doc)
-        # the distance is 11, same sentence
         self.assertTrue(span.distance == 58)
         span2 = Span(npe_two, npe_one, doc)
-        # distance should still be 11 even if swapped
         self.assertTrue(span2.distance == 58)
+
+    def test_span_4(self):
+        with open("data/sample_wrapper_output_2.json", "r") as to_read:
+            py_wrapper_output = json.loads(to_read.read())
+        doc = Document(py_wrapper_output)
+        ner = doc.ner
+        grams = doc.ngrams
+        npe_one = [l for l in ner[0].tokens]
+        npe_two = [l for l in grams[25]]
+        s1 = doc.sentences[npe_one[0].sentence_no]
+        s2 = doc.sentences[npe_two[0].sentence_no]
+        span = Span(npe_one, npe_two, doc)
+        print span4
+        span2 = Span(npe_two, npe_one, doc)
 
 if __name__ == '__main__':
     unittest.main()
