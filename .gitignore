@@ -4,3 +4,5 @@ redis-stable/*
 *log
 *.p
 data/lens_processed/*
+rookie.sql
+graph.csv

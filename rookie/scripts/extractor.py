@@ -16,11 +16,11 @@ counter = 0
 if __name__ == "__main__":
     for filename in files_to_check:
         try:
-            print counter
-            print datetime.datetime.now()
             counter = counter + 1
             with (open(filename, "r")) as infile:
-                data = json.loads(infile.read())['lines']
+                json_in = json.loads(infile.read())
+                url = json_in['url']
+                data = json_in['lines']
             doc = Document(data)
             sentences = doc.sentences
             sentence_counter = 0
@@ -36,7 +36,6 @@ if __name__ == "__main__":
                     grams.append(NPE(gram, gram[0].sentence_no))
                 for gram in trigrams:
                     grams.append(NPE(gram, gram[0].sentence_no))
-                # print datetime.datetime.now()
                 npes = grams + ner
                 potential_edges = list(itertools.product(npes, npes))
                 for pe in potential_edges:
@@ -44,7 +43,7 @@ if __name__ == "__main__":
                         writer = csv.writer(csvfile, delimiter=',',
                                             quotechar='"',
                                             quoting=csv.QUOTE_MINIMAL)
-                        writer.writerow(pe)
+                        writer.writerow([i for i in pe] + [url])
         except KeyError:
             pass
         except KeyError:

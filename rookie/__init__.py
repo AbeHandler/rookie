@@ -42,3 +42,10 @@ else:
     tagger_base = "/Volumes/USB/stanford-postagger-2015-04-20/"
     corpus_loc = "/Volumes/USB/lens/"
     core_nlp_location = "/Volumes/USB/stanford-corenlp-full-2015-04-20/*"
+
+CONNECTION_STRING = 'postgresql://%s:%s@%s:5432/%s' % (
+        os.environ.get('DATABASE_USERNAME'),
+        os.environ.get('DATABASE_PASSWORD'),
+        os.environ.get('DATABASE_SERVER'),
+        'rookie',
+)

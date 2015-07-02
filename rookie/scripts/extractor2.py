@@ -1,14 +1,53 @@
 import csv
+import pdb
+
+from rookie.db import GramNER
+from rookie.db import Link
+from rookie import CONNECTION_STRING
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 all_things = []
+
+engine = create_engine(CONNECTION_STRING)
+Session = sessionmaker(bind=engine)
+session = Session()
+
+
+def add_if_new(string):
+    indb = session.query(GramNER).filter(GramNER.string == string).count()
+    if indb == 0:
+        gramner = GramNER(string)
+        session.add(gramner)
+        session.commit()
+        return
+    if indb == 1:
+        return
+
+
+def add_link(row):
+    id1 = session.query(GramNER).filter(GramNER.string == row[0]).first().id
+    id2 = session.query(GramNER).filter(GramNER.string == row[1]).first().id
+    link = Link(id1, id2)
+    session.add(link)
+    session.commit()
+    return
+
 
 with open('graph.csv', 'r') as csvfile:
     reader = csv.reader(csvfile, delimiter=',',
                         quotechar='"')
     for row in reader:
         all_things.append(row)
-        print len(all_things)
+        if len(all_things) % 10000 == 0:
+            print len(all_things)
 
-all_types = set([i[0] for i in all_things])
 
-print len(all_types)
+# for i in set([i[0] for i in all_things]):
+#     add_if_new(i)
+
+for j in all_things:
+    try:
+        add_link(j)
+    except AttributeError:
+        print j

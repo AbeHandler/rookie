@@ -1,0 +1,1 @@
+select count(*), string into corpus from (select * from gramner inner join links on gramner.id=links.gramner1) as e group by string;
