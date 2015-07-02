@@ -368,6 +368,7 @@ class Span(object):
             remaining_sentence1 = len(remaining_tokens)
             remaining_sentence2 = npe_two.tokens[0].token_no
             distance = distance + remaining_sentence1 + remaining_sentence2
+            distance = 0  # distance not defined for now
         self.distance = distance
 
 

@@ -1,0 +1,15 @@
+CREATE OR REPLACE FUNCTION get_probability_term(input character varying) RETURNS TABLE (string double precision) AS $$                                                                       BEGIN                                                                           RETURN QUERY                                             select (select count::float from corpus where corpus.string=input) / (select sum(count)::float from corpus) as result;                                        END;                                                                            $$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION get_pmi_denominator(x character varying, y character varying) RETURNS TABLE (string double precision) AS $$                                                                       BEGIN                                                                           RETURN QUERY                                             select (select * from get_probability_term(x)) * (select * from get_probability_term(y)) as r;                                      END;                                                                            $$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION get_pmi_numerator(input_count integer) RETURNS TABLE (string double precision) AS $$                                                                       BEGIN                                                                           RETURN QUERY                                            
+select (input_count::float) / (select sum(corpus.count)::float from corpus) as result;                      
+                                  END;                                                                            $$ LANGUAGE plpgsql;
+
+
+select n/d, string from (select get_pmi_denominator(string, 'Marlin Gusman') d, get_pmi_numerator(c::integer) n, string from (select * from get_counts('Marlin Gusman') where c > 2) counts) sr;
+
+
+select n/d as pmi, string from (select get_pmi_denominator(string, 'Marlin Gusman') d, get_pmi_numerator(c::integer) n, string from (select * from get_counts('Marlin Gusman') where c > 2) counts) sr order by pmi desc;

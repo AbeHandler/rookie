@@ -2,6 +2,8 @@ import glob
 import json
 import pdb
 import itertools
+import datetime
+import csv
 
 from py2neo import Graph, Path
 from py2neo import Node, Relationship
@@ -57,33 +59,49 @@ if __name__ == "__main__":
     for filename in files_to_check:
         try:
             print counter
+            print datetime.datetime.now()
             counter = counter + 1
             with (open(filename, "r")) as infile:
                 data = json.loads(infile.read())['lines']
             doc = Document(data)
-            grams = []
-            for gram in doc.ngrams:
-                grams.append(NPE(gram, gram[0].sentence_no))
-            npes = doc.ner + grams
-            for npe in npes:
-                tmp = repr(npe)
-                tmp = unicode_it(tmp)
-                add_to_vertexes(npe)
-            potential_edges = list(itertools.product(npes, npes))
-            print "edges " + str(len(potential_edges))
-            edge_counter = 0
-            for pe in potential_edges:
-                if edge_counter % 1000 == 0:
-                    print edge_counter
-                edge_counter = edge_counter + 1
-                distance = Span(pe[0], pe[1], doc).distance
-                if distance > 0:
-                    add_to_edges(pe[0], pe[1], distance)
+            sentences = doc.sentences
+            sentence_counter = 0
+            for sentence in sentences:
+                print datetime.datetime.now()
+                sentence_counter = sentence_counter + 1
+                print str(sentence_counter) + " of " + str(len(sentences))
+                grams = []
+                bigrams = sentence.bigrams
+                trigrams = sentence.trigrams
+                ner = sentence.ner
+                for gram in bigrams:
+                    grams.append(NPE(gram, gram[0].sentence_no))
+                for gram in trigrams:
+                    grams.append(NPE(gram, gram[0].sentence_no))
+                print datetime.datetime.now()
+                npes = grams + ner
+                for npe in npes:
+                    tmp = repr(npe)
+                    tmp = unicode_it(tmp)
+                    print datetime.datetime.now()
+                    #  add_to_vertexes(npe)
+                    print datetime.datetime.now()
+                potential_edges = list(itertools.product(npes, npes))
+                edge_counter = 0
+                for pe in potential_edges:
+                    edge_counter = edge_counter + 1
+                    distance = 1  # just count as one #Span(pe[0], pe[1], doc).distance
+                    if distance > 0:
+                        print datetime.datetime.now()
+                        add_to_edges(pe[0], pe[1], distance)
+                        print datetime.datetime.now()
+        except KeyError:
+            pass
         except KeyError:
             pass
         except TypeError:
             pass
-        except UnicodeEncodeError:
-            pass
         except ValueError:
+            pass
+        except UnicodeEncodeError:
             pass
