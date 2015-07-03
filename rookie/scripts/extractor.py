@@ -6,8 +6,9 @@ import itertools
 import datetime
 from rookie.classes import Document
 from rookie.classes import NPE
+from rookie import processed_location
 
-file_loc = "/Users/abramhandler/research/rookie/data/lens_processed/*"
+file_loc = processed_location
 
 files_to_check = glob.glob(file_loc)
 

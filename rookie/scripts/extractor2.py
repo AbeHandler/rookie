@@ -27,15 +27,19 @@ def add_if_new(string):
 
 
 def add_link(row):
-    id1 = session.query(GramNER).filter(GramNER.string == row[0]).first().id
-    id2 = session.query(GramNER).filter(GramNER.string == row[1]).first().id
-    pubdate = row[3]
-    url = row[2]
-    yr, mo, dy = pubdate.split(" ")[0].split("-")
-    pubdate = datetime.date(int(yr), int(mo), int(dy))
-    link = Link(id1, id2, pubdate, url)
-    session.add(link)
-    session.commit()
+    try:
+        id1 = session.query(GramNER).filter(GramNER.string == row[0]).first().id
+        id2 = session.query(GramNER).filter(GramNER.string == row[1]).first().id
+        pubdate = row[3]
+        url = row[2]
+        yr, mo, dy = pubdate.split(" ")[0].split("-")
+        pubdate = datetime.date(int(yr), int(mo), int(dy))
+        link = Link(id1, id2, pubdate, url)
+        session.add(link)
+        session.commit()
+    except AttributeError:
+        print "attribute error"
+        print row
     return
 
 
