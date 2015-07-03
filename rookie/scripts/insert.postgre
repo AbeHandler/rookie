@@ -1,1 +1,6 @@
 select count(*), string into corpus from (select * from gramner inner join links on gramner.id=links.gramner1) as e group by string;
+
+select * from (select *,cs.string, (log(c::float) / log(count::float)) pmi from get_counts('Marlin Gusman') cs inner join corpus on corpus.string = cs.string where c > 1 order by c desc limit 1000) r order by pmi desc;
+
+
+select (select count::float from corpus where string='Marlin Gusman') / (select sum(count)::float from corpus) as result;

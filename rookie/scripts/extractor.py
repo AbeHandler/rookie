@@ -20,6 +20,7 @@ if __name__ == "__main__":
             with (open(filename, "r")) as infile:
                 json_in = json.loads(infile.read())
                 url = json_in['url']
+                pubdate = json_in['timestamp']
                 data = json_in['lines']
             doc = Document(data)
             sentences = doc.sentences
@@ -43,7 +44,7 @@ if __name__ == "__main__":
                         writer = csv.writer(csvfile, delimiter=',',
                                             quotechar='"',
                                             quoting=csv.QUOTE_MINIMAL)
-                        writer.writerow([i for i in pe] + [url])
+                        writer.writerow([i for i in pe] + [url, pubdate])
         except KeyError:
             pass
         except KeyError:

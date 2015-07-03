@@ -13,3 +13,9 @@ select n/d, string from (select get_pmi_denominator(string, 'Marlin Gusman') d, 
 
 
 select n/d as pmi, string from (select get_pmi_denominator(string, 'Marlin Gusman') d, get_pmi_numerator(c::integer) n, string from (select * from get_counts('Marlin Gusman') where c > 2) counts) sr order by pmi desc;
+
+
+
+CREATE OR REPLACE FUNCTION get_pmis(term character varying) RETURNS TABLE (pmi double precision, term_y character varying) AS $$                                                                       BEGIN                                                                           RETURN QUERY                                            
+select n/d as pmi, string from (select get_pmi_denominator(string, term) d, get_pmi_numerator(c::integer) n, string from (select * from get_counts(term) where c > 10) counts) sr order by pmi desc;                   
+                                  END;                                                                            $$ LANGUAGE plpgsql;

@@ -1,5 +1,6 @@
 import csv
 import pdb
+import datetime
 
 from rookie.db import GramNER
 from rookie.db import Link
@@ -28,7 +29,11 @@ def add_if_new(string):
 def add_link(row):
     id1 = session.query(GramNER).filter(GramNER.string == row[0]).first().id
     id2 = session.query(GramNER).filter(GramNER.string == row[1]).first().id
-    link = Link(id1, id2)
+    pubdate = row[3]
+    url = row[2]
+    yr, mo, dy = pubdate.split(" ")[0].split("-")
+    pubdate = datetime.date(int(yr), int(mo), int(dy))
+    link = Link(id1, id2, pubdate, url)
     session.add(link)
     session.commit()
     return
@@ -43,11 +48,11 @@ with open('graph.csv', 'r') as csvfile:
             print len(all_things)
 
 
-# for i in set([i[0] for i in all_things]):
-#     add_if_new(i)
+for i in set([i[0] for i in all_things]):
+    add_if_new(i)
 
 for j in all_things:
     try:
         add_link(j)
-    except AttributeError:
+    except KeyError:
         print j

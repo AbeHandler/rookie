@@ -36,12 +36,18 @@ class Link(Base):
     id = Column(Integer, primary_key=True)
     gramner1 = Column(Integer, index=True)
     gramner2 = Column(Integer, index=True)
+    pubdate = Column(Date, index=True)
+    url = Column(String)
 
     def __init__(self,
                  g1,
-                 g2):
+                 g2,
+                 pubdate,
+                 url):
         self.gramner1 = g1
         self.gramner2 = g2
+        self.pubdate = pubdate
+        self.url = url
 
 
 def remake_db():
