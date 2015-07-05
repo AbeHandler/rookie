@@ -1,4 +1,5 @@
 import csv
+import itertools
 
 all_things = []
 
@@ -12,8 +13,13 @@ with open('graph.csv', 'r') as csvfile:
 
 corpus_length = len(all_things)
 
-total_one = [i[0] for i in all_things]
-total_two = [i[1] for i in all_things]
+terms = list(set([i[0] for i in all_things]))
 
-print len(total_two)
-print len(total_one)
+print len(terms)
+
+for term in terms:
+    with open('counts.csv', 'a') as csvfile:
+        spamwriter = csv.writer(csvfile, delimiter='\t',quotechar='"')
+        spamwriter.writerow([term,len([i for i in all_things if i[0] == term])])
+
+

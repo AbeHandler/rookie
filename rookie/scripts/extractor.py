@@ -10,7 +10,7 @@ from rookie import processed_location
 
 file_loc = processed_location
 
-files_to_check = glob.glob(file_loc)
+files_to_check = glob.glob(file_loc + "/*")
 
 counter = 0
 
