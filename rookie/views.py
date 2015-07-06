@@ -43,14 +43,7 @@ class Views(object):
         response = make_response(
             render_template(
                 'results.html',
-                persons=results.persons,
-                organizations=results.organizations,
-                locations=results.locations,
-                trigrams=results.trigrams,
-                bigrams=results.bigrams,
-                money=results.money,
-                dates=results.dates,
-                results=results.results,
+                results=results,
                 search_js=SEARCH_JS,
                 cloud_js=CLOUD_JS,
                 cloud_layout_js=CLOUD_LAYOUT_JS,
