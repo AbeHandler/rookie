@@ -13,7 +13,7 @@ npe_counts = defaultdict(int)
 
 joint_counts = defaultdict(int)
 
-to_delete = 'joint_counts.csv', 'graph.csv', 'counts.csv'
+to_delete = 'joint_counts.csv', 'instances.csv', 'counts.csv'
 
 
 def attempt_delete(filename):
@@ -23,14 +23,18 @@ def attempt_delete(filename):
         pass
 
 
-def write_count_to_file(filename, defaultdict):
+def write_count_to_file(filename, defaultdict, unpackk=False):
     for k in defaultdict.keys():
-        if defaultdict[k] > 10:
+        if int(defaultdict[k]) > 5:
             with open(filename, 'a') as countsfile:
                 writer = csv.writer(countsfile, delimiter=',',
                                     quotechar='"',
                                     quoting=csv.QUOTE_MINIMAL)
-                writer.writerow([k, defaultdict[k]])
+                if type(k) is tuple:
+                    bits = [i for i in k]
+                    writer.writerow(bits + [defaultdict[k]])
+                else:
+                    writer.writerow([k, defaultdict[k]])
 
 for filename in to_delete:
     attempt_delete(filename)
@@ -95,7 +99,7 @@ if __name__ == "__main__":
                 pairs = [NPEPair(i[0], i[1]) for i in npe_product]
                 pairs = set(pairs)
                 for pair in pairs:
-                    with open('graph.csv', 'a') as csvfile:
+                    with open('instances.csv', 'a') as csvfile:
                         writer = csv.writer(csvfile, delimiter=',',
                                             quotechar='"',
                                             quoting=csv.QUOTE_MINIMAL)
@@ -113,4 +117,4 @@ if __name__ == "__main__":
             pass
 
 write_count_to_file("counts.csv", npe_counts)
-write_count_to_file("joint_counts.csv", joint_counts)
+write_count_to_file("joint_counts.csv", joint_counts, True)
