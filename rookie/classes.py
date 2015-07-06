@@ -22,6 +22,29 @@ def propagate_first_mentions(document):
                 # expand it, theoretically
 
 
+class NPEPair(object):
+
+    def __init__(self, word1, word2):
+        self.word1 = repr(word1)
+        self.word2 = repr(word2)
+
+    def __eq__(self, other):
+        if self.word1 == other.word1 and self.word2 == other.word2:
+            return True
+        elif self.word1 == other.word2 and self.word2 == other.word1:
+            return True
+        else:
+            return False
+
+    def __hash__(self):
+        chars = [i for i in self.word1] + [i for i in self.word2]
+        chars = tuple(sorted(chars))
+        return chars.__hash__()
+
+    def __repr__(self):
+        return self.word1 + " " + self.word2
+
+
 class Window(object):
 
     @staticmethod

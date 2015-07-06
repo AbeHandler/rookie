@@ -1,39 +1,32 @@
 """
 Application logic for the web application.
-
-Any non-application logic (ex. querying ES
-and making sense of the queries) is in utils
 """
 
 from rookie import log
-
-from elasticsearch import Elasticsearch
-from rookie.utils import query_elasticsearch
 
 
 class Models(object):
 
     '''Handles logic for the Flask app'''
 
-    def __init__(self):
-        '''docstring'''
-
-        self.elasticsearch = Elasticsearch(sniff_on_start=True)
-
-    def search(self, request):
+    def search(self, request, pmis):
         '''search elastic search and return results'''
 
         output = []
 
         log.debug(len(output))
 
-        if request.args.get('q') is None:
+        if request.args.get('term') is None:
             log.debug("no parameters")
-            return output
+            results = []
+            return results  # TODO leap before look
 
-        q = request.args.get('q')
+        term = request.args.get('term')
 
-        results = query_elasticsearch(q)
+        try:
+            results = pmis[term]
+        except KeyError:
+            results = []
 
         return results
 

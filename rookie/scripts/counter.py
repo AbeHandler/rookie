@@ -7,6 +7,7 @@ import pdb
 from rookie.classes import Document
 from rookie.classes import NPE
 from rookie import processed_location
+from rookie.classes import NPEPair
 from collections import defaultdict
 
 npe_counts = defaultdict(int)
@@ -39,28 +40,6 @@ def write_count_to_file(filename, defaultdict, unpackk=False):
 for filename in to_delete:
     attempt_delete(filename)
 
-
-class NPEPair(object):
-
-    def __init__(self, word1, word2):
-        self.word1 = repr(word1)
-        self.word2 = repr(word2)
-
-    def __eq__(self, other):
-        if self.word1 == other.word1 and self.word2 == other.word2:
-            return True
-        elif self.word1 == other.word2 and self.word2 == other.word1:
-            return True
-        else:
-            return False
-
-    def __hash__(self):
-        chars = [i for i in self.word1] + [i for i in self.word2]
-        chars = tuple(sorted(chars))
-        return chars.__hash__()
-
-    def __repr__(self):
-        return self.word1 + " " + self.word2
 
 file_loc = processed_location
 

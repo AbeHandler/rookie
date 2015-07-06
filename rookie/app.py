@@ -2,9 +2,8 @@
 Front-end far an experimental search engine called "Rookie"
 """
 
-import os
-
-from rookie.utils import get_corpus_counts
+import json
+import pdb
 
 from rookie import (
     log
@@ -15,6 +14,12 @@ from rookie.models import Models
 from rookie.views import Views
 
 app = Flask(__name__)
+
+
+with (open("pmis.json", "r")) as rw:
+    pmis = json.load(rw)
+    for key in pmis:
+        pmis[key].sort(key=lambda x: x[1], reverse=True)
 
 
 @app.route('/rookie/', methods=['GET'])
@@ -41,13 +46,12 @@ def search():
     """
     Do a search
     """
+    if request.args.get('term') is None:
+        return "Oops. An error occured. Go back to rookie.thelensnola.org"
 
-    log.debug("this crashes")
+    log.info("/rookie/search" + request.args.get('term'))
 
-    log.info("/rookie/search" + request.args.get('q'))
-
-    data = Models().search(request)
-
+    data = Models().search(request, pmis)
     view = Views().get_results(data)
 
     log.info("/rookie/search returning view")
