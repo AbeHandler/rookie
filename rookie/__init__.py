@@ -40,7 +40,7 @@ elif socket.getfqdn() == 'rookie':
 else:
     processed_location = '/Users/abramhandler/research/rookie/data/lens_processed/'
     tagger_base = "/Volumes/USB/stanford-postagger-2015-04-20/"
-    corpus_loc = "/Volumes/USB/lens/"
+    corpus_loc = "/Users/abramhandler/research/rookie/data/lens/"
     core_nlp_location = "/Volumes/USB/stanford-corenlp-full-2015-04-20/*"
 
 CONNECTION_STRING = 'postgresql://%s:%s@%s:5432/%s' % (

@@ -37,21 +37,6 @@ def time_stamp_to_date(timestamp):
     return datetime.date(yr, mo, dy)
 
 
-def get_timestamps(name, type_entity, results):
-    timestamps = [time_stamp_to_date(r['_source']['timestamp']) for r in
-                  results if name
-                  in r['_source']['entities'][type_entity]]
-    return timestamps
-
-
-def get_entity_counts(entities, etype, results):
-    ents = [EntityCount(e) for e in
-            collections.Counter(entities[etype]).most_common(25)]
-    for e in ents:
-        e.timestamps = get_timestamps(e.name, etype, results)
-    return ents
-
-
 def clean_punctuation(input_string):
     '''
     Assumes ASCII input. TODO: Error handling.

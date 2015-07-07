@@ -21,7 +21,6 @@ class GenericTestCase(unittest.TestCase):
         self.assertEqual(os.path.exists(file_location), True)
         self.assertEqual(page, page)
 
-
     def test_downloader_equal_file(self):
         url = "http://thelensnola.org/2015/06/11/judge-delays-city-from-seizing-long-vacant-lake-terrace-shopping-center/"
         hash_url = hashlib.sha224(url).hexdigest()

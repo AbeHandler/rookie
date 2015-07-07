@@ -157,9 +157,9 @@ class GenericTestCase(unittest.TestCase):
         npe_two = [l for l in grams[22]]
         npe_two = NPE(npe_two, npe_two[0].sentence_no)
         span = Span(npe_one, npe_two, doc)
-        self.assertTrue(span.distance == 58)
+        self.assertTrue(span.distance == 0)
         span2 = Span(npe_two, npe_one, doc)
-        self.assertTrue(span2.distance == 58)
+        self.assertTrue(span2.distance == 0)
 
     def test_span_4(self):
         with open("data/sample_wrapper_output_2.json", "r") as to_read:

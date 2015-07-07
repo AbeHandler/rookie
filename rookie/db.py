@@ -1,6 +1,6 @@
 
 """
-These classes that map to tables in the underlying database.
+NOT USED RIGHT NOW BUT WILL NEED THIS I THINK
 """
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean
