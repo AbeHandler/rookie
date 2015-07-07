@@ -5,7 +5,8 @@ import itertools
 import os
 import pdb
 from rookie.classes import Document
-from rookie.classes import NPE
+from rookie.classes import Window
+from rookie.classes import Gramner
 from rookie import processed_location
 from rookie.classes import NPEPair
 from collections import defaultdict
@@ -68,13 +69,15 @@ if __name__ == "__main__":
                 grams = []
                 bigrams = sentence.bigrams
                 trigrams = sentence.trigrams
-                ner = sentence.ner
+                ner = sentence.ner  # TODO common data structure grams + ner
+                #  window = Window.get_window(sentence, ner, 10)
                 for gram in bigrams:
-                    grams.append(NPE(gram, gram[0].sentence_no))
+                    grams.append(Gramner(gram, gram[0].sentence_no))
                 for gram in trigrams:
-                    grams.append(NPE(gram, gram[0].sentence_no))
+                    grams.append(Gramner(gram, gram[0].sentence_no))
                 npes = grams + ner
                 npe_product = set(itertools.product(npes, npes))
+                pdb.set_trace()
                 pairs = [NPEPair(i[0], i[1]) for i in npe_product]
                 pairs = set(pairs)
                 for pair in pairs:

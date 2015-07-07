@@ -344,65 +344,15 @@ class Mention(object):
         self.span_end = self.tokspan[1]
 
 
-class Span(object):
-
+class Gramner(object):
     '''
-    Oh man this is ugly. refactor
-    '''
-    def __init__(self, npe_one, npe_two, document):
-        sentence_one = document.sentences[npe_one.sentence_no]
-        sentence_two = document.sentences[npe_two.sentence_no]
-        if sentence_two.sentence_no < sentence_one.sentence_no:
-            tmp = npe_one
-            npe_one = npe_two
-            npe_two = tmp
-
-        s1 = document.sentences[npe_one.sentence_no]
-        s2 = document.sentences[npe_two.sentence_no]
-        assert s1.sentence_no <= s2.sentence_no
-
-        distance = 0
-
-        # if the npes are in the same sentence
-        if (npe_one.sentence_no == npe_two.sentence_no):
-            start_tok_npe_one = npe_one.tokens[0].token_no
-            end_tok_npe_one = npe_one.tokens[len(npe_one.tokens) - 1].token_no
-            start_tok_npe_two = npe_two.tokens[0].token_no
-            end_tok_npe_two = npe_two.tokens[len(npe_two.tokens) - 1].token_no
-            # if tok1 before tok 2
-            if start_tok_npe_one <= start_tok_npe_two:
-                # and tok 1 ends before tok2
-                if end_tok_npe_one <= start_tok_npe_two:
-                    distance = start_tok_npe_two - end_tok_npe_one
-                else:
-                    distance = 0  # TODO: if distance zero, then no E on graph
-            else:
-                assert(start_tok_npe_two < start_tok_npe_one)
-                if start_tok_npe_one > end_tok_npe_two:
-                    distance = start_tok_npe_one - end_tok_npe_two
-
-        else:
-            for i in range(npe_one.sentence_no + 1,
-                           npe_two.sentence_no):
-                sentence = document.sentences[i]
-                distance = distance + len(sentence.tokens)
-            npe_one_last_token = npe_one.tokens[len(npe_one.tokens) - 1]
-            remaining_tokens = s1.tokens[npe_one_last_token.token_no + 1:]
-            remaining_sentence1 = len(remaining_tokens)
-            remaining_sentence2 = npe_two.tokens[0].token_no
-            distance = distance + remaining_sentence1 + remaining_sentence2
-            distance = 0  # distance not defined for now
-        self.distance = distance
-
-
-class NPE(object):
-    '''
-    An NPE is a set of tokens that match syntactically valid
+    An Gramner is a set of tokens that match syntactically valid
     pattern or represent a named entity
     '''
-    def __init__(self, tokens, sentence_no):
+    def __init__(self, tokens, sentence_no, window):
         self.tokens = tokens
         self.sentence_no = sentence_no
+        self.window = window
 
     def __repr__(self):
         return " ".join([i.raw for i in self.tokens])

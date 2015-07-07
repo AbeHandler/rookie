@@ -1,9 +1,8 @@
 lens_downloader/files/*
-redis-stable/*
 *pyc
 *log
-*.p
 data/lens_processed/*
 rookie.sql
 *.csv
 *json
+data/lens
