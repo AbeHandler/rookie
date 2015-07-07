@@ -5,4 +5,5 @@ redis-stable/*
 *.p
 data/lens_processed/*
 rookie.sql
-graph.csv
+*.csv
+*json
