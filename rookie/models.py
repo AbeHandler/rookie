@@ -3,6 +3,7 @@ Application logic for the web application.
 """
 
 from rookie import log
+from rookie.merger import Merger
 
 
 class Models(object):
@@ -28,6 +29,7 @@ class Models(object):
         except KeyError:
             results = []
 
+        results = Merger.merge_lists(results)
         return results
 
     def home(self):

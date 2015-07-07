@@ -1,8 +1,7 @@
 import string
 import collections
-import nltk
 import pickle
-import redis
+import json
 import math
 import re
 import itertools
@@ -17,12 +16,12 @@ from repoze.lru import lru_cache
 import datetime
 
 
-@lru_cache(maxsize=10000)
-def get_grams(text):
-    unigrams = text.split(" ")
-    bigrams = nltk.bigrams(unigrams)
-    trigrams = nltk.trigrams(unigrams)
-    return (unigrams, bigrams, trigrams)
+def get_pmi():
+    with (open("pmis.json", "r")) as rw:
+        pmis = json.load(rw)
+        for key in pmis:
+            pmis[key].sort(key=lambda x: x[1], reverse=True)
+    return pmis
 
 
 def clean_whitespace(full_text):

@@ -12,14 +12,11 @@ from rookie import (
 from flask import Flask, request
 from rookie.models import Models
 from rookie.views import Views
+from rookie.utils import get_pmi
 
 app = Flask(__name__)
 
-
-with (open("pmis.json", "r")) as rw:
-    pmis = json.load(rw)
-    for key in pmis:
-        pmis[key].sort(key=lambda x: x[1], reverse=True)
+pmis = get_pmi()
 
 
 @app.route('/rookie/', methods=['GET'])
