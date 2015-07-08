@@ -24,22 +24,24 @@ def propagate_first_mentions(document):
 
 class NPEPair(object):
 
-    def __init__(self, word1, word2):
-        self.word1 = repr(word1)
-        self.word2 = repr(word2)
+    def __init__(self, one, two):
+        self.word1 = one
+        self.word2 = two
 
     def __eq__(self, other):
-        if self.word1 == other.word1 and self.word2 == other.word2:
+        if repr(self.word1) == repr(other.word1) and \
+                repr(self.word2) == repr(other.word2):
             return True
-        elif self.word1 == other.word2 and self.word2 == other.word1:
+        elif repr(self.word1) == repr(other.word2) and \
+                repr(self.word2) == repr(other.word1):
             return True
         else:
             return False
 
     def __hash__(self):
-        chars = [i for i in self.word1] + [i for i in self.word2]
-        chars = tuple(sorted(chars))
-        return chars.__hash__()
+        tmp = repr(self.word1) + repr(self.word2)
+        hasss = tmp.__hash__()
+        return hasss
 
     def __repr__(self):
         return self.word1 + " " + self.word2
@@ -48,12 +50,12 @@ class NPEPair(object):
 class Window(object):
 
     @staticmethod
-    def get_window(sentence, npe_tokens, window_size=10):
+    def get_window(sentence_tokens, npe_tokens, window_size=10):
         '''
         Returns the token around an npe in a sentence. An npe
         is either an entity or an ngram -- a (n)oun (p)hrase or (e)ntity
         '''
-        tokens = sentence.tokens
+        tokens = sentence_tokens
         start_ner = [i.raw for i in tokens].index(npe_tokens[0].raw)
         end_ner = start_ner + len(npe_tokens)
         start = start_ner - window_size
@@ -67,12 +69,6 @@ class Window(object):
             end = len(tokens)
 
         output = tokens[start: end]
-
-        for token in npe_tokens:
-            try:
-                output.remove(token)
-            except ValueError:
-                pass
 
         return output
 
@@ -128,56 +124,6 @@ class Link(object):
         self.link_num = link[1]
 
 
-class EntityCount(object):
-
-    def __init__(self, tup, timestamps=None):
-        '''A named entity, and how many times it shows up in query'''
-
-        self.name = tup[0]
-        self.count = tup[1]
-        # pub date of each time entity shows up in results
-        self.timestamps = timestamps
-
-
-class QueryResult(object):
-
-    def __init__(self, bigrams, trigrams, entity_dict, results):
-        '''Output from an elastic search query'''
-
-        self.bigrams = bigrams
-        self.trigrams = trigrams
-        self.persons = entity_dict['PERSON']
-        self.organizations = entity_dict['ORGANIZATION']
-        self.locations = entity_dict['LOCATION']
-        self.money = entity_dict['MONEY']
-        self.dates = entity_dict['DATE']
-        self.results = results
-
-
-class Result(object):
-
-    '''An elastic search result'''
-
-    def __init__(self, result):
-        '''Initialize with a result'''
-        self.headline = result['_source']['headline'].encode('ascii', 'ignore')
-        timestamp = result['_source']['timestamp'].encode('ascii', 'ignore')
-        timestamp = timestamp.split(" ")[0]
-        year, month, day = timestamp.split("-")
-        pubdate = datetime.date(int(year), int(month), int(day))
-        self.timestamp = pubdate
-        fulltext = result['_source']['full_text'].encode('ascii', 'ignore')
-        self.fulltext = fulltext
-        self.url = result['_source']['url'].encode('ascii', 'ignore')
-        self.nid = result['_id'].encode('ascii', 'ignore')
-        self.docid = self.nid
-        self.links = result['_source']['links']
-        self.score = result['_score']
-        self.entities = result['_source']['entities']
-        self.trigrams = result['_source']['three_grams']
-        self.bigrams = result['_source']['two_grams']
-
-
 class Document(object):
 
     '''
@@ -199,20 +145,6 @@ class Document(object):
         self.coreferences = coreferences
         sentence_tokens = [s.tokens for s in self.sentences]
         self.tokens = list(chain(*sentence_tokens))
-        self.ner = self.get_ner()
-        self.ngrams = self.get_ngrams()
-
-    def get_ner(self):
-        ner = []
-        for sentence in self.sentences:
-            ner = ner + sentence.ner
-        return ner
-
-    def get_ngrams(self):
-        ngrams = []
-        for sentence in self.sentences:
-            ngrams = ngrams + sentence.bigrams + sentence.trigrams
-        return ngrams
 
 
 class Sentence(object):
@@ -244,12 +176,13 @@ class Sentence(object):
         '''
         ng = N_Grammer()
         grams = ng.get_syntactic_ngrams(self.tokens)
-        return grams
+        return grams[0] + grams[1]
 
     def __init__(self, json_sentence, sentence_no):
         '''
         Initialize w/ the json output
         '''
+        self.WIN_SIZE = 10
         self.sentence_no = sentence_no
         tokens = json_sentence['tokens']
         lemmas = json_sentence['lemmas']
@@ -264,9 +197,17 @@ class Sentence(object):
             sentence_tokens.append(t)
         self.tokens = sentence_tokens
         self.ner = self.get_ner(json_sentence, self.tokens)
-        # TODO, get_ngrams should take a parameter, n
-        self.bigrams = self.get_ngrams()[0]
-        self.trigrams = self.get_ngrams()[1]
+        grams = self.get_ngrams()  # returns bigrams/trigrams
+        gramners = []
+        for gram in grams:
+            window = Window.get_window(self.tokens, gram, self.WIN_SIZE)
+            gramner = Gramner(gram, window)
+            gramners.append(gramner)
+        for ne in self.ner:
+            window = Window.get_window(self.tokens, ne.tokens, self.WIN_SIZE)
+            gramner = Gramner(ne.tokens, window)
+            gramners.append(gramner)
+        self.gramners = gramners
 
 
 class Token(object):
@@ -349,10 +290,9 @@ class Gramner(object):
     An Gramner is a set of tokens that match syntactically valid
     pattern or represent a named entity
     '''
-    def __init__(self, tokens, sentence_no, window):
+    def __init__(self, tokens, window):
         self.tokens = tokens
-        self.sentence_no = sentence_no
-        self.window = window
+        self.window = " ".join([i.raw for i in window])
 
     def __repr__(self):
         return " ".join([i.raw for i in self.tokens])

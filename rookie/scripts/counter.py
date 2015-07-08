@@ -15,6 +15,8 @@ npe_counts = defaultdict(int)
 
 joint_counts = defaultdict(int)
 
+windows = defaultdict(list)
+
 to_delete = 'joint_counts.csv', 'instances.csv', 'counts.csv'
 
 
@@ -66,18 +68,9 @@ if __name__ == "__main__":
                 # print datetime.datetime.now()
                 sentence_counter = sentence_counter + 1
                 # print str(sentence_counter) + " of " + str(len(sentences))
-                grams = []
-                bigrams = sentence.bigrams
-                trigrams = sentence.trigrams
-                ner = sentence.ner  # TODO common data structure grams + ner
-                #  window = Window.get_window(sentence, ner, 10)
-                for gram in bigrams:
-                    grams.append(Gramner(gram, gram[0].sentence_no))
-                for gram in trigrams:
-                    grams.append(Gramner(gram, gram[0].sentence_no))
-                npes = grams + ner
-                npe_product = set(itertools.product(npes, npes))
-                pdb.set_trace()
+                gramner = sentence.gramners
+                npe_product = set(itertools.product(gramner, gramner))
+                stufffs = [i for i in npe_product]
                 pairs = [NPEPair(i[0], i[1]) for i in npe_product]
                 pairs = set(pairs)
                 for pair in pairs:
@@ -85,10 +78,17 @@ if __name__ == "__main__":
                         writer = csv.writer(csvfile, delimiter=',',
                                             quotechar='"',
                                             quoting=csv.QUOTE_MINIMAL)
-                        writer.writerow([pair.word1, pair.word2, url, pubdate])
+                        writer.writerow([pair.word1,
+                                        pair.word2,
+                                        url,
+                                        pubdate,
+                                        pair.word1.window,
+                                        pair.word2.window])
                         npe_counts[pair.word1] += 1
                         npe_counts[pair.word2] += 1
-                        joint_counts[(pair.word1, pair.word2)] += 1
+                        windows[pair.word1].append(pair.word1.window)
+                        windows[pair.word2].append(pair.word2.window)
+                        joint_counts[(repr(pair.word1), repr(pair.word2))] += 1
         except UnicodeEncodeError:
             pass
         except KeyError:

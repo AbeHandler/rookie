@@ -55,9 +55,10 @@ class GenericTestCase(unittest.TestCase):
         doc = Document(py_wrapper_output)
         sentence = doc.sentences[0]
         window = Window()
-        out = window.get_window(sentence, sentence.ner[3].tokens, 1)
-        self.assertEqual(str(out[0].raw), "Mayor")
-        self.assertEqual(str(out[1].raw), "Great")
+        out = window.get_window(sentence.tokens, sentence.ner[3].tokens, 1)
+        out = " ".join([i.raw for i in out])
+        target = "Mayor Mitch Landrieus Great"
+        self.assertEqual(out, target)
 
     def test_coref_groups(self):
         with open("data/sample_wrapper_output_2.json", "r") as to_read:
@@ -94,18 +95,7 @@ class GenericTestCase(unittest.TestCase):
         doc = Document(py_wrapper_output, corefs)
         for sentence in doc.sentences:
             for ner in sentence.ner:
-                window = Window.get_window(sentence, ner, 10)
-                self.assertTrue(len(window) - len(ner.tokens),
-                                20 - len(ner.tokens))
-
-    def test_get_windows(self):
-        with open("data/sample_wrapper_output_2.json", "r") as to_read:
-            py_wrapper_output = json.loads(to_read.read())
-        corefs = Coreferences(py_wrapper_output)
-        doc = Document(py_wrapper_output, corefs)
-        for sentence in doc.sentences:
-            for ner in sentence.ner:
-                window = Window.get_window(sentence, ner.tokens, 10)
+                window = Window.get_window(sentence.tokens, ner.tokens, 10)
                 self.assertTrue(len(window) - len(ner.tokens),
                                 20 - len(ner.tokens))
 
