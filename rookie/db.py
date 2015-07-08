@@ -11,43 +11,22 @@ from rookie import CONNECTION_STRING
 Base = declarative_base()
 
 
-class GramNER(Base):
+class Window(Base):
     """
     A gram type or a NER type
     """
 
-    __tablename__ = 'gramner'
+    __tablename__ = 'windows'
 
     id = Column(Integer, primary_key=True)
-    string = Column(String, unique=True)
+    key = Column(String, index=True)
+    window = Column(String)
 
     def __init__(self,
-                 string, index=True):
-        self.string = string
-
-
-class Link(Base):
-    """
-    A gram type or a NER type
-    """
-
-    __tablename__ = 'links'
-
-    id = Column(Integer, primary_key=True)
-    gramner1 = Column(Integer, index=True)
-    gramner2 = Column(Integer, index=True)
-    pubdate = Column(Date, index=True)
-    url = Column(String)
-
-    def __init__(self,
-                 g1,
-                 g2,
-                 pubdate,
-                 url):
-        self.gramner1 = g1
-        self.gramner2 = g2
-        self.pubdate = pubdate
-        self.url = url
+                 key,
+                 window):
+        self.key = key
+        self.window = window
 
 
 def remake_db():

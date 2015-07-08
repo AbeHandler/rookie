@@ -32,15 +32,18 @@ CLOUD_LAYOUT_JS = 'http://s3-us-west-2.amazonaws.com/rookielens/js/d3.layout.clo
 if socket.getfqdn() == 'hobbes.cs.umass.edu':
     processed_location = "/home/ahandler/corpora/lens_processed/"
     corpus_loc = "/home/ahandler/corpora/lens/"
+    files_location = "/home/ahandler/rookie"
     core_nlp_location = "/home/sw/corenlp/stanford-corenlp-full-2015-04-20/*"
 elif socket.getfqdn() == 'rookie':
     processed_location = "/home/ubuntu/corpora/lens_processed/"
     corpus_loc = "/home/ubuntu/corpora/lens/"
+    files_location = "/home/ubuntu/rookie"
     core_nlp_location = "/home/sw/corenlp/stanford-corenlp-full-2015-04-20/*"
 else:
     processed_location = '/Users/abramhandler/research/rookie/data/lens_processed/'
     tagger_base = "/Volumes/USB/stanford-postagger-2015-04-20/"
     corpus_loc = "/Users/abramhandler/research/rookie/data/lens/"
+    files_location = "/Volumes/USB/"
     core_nlp_location = "/Volumes/USB/stanford-corenlp-full-2015-04-20/*"
 
 CONNECTION_STRING = 'postgresql://%s:%s@%s:5432/%s' % (

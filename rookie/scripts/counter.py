@@ -3,38 +3,48 @@ import json
 import csv
 import itertools
 import os
-import pdb
 from rookie.classes import Document
-from rookie.classes import Window
-from rookie.classes import Gramner
 from rookie import processed_location
 from rookie.classes import NPEPair
 from collections import defaultdict
+from rookie import files_location
 
 npe_counts = defaultdict(int)
 
 joint_counts = defaultdict(int)
 
-windows = defaultdict(list)
+instances = defaultdict(list)
+
+files_location = '/Volumes/USB/'
 
 to_delete = 'joint_counts.csv', 'instances.csv', 'counts.csv'
 
 
 def attempt_delete(filename):
     try:
-        os.remove(filename)
+        os.remove(base + filename)
     except OSError:
         pass
 
 
-def write_count_to_file(filename, defaultdict, unpackk=False):
+def filter_to_file(val):
+    if type(val) is int:
+        if int(val) > 5:
+            return True
+    if type(val) is list:
+        if len(val) > 5:
+            return True
+    return False
+
+
+def write_count_to_file(filename, defaultdict):
     for k in defaultdict.keys():
-        if int(defaultdict[k]) > 5:
+        if filter_to_file(defaultdict[k]):
             with open(filename, 'a') as countsfile:
                 writer = csv.writer(countsfile, delimiter=',',
                                     quotechar='"',
                                     quoting=csv.QUOTE_MINIMAL)
-                if type(k) is tuple:
+                if type(k) is tuple or type(k) is list:
                     bits = [i for i in k]
                     writer.writerow(bits + [defaultdict[k]])
                 else:
@@ -74,21 +84,11 @@ if __name__ == "__main__":
                 pairs = [NPEPair(i[0], i[1]) for i in npe_product]
                 pairs = set(pairs)
                 for pair in pairs:
-                    with open('instances.csv', 'a') as csvfile:
-                        writer = csv.writer(csvfile, delimiter=',',
-                                            quotechar='"',
-                                            quoting=csv.QUOTE_MINIMAL)
-                        writer.writerow([pair.word1,
-                                        pair.word2,
-                                        url,
-                                        pubdate,
-                                        pair.word1.window,
-                                        pair.word2.window])
-                        npe_counts[pair.word1] += 1
-                        npe_counts[pair.word2] += 1
-                        windows[pair.word1].append(pair.word1.window)
-                        windows[pair.word2].append(pair.word2.window)
-                        joint_counts[(repr(pair.word1), repr(pair.word2))] += 1
+                    npe_counts[pair.word1] += 1
+                    npe_counts[pair.word2] += 1
+                    instances[pair.word1].append((pair.word1.window, url))
+                    instances[pair.word2].append((pair.word2.window, url))
+                    joint_counts[(repr(pair.word1), repr(pair.word2))] += 1
         except UnicodeEncodeError:
             pass
         except KeyError:
@@ -98,5 +98,6 @@ if __name__ == "__main__":
         except ValueError:
             pass
 
-write_count_to_file("counts.csv", npe_counts)
-write_count_to_file("joint_counts.csv", joint_counts, True)
+write_count_to_file(base + "instances.csv", instances)
+write_count_to_file(base + "counts.csv", npe_counts)
+write_count_to_file(base + "joint_counts.csv", joint_counts)

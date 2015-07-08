@@ -2,11 +2,12 @@ import string
 import json
 import re
 from nltk.corpus import stopwords
+from rookie import files_location
 import datetime
 
 
 def get_pmi():
-    with (open("pmis.json", "r")) as rw:
+    with (open(files_location + "pmis.json", "r")) as rw:
         pmis = json.load(rw)
         for key in pmis:
             pmis[key].sort(key=lambda x: x[1], reverse=True)
