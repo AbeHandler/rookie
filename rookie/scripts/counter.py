@@ -82,6 +82,9 @@ if __name__ == "__main__":
 for k in instances.keys():
     instances[k] = list(instances[k])
 
+npe_counts = dict((k, v) for k, v in npe_counts.items() if v > 5)
+joint_counts = dict((k, v) for k, v in joint_counts.items() if v > 5)
+
 json_dump(base + "instances.json", instances)
 json_dump(base + "counts.json", npe_counts)
 json_dump(base + "joint_counts.json", joint_counts)
