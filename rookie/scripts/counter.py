@@ -44,7 +44,11 @@ def write_count_to_file(filename, defaultdict):
                 writer = csv.writer(countsfile, delimiter=',',
                                     quotechar='"',
                                     quoting=csv.QUOTE_MINIMAL)
-                writer.writerow([k, defaultdict[k]])
+                if type(defaultdict[k]) is set:
+                    out = [i for i in defaultdict[k]]
+                    writer.writerow([k, out])
+                else:
+                    writer.writerow([k, defaultdict[k]])
 
 for filename in to_delete:
     attempt_delete(filename)
@@ -82,7 +86,7 @@ if __name__ == "__main__":
                     npe_counts[repr(pair.word2)] += 1
                     instances[repr(pair.word1)].update((pair.word1.window, url))
                     instances[repr(pair.word2)].update((pair.word2.window, url))
-                    joint_counts[(repr(pair.word1), repr(pair.word2))] += 1
+                    joint_counts[(repr(pair.word1) + "|||" + repr(pair.word2))] += 1
         except UnicodeEncodeError:
             pass
         except KeyError:
