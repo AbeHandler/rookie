@@ -2,6 +2,7 @@ import csv
 import json
 import pdb
 from collections import defaultdict
+from rookie import files_location
 
 pmis = defaultdict(list)
 
@@ -11,23 +12,15 @@ counts = []
 TOTAL_PAIRS = 5799352.  # cat graph.csv | wc -l
 
 
-def read_count_file(filename):
-    output = []
-    with open(filename, 'r') as countsfile:
-        reader = csv.reader(countsfile, delimiter=',',
-                            quotechar='"')
-        for row in reader:
-            output.append([i for i in row])
-    return output
+def read_count_file(jsonfile):
+    with open(jsonfile) as infile:
+        data = json.load(infile)
+    return data
 
+joint_counts = read_count_file(files_location + "joint_counts.json")
+counts = read_count_file(files_location + "counts.json")
 
-joint_counts = read_count_file("joint_counts.csv")
-tmp_counts = read_count_file("counts.csv")
-
-counts = {}
-
-for item in tmp_counts:
-    counts[item[0]] = float(item[1])
+counts = dict((k, float(v)) for k, v in counts.items())
 
 for joint_count in joint_counts:
     word1 = joint_count[0]
