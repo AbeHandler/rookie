@@ -7,8 +7,8 @@ install:
 before_script:
 - export PYTHONPATH=$PYTHONPATH:$(pwd)
 - mkdir logs
-- touch logs/contracts.log
+- touch logs/rookie.log
 script:
-- coverage run tests/test*.py
+- coverage run tests/test_document.py
 after_success:
 - coveralls
