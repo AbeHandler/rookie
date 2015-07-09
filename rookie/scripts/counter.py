@@ -39,7 +39,7 @@ for filename in to_delete:
 
 file_loc = processed_location
 
-files_to_check = glob.glob(file_loc + "/*")[0:50]
+files_to_check = glob.glob(file_loc + "/*")
 
 counter = 0
 
@@ -67,14 +67,8 @@ if __name__ == "__main__":
                 for pair in pairs:
                     npe_counts[repr(pair.word1)] += 1
                     npe_counts[repr(pair.word2)] += 1
-                    d1 = {}
-                    d1['url'] = url
-                    d1['window'] = pair.word1.window
-                    instances[repr(pair.word1)].append(d1)
-                    d2 = {}
-                    d2['url'] = url
-                    d2['window'] = pair.word2.window
-                    instances[repr(pair.word2)].append(d2)
+                    instances[repr(pair.word1)].append((url, pair.word1.window))
+                    instances[repr(pair.word2)].append((url, pair.word2.window))
                     joint_counts[(repr(pair.word1) + "###" + repr(pair.word2))] += 1
         except UnicodeEncodeError:
             pass
@@ -89,6 +83,12 @@ if __name__ == "__main__":
 npe_counts = dict((k, v) for k, v in npe_counts.items() if v > 5)
 joint_counts = dict((k, v) for k, v in joint_counts.items() if v > 5)
 
-json_dump(base + "instances.json", instances)
+instances_reduced = {}
+for key in instances.keys():
+    temp = instances[key]
+    instances_reduced[key] = tuple(set(temp))
+
+
+json_dump(base + "instances.json", instances_reduced)
 json_dump(base + "counts.json", npe_counts)
 json_dump(base + "joint_counts.json", joint_counts)
