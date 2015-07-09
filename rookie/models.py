@@ -2,8 +2,11 @@
 Application logic for the web application.
 """
 
+import pdb
+
 from rookie import log
 from rookie.merger import Merger
+from rookie.utils import get_window
 
 
 class Models(object):
@@ -29,7 +32,14 @@ class Models(object):
         except KeyError:
             results = []
 
+        # TODO see github issue on merge
         results = Merger.merge_lists(results)
+        results = Merger.merge_lists(results)
+
+        for r in results:
+            window = get_window(r[0])
+            pdb.set_trace()
+
         return results
 
     def home(self):

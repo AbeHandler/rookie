@@ -4,14 +4,28 @@ import re
 from nltk.corpus import stopwords
 from rookie import files_location
 import datetime
+from pylru import lrudecorator
 
 
+@lrudecorator(100)
 def get_pmi():
     with (open(files_location + "pmis.json", "r")) as rw:
         pmis = json.load(rw)
         for key in pmis:
             pmis[key].sort(key=lambda x: x[1], reverse=True)
     return pmis
+
+
+@lrudecorator(100)
+def get_windows():
+    with (open(files_location + "instances.json", "r")) as rw:
+        windows = json.load(rw)
+    return windows
+
+
+def get_window(term):
+    windows = get_windows()
+    return windows[term]
 
 
 def clean_whitespace(full_text):

@@ -15,7 +15,7 @@ npe_counts = defaultdict(int)
 
 joint_counts = defaultdict(int)
 
-instances = defaultdict(set)
+instances = defaultdict(list)
 
 base = files_location
 
@@ -39,7 +39,7 @@ for filename in to_delete:
 
 file_loc = processed_location
 
-files_to_check = glob.glob(file_loc + "/*")[0:100]
+files_to_check = glob.glob(file_loc + "/*")[0:50]
 
 counter = 0
 
@@ -67,9 +67,15 @@ if __name__ == "__main__":
                 for pair in pairs:
                     npe_counts[repr(pair.word1)] += 1
                     npe_counts[repr(pair.word2)] += 1
-                    instances[repr(pair.word1)].update((pair.word1.window, url))
-                    instances[repr(pair.word2)].update((pair.word2.window, url))
-                    joint_counts[(repr(pair.word1) + "###" +  repr(pair.word2))] += 1
+                    d1 = {}
+                    d1['url'] = url
+                    d1['window'] = pair.word1.window
+                    instances[repr(pair.word1)].append(d1)
+                    d2 = {}
+                    d2['url'] = url
+                    d2['window'] = pair.word2.window
+                    instances[repr(pair.word2)].append(d2)
+                    joint_counts[(repr(pair.word1) + "###" + repr(pair.word2))] += 1
         except UnicodeEncodeError:
             pass
         except KeyError:
@@ -79,8 +85,6 @@ if __name__ == "__main__":
         except ValueError:
             pass
 
-for k in instances.keys():
-    instances[k] = list(instances[k])
 
 npe_counts = dict((k, v) for k, v in npe_counts.items() if v > 5)
 joint_counts = dict((k, v) for k, v in joint_counts.items() if v > 5)

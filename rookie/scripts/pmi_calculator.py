@@ -9,23 +9,24 @@ pmis = defaultdict(list)
 joint_counts = []
 counts = []
 
-TOTAL_PAIRS = 5799352.  # cat graph.csv | wc -l
-
 
 def read_count_file(jsonfile):
     with open(jsonfile) as infile:
         data = json.load(infile)
     return data
 
+instances = read_count_file(files_location + "instances.json")
 joint_counts = read_count_file(files_location + "joint_counts.json")
 counts = read_count_file(files_location + "counts.json")
 
 counts = dict((k, float(v)) for k, v in counts.items())
 
-for joint_count in joint_counts:
-    word1 = joint_count[0]
-    word2 = joint_count[1]
-    pxy = float(joint_count[2]) / TOTAL_PAIRS
+TOTAL_PAIRS = len(instances.keys())
+
+for joint_count in joint_counts.keys():
+    word1 = joint_count.split("###")[0]
+    word2 = joint_count.split("###")[1]
+    pxy = float(joint_counts[joint_count]) / TOTAL_PAIRS
     px = counts[word1] / TOTAL_PAIRS
     py = counts[word2] / TOTAL_PAIRS
     pmi = pxy / (px * py)
