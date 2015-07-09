@@ -44,11 +44,7 @@ def write_count_to_file(filename, defaultdict):
                 writer = csv.writer(countsfile, delimiter=',',
                                     quotechar='"',
                                     quoting=csv.QUOTE_MINIMAL)
-                if type(k) is tuple or type(k) is list:
-                    bits = [i for i in k]
-                    writer.writerow(bits + [defaultdict[k]])
-                else:
-                    writer.writerow([k, defaultdict[k]])
+                writer.writerow([k, defaultdict[k]])
 
 for filename in to_delete:
     attempt_delete(filename)
@@ -82,10 +78,10 @@ if __name__ == "__main__":
                 pairs = [NPEPair(i[0], i[1]) for i in npe_product]
                 pairs = set(pairs)
                 for pair in pairs:
-                    npe_counts[pair.word1] += 1
-                    npe_counts[pair.word2] += 1
-                    instances[pair.word1].update((pair.word1.window, url))
-                    instances[pair.word2].update((pair.word2.window, url))
+                    npe_counts[repr(pair.word1)] += 1
+                    npe_counts[repr(pair.word2)] += 1
+                    instances[repr(pair.word1)].update((pair.word1.window, url))
+                    instances[repr(pair.word2)].update((pair.word2.window, url))
                     joint_counts[(repr(pair.word1), repr(pair.word2))] += 1
         except UnicodeEncodeError:
             pass
