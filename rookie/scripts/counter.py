@@ -4,6 +4,7 @@ import csv
 import itertools
 import os
 import pdb
+import json
 from rookie.classes import Document
 from rookie import processed_location
 from rookie.classes import NPEPair
@@ -18,7 +19,7 @@ instances = defaultdict(set)
 
 base = files_location
 
-to_delete = 'joint_counts.csv', 'instances.csv', 'counts.csv'
+to_delete = 'joint_counts.json', 'instances.json', 'counts.json'
 
 
 def attempt_delete(filename):
@@ -28,27 +29,9 @@ def attempt_delete(filename):
         pass
 
 
-def filter_to_file(val):
-    if type(val) is int:
-        if int(val) > 5:
-            return True
-    if type(val) is set:
-        return True
-    return False
-
-
-def write_count_to_file(filename, defaultdict):
-    for k in defaultdict.keys():
-        if filter_to_file(defaultdict[k]):
-            with open(filename, 'a') as countsfile:
-                writer = csv.writer(countsfile, delimiter=',',
-                                    quotechar='"',
-                                    quoting=csv.QUOTE_MINIMAL)
-                if type(defaultdict[k]) is set:
-                    out = [i for i in defaultdict[k]]
-                    writer.writerow([k, out])
-                else:
-                    writer.writerow([k, defaultdict[k]])
+def json_dump(filename, defaultdict):
+    with open(filename, 'w') as outfile:
+        json.dump(dict(defaultdict), outfile)
 
 for filename in to_delete:
     attempt_delete(filename)
@@ -96,6 +79,9 @@ if __name__ == "__main__":
         except ValueError:
             pass
 
-write_count_to_file(base + "instances.csv", instances)
-write_count_to_file(base + "counts.csv", npe_counts)
-write_count_to_file(base + "joint_counts.csv", joint_counts)
+for k in instances.keys():
+    instances[k] = list(instances[k])
+
+json_dump(base + "instances.json", instances)
+json_dump(base + "counts.json", npe_counts)
+json_dump(base + "joint_counts.json", joint_counts)
