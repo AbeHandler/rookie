@@ -15,7 +15,7 @@ joint_counts = defaultdict(int)
 
 instances = defaultdict(list)
 
-files_location = '/Volumes/USB/'
+base = files_location 
 
 to_delete = 'joint_counts.csv', 'instances.csv', 'counts.csv'
 
