@@ -7,6 +7,20 @@ import datetime
 from pylru import lrudecorator
 
 
+class Result(object):
+
+    def __init__(self, string, pmi, windows):
+        '''
+        Initialize w/ the json output
+        '''
+        self.string = string
+        self.pmi = pmi
+        self.windows = windows
+
+    def __repr__(self):
+            return string
+
+
 @lrudecorator(100)
 def get_pmi():
     with (open(files_location + "pmis.json", "r")) as rw:

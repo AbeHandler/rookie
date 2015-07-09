@@ -6,7 +6,7 @@ import pdb
 
 from rookie import log
 from rookie.merger import Merger
-from rookie.utils import get_window
+from rookie.utils import get_window, Result
 
 
 class Models(object):
@@ -36,11 +36,13 @@ class Models(object):
         results = Merger.merge_lists(results)
         results = Merger.merge_lists(results)
 
-        for r in results:
-            window = get_window(r[0])
-            pdb.set_trace()
+        out = []
 
-        return results
+        for results in results:
+            window = get_window(results[0])
+            out.append(Result(results[0], results[1], window))
+
+        return out
 
     def home(self):
         log.debug("home model")

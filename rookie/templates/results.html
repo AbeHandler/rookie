@@ -31,7 +31,10 @@
       <div class="small-12 medium-12 large-12 columns">
           {% for result in results %}
             <div class="result">
-              {{ result }}
+              {{ result.string }}
+              {% for w in result.windows %}
+                 <a href="{{ w[0] }}">{{ w[1] }}</a> </br>
+              {% endfor %}
             </div>
           {% endfor %}
       </div>
