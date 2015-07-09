@@ -7,3 +7,7 @@ Imagine you are a new reporter just assigned to a beat. Or a community activist 
 [Abe Handler](https://www.abehandler.com "Abe Handler") did most of the research, designing and code for Rookie. He got lots of conceptual help from [Steve Myers](https://twitter.com/myersnews "Steve Myers") and [Brendan O'Connor](http://brenocon.com "Brendan O'Connor").
 
 Rookie began with [support](http://www.knightfoundation.org/grants/201550791/ "support") from the John S and James L Knight foundation.
+
+#### Tests and coverage
+
+[![Build Status](https://travis-ci.org/AbeHandler/rookie.svg?branch=master)](https://travis-ci.org/AbeHandler/rookie)
