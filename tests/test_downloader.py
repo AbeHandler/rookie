@@ -2,7 +2,6 @@ import unittest
 import os
 import hashlib
 from rookie import corpus_loc
-from rookie.datamanagement.lensdownloader import get_page
 
 
 class GenericTestCase(unittest.TestCase):
