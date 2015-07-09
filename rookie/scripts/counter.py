@@ -3,6 +3,7 @@ import json
 import csv
 import itertools
 import os
+import pdb
 from rookie.classes import Document
 from rookie import processed_location
 from rookie.classes import NPEPair
@@ -13,9 +14,9 @@ npe_counts = defaultdict(int)
 
 joint_counts = defaultdict(int)
 
-instances = defaultdict(list)
+instances = defaultdict(set)
 
-base = files_location 
+base = files_location
 
 to_delete = 'joint_counts.csv', 'instances.csv', 'counts.csv'
 
@@ -31,9 +32,8 @@ def filter_to_file(val):
     if type(val) is int:
         if int(val) > 5:
             return True
-    if type(val) is list:
-        if len(val) > 5:
-            return True
+    if type(val) is set:
+        return True
     return False
 
 
@@ -75,9 +75,7 @@ if __name__ == "__main__":
             sentences = doc.sentences
             sentence_counter = 0
             for sentence in sentences:
-                # print datetime.datetime.now()
                 sentence_counter = sentence_counter + 1
-                # print str(sentence_counter) + " of " + str(len(sentences))
                 gramner = sentence.gramners
                 npe_product = set(itertools.product(gramner, gramner))
                 stufffs = [i for i in npe_product]
@@ -86,8 +84,8 @@ if __name__ == "__main__":
                 for pair in pairs:
                     npe_counts[pair.word1] += 1
                     npe_counts[pair.word2] += 1
-                    instances[pair.word1].append((pair.word1.window, url))
-                    instances[pair.word2].append((pair.word2.window, url))
+                    instances[pair.word1].update((pair.word1.window, url))
+                    instances[pair.word2].update((pair.word2.window, url))
                     joint_counts[(repr(pair.word1), repr(pair.word2))] += 1
         except UnicodeEncodeError:
             pass
