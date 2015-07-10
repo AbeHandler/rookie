@@ -57,7 +57,7 @@ def get_stopwords():
 
 
 def time_stamp_to_date(timestamp):
-    timestamp = timestamp.split(" ")[0]
+    # example: 2011-01-10
     yr = int(timestamp.split("-")[0])
     mo = int(timestamp.split("-")[1])
     dy = int(timestamp.split("-")[2])

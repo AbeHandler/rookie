@@ -1,10 +1,8 @@
 import glob
 import json
-import csv
 import itertools
 import os
-import pdb
-import json
+from rookie.utils import time_stamp_to_date
 from rookie.classes import Document
 from rookie import processed_location
 from rookie.classes import NPEPair
@@ -86,7 +84,9 @@ joint_counts = dict((k, v) for k, v in joint_counts.items() if v > 5)
 instances_reduced = {}
 
 for key in npe_counts.keys():
-    temp = instances[key]
+    temp = set(instances[key])
+    temp = [p for p in temp]
+    temp.sort(key=lambda x: time_stamp_to_date(x[2]))
     instances_reduced[key] = tuple(set(temp))
 
 

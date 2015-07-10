@@ -33,7 +33,7 @@
             <div class="result">
               {{ result.string }}
               {% for w in result.windows %}
-                 <a href="{{ w[0] }}">{{ w[1] }}</a> </br>
+                 {{ w[2] }} <a href="{{ w[0] }}">{{ w[1] }}</a> </br>
               {% endfor %}
             </div>
           {% endfor %}
