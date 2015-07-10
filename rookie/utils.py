@@ -50,12 +50,6 @@ def get_window(term):
             index = t[1].index(term)
             left = t[1][:index][-window_length:]
             right = t[1][index + len(term):][:window_length]
-            try:
-                assert (len(right) == len(left))
-            except:
-                d = 3
-                pass
-                e = 3
             outout.append((t[2], left, term, right, t[0]))
         except ValueError:
             pass

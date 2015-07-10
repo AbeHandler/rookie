@@ -47,7 +47,7 @@ else:
     corpus_loc = "/Users/abramhandler/research/rookie/data/lens/"
     files_location = "/Volumes/USB 1/"
     core_nlp_location = "/Volumes/USB/stanford-corenlp-full-2015-04-20/*"
-    window_length = 10
+    window_length = 30
 
 CONNECTION_STRING = 'postgresql://%s:%s@%s:5432/%s' % (
         os.environ.get('DATABASE_USERNAME'),

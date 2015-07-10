@@ -5,4 +5,11 @@
 .padding {
   opacity: .6;
   color: black;
+  padding: 0px;
+  overflow: hidden;
+}
+
+.term{
+	padding-right: 0px;
+	padding-left: 0px;
 }
