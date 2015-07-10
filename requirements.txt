@@ -16,6 +16,7 @@ py==1.4.30
 pylru==1.0.9
 pytest==2.7.2
 pytest-cov==1.8.1
+python-coveralls==2.5.0
 python-Levenshtein==0.12.0
 # stanford-corenlp-pywrapper==0.1.0 not in pip. 
 urllib3==1.10.4
