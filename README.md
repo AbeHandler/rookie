@@ -11,3 +11,5 @@ Rookie began with [support](http://www.knightfoundation.org/grants/201550791/ "s
 #### Tests and coverage
 
 [![Build Status](https://travis-ci.org/AbeHandler/rookie.svg?branch=master)](https://travis-ci.org/AbeHandler/rookie)
+
+[![Coverage Status](https://coveralls.io/repos/AbeHandler/rookie/badge.svg?branch=master&service=github)](https://coveralls.io/github/AbeHandler/rookie?branch=master)
