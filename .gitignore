@@ -2,7 +2,7 @@ lens_downloader/files/*
 *pyc
 *log
 data/lens_processed/*
-rookie.sql
+*coverage
 *.csv
 *json
 data/lens

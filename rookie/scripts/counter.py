@@ -52,7 +52,7 @@ if __name__ == "__main__":
             with (open(filename, "r")) as infile:
                 json_in = json.loads(infile.read())
                 url = json_in['url']
-                pubdate = json_in['timestamp']
+                pubdate = json_in['timestamp'].split(" ")[0]
                 data = json_in['lines']
             doc = Document(data)
             sentences = doc.sentences
@@ -67,8 +67,8 @@ if __name__ == "__main__":
                 for pair in pairs:
                     npe_counts[repr(pair.word1)] += 1
                     npe_counts[repr(pair.word2)] += 1
-                    instances[repr(pair.word1)].append((url, pair.word1.window))
-                    instances[repr(pair.word2)].append((url, pair.word2.window))
+                    instances[repr(pair.word1)].append((url, pair.word1.window, pubdate))
+                    instances[repr(pair.word2)].append((url, pair.word2.window, pubdate))
                     joint_counts[(repr(pair.word1) + "###" + repr(pair.word2))] += 1
         except UnicodeEncodeError:
             pass
@@ -84,7 +84,8 @@ npe_counts = dict((k, v) for k, v in npe_counts.items() if v > 5)
 joint_counts = dict((k, v) for k, v in joint_counts.items() if v > 5)
 
 instances_reduced = {}
-for key in instances.keys():
+output_keys = [i for i in instances.keys() if i in npe_counts.keys()]
+for key in output_keys:
     temp = instances[key]
     instances_reduced[key] = tuple(set(temp))
 
