@@ -84,7 +84,7 @@ npe_counts = dict((k, v) for k, v in npe_counts.items() if v > 5)
 joint_counts = dict((k, v) for k, v in joint_counts.items() if v > 5)
 
 instances_reduced = {}
-output_keys = [i for i in instances.keys() if i in npe_counts.keys()]
+
 for key in npe_counts.keys():
     temp = instances[key]
     instances_reduced[key] = tuple(set(temp))
