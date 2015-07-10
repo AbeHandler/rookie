@@ -1,3 +1,8 @@
 .result_details{
 	display: none
 }
+
+.padding {
+  opacity: .6;
+  color: black;
+}

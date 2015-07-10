@@ -50,18 +50,26 @@ def get_window(term):
             index = t[1].index(term)
             left = t[1][:index][-window_length:]
             right = t[1][index + len(term):][:window_length]
+            try:
+                assert (len(right) == len(left))
+            except:
+                d = 3
+                pass
+                e = 3
             outout.append((t[2], left, term, right, t[0]))
         except ValueError:
             pass
     return outout
 
 
+@lrudecorator(100)
 def clean_whitespace(full_text):
     pattern = re.compile("\ {2,}")  # clean any big spaces left over
     full_text = pattern.sub(" ", full_text)  # replace w/ small spaces
     return full_text
 
 
+@lrudecorator(100)
 def time_stamp_to_date(timestamp):
     # example: 2011-01-10
     yr = int(timestamp.split("-")[0])
@@ -70,6 +78,7 @@ def time_stamp_to_date(timestamp):
     return datetime.date(yr, mo, dy)
 
 
+@lrudecorator(100)
 def clean_punctuation(input_string):
     '''
     Assumes ASCII input. TODO: Error handling.

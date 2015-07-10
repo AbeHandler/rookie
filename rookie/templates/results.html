@@ -28,20 +28,24 @@
           </div>
     </div>
     <div class="row">
-      <div class="small-12 medium-12 large-12 columns">
           {% for result in results %}
-            <div id="{{result.id}}" class="text-center result">
-              {{ result.string }}
+            <div id="{{result.id}}" class="text-center result small-12 medium-12 large-12 columns">
+              <div class="term small-2 medium-2 large-2 columns large-offset-5 medium-offset-5 small-offset-5">{{ result.string }}</div>
 
-              <div id="{{result.id}}-details" class="result_details">
+              <div id="{{result.id}}-details" class="result_details small-12 medium-12 large-12 columns">
               {% for w in result.windows %}
-                 {{ w[0] }} <a href="{{ w[4] }}">{{ w[1] }}<span>{{ w[2] }}</span>{{ w[3] }}</a> </br>
+                 <span class="small-2 medium-2 large-2 columns left">{{ w[0] }}</span>
+                 <a href="{{ w[4] }}">
+                 <span class="padding small-3 medium-3 large-3 columns left text-right">{{ w[1] }}</span>
+                 <span class="term small-2 medium-2 large-2 columns">{{ w[2] }}</span>
+                 <span class="padding small-4 medium-4 large-4 columns text-left">{{ w[3] }}</span>
+                 </a>
+                 </br>
               {% endfor %}
               </div>
 
             </div>
           {% endfor %}
-      </div>
     </div>
 
 
