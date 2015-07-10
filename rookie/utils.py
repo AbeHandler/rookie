@@ -1,8 +1,10 @@
 import string
 import json
 import re
-from rookie import files_location
 import datetime
+import pdb
+from rookie import files_location
+from rookie import window_length
 from pylru import lrudecorator
 
 
@@ -37,9 +39,21 @@ def get_windows():
     return windows
 
 
+@lrudecorator(100)
 def get_window(term):
     windows = get_windows()
-    return windows[term]
+    tmp = windows[term]
+    tmp.sort(key=lambda x: x[2])
+    outout = []
+    for t in tmp:
+        try:
+            index = t[1].index(term)
+            left = t[1][:index][-window_length:]
+            right = t[1][index + len(term):][:window_length]
+            outout.append((t[2], left, term, right, t[0]))
+        except ValueError:
+            pass
+    return outout
 
 
 def clean_whitespace(full_text):

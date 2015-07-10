@@ -41,6 +41,17 @@ files_to_check = glob.glob(file_loc + "/*")
 
 counter = 0
 
+
+def stop_word(word):
+    stops = ['U.S.', "|", "today",
+             "Tuesday", "Wednesday",
+             "Thursday", "Friday",
+             "Saturday", "Sunday",
+             "Monday"]
+    if word in stops:
+        return True
+    return False
+
 if __name__ == "__main__":
     for filename in files_to_check:
         try:
@@ -63,11 +74,14 @@ if __name__ == "__main__":
                 pairs = [NPEPair(i[0], i[1]) for i in npe_product]
                 pairs = set(pairs)
                 for pair in pairs:
-                    npe_counts[repr(pair.word1)] += 1
-                    npe_counts[repr(pair.word2)] += 1
-                    instances[repr(pair.word1)].append((url, pair.word1.window, pubdate))
-                    instances[repr(pair.word2)].append((url, pair.word2.window, pubdate))
-                    joint_counts[(repr(pair.word1) + "###" + repr(pair.word2))] += 1
+                    if (stop_word(repr(pair.word1)) or stop_word(repr(pair.word1))):
+                        pass
+                    else:
+                        npe_counts[repr(pair.word1)] += 1
+                        npe_counts[repr(pair.word2)] += 1
+                        instances[repr(pair.word1)].append((url, pair.word1.window, pubdate))
+                        instances[repr(pair.word2)].append((url, pair.word2.window, pubdate))
+                        joint_counts[(repr(pair.word1) + "###" + repr(pair.word2))] += 1
         except UnicodeEncodeError:
             pass
         except KeyError:
