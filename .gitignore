@@ -6,3 +6,4 @@ data/lens_processed/*
 *.csv
 *json
 data/lens
+.coverage
