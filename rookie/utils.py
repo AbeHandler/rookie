@@ -1,7 +1,6 @@
 import string
 import json
 import re
-from nltk.corpus import stopwords
 from rookie import files_location
 import datetime
 from pylru import lrudecorator
@@ -16,6 +15,7 @@ class Result(object):
         self.string = string
         self.pmi = pmi
         self.windows = windows
+        self.id = string.__hash__()  # get ID from use in template
 
     def __repr__(self):
             return string
@@ -46,14 +46,6 @@ def clean_whitespace(full_text):
     pattern = re.compile("\ {2,}")  # clean any big spaces left over
     full_text = pattern.sub(" ", full_text)  # replace w/ small spaces
     return full_text
-
-
-def get_stopwords():
-    temp = stopwords.words("english")
-    temp = temp + ['new', 'orleans', 'said', 'would', 'city', 'state',
-                   'parish', 'louisiana', '', '|', 'said', 'say', 'story',
-                   'we', 'cover', 'lens']
-    return temp
 
 
 def time_stamp_to_date(timestamp):

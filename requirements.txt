@@ -7,11 +7,9 @@ beautifulsoup4==4.3.2
 cov-core==1.15.0
 coverage==3.7.1
 decorator==3.4.2
-elasticsearch==1.4.0
 itsdangerous==0.24
 ner==0.1
 networkx==1.9.1
-nltk==3.0.2
 py==1.4.30
 pylru==1.0.9
 pytest==2.7.2

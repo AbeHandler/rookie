@@ -30,11 +30,15 @@
     <div class="row">
       <div class="small-12 medium-12 large-12 columns">
           {% for result in results %}
-            <div class="result">
+            <div id="{{result.id}}" class="result">
               {{ result.string }}
+
+              <div id="{{result.id}}-details" class="result_details">
               {% for w in result.windows %}
                  {{ w[2] }} <a href="{{ w[0] }}">{{ w[1] }}</a> </br>
               {% endfor %}
+              </div>
+
             </div>
           {% endfor %}
       </div>
@@ -44,6 +48,8 @@
     {% include 'footer.html' %}
 
     {% include 'js.html' %}
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/tmp.css') }}">
+
     <script type="text/javascript" src={{ search_js }}></script>
 
   </body>
