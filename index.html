@@ -1,19 +1,137 @@
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-<script type="text/javascript" src="https://s3-us-west-2.amazonaws.com/lensnola/salaryexplorer/js/handlebars-v3.0.3.js"></script>
 
-<script id="entry-template" type="text/x-handlebars-template">
-  <div class="entry">
-    <h1>{{title}}</h1>
-    <div class="body">
-      {{body}}
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <script type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>
+<title>Rookie</title>
+<meta name="viewport" content="width=device-width">
+
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.5/css/foundation.min.css">
+<link rel='stylesheet' id='open-sans-css'  href='//fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C300%2C400%2C600&#038;subset=latin%2Clatin-ext&#038;ver=3.8.3' type='text/css' media='all' />
+<link rel="apple-touch-icon" href="https://lensnola.wpengine.netdna-cdn.com/wp-content/uploads/2013/01/TheLens-400x400_icon.png"/>
+
+<link rel="canonical" href="https://thelensnola.org/" />
+<link rel="shortcut icon" href="https://s3-us-west-2.amazonaws.com/lensnola/land-records/css/images/favicon.ico">
+
+
+<!-- End of Open Graph tags -->
+
+<link rel="stylesheet" href=https://s3-us-west-2.amazonaws.com/rookielens/css/lens.css>
+<link rel="stylesheet" href=https://s3-us-west-2.amazonaws.com/rookielens/css/banner.css>
+<link rel="stylesheet" href=https://s3-us-west-2.amazonaws.com/rookielens/css/contracts.css>
+    <link rel=stylesheet type=text/css href="https://s3-us-west-2.amazonaws.com/rookielens/css/rookie.css">
+  </head>
+  <body>
+
+    <div id="banner" class="banner">
+  <a href="https://thelensnola.org/" target="_blank" id="banner-logo" class="banner-logo">
+      <img id="banner-image" src="https://s3-us-west-2.amazonaws.com/lensnola/realestate/css/images/lens-logo-retina.png" width="100" alt="The Lens logo">
+  </a>
+  <a href="/contracts/" id="banner-title" class="banner-title">Rookie</a>
+</div>
+
+    <div class="row hide-for-small-only">
+      <div class="small-6 medium-12 small-centered columns">
+        <h1 class="text-center">Search the Lens archive</h1>
+      </div>
+    </div>
+
+    <div class="row">
+          <div class="small-12 medium-12 large-12 columns">
+              <div class="row collapse">
+                  <div class="small-10 columns">
+                    <input id="search_terms" type="text" placeholder="Search..">
+                  </div>
+                  <div class="small-2 columns">
+                    <a id="search_button" class="button postfix">Go</a>
+                  </div>
+             </div>
+          </div>
+    </div>
+
+    <div class="row">
+      <div class="small-8 medium-8 large-8 columns">
+          <div id="results"></div>
+      </div>
+      <div class="small-4 medium-4 large-4 columns">
+          <div id="timeline"></div>
+      </div>
+    </div>
+
+    <div class="row">
+  <div class="small-12 small-centered attribution columns" id="attribution">
+    <div class="row">
+      <div class="small-6 columns">
+        <div class="row">
+          <div class="small-12 columns">
+            Source: <a href="https://www.thelensnola.org" target="_blank">The Lens</a>
+          </div>
+        </div>
+      </div>
+      <div class="small-6 right columns">
+        <div class="row">
+          <div class="small-12 right columns">
+            <div class="produced-by right" id="produced-by">
+              In progress
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+</div>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.1/js/foundation.min.js"></script>
+
+<script type="text/javascript">
+
+var url;
+
+function search_records(){
+	url  = 'https://rookie.thelensnola.org/rookie/search?term=';
+	if ($("#search_terms").val() != ""){
+    url = url + $("#search_terms").val();
+  }
+  console.log(url);
+  window.location = url;
+}
+
+$("#search_button").on("click", function(){
+   search_records();
+});
+
+$("body").keypress(function(e) {
+  if(e.which == 13) {
+    search_records();
+  }
+});
+
+$(".result").on("click", function(e){
+	var clickedid = $(this).attr('id') + "-details";
+	$("#" + clickedid).toggle( "fast" );
+});
+
+function fill_autocomplete(list){
+  $.get('httpss://s3-us-west-2.amazonaws.com/rookielens/data/test.zip', function(data) {
+   var values = data.split("\n");
+   $( "#" + list ).autocomplete({
+      source: values
+    });
+  }, 'text');
+}
+
+$.get('https://s3-us-west-2.amazonaws.com/rookielens/data/test.txt.gz', function(data){
+  console.log("got data");
+  window.data = data;
+  console.log("loaded data");
+});
+
 </script>
 
-<script>
-var source = $("#entry-template").html();
-var template = Handlebars.compile(source);
-var context = {title: "My New Post", body: "This is my first post!"};
-var html = template(context);
-console.log(html);
+<script type="text/javascript">
+  $(document).foundation();
 </script>
+  </body>

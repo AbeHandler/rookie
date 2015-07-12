@@ -29,6 +29,15 @@ $(".result").on("click", function(e){
 	$("#" + clickedid).toggle( "fast" );
 });
 
+function fill_autocomplete(list){
+  $.get('https://s3-us-west-2.amazonaws.com/rookielens/data/test.zip', function(data) {
+   var values = data.split("\n");
+   $( "#" + list ).autocomplete({
+      source: values
+    });
+  }, 'text');
+}
+
 </script>
 
 <script type="text/javascript">

@@ -45,7 +45,7 @@ else:
     processed_location = '/Users/abramhandler/research/rookie/data/lens_processed/'
     tagger_base = "/Volumes/USB/stanford-postagger-2015-04-20/"
     corpus_loc = "/Users/abramhandler/research/rookie/data/lens/"
-    files_location = "/Volumes/USB 1/"
+    files_location = "/Volumes/USB/"
     core_nlp_location = "/Volumes/USB/stanford-corenlp-full-2015-04-20/*"
     window_length = 30
 

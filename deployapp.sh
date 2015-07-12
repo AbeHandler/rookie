@@ -1,0 +1,1 @@
+aws s3 cp index.html s3://rookielens --acl public-read
