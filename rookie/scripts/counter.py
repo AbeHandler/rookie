@@ -53,7 +53,7 @@ for filename in to_delete:
 
 file_loc = processed_location
 
-files_to_check = glob.glob(file_loc + "/*")[0:10]
+files_to_check = glob.glob(file_loc + "/*")
 
 counter = 0
 
