@@ -42,18 +42,7 @@ def get_windows():
 @lrudecorator(100)
 def get_window(term):
     windows = get_windows()
-    tmp = windows[term]
-    tmp.sort(key=lambda x: x[2])
-    outout = []
-    for t in tmp:
-        try:
-            index = t[1].index(term)
-            left = t[1][:index][-window_length:]
-            right = t[1][index + len(term):][:window_length]
-            outout.append((t[2], left, term, right, t[0]))
-        except ValueError:
-            pass
-    return outout
+    return windows[term]
 
 
 @lrudecorator(100)

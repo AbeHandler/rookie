@@ -1,5 +1,6 @@
 .result_details{
-	display: none
+	display: none;
+	overflow: hidden;
 }
 
 .padding {
@@ -12,4 +13,5 @@
 .term{
 	padding-right: 0px;
 	padding-left: 0px;
+	overflow: hidden;
 }

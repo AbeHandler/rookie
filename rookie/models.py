@@ -18,7 +18,7 @@ class Models(object):
 
         output = []
 
-        log.debug(len(output))
+        log.debug('start')
 
         if request.args.get('term') is None:
             log.debug("no parameters")
@@ -32,16 +32,19 @@ class Models(object):
         except KeyError:
             results = []
 
+        log.debug('merge lists start')
         # TODO see github issue on merge
         results = Merger.merge_lists(results)
         results = Merger.merge_lists(results)
 
         out = []
 
+        log.debug('get window start')
         for results in results:
             window = get_window(results[0])
             out.append(Result(results[0], results[1], window))
 
+        log.debug('end')
         return out
 
     def home(self):

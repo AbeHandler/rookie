@@ -2,6 +2,8 @@ import glob
 import json
 import itertools
 import os
+import pdb
+from rookie import window_length
 from rookie.utils import time_stamp_to_date
 from rookie.classes import Document
 from rookie import processed_location
@@ -18,6 +20,20 @@ instances = defaultdict(list)
 base = files_location
 
 to_delete = 'joint_counts.json', 'instances.json', 'counts.json'
+
+
+def get_window(term, tmplist):
+    tmplist.sort(key=lambda x: time_stamp_to_date(x[2]))
+    outout = []
+    for t in tmplist:
+        try:
+            index = t[1].index(term)
+            left = t[1][:index][-window_length:]
+            right = t[1][index + len(term):][:window_length]
+            outout.append((t[2], left, term, right, t[0]))
+        except ValueError:
+            pass
+    return outout
 
 
 def attempt_delete(filename):
@@ -37,7 +53,7 @@ for filename in to_delete:
 
 file_loc = processed_location
 
-files_to_check = glob.glob(file_loc + "/*")
+files_to_check = glob.glob(file_loc + "/*")[0:10]
 
 counter = 0
 
@@ -100,7 +116,7 @@ instances_reduced = {}
 for key in npe_counts.keys():
     temp = set(instances[key])
     temp = [p for p in temp]
-    temp.sort(key=lambda x: time_stamp_to_date(x[2]))
+    temp = get_window(key, temp)
     instances_reduced[key] = tuple(set(temp))
 
 
