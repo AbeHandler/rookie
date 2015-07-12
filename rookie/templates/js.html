@@ -1,5 +1,36 @@
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.1/js/foundation.min.js"></script>
+
+<script type="text/javascript">
+
+var url;
+
+function search_records(){
+	url  = 'http://rookie.thelensnola.org/rookie/search?term=';
+	if ($("#search_terms").val() != ""){
+    url = url + $("#search_terms").val();
+  }
+  console.log(url);
+  window.location = url;
+}
+
+$("#search_button").on("click", function(){
+   search_records();
+});
+
+$("body").keypress(function(e) {
+  if(e.which == 13) {
+    search_records();
+  }
+});
+
+$(".result").on("click", function(e){
+	var clickedid = $(this).attr('id') + "-details";
+	$("#" + clickedid).toggle( "fast" );
+});
+
+</script>
+
 <script type="text/javascript">
   $(document).foundation();
 </script>

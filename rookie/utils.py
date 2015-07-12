@@ -4,7 +4,6 @@ import re
 import datetime
 import pdb
 from rookie import files_location
-from rookie import window_length
 from pylru import lrudecorator
 
 

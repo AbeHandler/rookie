@@ -1,5 +1,6 @@
 .result_details{
 	display: none;
+	white-space: nowrap;
 	overflow: hidden;
 }
 
@@ -7,11 +8,16 @@
   opacity: .6;
   color: black;
   padding: 0px;
+  white-space: nowrap;
   overflow: hidden;
+  direction: rtl;
 }
 
 .term{
-	padding-right: 0px;
-	padding-left: 0px;
 	overflow: hidden;
+	white-space: nowrap;
+}
+
+a#search_button {
+  background-color: #B43018;
 }

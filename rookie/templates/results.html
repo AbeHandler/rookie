@@ -3,10 +3,11 @@
   <head>
 
     {% include 'head.html' %}
-
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/tmp.css') }}">
   </head>
-  <body>
 
+  <body>
+    
     {% include 'banner.html' %}
 
     <div class="row hide-for-small-only">
@@ -52,8 +53,5 @@
     {% include 'footer.html' %}
 
     {% include 'js.html' %}
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/tmp.css') }}">
-    <script type="text/javascript" src={{ url_for('static', filename='js/tmp.js') }}></script>
-    <script type="text/javascript" src={{ search_js }}></script>
 
   </body>
