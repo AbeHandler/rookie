@@ -38,7 +38,7 @@ if socket.getfqdn() == 'hobbes.cs.umass.edu':
 elif socket.getfqdn() == 'rookie':
     processed_location = "/home/ubuntu/corpora/lens_processed/"
     corpus_loc = "/home/ubuntu/corpora/lens/"
-    files_location = "/home/ubuntu/rookie"
+    files_location = "/home/ubuntu/rookie/"
     core_nlp_location = "/home/sw/corenlp/stanford-corenlp-full-2015-04-20/*"
     window_length = 45
 else:
