@@ -49,6 +49,9 @@ def search():
     log.info("/rookie/search" + request.args.get('term'))
 
     data = Models().search(request, pmis)
+
+    log.debug("got data")
+
     view = Views().get_results(data)
 
     log.info("/rookie/search returning view")
