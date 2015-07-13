@@ -33,5 +33,6 @@ for joint_count in joint_counts.keys():
     pmis[word1].append((word2, pmi))
     pmis[word2].append((word1, pmi))
 
-with (open("pmis.json", "w")) as jsonfile:
-    json.dump(pmis, jsonfile)
+for pmi in pmis:
+    with (open("data/pmis/" + pmi + ".json", "w")) as jsonfile:
+        json.dump(pmi, jsonfile)
