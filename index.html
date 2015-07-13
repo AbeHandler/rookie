@@ -2,11 +2,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-
-    <script type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>
 <title>Rookie</title>
 <meta name="viewport" content="width=device-width">
 
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.1/js/foundation.min.js"></script>
+    <script type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.5/css/foundation.min.css">
 <link rel='stylesheet' id='open-sans-css'  href='//fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C300%2C400%2C600&#038;subset=latin%2Clatin-ext&#038;ver=3.8.3' type='text/css' media='all' />
@@ -15,6 +16,8 @@
 <link rel="canonical" href="https://thelensnola.org/" />
 <link rel="shortcut icon" href="https://s3-us-west-2.amazonaws.com/lensnola/land-records/css/images/favicon.ico">
 
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
 <!-- End of Open Graph tags -->
 
@@ -83,8 +86,6 @@
   </div>
 </div>
 
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.1/js/foundation.min.js"></script>
 
 <script type="text/javascript">
 
@@ -116,18 +117,21 @@ $(".result").on("click", function(e){
 
 function fill_autocomplete(list){
   $.get('httpss://s3-us-west-2.amazonaws.com/rookielens/data/test.zip', function(data) {
-   var values = data.split("\n");
+   values = data.split("\n");
    $( "#" + list ).autocomplete({
       source: values
     });
   }, 'text');
 }
 
-$.get('https://s3-us-west-2.amazonaws.com/rookielens/data/test.txt.gz', function(data){
+
+$.get('https://s3-us-west-2.amazonaws.com/rookielens/data/keys.csv.gz', function(data){
   console.log("got data");
-  window.data = data;
-  console.log("loaded data");
-});
+  values = data.split("\n");
+  $( "#search_terms").autocomplete({
+      source: values
+    });
+  }, 'text');
 
 </script>
 

@@ -124,4 +124,5 @@ json_dump(base + "instances.json", instances_reduced)
 json_dump(base + "counts.json", npe_counts)
 json_dump(base + "joint_counts.json", joint_counts)
 with open(base + "keys.csv", "w") as outfile:
-    outfile.writelines(npe_counts.keys())
+    for key in npe_counts.keys():
+        outfile.write(key + "\n")
