@@ -4,6 +4,7 @@ lens_downloader/files/*
 data/lens_processed/*
 *coverage
 *.csv
+*gz
 *json
 data/lens
 .coverage
