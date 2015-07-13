@@ -85,6 +85,8 @@ if __name__ == "__main__":
             for sentence in sentences:
                 sentence_counter = sentence_counter + 1
                 gramner = sentence.gramners
+                for gramne in gramner:
+                    npe_counts[repr(gramne)] += 1
                 npe_product = set(itertools.product(gramner, gramner))
                 stufffs = [i for i in npe_product]
                 pairs = [NPEPair(i[0], i[1]) for i in npe_product]
@@ -93,8 +95,6 @@ if __name__ == "__main__":
                     if (stop_word(repr(pair.word1)) or stop_word(repr(pair.word1))):
                         pass
                     else:
-                        npe_counts[repr(pair.word1)] += 1
-                        npe_counts[repr(pair.word2)] += 1
                         instances[repr(pair.word1)].append((url, pair.word1.window, pubdate))
                         instances[repr(pair.word2)].append((url, pair.word2.window, pubdate))
                         joint_counts[(repr(pair.word1) + "###" + repr(pair.word2))] += 1
