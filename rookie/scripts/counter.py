@@ -3,6 +3,7 @@ import json
 import itertools
 import os
 import pdb
+from rookie import log
 from rookie import window_length
 from rookie.utils import time_stamp_to_date
 from rookie.classes import Document
@@ -87,6 +88,8 @@ if __name__ == "__main__":
                 gramner = sentence.gramners
                 for gramne in gramner:
                     npe_counts[repr(gramne)] += 1
+                    if repr(gramne) == "Strain.Marlin Peachey":
+                        log.info(url)
                 npe_product = set(itertools.product(gramner, gramner))
                 stufffs = [i for i in npe_product]
                 pairs = [NPEPair(i[0], i[1]) for i in npe_product]
