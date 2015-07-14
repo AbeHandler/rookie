@@ -39,6 +39,7 @@ for pmi in pmis:
         pmis[pmi].sort(key=lambda x: x[1])
         merged = Merger.merge_lists(pmis[pmi])
         merged = Merger.merge_lists(merged)
+        # TODO this is not merging windows
         merged = [i for i in merged if not i[0] == pmi]
         if len(merged) > 0:
             json.dump(merged, jsonfile)

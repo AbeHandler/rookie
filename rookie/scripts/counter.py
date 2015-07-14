@@ -54,7 +54,7 @@ for filename in to_delete:
 
 file_loc = processed_location
 
-files_to_check = glob.glob(file_loc + "/*")
+files_to_check = glob.glob(file_loc + "/*")[0:10]
 
 counter = 0
 
@@ -98,8 +98,8 @@ if __name__ == "__main__":
                     if (stop_word(repr(pair.word1)) or stop_word(repr(pair.word1))):
                         pass
                     else:
-                        instances[repr(pair.word1)].append((url, pair.word1.window, pubdate))
-                        instances[repr(pair.word2)].append((url, pair.word2.window, pubdate))
+                        instances[repr(pair.word1), repr(pair.word2)].append((url, pair.word1.window, pubdate))
+                        instances[repr(pair.word2), repr(pair.word1)].append((url, pair.word2.window, pubdate))
                         joint_counts[(repr(pair.word1) + "###" + repr(pair.word2))] += 1
         except UnicodeEncodeError:
             pass
