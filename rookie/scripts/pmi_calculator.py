@@ -3,6 +3,7 @@ import json
 import pdb
 from collections import defaultdict
 from rookie import files_location
+from rookie.merger import Merger
 
 pmis = defaultdict(list)
 
@@ -36,4 +37,6 @@ for joint_count in joint_counts.keys():
 for pmi in pmis:
     with (open("data/pmis/" + pmi + ".json", "w")) as jsonfile:
         pmis[pmi].sort(key=lambda x: x[1])
-        json.dump(pmis[pmi], jsonfile)
+        merged = Merger.merge_lists(pmis[pmi])
+        merged = Merger.merge_lists(merged)
+        json.dump(merged, jsonfile)
