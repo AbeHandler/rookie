@@ -3,6 +3,13 @@ import json
 import itertools
 import os
 import pdb
+import csv
+import json
+import pdb
+from collections import defaultdict
+from rookie import files_location
+from rookie.merger import Merger
+
 from rookie import log
 from rookie import window_length
 from rookie.utils import time_stamp_to_date
@@ -114,18 +121,64 @@ if __name__ == "__main__":
 npe_counts = dict((k, v) for k, v in npe_counts.items() if v > 5)
 joint_counts = dict((k, v) for k, v in joint_counts.items() if v > 5)
 
-instances_reduced = {}
+# instances_reduced = {}
 
-for key in npe_counts.keys():
-    temp = set(instances[key])
-    temp = [p for p in temp]
-    temp = get_window(key, temp)
-    instances_reduced[key] = tuple(set(temp))
+# for key in npe_counts.keys():
+#    temp = set(instances[key])
+#    temp = [p for p in temp]
+#    temp = get_window(key, temp)
+#    instances_reduced[key] = tuple(set(temp))
+# json_dump(base + "instances.json", instances_reduced)
 
 
-json_dump(base + "instances.json", instances_reduced)
+#  writing to file because need these static files
 json_dump(base + "counts.json", npe_counts)
 json_dump(base + "joint_counts.json", joint_counts)
 with open(base + "keys.csv", "w") as outfile:
     for key in npe_counts.keys():
         outfile.write(key + "\n")
+
+
+'''
+PMI Calculator
+'''
+
+pmis = defaultdict(list)
+
+joint_counts = []
+counts = []
+
+
+def read_count_file(jsonfile):
+    with open(jsonfile) as infile:
+        data = json.load(infile)
+    return data
+
+
+joint_counts = read_count_file(files_location + "joint_counts.json")
+counts = read_count_file(files_location + "counts.json")
+
+counts = dict((k, float(v)) for k, v in counts.items())
+
+TOTAL_PAIRS = len(counts.keys())
+
+for joint_count in joint_counts.keys():
+    word1 = joint_count.split("###")[0]
+    word2 = joint_count.split("###")[1]
+    pxy = float(joint_counts[joint_count]) / TOTAL_PAIRS
+    px = counts[word1] / TOTAL_PAIRS
+    py = counts[word2] / TOTAL_PAIRS
+    pmi = pxy / (px * py)
+    pmis[word1].append((word2, pmi))
+    pmis[word2].append((word1, pmi))
+
+for pmi in pmis:
+    with (open("data/pmis/" + pmi + ".json", "w")) as jsonfile:
+        pmis[pmi].sort(key=lambda x: x[1])
+        merged = Merger.merge_lists(pmis[pmi])
+        merged = Merger.merge_lists(merged)
+        # TODO this is not merging windows
+        merged = [i for i in merged if not i[0] == pmi]
+        pdb.set_trace()
+        if len(merged) > 0:
+            json.dump(merged, jsonfile)
