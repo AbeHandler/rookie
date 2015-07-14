@@ -35,4 +35,5 @@ for joint_count in joint_counts.keys():
 
 for pmi in pmis:
     with (open("data/pmis/" + pmi + ".json", "w")) as jsonfile:
-        json.dump(pmis[pmi].sort(key=lambda x: x[1]), jsonfile)
+        pmis[pmi].sort(key=lambda x: x[1])
+        json.dump(pmis, jsonfile)
