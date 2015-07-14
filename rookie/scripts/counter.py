@@ -37,6 +37,10 @@ def get_window(term, tmplist):
             index = t[1].index(term)
             left = t[1][:index][-window_length:]
             right = t[1][index + len(term):][:window_length]
+            if len(left) == 0:
+                left = "&nbsp;"
+            if len(right) == 0:
+                right = "&nbsp;"
             outout.append((t[2], left, term, right, t[0]))
         except ValueError:
             pass
@@ -89,8 +93,6 @@ if __name__ == "__main__":
                 gramner = sentence.gramners
                 for gramne in gramner:
                     npe_counts[repr(gramne)] += 1
-                    if repr(gramne) == "Strain.Marlin Peachey":
-                        log.info(url)
                 npe_product = set(itertools.product(gramner, gramner))
                 stufffs = [i for i in npe_product]
                 pairs = [NPEPair(i[0], i[1]) for i in npe_product]
@@ -117,17 +119,24 @@ if __name__ == "__main__":
 npe_counts = dict((k, v) for k, v in npe_counts.items() if v > 5)
 joint_counts = dict((k, v) for k, v in joint_counts.items() if v > 5)
 
-# instances_reduced = {}
+instances_reduced = {}
 
-# for key in npe_counts.keys():
-#    temp = set(instances[key])
-#    temp = [p for p in temp]
-#    temp = get_window(key, temp)
-#    instances_reduced[key] = tuple(set(temp))
-# json_dump(base + "instances.json", instances_reduced)
+instances_print = {}
+for key in instances.keys():
+    nkey = "###".join([o for o in key])
+    instances_reduced[nkey] = instances[key]
 
+json_dump(base + "instances.json", instances_reduced)
 
-#  writing to file because need these static files
+'''
+for key in npe_counts.keys():
+    temp = set(instances[key])
+    temp = [p for p in temp]
+    temp = get_window(key, temp)
+    instances_reduced[key] = tuple(set(temp))
+json_dump(base + "instances.json", instances_reduced)
+'''
+
 json_dump(base + "counts.json", npe_counts)
 json_dump(base + "joint_counts.json", joint_counts)
 with open(base + "keys.csv", "w") as outfile:

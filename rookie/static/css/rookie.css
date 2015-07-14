@@ -16,6 +16,7 @@
 .term{
 	overflow: hidden;
 	white-space: nowrap;
+  text-align: left;
 }
 
 a#search_button {
