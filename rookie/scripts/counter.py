@@ -102,10 +102,12 @@ if __name__ == "__main__":
                 pairs = [NPEPair(i[0], i[1]) for i in npe_product]
                 pairs = set(pairs)
                 for pair in pairs:
-                    if (stop_word(repr(pair.word1)) or stop_word(repr(pair.word1))):
+                    if (stop_word(repr(pair.word1)) or
+                       stop_word(repr(pair.word1))):
                         pass
                     else:
-                        instances[repr(pair.word1), repr(pair.word2)].append((url, pair.word1.window, pubdate))
+                        toappend = (url, pair.word1.window, pubdate)
+                        instances[repr(pair.word1), repr(pair.word2)].append(toappend)
                         instances[repr(pair.word2), repr(pair.word1)].append((url, pair.word2.window, pubdate))
                         joint_counts[(repr(pair.word1) + "###" + repr(pair.word2))] += 1
         except UnicodeEncodeError:
@@ -174,11 +176,13 @@ for joint_count in joint_counts.keys():
 
 for pmi in pmis:
     with (open("data/pmis/" + pmi + ".json", "w")) as jsonfile:
-        pmis[pmi].sort(key=lambda x: x[1])
-        merged = Merger.merge_lists(pmis[pmi])
-        merged = Merger.merge_lists(merged)
-        # TODO this is not merging windows
-        merged = [i for i in merged if not i[0] == pmi]
-        pdb.set_trace()
-        if len(merged) > 0:
-            json.dump(merged, jsonfile)
+        hits = pmis[pmi].sort(key=lambda x: x[1])
+        for hit in hits:
+            merged = [o for o in set(instances[pmi, 'story Report'])]
+            merged = Merger.merge_lists(merged)
+            merged = Merger.merge_lists(merged)
+            # TODO this is not merging windows
+            merged = [i for i in merged if not i[0] == pmi]
+            pdb.set_trace()
+            if len(merged) > 0:
+                json.dump(merged, jsonfile)
