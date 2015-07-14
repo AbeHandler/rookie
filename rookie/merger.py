@@ -54,6 +54,8 @@ class Merger(object):
             item2 = c[1]
             # pick the longer one for string value
             string_value = max(item1[0], item2[0], key=lambda x: len(x))
+            print item1
+            print item2
             pmi_value = (item1[1] + item2[1]) / 2
             out.append((string_value, pmi_value))
         return out
@@ -79,7 +81,7 @@ class Merger(object):
 
     @staticmethod
     def merge_lists(list_to_merge):
-        if len(list_to_merge) == 1:
+        if len(list_to_merge) == 1 or len(list_to_merge) == 0:
             return list_to_merge
         else:
             left, right = Merger.split_list(list_to_merge)

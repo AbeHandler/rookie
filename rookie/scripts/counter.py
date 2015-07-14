@@ -61,7 +61,7 @@ for filename in to_delete:
 
 file_loc = processed_location
 
-files_to_check = glob.glob(file_loc + "/*")[0:10]
+files_to_check = glob.glob(file_loc + "/*")
 
 counter = 0
 
@@ -175,14 +175,20 @@ for joint_count in joint_counts.keys():
     pmis[word2].append((word1, pmi))
 
 for pmi in pmis:
-    with (open("data/pmis/" + pmi + ".json", "w")) as jsonfile:
-        pmis[pmi].sort(key=lambda x: x[1])
-        for hit in pmis[pmi]:
-            merged = [o for o in set(instances[pmi, 'story Report'])]
-            merged = Merger.merge_lists(merged)
-            merged = Merger.merge_lists(merged)
-            # TODO this is not merging windows
-            merged = [i for i in merged if not i[0] == pmi]
-            pdb.set_trace()
-            if len(merged) > 0:
-                json.dump(merged, jsonfile)
+    pmis[pmi].sort(key=lambda x: x[1])
+    pmireturns = [o for o in set(pmis[pmi])]
+    merged = Merger.merge_lists(pmireturns)
+    merged = Merger.merge_lists(merged)
+    # TODO this is not merging windows in one pass
+    merged = [i for i in merged if not i[0] == pmi]
+    if len(merged) > 0:
+        with (open("data/pmis/" + pmi + ".json", "w")) as jsonfile:
+            json.dump(merged, jsonfile)
+
+    links = [i[0] for i in merged]
+    for hit in links:
+        windows = [o for o in set(instances[pmi, hit])]
+        if len(windows) > 0:
+            outfile = "data/windows/" + pmi + "||" + hit + ".json"
+            with (open(outfile, "w")) as jsonfile:
+                json.dump(windows, jsonfile)
