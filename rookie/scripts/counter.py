@@ -176,8 +176,8 @@ for joint_count in joint_counts.keys():
 
 for pmi in pmis:
     with (open("data/pmis/" + pmi + ".json", "w")) as jsonfile:
-        hits = pmis[pmi].sort(key=lambda x: x[1])
-        for hit in hits:
+        pmis[pmi].sort(key=lambda x: x[1])
+        for hit in pmis[pmi]:
             merged = [o for o in set(instances[pmi, 'story Report'])]
             merged = Merger.merge_lists(merged)
             merged = Merger.merge_lists(merged)
