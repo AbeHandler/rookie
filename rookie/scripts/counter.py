@@ -3,9 +3,6 @@ import json
 import itertools
 import os
 import pdb
-import csv
-import json
-import pdb
 from collections import defaultdict
 from rookie import files_location
 from rookie.merger import Merger
@@ -16,8 +13,6 @@ from rookie.utils import time_stamp_to_date
 from rookie.classes import Document
 from rookie import processed_location
 from rookie.classes import NPEPair
-from collections import defaultdict
-from rookie import files_location
 
 npe_counts = defaultdict(int)
 
@@ -28,6 +23,10 @@ instances = defaultdict(list)
 base = files_location
 
 to_delete = 'joint_counts.json', 'instances.json', 'counts.json'
+
+file_loc = processed_location
+
+files_to_check = glob.glob(file_loc + "/*")
 
 
 def get_window(term, tmplist):
@@ -57,11 +56,6 @@ def json_dump(filename, defaultdict):
 
 for filename in to_delete:
     attempt_delete(filename)
-
-
-file_loc = processed_location
-
-files_to_check = glob.glob(file_loc + "/*")
 
 counter = 0
 
@@ -188,6 +182,7 @@ for pmi in pmis:
     links = [i[0] for i in merged]
     for hit in links:
         windows = [o for o in set(instances[pmi, hit])]
+        windows = get_window(hit, windows)
         if len(windows) > 0:
             outfile = "data/windows/" + pmi + "###" + hit + ".json"
             with (open(outfile, "w")) as jsonfile:
