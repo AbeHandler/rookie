@@ -28,7 +28,6 @@ def stop_word(word):
              "Thursday", "Friday",
              "Saturday", "Sunday",
              "Monday", "Lens", "The Lens", "New Orleans"]
-
     if word in stops:
         return True
     return False
