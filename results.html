@@ -84,14 +84,14 @@
          <div id="{{id}}" class="text-center result small-12 medium-12 large-12 columns">
               <div class="term small-7 columns small-offset-5">{{term}}</div>
 
-              <div id="{{id}}_details" class="result_details small-12 columns">
+              <div id="{{id}}_details" class="result_details nondisplay small-12 columns">
               </div>
 
         </div>
 </script>
 
 <script id="term_details" type="text/x-handlebars-template">
-           <div class="nondisplay">
+           <div>
            <span class="small-2 columns left">{{date}}</span>
            <a href="{{ url }}">
            <span class="padding small-3 columns left text-right">{{left}}</span>
@@ -131,9 +131,8 @@ $.getJSON(pmis, function(data){
     asycn_window_load(url2);
   });
   $(".result").on("click", function(d){
-    var to_visible = "#" + this.id + "_details";
-    $(to_visible + "> .nondisplay").removeClass("nondisplay");
-    console.log(to_visible);
+    var toggle_this = "#" + this.id + "_details";
+    $(toggle_this).toggleClass("nondisplay")
   });
 });
 
@@ -142,4 +141,5 @@ $.getJSON(pmis, function(data){
 <script type="text/javascript">
   $(document).foundation();
 </script>
+<script type="text/javascript" src="https://s3-us-west-2.amazonaws.com/rookielens/js/search.js"></script>
   </body>

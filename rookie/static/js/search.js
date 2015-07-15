@@ -1,8 +1,8 @@
 var url;
 
 function search_records(){
-	url  = 'http://rookie.thelensnola.org/rookie/search?q=';
-	if ($("#search_terms").val() != ""){
+  url  = 'https://s3-us-west-2.amazonaws.com/rookielens/results.html?term=';
+  if ($("#search_terms").val() != ""){
     url = url + $("#search_terms").val();
   }
   console.log(url);
@@ -19,23 +19,11 @@ $("body").keypress(function(e) {
   }
 });
 
- $( document ).ready(function() {
-  for(var i=0; i<window.people.length; i++) {
-    $("#people").append(window.people[i].name + "<br>");
-  }
-  for(var i=0; i<window.organizations.length; i++) {
-    $("#organizations").append(window.organizations[i].name + "<br>");
-  }
-  for(var i=0; i<window.results.length; i++) {
-    $("#results").append('<a href="'+ window.results[i].url + '">' + window.results[i].headline + '</a><br>');
-  }
-  for(var i=0; i<window.bigrams.length; i++) {
-    $("#bigrams").append(window.bigrams[i] + "<br>");
-  }
-    for(var i=0; i<window.trigrams.length; i++) {
-    $("#trigrams").append(window.trigrams[i] + "<br>");
-  }
-  if (document.location.href.split("q=").length===2){
-    $("#search_terms").val(decodeURIComponent(document.location.href.split("q=")[1]));
-  }
-});
+
+$.get('https://s3-us-west-2.amazonaws.com/rookielens/data/keys.csv.gz', function(data){
+  console.log("got data");
+  values = data.split("\n");
+  $( "#search_terms").autocomplete({
+      source: values
+    });
+  }, 'text');
