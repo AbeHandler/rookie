@@ -20,7 +20,7 @@ filehandler.setFormatter(formatter)
 # Add the handlers to the logger
 log.addHandler(filehandler)
 
-# CSS and JS locations
+PMI_THRESHOLD = .5
 
 LENS_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/lens.css'
 BANNER_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/banner.css'
