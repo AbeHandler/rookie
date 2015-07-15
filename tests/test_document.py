@@ -7,6 +7,7 @@ from rookie.classes import Window
 from rookie.classes import Coreferences
 from rookie.classes import N_Grammer
 from rookie.classes import propagate_first_mentions
+from rookie.utils import stop_word
 
 
 class GenericTestCase(unittest.TestCase):
@@ -98,6 +99,19 @@ class GenericTestCase(unittest.TestCase):
                 window = Window.get_window(sentence.tokens, ner.tokens, 10)
                 self.assertTrue(len(window) - len(ner.tokens),
                                 20 - len(ner.tokens))
+
+    def test_strip_stop_words(self):
+        with open("data/sample_wrapper_output_2.json", "r") as to_read:
+            py_wrapper_output = json.loads(to_read.read())
+        corefs = Coreferences(py_wrapper_output)
+        doc = Document(py_wrapper_output, corefs)
+        sentence = doc.sentences[0]
+        valids = [i for i in sentence.gramners if not stop_word(repr(i))]
+        self.assertEqual(len(valids), 25)  # 2 stop gramner stripped out
+        self.assertEqual(len(sentence.gramners), 27)  # 27 gramner to start
+
+    def test_strip_stop_words2(self):
+        print stop_word("New Orleans")
 
 if __name__ == '__main__':
     unittest.main()

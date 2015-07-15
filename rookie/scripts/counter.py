@@ -64,16 +64,6 @@ for filename in to_delete:
 counter = 0
 
 
-def stop_word(word):
-    stops = ['U.S.', "|", "today",
-             "Tuesday", "Wednesday",
-             "Thursday", "Friday",
-             "Saturday", "Sunday",
-             "Monday"]
-    if word in stops:
-        return True
-    return False
-
 if __name__ == "__main__":
     for filename in files_to_check:
         try:
@@ -90,7 +80,7 @@ if __name__ == "__main__":
             sentence_counter = 0
             for sentence in sentences:
                 sentence_counter = sentence_counter + 1
-                gramner = sentence.gramners
+                gramner = [i for i in sentence.gramners if not stop_word(repr(i))]
                 for gramne in gramner:
                     npe_counts[repr(gramne)] += 1
                 npe_product = set(itertools.product(gramner, gramner))

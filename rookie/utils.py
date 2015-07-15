@@ -22,6 +22,18 @@ class Result(object):
             return string
 
 
+def stop_word(word):
+    stops = ['U.S.', "|", "today", "Lens staff writer",
+             "Tuesday", "Wednesday",
+             "Thursday", "Friday",
+             "Saturday", "Sunday",
+             "Monday", "Lens", "The Lens", "New Orleans"]
+
+    if word in stops:
+        return True
+    return False
+
+
 @lrudecorator(100)
 def get_pmi():
     with (open(files_location + "pmis.json", "r")) as rw:
