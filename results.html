@@ -44,7 +44,9 @@
           <div class="small-12 medium-12 large-12 columns">
               <div class="row collapse">
                   <div class="small-10 columns">
-                    <input id="search_terms" type="text" placeholder="Search..">
+                       <select id="search_terms_combo" class="small-10 columns">
+                           <option value="">Select one</option>
+                       </select>
                   </div>
                   <div class="small-2 columns">
                     <a id="search_button" class="button postfix">Go</a>
@@ -62,7 +64,7 @@
       <div class="small-6 columns">
         <div class="row">
           <div class="small-12 columns">
-            Source: <a href="https://www.thelensnola.org" target="_blank">The Lens</a>
+            Learn <a href="https://github.com/AbeHandler/rookie" target="_blank">more</a> about this project
           </div>
         </div>
       </div>
@@ -100,7 +102,7 @@
            </a>
            </div>
 </script>
-
+<script type="text/javascript" src="https://s3-us-west-2.amazonaws.com/rookielens/js/search.js"></script>
 <script type="text/javascript">
 
 function asycn_window_load (url) {
@@ -117,7 +119,6 @@ function asycn_window_load (url) {
 
 var s = new RegExp('(=)(.{1,})');
 var term = decodeURIComponent(s.exec(location.search)[2]);
-$("#search_terms").val(term);
 term = term.replace(/ /g, "+");
 var pmis = 'https://s3-us-west-2.amazonaws.com/rookielens/data/pmis/' + term +'.json.gz';
 $.getJSON(pmis, function(data){
@@ -135,11 +136,10 @@ $.getJSON(pmis, function(data){
     $(toggle_this).toggleClass("nondisplay")
   });
 });
-
 </script>
 
 <script type="text/javascript">
   $(document).foundation();
 </script>
-<script type="text/javascript" src="https://s3-us-west-2.amazonaws.com/rookielens/js/search.js"></script>
+
   </body>
