@@ -19,23 +19,6 @@ $("body").keypress(function(e) {
   }
 });
 
-
-$.get('https://s3-us-west-2.amazonaws.com/rookielens/data/keys.csv.gz', function(data){
-  console.log("got data");
-  values = data.split("\n");
-  var sel = document.getElementById('search_terms_combo');
-  for(var i = 0; i < values.length; i++) {
-    var opt = document.createElement('option');
-    opt.innerHTML = values[i];
-    opt.value = values[i];
-    sel.appendChild(opt);
-  }
-
-  //maybe one way to fake this is to add the searched term at the start of the load
-  $("#search_terms_combo").val(decodeURIComponent(s.exec(location.search)[2])).combobox("refresh");
-});
-
-
 //JQuery combo box widget copied and pasted from site
 
   (function( $ ) {
@@ -174,4 +157,15 @@ $.get('https://s3-us-west-2.amazonaws.com/rookielens/data/keys.csv.gz', function
     });
   })( jQuery );
 
-  $("#search_terms_combo").combobox()
+
+var s = new RegExp('(=)(.{1,})');
+q = '<option value="' + decodeURIComponent(s.exec(location.search)[2]) + '">' + decodeURIComponent(s.exec(location.search)[2]) + '</option>'
+$("#search_terms_combo").append(q);
+$("#search_terms_combo").combobox();
+// $("#search_terms_combo").val(decodeURIComponent(s.exec(location.search)[2]));
+// $("#search_terms_combo").combobox("refresh");
+
+$.get("https://s3-us-west-2.amazonaws.com/rookielens/data/searchbar.html.gz", function(d){
+  $("#search_terms_combo").append(d);
+  $("#search_terms_combo").val(decodeURIComponent(s.exec(location.search)[2])).combobox("refresh");
+});

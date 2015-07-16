@@ -46,7 +46,6 @@
               <div class="row collapse">
                   <div class="small-10 columns">
                        <select id="search_terms_combo" class="small-10 columns">
-                           <option value="">Select one</option>
                        </select>
                   </div>
                   <div class="small-2 columns">
@@ -131,8 +130,6 @@ $.getJSON(pmis, function(data){
     var context = {id: $( this )[0].replace(/ /g, "_"), term : $(this)[0], windows: url2};
     var html = template(context);
     $("#results").append(html);
-
-    // asycn_window_load(url2);
   });
   $(".result_details").each(function(d){
     var url_to_fetch = $("#" + $(".result_details")[d].id).attr("data-windows");
