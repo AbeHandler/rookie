@@ -1,8 +1,14 @@
+'''
+1. Counts occurances of types
+2. Counts co-occurances of types
+3. Creates some static files for the web application
+'''
 import glob
 import json
 import itertools
 import os
 import pdb
+from jinja2 import Template
 from rookie import PMI_THRESHOLD
 from collections import defaultdict
 from rookie import files_location
@@ -133,6 +139,12 @@ json_dump(base + "joint_counts.json", joint_counts)
 with open(base + "keys.csv", "w") as outfile:
     for key in npe_counts.keys():
         outfile.write(key + "\n")
+
+
+with open(base + "searchbar.html", "w") as outfile:
+    template = Template('<option value="{{key}}">{{key}}</option>')
+    for term in npe_counts.keys():
+        outfile.write(template.render(key=term) + "\n")
 
 
 '''

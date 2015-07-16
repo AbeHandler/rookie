@@ -21,8 +21,8 @@
 <link rel="canonical" href="https://thelensnola.org/" />
 <link rel="shortcut icon" href="https://s3-us-west-2.amazonaws.com/lensnola/land-records/css/images/favicon.ico">
 
-  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.min.css">
+  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
 
 
   </head>
@@ -134,10 +134,10 @@ $.getJSON(pmis, function(data){
 
     // asycn_window_load(url2);
   });
-  $("#search_terms_combo").val(decodeURIComponent(s.exec(location.search)[2])).combobox("refresh");
-  $(".result_details").each(function(d)
-    {console.log("d")}
-  );
+  $(".result_details").each(function(d){
+    var url_to_fetch = $("#" + $(".result_details")[d].id).attr("data-windows");
+    asycn_window_load(url_to_fetch);
+  });
   $(".result").on("click", function(d){
     var toggle_this = "#" + this.id + "_details";
     $(toggle_this).toggleClass("nondisplay")

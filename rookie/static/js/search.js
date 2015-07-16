@@ -30,6 +30,9 @@ $.get('https://s3-us-west-2.amazonaws.com/rookielens/data/keys.csv.gz', function
     opt.value = values[i];
     sel.appendChild(opt);
   }
+
+  //maybe one way to fake this is to add the searched term at the start of the load
+  $("#search_terms_combo").val(decodeURIComponent(s.exec(location.search)[2])).combobox("refresh");
 });
 
 
