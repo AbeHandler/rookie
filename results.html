@@ -9,6 +9,10 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.1/js/foundation.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.3/handlebars.min.js"></script>
     <script type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>
+<link rel="stylesheet" href=https://s3-us-west-2.amazonaws.com/rookielens/css/lens.css>
+<link rel="stylesheet" href=https://s3-us-west-2.amazonaws.com/rookielens/css/banner.css>
+<link rel="stylesheet" href=https://s3-us-west-2.amazonaws.com/rookielens/css/contracts.css>
+    <link rel=stylesheet type=text/css href="https://s3-us-west-2.amazonaws.com/rookielens/css/rookie.css">
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.5/css/foundation.min.css">
 <link rel='stylesheet' id='open-sans-css'  href='//fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C300%2C400%2C600&#038;subset=latin%2Clatin-ext&#038;ver=3.8.3' type='text/css' media='all' />
@@ -20,10 +24,7 @@
   <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
   <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
-<link rel="stylesheet" href=https://s3-us-west-2.amazonaws.com/rookielens/css/lens.css>
-<link rel="stylesheet" href=https://s3-us-west-2.amazonaws.com/rookielens/css/banner.css>
-<link rel="stylesheet" href=https://s3-us-west-2.amazonaws.com/rookielens/css/contracts.css>
-    <link rel=stylesheet type=text/css href="https://s3-us-west-2.amazonaws.com/rookielens/css/rookie.css">
+
   </head>
   <body>
 
@@ -86,7 +87,7 @@
          <div id="{{id}}" class="text-center result small-12 medium-12 large-12 columns">
               <div class="term small-7 columns small-offset-5">{{term}}</div>
 
-              <div id="{{id}}_details" class="result_details nondisplay small-12 columns">
+              <div id="{{id}}_details" data-windows="{{windows}}" class="result_details nondisplay small-12 columns">
               </div>
 
         </div>
@@ -107,6 +108,7 @@
 
 function asycn_window_load (url) {
    $.getJSON(url, function(data){
+      console.log(url);
       $.each(data, function(d, i){
        var source   = $("#term_details").html();
        var template = Handlebars.compile(source);
@@ -125,12 +127,17 @@ $.getJSON(pmis, function(data){
   $.each(data, function(d, i){
     var source   = $("#entry-template").html();
     var template = Handlebars.compile(source);
-    var context = {id: $( this )[0].replace(/ /g, "_"), term : $(this)[0]};
+    var url2 = 'https://s3-us-west-2.amazonaws.com/rookielens/data/windows/' + term + '%23%23%23' + $(this)[0].replace(/ /g, "+") + '.json.gz';
+    var context = {id: $( this )[0].replace(/ /g, "_"), term : $(this)[0], windows: url2};
     var html = template(context);
     $("#results").append(html);
-    var url2 = 'https://s3-us-west-2.amazonaws.com/rookielens/data/windows/' + term + '%23%23%23' + $(this)[0].replace(/ /g, "+") + '.json.gz';
-    asycn_window_load(url2);
+
+    // asycn_window_load(url2);
   });
+  $("#search_terms_combo").val(decodeURIComponent(s.exec(location.search)[2])).combobox("refresh");
+  $(".result_details").each(function(d)
+    {console.log("d")}
+  );
   $(".result").on("click", function(d){
     var toggle_this = "#" + this.id + "_details";
     $(toggle_this).toggleClass("nondisplay")

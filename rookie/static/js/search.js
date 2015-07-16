@@ -160,10 +160,10 @@ $.get('https://s3-us-west-2.amazonaws.com/rookielens/data/keys.csv.gz', function
         }, 2500 );
         this.input.autocomplete( "instance" ).term = "";
       },
-         refresh:function(){ 
+      refresh:function(){ 
              selected = this.element.children( ":selected" );
              this.input.val(selected.text());
-         },
+      },
       _destroy: function() {
         this.wrapper.remove();
         this.element.show();
