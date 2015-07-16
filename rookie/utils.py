@@ -22,12 +22,14 @@ class Result(object):
             return string
 
 
+@lrudecorator(100)
+def get_stopwords():
+    stopwords = [i.replace("\n", "") for i in open("stopwords.txt")]
+    return stopwords
+
+
 def stop_word(word):
-    stops = ['U.S.', "|", "today", "Lens staff writer",
-             "Tuesday", "Wednesday",
-             "Thursday", "Friday",
-             "Saturday", "Sunday",
-             "Monday", "Lens", "The Lens", "New Orleans"]
+    stops = get_stopwords()
     if word in stops:
         return True
     return False
