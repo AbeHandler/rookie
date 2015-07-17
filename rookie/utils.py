@@ -30,6 +30,8 @@ def dedupe_people(ner):
     in a group of entities. Assume coreference. Delete the shorter one
     Ex. "Clinton" and "Bill Clinton"
     '''
+    if len(ner) == 0:
+        return ner
     tner = ner
     people = [i for i in tner if i.type == "PERSON"]
     npe_product = set(itertools.product(people, people))
@@ -38,8 +40,11 @@ def dedupe_people(ner):
     pairs = set(pairs)
     for i in pairs:
         if i.word1 in i.word2:
-            delete_this = min([i.word1, i.word2], key=lambda x: len(repr(x)))
-            tner.remove([i for i in ner if repr(i) == delete_this][0])
+            try:
+                delete_this = min([i.word1, i.word2], key=lambda x: len(repr(x)))
+                tner.remove([i for i in ner if repr(i) == delete_this][0])
+            except IndexError:
+                pass  # sometimes earlier iterations of loop already got it
     return tner
 
 

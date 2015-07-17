@@ -119,6 +119,17 @@ if __name__ == "__main__":
 npe_counts = dict((k, v) for k, v in npe_counts.items() if v > 5)
 joint_counts = dict((k, v) for k, v in joint_counts.items() if v > 5)
 
+log.info(len(instances.keys()))
+
+instances_reduced = {}
+for key in joint_counts.keys():
+    instances_reduced[key] = instances[tuple(key.split("###"))]
+
+# the BIG 5 MB instances dict can be reduced before the upcoming merges
+instances = instances_reduced
+
+log.info(len(instances.keys()))
+
 
 def replace_index(position_replacing, old_keys, big, small):
     for lmention in old_keys:
@@ -159,15 +170,12 @@ for key in merger.get_keys_to_merge():
     replace_index(0, lmentions, big, small)
     replace_index(1, rmentions, big, small)
     merge_counter = merge_counter + 1
-    if merge_counter % 100 == 0:
-        log.info(merge_counter)
+    log.info(merge_counter)
 
 merger = KeyMerge(npe_counts.keys())
 tmpw = merger.get_keys_to_merge()
 
 log.info(str(len(tmpw)) + " to merge")
-
-instances_reduced = {}
 
 instances_print = {}
 for key in instances.keys():
@@ -236,7 +244,7 @@ for pmi in pmis:
     pmireturns = [o for o in set(pmis[pmi])]
 #    merged = Merger.merge_lists(pmireturns)
 #    merged = Merger.merge_lists(merged)
-    # TODO this is not merging windows in one pass
+    # TODO this is not merging= windows in one pass
 #    merged = [i for i in merged if not i[0] == pmi]
 #    merged.sort(key=lambda x: x[1], reverse=True)
     if len(pmireturns) > 0:
