@@ -2,7 +2,9 @@ import string
 import json
 import re
 import datetime
+import itertools
 import pdb
+from rookie.classes import NPEPair, Gramner
 from rookie import files_location
 from pylru import lrudecorator
 
@@ -20,6 +22,39 @@ class Result(object):
 
     def __repr__(self):
             return string
+
+
+def dedupe_people(ner):
+    '''
+    Remove cases where there are two mentions of a person ner
+    in a group of entities. Assume coreference. Delete the shorter one
+    Ex. "Clinton" and "Bill Clinton"
+    '''
+    tner = ner
+    people = [i for i in tner if i.type == "PERSON"]
+    npe_product = set(itertools.product(people, people))
+    npe_product = [i for i in npe_product if not i[0] == i[1]]
+    pairs = [NPEPair(repr(i[0]), repr(i[1])) for i in npe_product]
+    pairs = set(pairs)
+    for i in pairs:
+        if i.word1 in i.word2:
+            delete_this = min([i.word1, i.word2], key=lambda x: len(repr(x)))
+            tner.remove([i for i in ner if repr(i) == delete_this][0])
+    return tner
+
+
+def get_gramner(sentence):
+        grams = sentence.get_ngrams()  # returns bigrams/trigrams
+        gramners = []
+        for gram in grams:
+            window = sentence.tokens  # the window = tokens in the sentence
+            gramner = Gramner(gram, window)
+            gramners.append(gramner)
+        for ne in dedupe_people(sentence.ner):
+            window = sentence.tokens  # the window = tokens in the sentence
+            gramner = Gramner(ne.tokens, window)
+            gramners.append(gramner)
+        return gramners
 
 
 @lrudecorator(100)

@@ -1,5 +1,3 @@
-import datetime
-
 import pdb
 
 from itertools import tee, izip, islice, chain
@@ -136,7 +134,10 @@ class Document(object):
         Initialize w/ the json output.
         Coreferences are optional
         '''
-        sentences_json = json_output['sentences']
+        try:
+            sentences_json = json_output['sentences']
+        except KeyError:
+            sentences_json = []
         sentences = []
         for i in range(0, len(sentences_json)):
             sentence = Sentence(sentences_json[i], i)
@@ -206,17 +207,6 @@ class Sentence(object):
             sentence_tokens.append(t)
         self.tokens = sentence_tokens
         self.ner = self.get_ner(json_sentence, self.tokens)
-        grams = self.get_ngrams()  # returns bigrams/trigrams
-        gramners = []
-        for gram in grams:
-            window = self.tokens  # the window is all tokens in the sentence
-            gramner = Gramner(gram, window)
-            gramners.append(gramner)
-        for ne in self.ner:
-            window = self.tokens  # the window is all tokens in the sentence
-            gramner = Gramner(ne.tokens, window)
-            gramners.append(gramner)
-        self.gramners = gramners
 
 
 class Token(object):

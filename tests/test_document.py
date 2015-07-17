@@ -1,13 +1,18 @@
 import unittest
 import json
 import pdb
+import glob
+import itertools
 
+from rookie.classes import NPEPair
+from rookie.utils import dedupe_people
+from rookie import processed_location
 from rookie.classes import Document
 from rookie.classes import Window
 from rookie.classes import Coreferences
 from rookie.classes import N_Grammer
 from rookie.classes import propagate_first_mentions
-from rookie.utils import stop_word
+from rookie.utils import stop_word, get_gramner
 
 
 class GenericTestCase(unittest.TestCase):
@@ -106,12 +111,23 @@ class GenericTestCase(unittest.TestCase):
         corefs = Coreferences(py_wrapper_output)
         doc = Document(py_wrapper_output, corefs)
         sentence = doc.sentences[0]
-        valids = [i for i in sentence.gramners if not stop_word(repr(i))]
+        valids = [i for i in get_gramner(sentence) if not stop_word(repr(i))]
         self.assertEqual(len(valids), 25)  # 2 stop gramner stripped out
-        self.assertEqual(len(sentence.gramners), 27)  # 27 gramner to start
+        self.assertEqual(len(get_gramner(sentence)), 27)  # 27 gramner to start
 
     def test_strip_stop_words2(self):
-        print stop_word("New Orleans")
+        self.assertTrue(stop_word("New Orleans"))
+
+    def test_merging_people(self):
+        with open("data/sample_wrapper_output3.json", "r") as to_read:
+            py_wrapper_output = json.loads(to_read.read())['lines']
+            corefs = Coreferences(py_wrapper_output)
+            doc = Document(py_wrapper_output, corefs)
+            sentence = doc.sentences[0]
+            ner = sentence.ner
+            ner2 = dedupe_people(list(ner))  # pass a new copy
+            # The NER "Serpas" should lose to the NER "Ronal Serpas"
+            self.assertEqual(len(ner2) + 1, len(ner))
 
 if __name__ == '__main__':
     unittest.main()

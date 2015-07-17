@@ -15,7 +15,7 @@ from rookie import files_location
 from rookie.merger import Merger
 from rookie import log
 from rookie import window_length
-from rookie.utils import time_stamp_to_date
+from rookie.utils import time_stamp_to_date, get_gramner
 from rookie.pmismerger import KeyMerge
 from rookie.utils import stop_word
 from rookie.classes import Document
@@ -88,7 +88,7 @@ if __name__ == "__main__":
             sentence_counter = 0
             for sentence in sentences:
                 sentence_counter = sentence_counter + 1
-                gramner = [i for i in sentence.gramners if not stop_word(repr(i))]
+                gramner = [i for i in get_gramner(sentence) if not stop_word(repr(i))]
                 for gramne in gramner:
                     npe_counts[repr(gramne)] += 1
                 npe_product = set(itertools.product(gramner, gramner))
@@ -108,8 +108,6 @@ if __name__ == "__main__":
                         instances[repr(pair.word2), repr(pair.word1)].append(toappend)
                         joint_counts[(repr(pair.word1) + "###" + repr(pair.word2))] += 1
         except UnicodeEncodeError:
-            pass
-        except KeyError:
             pass
         except TypeError:
             pass
@@ -131,7 +129,11 @@ def replace_index(position_replacing, old_keys, big, small):
         for mention in instances[lmention]:
             if big not in mention[1]:
                 tmp = mention[1].replace(small, big)
-                assert big in tmp
+                try:
+                    assert big in tmp
+                except AssertionError:
+                    log.info(big)
+                    log.info(tmp)
             else:
                 tmp = mention[1]
             new_mention = (mention[0], tmp, mention[2])
@@ -141,8 +143,9 @@ def replace_index(position_replacing, old_keys, big, small):
 merger = KeyMerge(npe_counts.keys())
 tmp1 = merger.get_keys_to_merge()
 
-log.info(str(tmp1) + " to merge")
+log.info(str(len(tmp1)) + " to merge")
 
+merge_counter = 0
 for key in merger.get_keys_to_merge():
     big = max([key[0], key[1]], key=lambda x: len(x))
     small = min([key[0], key[1]], key=lambda x: len(x))
@@ -155,11 +158,14 @@ for key in merger.get_keys_to_merge():
     rmentions = [i for i in instances.keys() if i[1] == small]
     replace_index(0, lmentions, big, small)
     replace_index(1, rmentions, big, small)
+    merge_counter = merge_counter + 1
+    if merge_counter % 100 == 0:
+        log.info(merge_counter)
 
 merger = KeyMerge(npe_counts.keys())
 tmpw = merger.get_keys_to_merge()
 
-log.info(str(tmpw) + " to merge")
+log.info(str(len(tmpw)) + " to merge")
 
 instances_reduced = {}
 
