@@ -16,6 +16,7 @@ from rookie.merger import Merger
 from rookie import log
 from rookie import window_length
 from rookie.utils import time_stamp_to_date
+from rookie.pmismerger import KeyMerge
 from rookie.utils import stop_word
 from rookie.classes import Document
 from rookie import processed_location
@@ -33,7 +34,7 @@ to_delete = 'joint_counts.json', 'instances.json', 'counts.json'
 
 file_loc = processed_location
 
-files_to_check = glob.glob(file_loc + "/*")
+files_to_check = glob.glob(file_loc + "/*")[0:100]
 
 
 def get_window(term, tmplist):
@@ -113,8 +114,18 @@ if __name__ == "__main__":
             pass
 
 
+# filter out strings that don't occur a lot
 npe_counts = dict((k, v) for k, v in npe_counts.items() if v > 5)
 joint_counts = dict((k, v) for k, v in joint_counts.items() if v > 5)
+
+merger = KeyMerge(npe_counts.keys())
+for key in merger.get_keys_to_merge():
+    big = max([key[0], key[1]], key=lambda x: len(x))
+    small = min([key[0], key[1]], key=lambda x: len(x))
+    npe_counts[big] = npe_counts[big] + npe_counts[small]
+    npe_counts.pop(small, None)  # remove small from npe counts
+    mentions = [i for i in instances.keys() if i[0] == small]
+    pdb.set_trace()
 
 instances_reduced = {}
 
