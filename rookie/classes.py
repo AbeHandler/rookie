@@ -176,7 +176,16 @@ class Sentence(object):
         '''
         ng = N_Grammer()
         grams = ng.get_syntactic_ngrams(self.tokens)
-        return grams[0] + grams[1]
+        two_grams = []
+        threegrams = grams[1]
+        for twogram in grams[0]:  # TODO refactorr!!
+            add = True
+            for threegram in threegrams:
+                if twogram in threegram:
+                    add = False
+            if add:
+                two_grams.append(twogram)
+        return two_grams + grams[1]
 
     def __init__(self, json_sentence, sentence_no):
         '''
@@ -200,11 +209,11 @@ class Sentence(object):
         grams = self.get_ngrams()  # returns bigrams/trigrams
         gramners = []
         for gram in grams:
-            window = Window.get_window(self.tokens, gram, self.WIN_SIZE)
+            window = self.tokens  # the window is all tokens in the sentence
             gramner = Gramner(gram, window)
             gramners.append(gramner)
         for ne in self.ner:
-            window = Window.get_window(self.tokens, ne.tokens, self.WIN_SIZE)
+            window = self.tokens  # the window is all tokens in the sentence
             gramner = Gramner(ne.tokens, window)
             gramners.append(gramner)
         self.gramners = gramners
