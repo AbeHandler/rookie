@@ -48,7 +48,7 @@ def dedupe_people(ner):
     return tner
 
 
-def get_gramner(sentence):
+def get_gramner(sentence, exclude_stop_words):
         grams = sentence.get_ngrams()  # returns bigrams/trigrams
         gramners = []
         for gram in grams:
@@ -59,7 +59,10 @@ def get_gramner(sentence):
             window = sentence.tokens  # the window = tokens in the sentence
             gramner = Gramner(ne.tokens, window)
             gramners.append(gramner)
-        return gramners
+        if exclude_stop_words:
+            return [i for i in gramners if not stop_word(repr(i))]
+        else:
+            return gramners
 
 
 @lrudecorator(100)
