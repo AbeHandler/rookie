@@ -7,6 +7,7 @@ import glob
 import json
 import itertools
 import os
+import re
 import pdb
 from jinja2 import Template
 from rookie import PMI_THRESHOLD
@@ -32,9 +33,7 @@ base = files_location
 
 to_delete = 'joint_counts.json', 'instances.json', 'counts.json'
 
-file_loc = processed_location
-
-files_to_check = glob.glob(file_loc + "/*")
+files_to_check = glob.glob(processed_location + "/*")
 
 
 def get_window(term, tmplist):
@@ -106,7 +105,9 @@ if __name__ == "__main__":
                         toappend = (url, pair.word1.window, pubdate)
                         instances[repr(pair.word1), repr(pair.word2)].append(toappend)
                         instances[repr(pair.word2), repr(pair.word1)].append(toappend)
-                        joint_counts[(repr(pair.word1) + "###" + repr(pair.word2))] += 1
+                        jount_count_key = repr(pair.word1) + "###" + repr(pair.word2)
+                        log.debug(jount_count_key)
+                        joint_counts[jount_count_key] += 1
         except UnicodeEncodeError:
             pass
         except TypeError:
@@ -124,6 +125,7 @@ log.info(len(instances.keys()))
 instances_reduced = {}
 for key in joint_counts.keys():
     instances_reduced[key] = instances[tuple(key.split("###"))]
+
 
 # the BIG 5 MB instances dict can be reduced before the upcoming merges
 instances = instances_reduced
@@ -160,17 +162,48 @@ merge_counter = 0
 for key in merger.get_keys_to_merge():
     big = max([key[0], key[1]], key=lambda x: len(x))
     small = min([key[0], key[1]], key=lambda x: len(x))
+    # log.info("merging {} into {}".format(small, big))
+
+    # remove from counts file
     try:
         npe_counts[big] = npe_counts[big] + npe_counts[small]
     except KeyError:
         pass
     npe_counts.pop(small, None)  # remove small from npe counts
+
+    # merge the mentions
     lmentions = [i for i in instances.keys() if i[0] == small]
     rmentions = [i for i in instances.keys() if i[1] == small]
     replace_index(0, lmentions, big, small)
     replace_index(1, rmentions, big, small)
     merge_counter = merge_counter + 1
-    log.info(merge_counter)
+
+    # adjust joint counts to reflect the new keys
+    joint_count_keys = [key for key in joint_counts.keys() if re.search("^" + small + "###", key)]
+    for oldkey in joint_count_keys:
+        log.info(oldkey)
+        testtmpo = oldkey
+        newkey = oldkey.replace(small + "###", big + "###")
+        try:
+            joint_counts[newkey] += joint_counts[oldkey]
+        except KeyError:
+            joint_counts[newkey] = joint_counts[oldkey]
+        joint_counts.pop(oldkey, None)
+
+    # TODO get this in one pass. there is an asymetry here
+    joint_count_keys = [key for key in joint_counts.keys() if re.search("###" + small + "$", key)]
+    for oldkey in joint_count_keys:
+        log.info(oldkey)
+        testtmpo = oldkey
+        newkey = oldkey.replace("###" + small, "###" + big)
+        try:
+            joint_counts[newkey] += joint_counts[oldkey]
+        except KeyError:
+            joint_counts[newkey] = joint_counts[oldkey]
+        joint_counts.pop(oldkey, None)
+
+    if merge_counter % 100 == 0:
+        log.info(merge_counter)
 
 merger = KeyMerge(npe_counts.keys())
 tmpw = merger.get_keys_to_merge()
@@ -183,18 +216,9 @@ for key in instances.keys():
     instances_reduced[nkey] = instances[key]
 
 json_dump(base + "instances.json", instances_reduced)
-
-'''
-for key in npe_counts.keys():
-    temp = set(instances[key])
-    temp = [p for p in temp]
-    temp = get_window(key, temp)
-    instances_reduced[key] = tuple(set(temp))
-json_dump(base + "instances.json", instances_reduced)
-'''
-
 json_dump(base + "counts.json", npe_counts)
 json_dump(base + "joint_counts.json", joint_counts)
+
 with open(base + "keys.csv", "w") as outfile:
     for key in npe_counts.keys():
         outfile.write(key + "\n")
@@ -251,9 +275,9 @@ for pmi in pmis:
         with (open("data/pmis/" + pmi + ".json", "w")) as jsonfile:
             json.dump(pmireturns, jsonfile)
 
-    links = [i[0] for i in pmireturns]
+    links = [i[0] for i in pmireturns if not i[0] == pmi]
     for hit in links:
-        windows = [o for o in set(instances[pmi, hit])]
+        windows = [o for o in set(instances[pmi + "###" + hit])]
         windows = get_window(hit, windows)
         if len(windows) > 0:
             outfile = "data/windows/" + pmi + "###" + hit + ".json"
