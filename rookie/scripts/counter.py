@@ -17,11 +17,9 @@ import os
 import pickle
 import re
 import pdb
-from jinja2 import Template
 from collections import defaultdict
 from rookie import files_location
 from rookie import log
-from rookie import window_length
 from rookie.utils import get_gramner
 from rookie.utils import stop_word
 from rookie.classes import Document
