@@ -137,5 +137,8 @@ class GenericTestCase(unittest.TestCase):
         self.assertTrue(isinstance(pmi, float))
 
 
+# teachers union
+# teachers unions
+
 if __name__ == '__main__':
     unittest.main()
