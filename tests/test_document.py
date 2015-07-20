@@ -111,7 +111,7 @@ class GenericTestCase(unittest.TestCase):
         corefs = Coreferences(py_wrapper_output)
         doc = Document(py_wrapper_output, corefs)
         sentence = doc.sentences[0]
-        valids = [i for i in get_gramner(sentence, False)]
+        valids = [i for i in get_gramner(sentence, True)]
         self.assertEqual(len(valids), 25)  # 2 stop gramner stripped out
         # 27 gramner to start
         self.assertEqual(len(get_gramner(sentence, False)), 27)
