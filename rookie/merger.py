@@ -1,5 +1,6 @@
 import math
 import pdb
+from rookie import jac_threshold
 from rookie.utils import get_pmi
 from Levenshtein import distance
 
@@ -37,7 +38,7 @@ class Merger(object):
                 return True
             else:
                 return False
-        if Merger.get_jaccard(one, two) >= .5:
+        if Merger.get_jaccard(one, two) >= jac_threshold:
             return True
         else:
             return False

@@ -29,6 +29,8 @@ SEARCH_JS = 'http://s3-us-west-2.amazonaws.com/rookielens/js/search.js'
 CLOUD_JS = 'http://s3-us-west-2.amazonaws.com/rookielens/js/cloud.js'
 CLOUD_LAYOUT_JS = 'http://s3-us-west-2.amazonaws.com/rookielens/js/d3.layout.cloud.js'
 
+jac_threshold = .5
+
 if socket.getfqdn() == 'hobbes.cs.umass.edu':
     processed_location = "/home/ahandler/corpora/lens_processed/"
     corpus_loc = "/home/ahandler/corpora/lens/"

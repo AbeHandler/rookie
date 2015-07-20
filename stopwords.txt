@@ -24,6 +24,7 @@ one
 two
 three
 staff writer
+Tuesday night
 four
 five
 night
@@ -42,3 +43,5 @@ Ariella Cohen
 Bob Marshall
 a night
 Lens staff
+reporter Bob Marshall
+year

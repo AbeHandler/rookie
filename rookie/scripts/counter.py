@@ -1,12 +1,7 @@
 '''
-#STEPS
 1. Counts occurances of types
 2. Counts co-occurances of types
-3. Filter low counts
-3. Find mergable keys
-3. Merge the windows
-4. Calculate PMIS
-3. Creates some static files for the web application
+3. Tracks windows associated with cooccurances (instances)
 '''
 
 import glob
@@ -15,13 +10,10 @@ import itertools
 import sys
 import os
 import pickle
-import re
-import pdb
 from collections import defaultdict
 from rookie import files_location
 from rookie import log
 from rookie.utils import get_gramner
-from rookie.utils import stop_word
 from rookie.classes import Document
 from rookie import processed_location
 from rookie.classes import NPEPair
@@ -32,14 +24,12 @@ joint_counts = defaultdict(int)
 
 instances = defaultdict(list)
 
-base = files_location
-
 to_delete = ['joint_counts.json', 'instances.json', 'counts.json']
 
 
 def attempt_delete(filename):
     try:
-        os.remove(base + filename)
+        os.remove(files_location + filename)
     except OSError:
         pass
 
@@ -135,6 +125,6 @@ def reduce_instances(instances):
 # the BIG 5 MB instances dict can be reduced before the upcoming merges
 instances = reduce_instances(instances)
 
-pickle.dump(joint_counts, open(base + "joint_counts.p", "wb"))
-pickle.dump(counts, open(base + "counts.p", "wb"))
-pickle.dump(instances, open(base + "instances.p", "wb"))
+pickle.dump(joint_counts, open(files_location + "joint_counts.p", "wb"))
+pickle.dump(counts, open(files_location + "counts.p", "wb"))
+pickle.dump(instances, open(files_location + "instances.p", "wb"))

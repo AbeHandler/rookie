@@ -3,7 +3,6 @@ import pdb
 import json
 from jinja2 import Template
 from rookie.utils import time_stamp_to_date
-from rookie.merger import Merger
 from rookie import log
 from rookie import window_length
 from collections import defaultdict
@@ -155,11 +154,11 @@ counts = []
 
 for pmi in pmis:
     pmireturns = [o for o in set(pmis[pmi])]
-    merged = Merger.merge_lists(pmireturns)
-    merged = Merger.merge_lists(merged)
+    # merged = Merger.merge_lists(pmireturns)
+    # merged = Merger.merge_lists(merged)
     # TODO this is not merging= windows in one pass
-    merged = [i for i in merged if not i[0] == pmi]
-    merged.sort(key=lambda x: x[1], reverse=True)
+    # merged = [i for i in merged if not i[0] == pmi]
+    # merged.sort(key=lambda x: x[1], reverse=True)
     if len(pmireturns) > 0:
         with (open("data/pmis/" + pmi + ".json", "w")) as jsonfile:
             json.dump(pmireturns, jsonfile)
