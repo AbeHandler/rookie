@@ -1,14 +1,40 @@
 import pickle
 import pdb
+import json
+from jinja2 import Template
+from rookie.utils import time_stamp_to_date
+from rookie.merger import Merger
 from rookie import log
+from rookie import window_length
 from collections import defaultdict
 from rookie import PMI_THRESHOLD
-from rookie.pmismerger import KeyMerge
+from rookie import files_location
+from rookie.pmismerger import KeyMerge  # this one merges based on jacaard
 
 counts = pickle.load(open("counts.p", "rb"))
 joint_counts = pickle.load(open("joint_counts.p", "rb"))
 instances = pickle.load(open("instances.p", "rb"))
+base = files_location
 
+
+def get_window(term, tmplist):
+    tmplist.sort(key=lambda x: time_stamp_to_date(x[2]))
+    outout = []
+    for t in tmplist:
+        try:
+            index = t[1].index(term)
+            left = t[1][:index][-window_length:]
+            right = t[1][index + len(term):][:window_length]
+            if len(left) == 0:
+                left = "&nbsp;"
+            if len(right) == 0:
+                right = "&nbsp;"
+            outout.append((t[2], left, term, right, t[0]))
+        except ValueError:
+            pass
+    return outout
+
+'''
 
 # https://stackoverflow.com/questions/11458239/python-changing-value-in-a-tuple
 def replace_tuple_val(tup, oldval, newval):
@@ -24,7 +50,7 @@ def merge_counts(key, big, small):
         counts[big] = counts[big] + counts[small]
     except KeyError:
         pass
-    counts.pop(small, None)  # remove small from npe counts
+    counts.pop(small, None)  # remove small from counts
 
 
 def merge_joint_counts(key, big, small):
@@ -39,7 +65,7 @@ def merge_joint_counts(key, big, small):
 
 
 def merge_instances(key, big, small):
-    to_replace = [i for i in joint_counts.keys() if small in i]
+    to_replace = [i for i in joint_counts.keys() if i[0] == small or i[1] == small]
     for replace in to_replace:
         new_key = replace_tuple_val(replace, small, big)
         # TODO replace mention in the text itself
@@ -47,20 +73,25 @@ def merge_instances(key, big, small):
             instances[new_key] += instances[replace]
         except KeyError:
             joint_counts[new_key] = joint_counts[replace]
-
+    if small == "Baton Rouge Parish":
+        pdb.set_trace()
+    to_replace = [i for i in joint_counts.keys() if i[0] == small or i[1] == small]
+    assert(len(to_replace) == 0)
 
 merger = KeyMerge(counts.keys())  # TODO add levenshtein
+#  pdb.set_trace()
 for key in merger.get_keys_to_merge():
     big = max([key[0], key[1]], key=lambda x: len(x))
     small = min([key[0], key[1]], key=lambda x: len(x))
     keys = [i for i in joint_counts.keys() if small in i]
+    log.info("merging {} into {}".format(small, big))
     if big[-1:] == "s":  # TODO move this logic into merger
         pass
     else:
         merge_counts(key, big, small)
         merge_joint_counts(key, big, small)
         merge_instances(key, big, small)
-
+'''
 
 '''
 PMI Calculator
@@ -71,9 +102,7 @@ pmis = defaultdict(list)
 TOTAL_PAIRS = float(len(counts.keys()))
 
 for joint_count in joint_counts.keys():
-    pdb.set_trace()
     word1 = joint_count[0]
-    pdb.set_trace()
     word2 = joint_count[1]
     pxy = float(joint_counts[joint_count]) / TOTAL_PAIRS
     px = float(counts[word1]) / TOTAL_PAIRS
@@ -82,8 +111,6 @@ for joint_count in joint_counts.keys():
     if pmi >= PMI_THRESHOLD:  # eyeballed to .5
         pmis[word1].append((word2, pmi))
         pmis[word2].append((word1, pmi))
-
-pdb.set_trace()
 
 
 def replace_index(position_replacing, old_keys, big, small):
@@ -107,57 +134,6 @@ def replace_index(position_replacing, old_keys, big, small):
         instances.pop(lmention, None)
 
 
-pdb.set_trace()
-
-merge_counter = 0
-for key in merger.get_keys_to_merge():
-
-    # merge the mentions
-    lmentions = [i for i in instances.keys() if i[0] == small]
-    rmentions = [i for i in instances.keys() if i[1] == small]
-    replace_index(0, lmentions, big, small)
-    replace_index(1, rmentions, big, small)
-    merge_counter = merge_counter + 1
-
-    # adjust joint counts to reflect the new keys
-    # joint_count_keys = [key for key in joint_counts.keys()
-    # if re.search("^" + small + "###", key)]
-    for oldkey in joint_count_keys:
-        log.info(oldkey)
-        testtmpo = oldkey
-        newkey = oldkey.replace(small + "###", big + "###")
-        try:
-            joint_counts[newkey] += joint_counts[oldkey]
-        except KeyError:
-            joint_counts[newkey] = joint_counts[oldkey]
-        joint_counts.pop(oldkey, None)
-
-    # TODO get this in one pass. there is an asymetry here
-    # joint_count_keys = [key for key in joint_counts.keys()
-    # if re.search("###" + small + "$", key)]
-    for oldkey in joint_count_keys:
-        log.info(oldkey)
-        testtmpo = oldkey
-        newkey = oldkey.replace("###" + small, "###" + big)
-        try:
-            joint_counts[newkey] += joint_counts[oldkey]
-        except KeyError:
-            joint_counts[newkey] = joint_counts[oldkey]
-        joint_counts.pop(oldkey, None)
-
-    if merge_counter % 100 == 0:
-        log.info(merge_counter)
-
-merger = KeyMerge(counts.keys())
-tmpw = merger.get_keys_to_merge()
-
-log.info(str(len(tmpw)) + " to merge")
-
-instances_print = {}
-for key in instances.keys():
-    nkey = "###".join([o for o in key])
-    instances_reduced[nkey] = instances[key]
-
 with open(base + "keys.csv", "w") as outfile:
     for key in counts.keys():
         outfile.write(key + "\n")
@@ -177,27 +153,20 @@ joint_counts = []
 counts = []
 
 
-def read_count_file(jsonfile):
-    with open(jsonfile) as infile:
-        data = json.load(infile)
-    return data
-
 for pmi in pmis:
     pmireturns = [o for o in set(pmis[pmi])]
-#    merged = Merger.merge_lists(pmireturns)
-#    merged = Merger.merge_lists(merged)
+    merged = Merger.merge_lists(pmireturns)
+    merged = Merger.merge_lists(merged)
     # TODO this is not merging= windows in one pass
-#    merged = [i for i in merged if not i[0] == pmi]
-#    merged.sort(key=lambda x: x[1], reverse=True)
+    merged = [i for i in merged if not i[0] == pmi]
+    merged.sort(key=lambda x: x[1], reverse=True)
     if len(pmireturns) > 0:
         with (open("data/pmis/" + pmi + ".json", "w")) as jsonfile:
             json.dump(pmireturns, jsonfile)
 
     links = [i[0] for i in pmireturns if not i[0] == pmi]
-    pdb.set_trace()
     for hit in links:
-        windows = [o for o in set(instances[pmi + "###" + hit])]
-        pdb.set_trace()
+        windows = [o for o in set(instances[(pmi, hit)])]
         windows = get_window(hit, windows)
         if len(windows) > 0:
             outfile = "data/windows/" + pmi + "###" + hit + ".json"

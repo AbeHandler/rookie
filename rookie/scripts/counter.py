@@ -20,10 +20,9 @@ import pdb
 from jinja2 import Template
 from collections import defaultdict
 from rookie import files_location
-from rookie.merger import Merger
 from rookie import log
 from rookie import window_length
-from rookie.utils import time_stamp_to_date, get_gramner
+from rookie.utils import get_gramner
 from rookie.utils import stop_word
 from rookie.classes import Document
 from rookie import processed_location
@@ -58,24 +57,6 @@ except IndexError:
     files_to_check = glob.glob(processed_location + "/*")
 
 counts = defaultdict(int)
-
-
-def get_window(term, tmplist):
-    tmplist.sort(key=lambda x: time_stamp_to_date(x[2]))
-    outout = []
-    for t in tmplist:
-        try:
-            index = t[1].index(term)
-            left = t[1][:index][-window_length:]
-            right = t[1][index + len(term):][:window_length]
-            if len(left) == 0:
-                left = "&nbsp;"
-            if len(right) == 0:
-                right = "&nbsp;"
-            outout.append((t[2], left, term, right, t[0]))
-        except ValueError:
-            pass
-    return outout
 
 
 def json_dump(filename, defaultdict):
