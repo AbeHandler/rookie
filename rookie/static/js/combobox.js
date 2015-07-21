@@ -21,9 +21,7 @@
           .appendTo( this.wrapper )
           .val( value )
           .attr( "title", "" )
-          .addClass( "custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left" )
-          .addClass( "columns" )
-          .addClass( "small-12" )
+          .addClass( "custom-combobox-input ui-widget ui-widget-content ui-corner-left columns small-12" )
           .autocomplete({
             delay: 0,
             minLength: 0,
