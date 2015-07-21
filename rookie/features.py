@@ -2,7 +2,7 @@ import json
 import re
 import pdb
 from Levenshtein import distance
-from rookie.utils import stop_word, get_picked
+from rookie.utils import stop_word, get_pickled
 from rookie import LAMBDA
 
 

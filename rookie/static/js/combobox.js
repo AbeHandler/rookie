@@ -20,7 +20,7 @@
         this.input = $( "<input>" )
           .appendTo( this.wrapper )
           .val( value )
-          .attr( "title", "" )
+          .attr( "id", "search_term" )
           .addClass( "custom-combobox-input ui-widget ui-widget-content ui-corner-left columns small-12" )
           .autocomplete({
             delay: 0,

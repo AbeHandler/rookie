@@ -76,10 +76,10 @@ class IncomingFile(object):
 
 def process_sentence(infile, sentence):
     for token in sentence.tokens:
-        unigrams[token.raw] += 1
+        unigrams[token.raw.upper()] += 1
     gramner = [i for i in get_gramner(sentence, True)]
     for gramne in gramner:
-        counts[repr(gramne)] += 1
+        counts[repr(gramne).upper()] += 1
     npe_product = set(itertools.product(gramner, gramner))
     npe_product = [i for i in npe_product if not i[0] == i[1]]
     pairs = set([NPEPair(i[0], i[1]) for i in npe_product])
@@ -88,10 +88,12 @@ def process_sentence(infile, sentence):
         assert repr(pair.word1) in pair.word2.window
         assert repr(pair.word2) in pair.word1.window
         toappend = (infile.url, pair.word1.window, infile.pubdate)
-        instances[(repr(pair.word1), repr(pair.word2))].append(toappend)
-        instances[(repr(pair.word2), repr(pair.word1))].append(toappend)
-        jount_count_key = (repr(pair.word1), repr(pair.word2))
-        joint_counts[jount_count_key] += 1
+        key1 = (repr(pair.word1).upper(), repr(pair.word2).upper())
+        key2 = (repr(pair.word2).upper(), repr(pair.word1).upper())
+        instances[key1].append(toappend)
+        instances[key2].append(toappend)
+        jount_count_key = (repr(pair.word1).upper(), repr(pair.word2).upper())
+        joint_counts[jount_count_key.upper()] += 1
 
 
 def count_everything(files_to_check):

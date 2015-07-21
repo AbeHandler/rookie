@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.min.css">
   <script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
 
+<script src="https://s3-us-west-2.amazonaws.com/rookielens/js/combobox.js"></script>
 
   </head>
   <body>
@@ -54,7 +55,7 @@
              </div>
           </div>
     </div>
-
+    <script type="text/javascript" src="https://s3-us-west-2.amazonaws.com/rookielens/js/search.js"></script>
     <div class="row" id="results">
     </div>
 
@@ -97,13 +98,12 @@
            <span class="small-2 columns left">{{date}}</span>
            <a href="{{ url }}">
            <span class="padding small-3 columns left text-right">{{left}}</span>
-           <span class="term small-2 columns">{{term}}</span>
+           <span class="term inner-term small-2 columns">{{term}}</span>
            <span class="padding left small-4 columns text-left">{{right}}</span>
            </a>
            </div>
 </script>
-<script src="https://s3-us-west-2.amazonaws.com/rookielens/js/combobox.js"></script>
-<script type="text/javascript" src="https://s3-us-west-2.amazonaws.com/rookielens/js/search.js"></script>
+
 <script type="text/javascript">
 
 function asycn_window_load (url) {

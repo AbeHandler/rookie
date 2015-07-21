@@ -4,8 +4,8 @@ $("#search_terms_combo").combobox();
 
 function search_records(){
   url  = 'https://s3-us-west-2.amazonaws.com/rookielens/results.html?term=';
-  if ($("#search_terms").val() != ""){
-    url = url + $("#search_terms_combo").val();
+  if ($("#search_term").val() != ""){
+    url = url + $("#search_term").val();
   }
   console.log(url);
   window.location = url;

@@ -77,7 +77,7 @@ def get_gramner(sentence, exclude_stop_words):
 
 
 @lrudecorator(100)
-def get_picked(file):
+def get_pickled(file):
     return pickle.load(open(file, "rb"))
 
 

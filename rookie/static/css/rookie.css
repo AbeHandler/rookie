@@ -25,3 +25,15 @@
 a#search_button {
   background-color: #B43018;
 }
+
+.inner-term {
+  color: #B43018;
+}
+
+.custom-combobox-input {
+  height: 100%;
+}
+
+span.custom-combobox.columns.small-10 {
+  height: 35px;
+}
