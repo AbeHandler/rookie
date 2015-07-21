@@ -2,7 +2,7 @@ import unittest
 import json
 import pickle
 import pdb
-from rookie.utils import calculate_pmi
+from rookie.utils import calculate_pmi, get_picked
 from rookie.scripts.counter3 import mergeable, get_json, compute_jaccard_index
 
 
@@ -116,7 +116,7 @@ class GenericTestCase(unittest.TestCase):
         #  to do: I don't like this. But..Karr High into Edna Karr High
         one = 'Landrieu administration'
         two = 'Landrieu administration officials'
-        counts = pickle.load(open("counts.p", "rb"))
+        counts = get_picked("counts.p")
         joint_counts = pickle.load(open("joint_counts.p", "rb"))
         pmi = calculate_pmi(one, two, counts, joint_counts)
         print "\n"

@@ -12,9 +12,7 @@ keys_unigrams = [i for i in set(keys_temp)]
 counts = pickle.load(open("counts.p", "rb"))
 unigrams = pickle.load(open("unigrams.p", "rb"))
 
-keys_unigrams = ['Vice', 'Flood', 'Wilson']
-
-keys_unigrams = ["Wilson"]
+keys_unigrams = ['Landrieu']
 
 LAMBDA = .5
 

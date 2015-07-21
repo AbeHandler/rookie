@@ -3,6 +3,8 @@ import json
 import re
 import datetime
 import itertools
+import pickle
+import utils
 import pdb
 from rookie.classes import NPEPair, Gramner
 from rookie import files_location
@@ -72,6 +74,11 @@ def get_gramner(sentence, exclude_stop_words):
             return [i for i in gramners if not stop_word(repr(i))]
         else:
             return gramners
+
+
+@lrudecorator(100)
+def get_picked(file):
+    return pickle.load(open(file, "rb"))
 
 
 @lrudecorator(100)

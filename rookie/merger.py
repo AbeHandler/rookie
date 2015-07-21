@@ -1,5 +1,6 @@
 import math
 import pdb
+from rookie import log
 from rookie import jac_threshold
 from rookie.utils import get_pmi
 from Levenshtein import distance
@@ -68,6 +69,7 @@ class Merger(object):
             found = False
             for right_item in right:
                 if Merger.is_same(left_item[0], right_item[0]) and not found:
+                    log.info("merge###{}###{}".format(left_item[0], right_item[0]))
                     candidates.append((left_item, right_item))
                     right_candidates.append(right_item)
                     found = True

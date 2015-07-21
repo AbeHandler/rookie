@@ -21,6 +21,7 @@ filehandler.setFormatter(formatter)
 log.addHandler(filehandler)
 
 PMI_THRESHOLD = .5
+LAMBDA = .5
 
 LENS_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/lens.css'
 BANNER_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/banner.css'

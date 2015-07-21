@@ -5,6 +5,7 @@ import pdb
 import json
 import pickle
 from rookie import log
+from rookie.utils import get_picked
 from rookie import files_location
 from collections import defaultdict
 from rookie import jac_threshold
@@ -67,7 +68,7 @@ def merge_the_candicates(candidates, count):
 
 if __name__ == "__main__":
     keys = [o.replace("\n", "") for o in open("keys.csv", "r")]
-    instances = pickle.load(open("instances.p", "rb"))
+    instances = get_picked("instances.p")
 
     # TODO some of the keys are not associated with PMIS
 
