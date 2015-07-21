@@ -177,16 +177,16 @@ class Sentence(object):
         '''
         ng = N_Grammer()
         grams = ng.get_syntactic_ngrams(self.tokens)
-        two_grams = []
-        threegrams = grams[1]
-        for twogram in grams[0]:  # TODO refactorr!!
-            add = True
-            for threegram in threegrams:
-                if twogram in threegram:
-                    add = False
-            if add:
-                two_grams.append(twogram)
-        return two_grams + grams[1]
+ #       two_grams = []
+ #       threegrams = grams[1]
+ #       for twogram in grams[0]:  # TODO refactorr!!
+ #           add = True
+ #           for threegram in threegrams:
+ #               if twogram in threegram:
+ #                   add = False
+ #           if add:
+ #               two_grams.append(twogram)
+        return grams[0] + grams[1]
 
     def __init__(self, json_sentence, sentence_no):
         '''

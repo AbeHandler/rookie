@@ -18,11 +18,13 @@ from rookie.classes import Document
 from rookie import processed_location
 from rookie.classes import NPEPair
 
-npe_counts = defaultdict(int)
+counts = defaultdict(int)
 
 joint_counts = defaultdict(int)
 
 instances = defaultdict(list)
+
+unigrams = defaultdict(int)
 
 to_delete = ['joint_counts.json', 'instances.json', 'counts.json']
 
@@ -43,8 +45,6 @@ except TypeError:
     files_to_check = glob.glob(processed_location + "/*")
 except IndexError:
     files_to_check = glob.glob(processed_location + "/*")
-
-counts = defaultdict(int)
 
 
 def json_dump(filename, defaultdict):
@@ -75,6 +75,8 @@ class IncomingFile(object):
 
 
 def process_sentence(infile, sentence):
+    for token in sentence.tokens:
+        unigrams[token.raw] += 1
     gramner = [i for i in get_gramner(sentence, True)]
     for gramne in gramner:
         counts[repr(gramne)] += 1
@@ -114,6 +116,7 @@ count_everything(files_to_check)
 # filter out strings that don't occur a lot
 counts = dict((k, v) for k, v in counts.items() if v > 5)
 joint_counts = dict((k, v) for k, v in joint_counts.items() if v > 5)
+# unigrams = dict((k, v) for k, v in unigrams.items() if v > 5)
 
 
 def reduce_instances(instances):
@@ -125,6 +128,7 @@ def reduce_instances(instances):
 # the BIG 5 MB instances dict can be reduced before the upcoming merges
 instances = reduce_instances(instances)
 
+pickle.dump(unigrams, open(files_location + "unigrams.p", "wb"))
 pickle.dump(joint_counts, open(files_location + "joint_counts.p", "wb"))
 pickle.dump(counts, open(files_location + "counts.p", "wb"))
 pickle.dump(instances, open(files_location + "instances.p", "wb"))

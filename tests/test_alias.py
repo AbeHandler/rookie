@@ -124,18 +124,6 @@ class GenericTestCase(unittest.TestCase):
         print "pmi: " + str(pmi)
         self.assertTrue(isinstance(pmi, float))
 
-    def test_aliasing12(self):
-        #  to do: I don't like this. But..Karr High into Edna Karr High
-        one = 'water table'
-        two = 'water systems'
-        counts = pickle.load(open("counts.p", "rb"))
-        joint_counts = pickle.load(open("joint_counts.p", "rb"))
-        pmi = calculate_pmi(one, two, counts, joint_counts)
-        print "\n"
-        print one + " " + two
-        print "pmi: " + str(pmi)
-        self.assertTrue(isinstance(pmi, float))
-
 
 # teachers union
 # teachers unions
