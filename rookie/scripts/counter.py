@@ -9,6 +9,7 @@ import json
 import itertools
 import sys
 import os
+import pdb
 import pickle
 from collections import defaultdict
 from rookie import files_location
@@ -82,18 +83,19 @@ def process_sentence(infile, sentence):
         counts[repr(gramne).upper()] += 1
     npe_product = set(itertools.product(gramner, gramner))
     npe_product = [i for i in npe_product if not i[0] == i[1]]
-    pairs = set([NPEPair(i[0], i[1]) for i in npe_product])
+    pairs = [NPEPair(i[0], i[1]) for i in npe_product]
     for pair in pairs:
         assert pair.word1.window == pair.word2.window
         assert repr(pair.word1) in pair.word2.window
         assert repr(pair.word2) in pair.word1.window
-        toappend = (infile.url, pair.word1.window, infile.pubdate)
+        toappend = (infile.url, pair.word1.window,
+                    infile.pubdate, sentence.sentence_no)
         key1 = (repr(pair.word1).upper(), repr(pair.word2).upper())
         key2 = (repr(pair.word2).upper(), repr(pair.word1).upper())
         instances[key1].append(toappend)
         instances[key2].append(toappend)
         jount_count_key = (repr(pair.word1).upper(), repr(pair.word2).upper())
-        joint_counts[jount_count_key.upper()] += 1
+        joint_counts[jount_count_key] += 1
 
 
 def count_everything(files_to_check):
@@ -113,7 +115,6 @@ def count_everything(files_to_check):
                     pass
 
 count_everything(files_to_check)
-
 
 # filter out strings that don't occur a lot
 counts = dict((k, v) for k, v in counts.items() if v > 5)

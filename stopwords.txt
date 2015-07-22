@@ -1,58 +1,59 @@
 U.S.
 |
-today
-Lens staff writer
-Tuesday
-Wednesday
-Thursday
-Friday
-Saturday
-Sunday
-Monday
-Lens
-One
-Two
-Three
-Four
-Five
-Six
-Seven
-Eight
-Nine
-Ten
-The Lens
-New Orleans
-6 p.m.
-this afternoon
-first
-now
-two
-a year
-current
-Louisiana
-one
-two
-three
-staff writer
-Tuesday night
-four
-five
-night
-six
-seven
-eight
-nine
-ten
-Karen Gadbois
-Charles Maldonado
-Steve Myers
-Thomas Thoren
-Steve Beatty
-Matt Davis
-Ariella Cohen
-Bob Marshall
-a night
-Lens staff
-reporter Bob Marshall
-year
-years
+TODAY
+LENS STAFF WRITER
+TUESDAY
+WEDNESDAY
+THURSDAY
+FRIDAY
+SATURDAY
+SUNDAY
+MONDAY
+LENS
+ONE
+TWO
+THREE
+FOUR
+FIVE
+SIX
+SEVEN
+EIGHT
+NINE
+TEN
+THE LENS
+NEW ORLEANS
+6 P.M.
+THIS AFTERNOON
+FIRST
+NOW
+TWO
+A YEAR
+CURRENT
+LOUISIANA
+ONE
+TWO
+THREE
+STAFF WRITER
+TUESDAY NIGHT
+FOUR
+FIVE
+NIGHT
+SIX
+SEVEN
+EIGHT
+NINE
+TEN
+KAREN GADBOIS
+CHARLES MALDONADO
+STEVE MYERS
+THOMAS THOREN
+STEVE BEATTY
+MATT DAVIS
+ARIELLA COHEN
+BOB MARSHALL
+A NIGHT
+LENS STAFF
+REPORTER BOB MARSHALL
+YEAR
+YEARS
+NEXT SEVERAL MONTHS

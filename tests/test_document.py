@@ -117,7 +117,7 @@ class GenericTestCase(unittest.TestCase):
         self.assertEqual(len(get_gramner(sentence, False)), 27)
 
     def test_strip_stop_words2(self):
-        self.assertTrue(stop_word("New Orleans"))
+        self.assertTrue(stop_word("NEW ORLEANS"))
 
     def test_merging_people(self):
         with open("data/sample_wrapper_output3.json", "r") as to_read:

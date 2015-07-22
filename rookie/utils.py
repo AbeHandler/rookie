@@ -4,8 +4,8 @@ import re
 import datetime
 import itertools
 import pickle
-import utils
 import pdb
+from rookie import log
 from rookie.classes import NPEPair, Gramner
 from rookie import files_location
 from pylru import lrudecorator
@@ -27,12 +27,16 @@ class Result(object):
 
 
 def calculate_pmi(term1, term2, counts, joint_counts):
-    TOTAL_PAIRS = float(len(counts.keys()))
-    pxy = float(joint_counts[(term1, term2)] + 1) / TOTAL_PAIRS
-    px = float(counts[term1] + 1) / TOTAL_PAIRS
-    py = float(counts[term2] + 1) / TOTAL_PAIRS
-    pmi = pxy / (px * py)
-    return pmi
+    try:
+        TOTAL_PAIRS = float(len(counts.keys()))
+        pxy = float(joint_counts[(term1, term2)] + 1) / TOTAL_PAIRS
+        px = float(counts[term1] + 1) / TOTAL_PAIRS
+        py = float(counts[term2] + 1) / TOTAL_PAIRS
+        pmi = pxy / (px * py)
+        return pmi
+    except KeyError:
+        log.info(term1 + "," + term2)
+        return 0
 
 
 def dedupe_people(ner):

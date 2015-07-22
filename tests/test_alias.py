@@ -2,7 +2,7 @@ import unittest
 import json
 import pickle
 import pdb
-from rookie.utils import calculate_pmi, get_picked
+from rookie.utils import calculate_pmi, get_pickled
 from rookie.scripts.counter3 import mergeable, get_json, compute_jaccard_index
 
 

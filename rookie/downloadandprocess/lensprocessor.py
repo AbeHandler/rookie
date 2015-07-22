@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 from rookie import log
 from rookie import core_nlp_location
 from rookie import processed_location
-from rookie.datamanagement.lensdownloader import get_page
+from rookie.downloadandprocess.lensdownloader import get_page
 
 
 domainlimiter = "thelensnola"
@@ -61,6 +61,7 @@ def process_story_url(url, portno):
         soup = BeautifulSoup(html)
         full_text = soup.select(".entry-content")[0]
         full_text = full_text.text.encode('ascii', 'ignore')
+        full_text = full_text.replace("<p>", "\n").replace("<p>", "\n")
         json_text['timestamp'] = get_pub_date(soup)
         json_text['url'] = url
         json_text['headline'] = soup.select(".entry-title")[0].text

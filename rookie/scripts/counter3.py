@@ -5,7 +5,7 @@ import pdb
 import json
 import pickle
 from rookie import log
-from rookie.utils import get_picked
+from rookie.utils import get_pickled
 from rookie import files_location
 from collections import defaultdict
 from rookie import jac_threshold
