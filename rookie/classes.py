@@ -198,6 +198,7 @@ class Sentence(object):
         lemmas = json_sentence['lemmas']
         poses = json_sentence['pos']
         ner = json_sentence['ner']
+        self.deps = json_sentence['deps_basic']
         assert(len(tokens) == len(lemmas))
         assert(len(poses) == len(lemmas))
         assert(len(tokens) == len(poses))
@@ -294,4 +295,4 @@ class Gramner(object):
         self.window = " ".join([i.raw for i in window])
 
     def __repr__(self):
-        return " ".join([i.raw for i in self.tokens])
+        return " ".join([i.raw for i in self.tokens]).upper()

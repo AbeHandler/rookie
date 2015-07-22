@@ -116,8 +116,8 @@ class GenericTestCase(unittest.TestCase):
         #  to do: I don't like this. But..Karr High into Edna Karr High
         one = 'Landrieu administration'
         two = 'Landrieu administration officials'
-        counts = get_picked("counts.p")
-        joint_counts = pickle.load(open("joint_counts.p", "rb"))
+        counts = get_pickled("counts.p")
+        joint_counts = get_pickled("joint_counts.p")
         pmi = calculate_pmi(one, two, counts, joint_counts)
         print "\n"
         print one + " " + two

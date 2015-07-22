@@ -59,13 +59,15 @@ def process_story_url(url, portno):
             print("URL is opinion. Skipping {}".format(url))
             return
         soup = BeautifulSoup(html)
-        full_text = soup.select(".entry-content")[0]
-        full_text = full_text.text.encode('ascii', 'ignore')
-        full_text = full_text.replace("<p>", "\n").replace("<p>", "\n")
+        full_text = repr(soup.select(".entry-content")[0])
+        full_text = full_text.decode('ascii', 'ignore')
+        h = html2text.HTML2Text()
+        h.body_width = 0
+        full_text = h.handle(full_text)
         json_text['timestamp'] = get_pub_date(soup)
         json_text['url'] = url
         json_text['headline'] = soup.select(".entry-title")[0].text
-        json_text['links'] = get_links(full_text)
+        # json_text['links'] = get_links(full_text)
         json_text['lines'] = proc.parse_doc(full_text)
         with open(processed_location + hash_url, "w") as hashfile:
             print(json.dumps(json_text), file=hashfile)

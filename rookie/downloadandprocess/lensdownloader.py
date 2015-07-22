@@ -15,18 +15,16 @@ def get_page(url):
     hash_url = hashlib.sha224(url).hexdigest()
     url_file = corpus_loc + hash_url
     if os.path.exists(url_file):
-        if __name__ == '__main__':
-            print("already have " + url)
+        log.info("already have " + url)
         html = "".join([i for i in open(url_file)])
     else:
-        if __name__ == '__main__':
-            print("downloading " + url)
+        log.info("downloading " + url)
         headers = {'User-Agent': "Abe Handler: urllib2"}
         req = urllib2.Request(url, headers=headers)
         con = urllib2.urlopen(req)
         html = con.read()
         with open(url_file, 'w') as openfile:
-            print(html.replace("\n", ""), file=openfile)
+            print(html, file=openfile)
     return html
 
 

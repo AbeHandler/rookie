@@ -144,3 +144,8 @@ def clean_punctuation(input_string):
     for punctuation in string.punctuation:
         input_string = input_string.replace(punctuation, " ")
     return input_string
+
+
+def compress_sentence(sentence):
+    deps = sentence.deps
+    return "Wowza"
