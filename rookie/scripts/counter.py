@@ -15,7 +15,7 @@ from collections import defaultdict
 from rookie import files_location
 from rookie import log
 from rookie.utils import get_gramner
-from rookie.classes import Document
+from rookie.classes import Document, IncomingFile
 from rookie import processed_location
 from rookie.classes import NPEPair
 
@@ -51,28 +51,6 @@ except IndexError:
 def json_dump(filename, defaultdict):
     with open(filename, 'w') as outfile:
         json.dump(dict(defaultdict), outfile)
-
-
-class IncomingFile(object):
-    """
-    Mention of a ner or ngram
-    Each mention is associated with coccurances
-    """
-    def __init__(self, filename):
-        try:
-            with (open(filename, "r")) as infile:
-                self.doc = None
-                json_in = json.loads(infile.read())
-                self.url = json_in['url']
-                self.pubdate = json_in['timestamp'].split(" ")[0]
-                data = json_in['lines']
-                self.doc = Document(data)
-        except UnicodeEncodeError:
-            pass
-        except TypeError:
-            pass
-        except ValueError:
-            pass
 
 
 def process_sentence(infile, sentence):

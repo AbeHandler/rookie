@@ -1,6 +1,30 @@
 import pdb
+import json
 
 from itertools import tee, izip, islice, chain
+
+
+class IncomingFile(object):
+    """
+    Mention of a ner or ngram
+    Each mention is associated with coccurances
+    """
+    def __init__(self, filename):
+        try:
+            with (open(filename, "r")) as infile:
+                self.doc = None
+                json_in = json.loads(infile.read())
+                self.url = json_in['url']
+                self.headline = json_in['headline']
+                self.pubdate = json_in['timestamp'].split(" ")[0]
+                data = json_in['lines']
+                self.doc = Document(data)
+        except UnicodeEncodeError:
+            pass
+        except TypeError:
+            pass
+        except ValueError:
+            pass
 
 
 def propagate_first_mentions(document):
@@ -143,6 +167,10 @@ class Document(object):
             sentence = Sentence(sentences_json[i], i)
             sentences.append(sentence)
         self.sentences = sentences
+        text = ""
+        for sentence in self.sentences:
+            text = text + " ".join([w.raw for w in sentence.tokens])
+        self.full_text = text
         self.coreferences = coreferences
         sentence_tokens = [s.tokens for s in self.sentences]
         self.tokens = list(chain(*sentence_tokens))
