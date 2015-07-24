@@ -1,3 +1,4 @@
+import pdb
 import networkx as nx
 import matplotlib.pyplot as plt
 from rookie.classes import Sentence
@@ -17,6 +18,7 @@ def compress(sentence, entity):
     verb = verbs[0]  # assume only 1 verb
     outgoing_from_verb = [(G[t[0]][t[1]]['r'], t[1]) for t in G.edges([verb])]
     output = appearance + [sentence.tokens[i[1]] for i in outgoing_from_verb] + [sentence.tokens[verb]]
+    output = [sentence.tokens[i[1]] for i in outgoing_from_verb] + [sentence.tokens[verb]]
     output = set(output)
     output = [i for i in output]
     output.sort(key=lambda x: x.token_no)

@@ -1,0 +1,52 @@
+<html>
+<head>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.5/css/foundation.min.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.1/js/foundation.min.js"></script>
+<title> Track Mouse </title>
+</head>
+
+<body>
+
+lorem impsum, brosef
+
+<div class="row">
+
+	<div id="myModal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+	  <h2 id="modalTitle">Please don't go</h2>
+	  I'm doing an experiment. My results won't be meaningful if you go to other sites for help.
+	  <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+
+//stackoverflow.com/questions/923299/how-can-i-detect-when-the-mouse-leaves-the-window
+function addEvent(obj, evt, fn) {
+    if (obj.addEventListener) {
+        obj.addEventListener(evt, fn, false);
+    }
+    else if (obj.attachEvent) {
+        obj.attachEvent("on" + evt, fn);
+    }
+}
+
+addEvent(document, "mouseout", function(e) {
+    e = e ? e : window.event;
+    var from = e.relatedTarget || e.toElement;
+    if (!from || from.nodeName == "HTML") {
+        // stop your drag event here
+        // for now we can just use an alert
+        $('#myModal').foundation('reveal', 'open');
+    }
+});
+
+window.setInterval(function(){
+  /// call your function here
+}, 1000);
+
+</script>
+
+</body>
+</html>

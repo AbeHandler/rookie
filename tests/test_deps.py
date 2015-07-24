@@ -1,6 +1,7 @@
 import unittest
 import json
 import pdb
+import glob
 import re
 import pdb
 from rookie.classes import Document
@@ -37,6 +38,27 @@ class GenericTestCase(unittest.TestCase):
         entity = "New Orleans Civil Service Commission".split(" ")
         entity = [str(i) for i in entity]
         print compress(sentence, entity)
+
+    def test_lots_o_compression(self):
+        filest = glob.glob("data/lens_processed/*")
+        entity = "Mitch Landrieu".split(" ")
+        entity = [str(i) for i in entity]
+        for f in filest:
+            with open(f, "r") as to_read:
+                py_wrapper_output = json.loads(to_read.read())['lines']
+                # print f
+            try:
+                doc = Document(py_wrapper_output)
+                for sentence in doc.sentences:
+                    text = " ".join([i.raw for i in sentence.tokens])
+                    if "Mitch Landrieu" in text:
+                        print f
+                        print " ".join([i.raw for i in sentence.tokens])
+                        print compress(sentence, entity)
+            except TypeError:
+                pass
+            except IndexError:
+                pass
 #        I dont think I need this tree searching thing        
 #        for out in outgoing_from_verb:
 #            tokens_in_tree = [G.node[i] for i in nx.dfs_tree(G, out[1])]
