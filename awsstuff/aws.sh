@@ -1,6 +1,9 @@
-#aws cloudsearch create-domain --domain-name rookie
+#aws cloudsearch create-domain --domain-name rookie > created
+#cat created | jsawk 'return this.DomainStatus.DomainId'
 #"DomainId": "878503168987/rookie" 
-
+#aws cloudsearch describe-domains --domain-names rookie
+# ENDPOINT=$(aws cloudsearch describe-domains --domain-names rookie | jsawk 'return this.DomainStatusList[0].DocService.Endpoint')
+# aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --content-type application/json --documents data/aws/1.json
 # aws cloudsearchdomain --endpoint-url http://doc-rookie-hp7lfu4fapp53k3l374bkjmtyy.us-west-2.cloudsearch.amazonaws.com upload-documents --content-type application/json --documents data/aws/1.json
 # aws cloudsearchdomain --endpoint-url http://doc-rookie-hp7lfu4fapp53k3l374bkjmtyy.us-west-2.cloudsearch.amazonaws.com upload-documents --content-type application/json --documents data/aws/2.json
 # aws cloudsearchdomain --endpoint-url http://doc-rookie-hp7lfu4fapp53k3l374bkjmtyy.us-west-2.cloudsearch.amazonaws.com upload-documents --content-type application/json --documents data/aws/0.json

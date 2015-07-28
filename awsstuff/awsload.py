@@ -25,6 +25,7 @@ def to_aws_format(infile, counter):
     data['text'] = infile.doc.full_text
     data['headline'] = infile.headline
     data['url'] = infile.url
+    data['pubdate'] = infile.pubdate
     upload['fields'] = data
     return upload
 

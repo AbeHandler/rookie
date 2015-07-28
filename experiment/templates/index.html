@@ -3,11 +3,13 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.5/css/foundation.min.css">
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.1/js/foundation.min.js"></script>
-<title> Track Mouse </title>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<title>Rookie</title>
+{% include 'head.html' %}
 </head>
 
 <body>
-
+{% include 'banner.html' %}
 <div class="row">
 
 	<div id="myModal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
@@ -17,8 +19,34 @@
 	</div>
 </div>
 
+<div class="row">
+
+    <div>
+        <input id="search_bar" type="text" class="small-12 columns" placeholder="Search the Lens archive"></input>
+    </div>
+
+    <a id="search_button" class="button right">Search</a>
+
+</div>
 
 <script type="text/javascript">
+
+var compiled = _.template('<a href="<%= url %>""><%= headline %></a><br>');
+
+//wrapper for cloud search
+function get_results(){
+    $("#results").html("");
+    var term = $("#search_bar").val();
+    $.get("https://cfp32pfxc0.execute-api.us-west-2.amazonaws.com/prod?q=" + term, function(data){
+            var hits = data.hits.hit;
+            hits.forEach(function(entry) {
+                var h_json = {headline: entry.fields.headline, url:entry.fields.url}
+                var html = compiled(h_json);
+                $("#results").append(html);
+            });
+        }
+    );
+}
 
 //stackoverflow.com/questions/923299/how-can-i-detect-when-the-mouse-leaves-the-window
 function addEvent(obj, evt, fn) {
@@ -34,7 +62,7 @@ addEvent(document, "mouseout", function(e) {
     e = e ? e : window.event;
     var from = e.relatedTarget || e.toElement;
     if (!from || from.nodeName == "HTML") {
-       // $('#myModal').foundation('reveal', 'open');
+       // $('#myModal').foundation('reveal', 'open'); TODO remove comment
     }
 });
 
@@ -48,6 +76,10 @@ addEvent(document, "mouseout", function(e) {
  $('#enter').on('click', function(e){
      post_answer()
  });
+
+ $('#search_button').on('click', function(){
+    get_results();
+ });
  
  function post_answer(){
    var name = $("#name").val()
@@ -58,6 +90,15 @@ addEvent(document, "mouseout", function(e) {
 
 </script>
 
+
+<div class="row">
+
+<div id="results">
+</div>
+
+</div>
+
+<!--
 <div class="row">
 
     <fieldset>
@@ -70,7 +111,7 @@ addEvent(document, "mouseout", function(e) {
     </fieldset>
 
 <a id="enter" class="button right">Enter</a>
-
+-->
 </div>
 
 
