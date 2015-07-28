@@ -8,8 +8,6 @@
 
 <body>
 
-lorem impsum, brosef
-
 <div class="row">
 
 	<div id="myModal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
@@ -36,17 +34,45 @@ addEvent(document, "mouseout", function(e) {
     e = e ? e : window.event;
     var from = e.relatedTarget || e.toElement;
     if (!from || from.nodeName == "HTML") {
-        // stop your drag event here
-        // for now we can just use an alert
-        $('#myModal').foundation('reveal', 'open');
+       // $('#myModal').foundation('reveal', 'open');
     }
 });
 
-window.setInterval(function(){
-  /// call your function here
-}, 1000);
+
+ $('body').bind('keypress', function(e){
+   if ( e.keyCode == 13 ) {
+     post_answer()
+   }
+ });
+
+ $('#enter').on('click', function(e){
+     post_answer()
+ });
+ 
+ function post_answer(){
+   var name = $("#name").val()
+  $.post( "/answer/" + name, function( data ) {
+   alert(data);
+  });
+ }
 
 </script>
+
+<div class="row">
+
+    <fieldset>
+     <legend>Questions</legend>
+
+       <div class="large-12 columns">
+         <label>What is your name bro?</label>
+         <input id="name" type="text" class="small-12 columns"></input>
+       </div>
+    </fieldset>
+
+<a id="enter" class="button right">Enter</a>
+
+</div>
+
 
 </body>
 </html>
