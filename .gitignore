@@ -9,3 +9,4 @@ data/lens_processed/*
 *json
 data/lens
 .coverage
+devenv-key.pem
