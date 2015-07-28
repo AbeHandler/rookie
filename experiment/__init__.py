@@ -3,7 +3,7 @@ import logging
 LENS_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/lens.css'
 BANNER_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/banner.css'
 
-LOG_PATH = "/Users/abramhandler/research/rookie/experiment/app.log"
+LOG_PATH = "experiment.log"
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
