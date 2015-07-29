@@ -58,6 +58,9 @@ def process_story_url(url, portno):
         if '<span class="opinion-label">Opinion</span>' in html:
             print("URL is opinion. Skipping {}".format(url))
             return
+        if "what-were-reading" in html:
+            print("URL is what we're reading. Skipping {}".format(url))
+            return
         soup = BeautifulSoup(html)
         full_text = repr(soup.select(".entry-content")[0])
         full_text = full_text.decode('ascii', 'ignore')

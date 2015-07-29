@@ -14,7 +14,7 @@
 
 	<div id="myModal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
 	  <h2 id="modalTitle">Please don't go</h2>
-	  I'm doing an experiment. My results won't be meaningful if you go to other sites for help.
+	  You must stay on this page during the task in order to receive payment.
 	  <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 	</div>
 </div>
@@ -31,16 +31,32 @@
 
 <script type="text/javascript">
 
-var compiled = _.template('<a href="<%= url %>""><%= headline %></a><br>');
+var compiled = _.template('<a href="<%= url %>"><h5 class="headline"><%= headline %></h5><h6 class="subheader"><small><%= url %></small></h6></a><div class="teaser"><%=teaser%> ..</div><br>');
 
 //wrapper for cloud search
-function get_results(){
+function get_results(start){
     $("#results").html("");
+    $("#search_status").html("");
     var term = $("#search_bar").val();
-    $.get("https://cfp32pfxc0.execute-api.us-west-2.amazonaws.com/prod?q=" + term, function(data){
+    $.get("https://cfp32pfxc0.execute-api.us-west-2.amazonaws.com/prod?q=" + term + "&start=" + String(start), function(data){
             var hits = data.hits.hit;
+            if (data.hits.start > 0){
+              $("#search_status").html("Page " + String((data.hits.start / 10) + 1) + " of " + String(Math.ceil(data.hits.found/10)) + ". Total hits: " + String(data.hits.found));
+            }else{
+              $("#search_status").html("Found " + String(data.hits.found) + " results");
+            }
+            var pages = _.range(1,Math.ceil(data.hits.found/10) + 1 );
+            _.each(pages, function(p){
+              $("#pages").append("<span id='page_" + String(p) + "' class='page'>" + String(p) + "<span> ")
+            });
+            $('.page').on("click", function(e){
+               $("#pages").html("");
+               var start_page = (parseInt(this.id.replace("page_", "")) - 1) * 10;
+               get_results(start_page);
+            });
             hits.forEach(function(entry) {
-                var h_json = {headline: entry.fields.headline, url:entry.fields.url}
+                var teaser_text = entry.fields.text.substring(0,300);
+                var h_json = {headline: entry.fields.headline, url:entry.fields.url, teaser: teaser_text}
                 var html = compiled(h_json);
                 $("#results").append(html);
             });
@@ -62,11 +78,11 @@ addEvent(document, "mouseout", function(e) {
     e = e ? e : window.event;
     var from = e.relatedTarget || e.toElement;
     if (!from || from.nodeName == "HTML") {
-       // $('#myModal').foundation('reveal', 'open'); TODO remove comment
+        $('#myModal').foundation('reveal', 'open');
     }
 });
 
-
+/*
  $('body').bind('keypress', function(e){
    if ( e.keyCode == 13 ) {
      post_answer()
@@ -76,11 +92,19 @@ addEvent(document, "mouseout", function(e) {
  $('#enter').on('click', function(e){
      post_answer()
  });
+*/
 
  $('#search_button').on('click', function(){
-    get_results();
+    get_results(0);
  });
  
+
+ $('body').bind('keypress', function(e){
+   if ( e.keyCode == 13 ) {
+     get_results(0);
+   }
+ });
+
  function post_answer(){
    var name = $("#name").val()
   $.post( "/answer/" + name, function( data ) {
@@ -90,13 +114,42 @@ addEvent(document, "mouseout", function(e) {
 
 </script>
 
+<style type="text/css">
+
+.headline{
+  color: #B33125;
+}
+
+.teaser{
+  font-size: .9em;
+}
+
+a#search_button {
+    background-color: #B33125;
+}
+
+.search_status{
+  color: gray;
+  font-size: .9em;
+}
+
+.page{
+  color: #B33125;
+}
+
+</style>
 
 <div class="row">
-
+<div id="search_status"></div>
 <div id="results">
 </div>
 
+<div class="small-centered small-3 columns" id="pages">
 </div>
+
+
+</div>
+
 
 <!--
 <div class="row">
@@ -111,8 +164,9 @@ addEvent(document, "mouseout", function(e) {
     </fieldset>
 
 <a id="enter" class="button right">Enter</a>
--->
+
 </div>
+-->
 
 
 </body>
