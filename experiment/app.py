@@ -1,7 +1,7 @@
 from flask import Flask
 from flask import render_template
-from experiment import log
-from experiment import LENS_CSS, BANNER_CSS
+from rookie.experiment import log
+from rookie.experiment import LENS_CSS, BANNER_CSS
 
 app = Flask(__name__)
 
