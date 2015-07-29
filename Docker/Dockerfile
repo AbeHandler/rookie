@@ -1,14 +1,16 @@
-FROM stackbrew/ubuntu:14.04
-MAINTAINER Ben Firshman "ben@orchardup.com"
-RUN apt-get update -qq && apt-get -y install nginx
-RUN apt-get -y install python-pip
-RUN pip install Flask
-RUN echo "daemon off;" >> /etc/nginx/nginx.conf
-RUN mkdir /etc/nginx/ssl
-ADD default /etc/nginx/sites-available/default
-ADD default-ssl /etc/nginx/sites-available/default-ssl
-RUN mkdir /var/www && echo "test page running on docker" > /var/www/index.html
-
-EXPOSE 80
-
-CMD ["nginx"]
+FROM ubuntu:14.04
+RUN echo "deb http://archive.ubuntu.com/ubuntu/ $(lsb_release -sc) main universe" >> /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get install -y tar \
+                   git \
+                   curl \
+                   nano \
+                   wget \
+                   dialog \
+                   net-tools \
+                   build-essential
+RUN apt-get install -y python python-dev python-distribute python-pip
+RUN pip install flask
+RUN mkdir /home/app && cd /home/app && git clone https://github.com/AbeHandler/rookie.git && wget https://gist.githubusercontent.com/AbeHandler/aefa90ac9d5b6d10cc41/raw/ea29c141ae70ccd6ebb76009d2bff18c230d32da/server.py
+RUN pip install cherrypy
+RUN export PYTHONPATH=.
