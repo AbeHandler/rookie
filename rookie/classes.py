@@ -118,7 +118,7 @@ class N_Grammer(object):
 
     def is_syntactically_valid(self, ngram):
         valid_two_grams = ["NN", "AN"]
-        valid_three_grams = ["AAN", "NNN", "ANN"]
+        valid_three_grams = ["AAN", "NNN", "ANN", "NPN"]
         pattern = "".join([(j.abreviated_pos()) for j in ngram])
         if pattern in valid_two_grams and len(pattern) == 2:
             return True
@@ -271,6 +271,12 @@ class Token(object):
         else:
             return False
 
+    def is_preposition(self):
+        if self.pos[0:2] == "IN":
+            return True
+        else:
+            return False
+
 
 class NER(object):
 
@@ -318,9 +324,10 @@ class Gramner(object):
     An Gramner is a set of tokens that match syntactically valid
     pattern or represent a named entity
     '''
-    def __init__(self, tokens, window):
+    def __init__(self, tokens, window, intype):
         self.tokens = tokens
         self.window = " ".join([i.raw for i in window])
+        self.type = intype
 
     def __repr__(self):
         return " ".join([i.raw for i in self.tokens]).upper()

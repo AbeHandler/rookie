@@ -13,8 +13,8 @@
 <div class="row">
 
 	<div id="myModal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
-	  <h2 id="modalTitle">Please don't go</h2>
-	  You must stay on this page during the task in order to receive payment.
+	  <h2 id="modalTitle">Please don't leave this page during the task</h2>
+	  This is a controlled experiment. Turkers who use other resources will not get paid.
 	  <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 	</div>
 </div>
@@ -78,7 +78,7 @@ addEvent(document, "mouseout", function(e) {
     e = e ? e : window.event;
     var from = e.relatedTarget || e.toElement;
     if (!from || from.nodeName == "HTML") {
-        $('#myModal').foundation('reveal', 'open');
+       // $('#myModal').foundation('reveal', 'open');
     }
 });
 

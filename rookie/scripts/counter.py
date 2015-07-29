@@ -25,19 +25,9 @@ joint_counts = defaultdict(int)
 
 instances = defaultdict(list)
 
+types = defaultdict(list)
+
 unigrams = defaultdict(int)
-
-to_delete = ['joint_counts.json', 'instances.json', 'counts.json']
-
-
-def attempt_delete(filename):
-    try:
-        os.remove(files_location + filename)
-    except OSError:
-        pass
-
-for filename in to_delete:
-    attempt_delete(filename)
 
 try:
     limit = int(sys.argv[1])
@@ -58,6 +48,7 @@ def process_sentence(infile, sentence):
         unigrams[token.raw.upper()] += 1
     gramner = [i for i in get_gramner(sentence, True)]
     for gramne in gramner:
+        types[repr(gramne).upper()].append(gramne.type)
         counts[repr(gramne).upper()] += 1
     npe_product = set(itertools.product(gramner, gramner))
     npe_product = [i for i in npe_product if not i[0] == i[1]]
@@ -97,6 +88,7 @@ count_everything(files_to_check)
 # filter out strings that don't occur a lot
 counts = dict((k, v) for k, v in counts.items() if v > 5)
 joint_counts = dict((k, v) for k, v in joint_counts.items() if v > 5)
+types = dict((k, v) for k, v in types.items() if len(v) > 5)
 # unigrams = dict((k, v) for k, v in unigrams.items() if v > 5)
 
 
@@ -113,3 +105,4 @@ pickle.dump(unigrams, open(files_location + "unigrams.p", "wb"))
 pickle.dump(joint_counts, open(files_location + "joint_counts.p", "wb"))
 pickle.dump(counts, open(files_location + "counts.p", "wb"))
 pickle.dump(instances, open(files_location + "instances.p", "wb"))
+pickle.dump(types, open(files_location + "types.p", "wb"))

@@ -68,11 +68,11 @@ def get_gramner(sentence, exclude_stop_words):
         gramners = []
         for gram in grams:
             window = sentence.tokens  # the window = tokens in the sentence
-            gramner = Gramner(gram, window)
+            gramner = Gramner(gram, window, "ngram")
             gramners.append(gramner)
         for ne in dedupe_people(sentence.ner):
             window = sentence.tokens  # the window = tokens in the sentence
-            gramner = Gramner(ne.tokens, window)
+            gramner = Gramner(ne.tokens, window, ne.type)
             gramners.append(gramner)
         if exclude_stop_words:
             return [i for i in gramners if not stop_word(repr(i))]
