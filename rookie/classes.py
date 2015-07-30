@@ -1,7 +1,21 @@
 import pdb
 import json
 
+from pylru import lrudecorator
 from itertools import tee, izip, islice, chain
+
+
+@lrudecorator(100)
+def get_stopwords():
+    stopwords = [i.replace("\n", "") for i in open("stopwords.txt")]
+    return stopwords
+
+
+def stop_word(word):
+    stops = get_stopwords()
+    if word in stops:
+        return True
+    return False
 
 
 class IncomingFile(object):
@@ -114,15 +128,20 @@ class N_Grammer(object):
                       in enumerate(tee(iterable, n))))
 
     def get_ngrams(self, words, n=2):
+        words = [i for i in words if not stop_word(i.raw.upper())]
         return self.pairwise(words, n)
 
     def is_syntactically_valid(self, ngram):
-        valid_two_grams = ["NN", "AN"]
-        valid_three_grams = ["AAN", "NNN", "ANN", "NPN"]
+        valid_two_grams = ["NN", "AN", "NV", "VN"]
+        valid_three_grams = ["AAN", "NNN", "ANN", "NPN", "ANV", "NNV", "NVV", "TVN", "VPN", "VNN", "VAN", "VDN"]
+        valid_four_grams = ["ANPV", "NNNN", "ANNN", "NNNV", "ANTV", "NNTV", "TVPN", "VANN", "VNNN", "VPNN"]
+
         pattern = "".join([(j.abreviated_pos()) for j in ngram])
         if pattern in valid_two_grams and len(pattern) == 2:
             return True
         if pattern in valid_three_grams and len(pattern) == 3:
+            return True
+        if pattern in valid_four_grams and len(pattern) == 4:
             return True
 
     def get_syntactic_ngrams(self, words):
@@ -134,7 +153,9 @@ class N_Grammer(object):
                    self.is_syntactically_valid(i)]
         trigrams = [i for i in self.get_ngrams(words, 3) if
                     self.is_syntactically_valid(i)]
-        return (bigrams, trigrams)
+        fourgrams = [i for i in self.get_ngrams(words, 4) if
+                    self.is_syntactically_valid(i)]
+        return (bigrams, trigrams, fourgrams)
 
 
 class Link(object):
@@ -163,9 +184,18 @@ class Document(object):
         except KeyError:
             sentences_json = []
         sentences = []
+        people = []
+        organizations = []
+        ngrams = []
         for i in range(0, len(sentences_json)):
             sentence = Sentence(sentences_json[i], i)
             sentences.append(sentence)
+            people = people + [i for i in sentence.ner if i.type == "PERSON"]
+            organizations = organizations + [i for i in sentence.ner if i.type == "ORGANIZATION"]
+            ngrams = ngrams + sentence.ngrams
+        self.ngrams = ngrams
+        self.people = people
+        self.organizations = organizations
         self.sentences = sentences
         text = ""
         for sentence in self.sentences:
@@ -214,7 +244,7 @@ class Sentence(object):
  #                   add = False
  #           if add:
  #               two_grams.append(twogram)
-        return grams[0] + grams[1]
+        return grams[0] + grams[1] + grams[2]
 
     def __init__(self, json_sentence, sentence_no):
         '''
@@ -235,6 +265,7 @@ class Sentence(object):
             t = Token(tokens[i], poses[i], lemmas[i], i, sentence_no, ner[i])
             sentence_tokens.append(t)
         self.tokens = sentence_tokens
+        self.ngrams = self.get_ngrams()
         self.ner = self.get_ner(json_sentence, self.tokens)
 
 
@@ -256,6 +287,12 @@ class Token(object):
             return "A"
         elif self.is_noun():
             return "N"
+        elif self.is_preposition():
+            return "P"
+        elif self.is_verb():
+            return "V"
+        elif self.is_to():
+            return "T"
         else:
             return "O"
 
@@ -273,6 +310,18 @@ class Token(object):
 
     def is_preposition(self):
         if self.pos[0:2] == "IN":
+            return True
+        else:
+            return False
+
+    def is_verb(self):
+        if self.pos[0:1] == "V":
+            return True
+        else:
+            return False
+
+    def is_to(self):
+        if self.pos[0:2] == "TO":
             return True
         else:
             return False

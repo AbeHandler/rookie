@@ -29,6 +29,12 @@
 
 </div>
 
+<div id="explore" class="row">
+<p class="panel">
+some stuff
+</p>
+</div>
+
 <script type="text/javascript">
 
 var compiled = _.template('<a href="<%= url %>"><h5 class="headline"><%= headline %></h5><h6 class="subheader"><small><%= url %></small></h6></a><div class="teaser"><%=teaser%> ..</div><br>');
@@ -94,13 +100,23 @@ addEvent(document, "mouseout", function(e) {
  });
 */
 
+ function show_explorer(){
+  $("#explore").css("display", "block");
+ }
+
+ function hide_explorer(){
+  $("#explore").css("display", "none");
+ }
+
  $('#search_button').on('click', function(){
+    hide_explorer();
     get_results(0);
  });
  
 
  $('body').bind('keypress', function(e){
    if ( e.keyCode == 13 ) {
+     hide_explorer();
      get_results(0);
    }
  });
@@ -135,6 +151,10 @@ a#search_button {
 
 .page{
   color: #B33125;
+}
+
+#explore{
+  display: none;
 }
 
 </style>

@@ -8,6 +8,7 @@ import pdb
 import os
 import math
 import sys
+from rookie.utils import get_pickled
 from rookie.classes import IncomingFile
 from collections import defaultdict
 from rookie import processed_location
@@ -15,6 +16,11 @@ from rookie import processed_location
 files_to_check = glob.glob(processed_location + "/*")
 
 chuunks = 15
+
+
+counts = get_pickled("counts.p")
+types_processed = get_pickled("types_processed.p")
+keys = set(counts.keys())
 
 
 def to_aws_format(infile, counter):
@@ -26,6 +32,21 @@ def to_aws_format(infile, counter):
     data['headline'] = infile.headline
     data['url'] = infile.url
     data['pubdate'] = infile.pubdate
+
+    # these last three might not be necessary.
+    # TODO: rexamine. might slow down network
+    data['people'] = [""] + [repr(p) for p in infile.doc.people]
+    data['organizations'] = [""] + [repr(p) for p in infile.doc.organizations]
+    grams = [""]
+    for gram in infile.doc.ngrams:
+        try:
+            gram = str(" ".join([i.raw for i in gram]).upper())
+            if gram in keys:
+                grams.append(gram)
+        except:
+            print "unicode error"
+
+    data['ngrams'] = grams
     upload['fields'] = data
     return upload
 
@@ -59,6 +80,8 @@ def write_json(data, outfile):
 for counter in range(0, len(files_to_check)):
     arrayindex = len(files_to_check) % chunks
     infile = IncomingFile(files_to_check[counter])
+    if (counter % 10) == 0:
+        print counter
     if infile.doc is not None:
         aws_format = to_aws_format(infile, counter)
         datas[counter % chunks].append(aws_format)
