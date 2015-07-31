@@ -1,6 +1,10 @@
+import pdb
 from flask import Flask
 from flask import render_template
+from flask import request
 from rookie.experiment import log
+from rookie.experiment.views import Views
+from rookie.experiment.models import Models
 from rookie.experiment import LENS_CSS, BANNER_CSS
 
 app = Flask(__name__)
@@ -9,6 +13,25 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     return render_template('index.html',
+                           lens_css=LENS_CSS,
+                           banner_css=BANNER_CSS)
+
+
+@app.route('/search', methods=['POST'])
+def search():
+
+    query = request.args.get('q')  # TODO
+    start = request.args.get('start')
+    results, tops = Models().search(query, start)
+
+    log.debug('/search/ data:')
+
+    view = Views().get_results_page(results, tops)
+
+    log.debug('/search/ view:')
+
+    return view
+    return render_template('results.html',
                            lens_css=LENS_CSS,
                            banner_css=BANNER_CSS)
 

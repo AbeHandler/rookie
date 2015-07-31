@@ -1,8 +1,7 @@
 import math
 import pdb
-from rookie import log
-from rookie import jac_threshold
-from rookie.utils import get_pmi
+from rookie.experiment import log
+from rookie.experiment import jac_threshold
 from Levenshtein import distance
 
 

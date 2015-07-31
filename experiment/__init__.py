@@ -8,6 +8,7 @@ LOG_PATH = "experiment.log"
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
+jac_threshold = .5
 
 filehandler = logging.FileHandler(LOG_PATH)
 

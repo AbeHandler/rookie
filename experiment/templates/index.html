@@ -44,7 +44,7 @@ function get_results(start){
     $("#results").html("");
     $("#search_status").html("");
     var term = $("#search_bar").val();
-    $.get("https://cfp32pfxc0.execute-api.us-west-2.amazonaws.com/prod?q=" + term + "&start=" + String(start), function(data){
+    $.post("/search?q=" + encodeURIComponent(term) + "&start=" + encodeURIComponent(String(start)), function(data){
             var hits = data.hits.hit;
             if (data.hits.start > 0){
               $("#search_status").html("Page " + String((data.hits.start / 10) + 1) + " of " + String(Math.ceil(data.hits.found/10)) + ". Total hits: " + String(data.hits.found));
