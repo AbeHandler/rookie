@@ -17,17 +17,19 @@ def get_search_service():
     return domain.get_search_service()
 
 
-def query_cloud_search(query):
+def query_cloud_search(query, n=None):
     search_service = get_search_service()
-    results = search_service.search(q=query)
+    if n:
+        results = search_service.search(q=query, size=n)
+    else:
+        results = search_service.search(q=query)
     return results
 
 
 def get_most_important(results, field, term):
     people = [r['fields'][field] for r in results if field in r['fields'].keys()]
     people = list(itertools.chain.from_iterable(people))
-    people = Counter(people)
-    people = [(k, v) for k, v in people.items()]
+    people = Counter(people).most_common(100)  # TODO
     people = Merger().merge_lists(people)  # TODO why 2x?
     merge = Merger().merge_lists(people)
     return [i for i in merge if i[0].upper() != term.upper()]

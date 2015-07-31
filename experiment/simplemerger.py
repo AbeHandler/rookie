@@ -1,4 +1,5 @@
 import math
+import itertools
 import pdb
 from rookie.experiment import log
 from rookie.experiment import jac_threshold
@@ -23,7 +24,7 @@ class Merger(object):
         return jacard
 
     @staticmethod
-    def is_same(one, two):
+    def item_is_same(one, two):
         if distance(one, two) < 2:
             return True
         set_dif = math.fabs(len(one.split(" ")) - len(two.split(" ")))
@@ -44,39 +45,37 @@ class Merger(object):
             return False
 
     @staticmethod
-    def merge_candidates(candidates):
+    def is_same(one, two):
         '''
-        Sample imput
-        ([u'Jon Doe', 31.086], [u'Jon Moe', 30.08])
+        Try to see if these two lists are the same
         '''
-        out = []
-        for c in candidates:
-            item1 = c[0]
-            item2 = c[1]
-            # pick the longer one for string value
-            string_value = max(item1[0], item2[0], key=lambda x: len(x))
-            joint_count = (item1[1] + item2[1])
-            out.append((string_value, joint_count))
-        return out
+        items = [i for i in itertools.product(*[one, two]) if i[0] != i[1]]
+        total = 0
+        are_same = 0
+        for item1 in one:
+            for item2 in two:
+                if Merger.item_is_same(item1, item2):
+                    are_same += 1
+                total += 1
+        if float(are_same)/float(total) > .25:
+            return True
+        else:
+            return False
 
     @staticmethod
     def merge(left, right):
-        left_items = []
-        candidates = []
-        right_candidates = []
-        for left_item in left:
+        output = []
+        for i in range(0, len(left)):
+            left_item = left[i]
             found = False
-            for right_item in right:
-                if Merger.is_same(left_item[0], right_item[0]) and not found:
-                    log.info("merge###{}###{}".format(left_item[0], right_item[0]))
-                    candidates.append((left_item, right_item))
-                    right_candidates.append(right_item)
+            for i in range(0, len(right)):
+                right_item = right[i]
+                if Merger.is_same(left_item, right_item) and not found:
+                    right[i] = right_item + left_item
                     found = True
             if not found:
-                left_items.append(left_item)
-        right_items = [i for i in right if i not in right_candidates]
-        candidates = Merger.merge_candidates(candidates)
-        output = left_items + candidates + right_items
+                output.append(left_item)
+        output = output + right
         return output
 
     @staticmethod
