@@ -1,0 +1,30 @@
+<div id="explorer" class="row">
+	<p class="panel">
+		People: 
+		{% for person in people %}
+		  {{person}}  
+		{% endfor %}
+
+		<br>
+
+		Groups: 
+		{% for org in organizations %}
+		  {{org}}  
+		{% endfor %}
+
+		<br>
+
+		Terms: 
+		{% for term in terms %}
+		  {{term}}  
+		{% endfor %}
+
+	</p>
+</div>
+
+
+{% for result in n_results %}
+<h5 class="headline">{{ result['fields']['headline'] }}</h5>
+<div class="teaser">{{ result['fields']['text'][0:100] }}</div>
+<br>
+{% endfor %}

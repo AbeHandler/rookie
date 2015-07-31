@@ -11,7 +11,6 @@ class Models(object):
     @staticmethod
     def search(query, start):
         '''search elastic search and return results'''
-        pdb.set_trace()
         results = query_cloud_search(query)
         tops = get_top_stuff(results, 3, query)  # TODO magic number
         return results, tops

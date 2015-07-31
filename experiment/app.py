@@ -26,7 +26,7 @@ def search():
 
     log.debug('/search/ data:')
 
-    view = Views().get_results_page(results, tops)
+    view = Views().get_results_page(results, tops, start, query)
 
     log.debug('/search/ view:')
 

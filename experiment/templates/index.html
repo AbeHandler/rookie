@@ -29,12 +29,6 @@
 
 </div>
 
-<div id="explore" class="row">
-<p class="panel">
-some stuff
-</p>
-</div>
-
 <script type="text/javascript">
 
 var compiled = _.template('<a href="<%= url %>"><h5 class="headline"><%= headline %></h5><h6 class="subheader"><small><%= url %></small></h6></a><div class="teaser"><%=teaser%> ..</div><br>');
@@ -45,7 +39,8 @@ function get_results(start){
     $("#search_status").html("");
     var term = $("#search_bar").val();
     $.post("/search?q=" + encodeURIComponent(term) + "&start=" + encodeURIComponent(String(start)), function(data){
-            var hits = data.hits.hit;
+            $("#results").html(data);
+/*            var hits = data.hits.hit;
             if (data.hits.start > 0){
               $("#search_status").html("Page " + String((data.hits.start / 10) + 1) + " of " + String(Math.ceil(data.hits.found/10)) + ". Total hits: " + String(data.hits.found));
             }else{
@@ -59,13 +54,7 @@ function get_results(start){
                $("#pages").html("");
                var start_page = (parseInt(this.id.replace("page_", "")) - 1) * 10;
                get_results(start_page);
-            });
-            hits.forEach(function(entry) {
-                var teaser_text = entry.fields.text.substring(0,300);
-                var h_json = {headline: entry.fields.headline, url:entry.fields.url, teaser: teaser_text}
-                var html = compiled(h_json);
-                $("#results").append(html);
-            });
+            }); */
         }
     );
 }
@@ -151,10 +140,6 @@ a#search_button {
 
 .page{
   color: #B33125;
-}
-
-#explore{
-  display: none;
 }
 
 </style>

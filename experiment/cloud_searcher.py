@@ -20,12 +20,11 @@ def get_search_service():
 def query_cloud_search(query):
     search_service = get_search_service()
     results = search_service.search(q=query)
-    pdb.set_trace()
     return results
 
 
 def get_most_important(results, field, term):
-    people = [r['fields'][field] for r in results]
+    people = [r['fields'][field] for r in results if field in r['fields'].keys()]
     people = list(itertools.chain.from_iterable(people))
     people = Counter(people)
     people = [(k, v) for k, v in people.items()]
