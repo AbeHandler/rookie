@@ -11,23 +11,29 @@ from collections import defaultdict
 results = pickle.load(open("gusman.p"))
 
 
-def get_counter_and_aliases(field):
+def get_counter_and_de_alias(field):
     subset = [r['fields'][field] for r in results if field in r['fields'].keys()]
     subset = list(itertools.chain.from_iterable(subset))
     most_common = collections.Counter(subset).most_common(100)
     aliases = Merger.merge_lists([[o[0]] for o in most_common])
     for names in aliases:
         master_name = get_representitive_item(names, field)
-        total = sum(i[1] for i in most_common if i[0] in names)
-        replacement = [i for i in most_common if i[0] == master_name]
-        pdb.set_trace()
+        if master_name:  # can't always find a master name
+            total = sum(i[1] for i in most_common if i[0] in names)
+            replacement = (master_name, total)
+            for name in names:
+                pop_this = [i for i in most_common if i[0] == name].pop()
+                most_common.remove(pop_this)
+            most_common.append(replacement)
+    return most_common
 
 
 def get_overview(results):
-    people, p_aliases = get_counter_and_aliases('people')
-    organizations, o_aliases = get_counter_and_aliases('organizations')
-    ngrams, n_aliases = get_counter_and_aliases('ngrams')
+    people = get_counter_and_de_alias('people')
+    organizations = get_counter_and_de_alias('organizations')
+    ngrams = get_counter_and_de_alias('ngrams')
     pdb.set_trace()
+    return (people, organizations, ngrams)
 
 
 def get_jaccard(one, two):

@@ -7,6 +7,7 @@ import json
 import pdb
 import os
 import math
+import pickle
 import sys
 from rookie.utils import get_pickled
 from rookie.classes import IncomingFile
@@ -17,6 +18,9 @@ files_to_check = glob.glob(processed_location + "/*")
 
 chuunks = 15
 
+doc_frequencies_people = defaultdict(int)
+doc_frequencies_ngrams = defaultdict(int)
+doc_frequencies_orgs = defaultdict(int)
 
 counts = get_pickled("counts.p")
 types_processed = get_pickled("types_processed.p")
@@ -36,7 +40,11 @@ def to_aws_format(infile, counter):
     # these last three might not be necessary.
     # TODO: rexamine. might slow down network
     data['people'] = [""] + [repr(p) for p in infile.doc.people]
+    for p in data['people']:
+        doc_frequencies_people[p] += 1
     data['organizations'] = [""] + [repr(p) for p in infile.doc.organizations]
+    for o in data['organizations']:
+        doc_frequencies_orgs[o] += 1
     grams = [""]
     for gram in infile.doc.ngrams:
         try:
@@ -47,6 +55,8 @@ def to_aws_format(infile, counter):
             print "unicode error"
 
     data['ngrams'] = grams
+    for o in data['ngrams']:
+        doc_frequencies_ngrams[o] += 1
     upload['fields'] = data
     return upload
 
@@ -88,3 +98,7 @@ for counter in range(0, len(files_to_check)):
 
 for i in range(0, chunks):
     write_json(datas[i], "data/aws/" + str(i) + ".json")
+
+pickle.dump(doc_frequencies_ngrams, open("df_ngrams", "w"))
+pickle.dump(doc_frequencies_people, open("df_pgrams", "w"))
+pickle.dump(doc_frequencies_orgs, open("df_ograms", "w"))
