@@ -7,16 +7,27 @@ from rookie.experiment.simplemerger import Merger
 from collections import defaultdict
 
 
-results = pickle.load(open("mitch.p"))
+# results = pickle.load(open("mitch.p"))
 results = pickle.load(open("gusman.p"))
 
-people = [r['fields']['people'] for r in results if 'people' in r['fields'].keys()]
-people = list(itertools.chain.from_iterable(people))
-people = collections.Counter(people).most_common(100)
-names = [[o[0]] for o in people]
-names = Merger.merge_lists(names)
 
-mergers = [n for n in names if len(n) > 1]
+def get_counter_and_aliases(field):
+    subset = [r['fields'][field] for r in results if field in r['fields'].keys()]
+    subset = list(itertools.chain.from_iterable(subset))
+    most_common = collections.Counter(subset).most_common(100)
+    aliases = Merger.merge_lists([[o[0]] for o in most_common])
+    for names in aliases:
+        master_name = get_representitive_item(names, field)
+        total = sum(i[1] for i in most_common if i[0] in names)
+        replacement = [i for i in most_common if i[0] == master_name]
+        pdb.set_trace()
+
+
+def get_overview(results):
+    people, p_aliases = get_counter_and_aliases('people')
+    organizations, o_aliases = get_counter_and_aliases('organizations')
+    ngrams, n_aliases = get_counter_and_aliases('ngrams')
+    pdb.set_trace()
 
 
 def get_jaccard(one, two):
@@ -27,6 +38,8 @@ def get_jaccard(one, two):
 
 
 def get_representitive_item(aliases, kind_of_item=None):
+    if len(aliases) == 1:
+        return aliases[0]
     items = [(i[0], i[1], get_jaccard(i[0], i[1])) for i in itertools.product(aliases, aliases) if i[0] != i[1]]
     scores = defaultdict(float)
     for i in items:
@@ -38,24 +51,19 @@ def get_representitive_item(aliases, kind_of_item=None):
         max_len = max(len(o[0].split(" ")) for o in scores)
         scores = [o for o in scores if len(o[0].split(" ")) == max_len]
 
-    # This is a correction for cases where you end up with Bob Jame and Bob James (i.e. possessive)
-    if kind_of_item == "people" and len(scores) == 2 and distance(scores[0][0], scores[1][0]) == 1:
-        if scores[0][0][-1:].upper() == "S":
-            return scores[1]
-        if scores[1][0][-1:].upper() == "S":
-            return scores[0]
+        # This is a correction for cases where you end up with Bob Jame and Bob James (i.e. possessive)
+        if kind_of_item == "people" and len(scores) == 2 and distance(scores[0][0], scores[1][0]) == 1:
+            if scores[0][0][-1:].upper() == "S":
+                return scores[1][0]
+            if scores[1][0][-1:].upper() == "S":
+                return scores[0][0]
+        if len(scores) == 1:
+            return scores[0][0]
+    elif kind_of_item == "ngrams":
+        scores.sort(key=lambda x: x[1])
+        max_len = max(len(o[0].split(" ")) for o in scores)
+        scores = [o for o in scores if len(o[0].split(" ")) == max_len]
+        if len(scores) == 1:
+            return scores[0][0]
 
-    return scores.pop()
-'''
-    scores.sort(key=lambda x: x[1])
-    print scores
-    scores = scores[-2:]
-    if distance(scores[0][0], scores[1][0]) == 1 \
-       and (scores[0][0][-1:] == "s" or scores[1][0][-1:].upper() == "S"):
-            print min(scores[-3:], key=lambda x: x[0])
-    else:
-        print max(scores[-3:], key=lambda x: x[1])
-'''
-
-for m in mergers:
-    print get_representitive_item(m, "people")
+get_overview(results)
