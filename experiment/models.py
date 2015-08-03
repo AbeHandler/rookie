@@ -8,9 +8,8 @@ class Models(object):
     '''Handles logic for the experiment app'''
 
     @staticmethod
-    def search(query, start):
+    def search(query, start, n):
         '''search elastic search and return results'''
-        results = query_cloud_search(query)
-        tops = get_overview(results)  # TODO magic number
-        pdb.set_trace()
-        return results, tops
+        results = query_cloud_search(query, n)
+        tops = get_overview(results)  # handle the cloudsearch results
+        return [r for r in results][start:start+10], tops

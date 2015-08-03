@@ -15,6 +15,7 @@ class Views(object):
         :returns: HTML. Rendered and ready for display to the user.
         '''
 
+        pdb.set_trace()
         organizations = [p[0] for p in tops['organizations']]
         people = [p[0] for p in tops['people']]
         terms = [p[0] for p in tops['terms']]

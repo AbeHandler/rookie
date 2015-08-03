@@ -1,10 +1,12 @@
 import boto.cloudsearch
 import itertools
 import heapq
+import pdb
+import collections
+import os
 from collections import Counter
 from rookie.experiment.simplemerger import Merger
-import os
-import collections
+from pylru import lrudecorator
 from Levenshtein import distance
 from collections import defaultdict
 
@@ -18,6 +20,7 @@ def get_search_service():
     return domain.get_search_service()
 
 
+@lrudecorator(1000)
 def query_cloud_search(query, n=None):
     search_service = get_search_service()
     if n:
@@ -33,16 +36,6 @@ def get_most_important(results, field, term):
     people = Counter(people).most_common(100)  # TODO
     people = Merger().merge_lists(people)
     return [i for i in merge if i[0].upper() != term.upper()]
-
-
-def get_top_stuff(results, n, query):
-    output = {}
-    output['people'] = heapq.nlargest(n, get_most_important(results, 'people', query), key=lambda x: x[1])
-    output['organizations'] = heapq.nlargest(n, get_most_important(results, 'organizations', query), key=lambda x: x[1])
-    rr = get_most_important(results, 'ngrams', query)
-    rr.sort(key=lambda x: x[1])
-    output['terms'] = rr[-n:]
-    return output
 
 
 def get_counter_and_de_alias(field, results):
@@ -62,11 +55,16 @@ def get_counter_and_de_alias(field, results):
     return most_common
 
 
+@lrudecorator(1000)
 def get_overview(results):
+    output = {}
     people = get_counter_and_de_alias('people', results)
+    output['people'] = people
     organizations = get_counter_and_de_alias('organizations', results)
+    output['organizations'] = organizations
     ngrams = get_counter_and_de_alias('ngrams', results)
-    return (people, organizations, ngrams)
+    output['terms'] = ngrams
+    return output
 
 
 def get_jaccard(one, two):

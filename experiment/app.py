@@ -22,7 +22,12 @@ def search():
 
     query = request.args.get('q')  # TODO
     start = request.args.get('start')
-    results, tops = Models().search(query, start)
+    try:
+        start = int(start)
+    except:
+        start = 0
+
+    results, tops = Models().search(query, start, 5000)  # n=5000, query all
 
     log.debug('/search/ data:')
 
