@@ -10,6 +10,7 @@ from experiment.simplemerger import Merger
 from pylru import lrudecorator
 from Levenshtein import distance
 from collections import defaultdict
+from rookie import log
 
 
 def get_search_service():
@@ -24,10 +25,13 @@ def get_search_service():
 @lrudecorator(1000)
 def query_cloud_search(query, n=None):
     search_service = get_search_service()
+    log.info("got search service")
+    log.info("querying {} is {}".format(q, n))
     if n:
         results = search_service.search(q=query, size=n)
     else:
         results = search_service.search(q=query)
+    log.info("got restuls")
     return results
 
 
