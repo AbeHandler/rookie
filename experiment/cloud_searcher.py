@@ -26,7 +26,8 @@ def get_search_service():
 def query_cloud_search(query, n=None):
     search_service = get_search_service()
     log.info("got search service")
-    log.info("querying {} is {}".format(q, n))
+    pdb.set_trace()
+    log.info("querying {} is {}".format(query, n))
     if n:
         results = search_service.search(q=query, size=n)
     else:
