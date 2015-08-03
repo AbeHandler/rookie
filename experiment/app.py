@@ -2,10 +2,10 @@ import pdb
 from flask import Flask
 from flask import render_template
 from flask import request
-from rookie.experiment import log
-from rookie.experiment.views import Views
-from rookie.experiment.models import Models
-from rookie.experiment import LENS_CSS, BANNER_CSS
+from experiment import log
+from experiment.views import Views
+from experiment.models import Models
+from experiment import LENS_CSS, BANNER_CSS
 
 app = Flask(__name__)
 

@@ -2,10 +2,11 @@ import boto.cloudsearch
 import itertools
 import heapq
 import pdb
+from rookie.utils import get_document_frequencies
 import collections
 import os
 from collections import Counter
-from rookie.experiment.simplemerger import Merger
+from experiment.simplemerger import Merger
 from pylru import lrudecorator
 from Levenshtein import distance
 from collections import defaultdict
@@ -58,12 +59,28 @@ def get_counter_and_de_alias(field, results):
 @lrudecorator(1000)
 def get_overview(results):
     output = {}
+
     people = get_counter_and_de_alias('people', results)
-    output['people'] = people
     organizations = get_counter_and_de_alias('organizations', results)
-    output['organizations'] = organizations
     ngrams = get_counter_and_de_alias('ngrams', results)
-    output['terms'] = ngrams
+
+    people_df = get_document_frequencies("people")
+    orgs_df = get_document_frequencies("orgs")
+    ngrams_df = get_document_frequencies("ngrams")
+
+    ngrams = [(n[0], n[1] * ngrams_df[n[0]]) for n in ngrams]
+    ngrams.sort(key=lambda x: x[1])
+
+    people = [(n[0], n[1] * people_df[n[0]]) for n in people]
+    people.sort(key=lambda x: x[1])
+
+    organizations = [(n[0], n[1] * orgs_df[n[0]]) for n in organizations]
+    organizations.sort(key=lambda x: x[1])
+
+    output['terms'] = ngrams[-3:]
+    output['organizations'] = organizations[-3:]
+    output['people'] = people[-3:]
+
     return output
 
 

@@ -1,6 +1,5 @@
-import pdb
-from rookie.experiment.cloud_searcher import query_cloud_search
-from rookie.experiment.cloud_searcher import get_overview
+from experiment.cloud_searcher import query_cloud_search
+from experiment.cloud_searcher import get_overview
 
 
 class Models(object):

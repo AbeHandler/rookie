@@ -13,4 +13,4 @@ RUN apt-get install -y python python-dev python-distribute python-pip
 RUN mkdir /home/app && cd /home/app && git clone https://github.com/AbeHandler/rookie.git
 RUN cd /home/app/rookie &&  pip install -r requirements.txt
 RUN export PYTHONPATH=.
-RUN cd /home/app/ && wget https://gist.githubusercontent.com/AbeHandler/aefa90ac9d5b6d10cc41/raw/ea29c141ae70ccd6ebb76009d2bff18c230d32da/server.py && python server.py
+RUN cd /home/app/rookie && python server.py

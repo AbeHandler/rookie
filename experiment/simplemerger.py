@@ -1,8 +1,8 @@
 import math
 import itertools
 import pdb
-from rookie.experiment import log
-from rookie.experiment import jac_threshold
+from experiment import log
+from experiment import jac_threshold
 from Levenshtein import distance
 
 

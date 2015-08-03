@@ -4,11 +4,9 @@ Prepares data for aws cloud search
 
 import glob
 import json
-import pdb
-import os
-import math
 import pickle
-import sys
+import math
+from rookie import files_location
 from rookie.utils import get_pickled
 from rookie.classes import IncomingFile
 from collections import defaultdict
@@ -17,6 +15,8 @@ from rookie import processed_location
 files_to_check = glob.glob(processed_location + "/*")
 
 chuunks = 15
+
+N = 0
 
 doc_frequencies_people = defaultdict(int)
 doc_frequencies_ngrams = defaultdict(int)
@@ -87,7 +87,15 @@ def write_json(data, outfile):
         dat = json.dump(data, output)
 
 
+def caclulate_df(dictionary, N):
+    output = {}
+    for key in dictionary.keys():
+        count = dictionary[key]
+        output[key] = math.log(float(N) / float(count))
+    return output
+
 for counter in range(0, len(files_to_check)):
+    N += 1
     arrayindex = len(files_to_check) % chunks
     infile = IncomingFile(files_to_check[counter])
     if (counter % 10) == 0:
@@ -99,6 +107,11 @@ for counter in range(0, len(files_to_check)):
 for i in range(0, chunks):
     write_json(datas[i], "data/aws/" + str(i) + ".json")
 
-pickle.dump(doc_frequencies_ngrams, open("df_ngrams", "w"))
-pickle.dump(doc_frequencies_people, open("df_pgrams", "w"))
-pickle.dump(doc_frequencies_orgs, open("df_ograms", "w"))
+
+doc_frequencies_ngrams.update((x, math.log(float(N) / float(y))) for x, y in doc_frequencies_ngrams.items())
+doc_frequencies_people.update((x, math.log(float(N) / float(y))) for x, y in doc_frequencies_people.items())
+doc_frequencies_orgs.update((x, math.log(float(N) / float(y))) for x, y in doc_frequencies_orgs.items())
+
+pickle.dump(doc_frequencies_ngrams, open(files_location + "df_ngrams.p", "w"))
+pickle.dump(doc_frequencies_people, open(files_location + "df_people.p", "w"))
+pickle.dump(doc_frequencies_orgs, open(files_location + "df_orgs.p", "w"))
