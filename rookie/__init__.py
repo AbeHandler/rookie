@@ -38,19 +38,19 @@ if socket.getfqdn() == 'hobbes.cs.umass.edu':
     files_location = "/home/ahandler/rookie/"
     core_nlp_location = "/home/sw/corenlp/stanford-corenlp-full-2015-04-20/*"
     window_length = 35
-elif socket.getfqdn() == 'rookie':
-    processed_location = "/home/ubuntu/corpora/lens_processed/"
-    corpus_loc = "/home/ubuntu/corpora/lens/"
-    files_location = "/home/ubuntu/rookie/"
-    core_nlp_location = "/home/sw/corenlp/stanford-corenlp-full-2015-04-20/*"
-    window_length = 45
-else:
+elif socket.getfqdn() == "Abrams-MacBook-Air-3.local":
     processed_location = '/Users/abramhandler/research/rookie/data/lens_processed/'
     tagger_base = "/Volumes/USB/stanford-postagger-2015-04-20/"
     corpus_loc = "/Users/abramhandler/research/rookie/data/lens/"
     files_location = "//Users/abramhandler/research/rookie/"
     core_nlp_location = "/Volumes/USB/stanford-corenlp-full-2015-04-20/*"
     window_length = 30
+else:
+    processed_location = "/home/ubuntu/corpora/lens_processed/"
+    corpus_loc = "/home/ubuntu/corpora/lens/"
+    files_location = "/home/app/rookie/"
+    core_nlp_location = "/home/sw/corenlp/stanford-corenlp-full-2015-04-20/*"
+    window_length = 45
 
 CONNECTION_STRING = 'postgresql://%s:%s@%s:5432/%s' % (
         os.environ.get('DATABASE_USERNAME'),
