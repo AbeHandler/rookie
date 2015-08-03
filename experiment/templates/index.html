@@ -38,23 +38,13 @@ function get_results(start){
     $("#results").html("");
     $("#search_status").html("");
     var term = $("#search_bar").val();
-    $.post("/search?q=" + encodeURIComponent(term) + "&start=" + encodeURIComponent(String(start)), function(data){
+    $.post("/search?q=" + encodeURIComponent(term) + "&page=" + encodeURIComponent(String(start)), function(data){
             $("#results").html(data);
-/*            var hits = data.hits.hit;
-            if (data.hits.start > 0){
-              $("#search_status").html("Page " + String((data.hits.start / 10) + 1) + " of " + String(Math.ceil(data.hits.found/10)) + ". Total hits: " + String(data.hits.found));
-            }else{
-              $("#search_status").html("Found " + String(data.hits.found) + " results");
-            }
-            var pages = _.range(1,Math.ceil(data.hits.found/10) + 1 );
-            _.each(pages, function(p){
-              $("#pages").append("<span id='page_" + String(p) + "' class='page'>" + String(p) + "<span> ")
-            });
             $('.page').on("click", function(e){
                $("#pages").html("");
-               var start_page = (parseInt(this.id.replace("page_", "")) - 1) * 10;
+               var start_page = parseInt(this.id.replace("page_", "")) - 1;
                get_results(start_page);
-            }); */
+            });
         }
     );
 }
@@ -147,9 +137,6 @@ a#search_button {
 <div class="row">
 <div id="search_status"></div>
 <div id="results">
-</div>
-
-<div class="small-centered small-3 columns" id="pages">
 </div>
 
 

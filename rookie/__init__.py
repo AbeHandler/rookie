@@ -32,6 +32,8 @@ CLOUD_LAYOUT_JS = 'http://s3-us-west-2.amazonaws.com/rookielens/js/d3.layout.clo
 
 jac_threshold = .5
 
+page_size = 10
+
 if socket.getfqdn() == 'hobbes.cs.umass.edu':
     processed_location = "/home/ahandler/corpora/lens_processed/"
     corpus_loc = "/home/ahandler/corpora/lens/"
@@ -45,16 +47,7 @@ elif socket.getfqdn() == "Abrams-MacBook-Air-3.local":
     files_location = "//Users/abramhandler/research/rookie/"
     core_nlp_location = "/Volumes/USB/stanford-corenlp-full-2015-04-20/*"
     window_length = 30
+    server_port = 8000
 else:
-    processed_location = "/home/ubuntu/corpora/lens_processed/"
-    corpus_loc = "/home/ubuntu/corpora/lens/"
     files_location = "/home/app/rookie/"
-    core_nlp_location = "/home/sw/corenlp/stanford-corenlp-full-2015-04-20/*"
-    window_length = 45
-
-CONNECTION_STRING = 'postgresql://%s:%s@%s:5432/%s' % (
-        os.environ.get('DATABASE_USERNAME'),
-        os.environ.get('DATABASE_PASSWORD'),
-        os.environ.get('DATABASE_SERVER'),
-        'rookie',
-)
+    server_port = 80

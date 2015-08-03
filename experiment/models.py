@@ -7,8 +7,29 @@ class Models(object):
     '''Handles logic for the experiment app'''
 
     @staticmethod
-    def search(query, start, n):
+    def search(query):
         '''search elastic search and return results'''
-        results = query_cloud_search(query, n)
+        results = query_cloud_search(query)
         tops = get_overview(results)  # handle the cloudsearch results
-        return [r for r in results][start:start+10], tops
+        return results, tops
+
+    @staticmethod
+    def translate_page(page):
+        try:
+            page = int(page)
+        except:
+            page = 0
+
+        if page < 0:
+            page = 0
+
+        return page
+
+    @staticmethod
+    def get_message(page, pages, total_results):
+        '''search elastic search and return results'''
+        total_results = str(total_results)
+        if page != 0:
+            return "Found " + total_results + " results"
+        else:
+            return "Found {} results. Showing page {} of {}".format(total_results, page, max(pages))

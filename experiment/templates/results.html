@@ -22,9 +22,18 @@
 	</p>
 </div>
 
+<div>
+{{message}}
+</div>
 
 {% for result in n_results %}
 <h5 class="headline">{{ result['fields']['headline'] }}</h5>
 <div class="teaser">{{ result['fields']['text'][0:100] }}</div>
 <br>
 {% endfor %}
+
+<div class="small-centered small-3 columns" id="pages">
+{% for page in pages %}
+<span id='page_{{page}}' class='page'>{{page}}<span> 
+{% endfor %}
+</div>

@@ -25,13 +25,8 @@ def get_search_service():
 @lrudecorator(1000)
 def query_cloud_search(query, n=None):
     search_service = get_search_service()
-    log.info("got search service")
-    pdb.set_trace()
-    log.info("querying {} is {}".format(query, n))
-    if n:
-        results = search_service.search(q=query, size=n)
-    else:
-        results = search_service.search(q=query)
+    log.info("querying cloud search q={}, n={}".format(query, n))
+    results = search_service.search(q=query, size=5000)
     log.info("got restuls")
     return results
 

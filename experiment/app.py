@@ -5,6 +5,7 @@ from flask import request
 from experiment import log
 from experiment.views import Views
 from experiment.models import Models
+from rookie import page_size
 from experiment import LENS_CSS, BANNER_CSS
 from rookie import (
     log
@@ -24,21 +25,26 @@ def index():
 @app.route('/search', methods=['POST'])
 def search():
 
-    log.debug("search routing")
-    query = request.args.get('q')  # TODO
-    start = request.args.get('start')
-
-    log.debug("q=" + query + " start=" + start)
-    try:
-        start = int(start)
-    except:
-        start = 0
-
-    results, tops = Models().search(query, start, 5000)  # n=5000, query all
-
     log.debug('/search/ data:')
 
-    view = Views().get_results_page(results, tops, start, query)
+    query = request.args.get('q')  # TODO
+    page = request.args.get('page')
+
+    log.debug("q=" + query + " start=" + page)
+
+    page = Models().translate_page(page)
+
+    results, tops = Models().search(query)  # n=5000, query all
+
+    total_results = len(results)
+
+    pages = range(1, total_results % page_size)
+
+    results = [r for r in results][page * 10:page * 10+10]
+
+    message = Models().get_message(page, pages, total_results)
+
+    view = Views().get_results_page(results, tops, page, query, total_results, message, pages)
 
     log.debug('/search/ view:')
 
