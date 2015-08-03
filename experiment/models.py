@@ -1,7 +1,6 @@
 import pdb
 from rookie.experiment.cloud_searcher import query_cloud_search
-from rookie.experiment.cloud_searcher import get_top_stuff
-from flask import request
+from rookie.experiment.cloud_searcher import get_overview
 
 
 class Models(object):
@@ -12,5 +11,6 @@ class Models(object):
     def search(query, start):
         '''search elastic search and return results'''
         results = query_cloud_search(query)
-        tops = get_top_stuff(results, 3, query)  # TODO magic number
+        tops = get_overview(results)  # TODO magic number
+        pdb.set_trace()
         return results, tops
