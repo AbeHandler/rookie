@@ -40,7 +40,7 @@ if socket.getfqdn() == 'hobbes.cs.umass.edu':
     files_location = "/home/ahandler/rookie/"
     core_nlp_location = "/home/sw/corenlp/stanford-corenlp-full-2015-04-20/*"
     window_length = 35
-elif socket.getfqdn() == "abrams-air-3.home":
+elif socket.getfqdn() == "abrams-air-3.home" or socket.getfqdn() == "Abrams-MacBook-Air-3.local":
     processed_location = '/Users/abramhandler/research/rookie/data/lens_processed/'
     tagger_base = "/Volumes/USB/stanford-postagger-2015-04-20/"
     corpus_loc = "/Users/abramhandler/research/rookie/data/lens/"

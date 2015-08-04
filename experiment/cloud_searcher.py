@@ -13,6 +13,9 @@ from collections import defaultdict
 from rookie import log
 
 
+stop_ner = ["The Lens", "THE LENS"]  # TODO refactor this out of the loader
+
+
 def get_search_service():
     conn = boto.connect_cloudsearch2(region="us-west-2",
                     aws_access_key_id=os.environ.get('aws_access_key_id'),
@@ -25,18 +28,10 @@ def get_search_service():
 @lrudecorator(1000)
 def query_cloud_search(query, n=None):
     search_service = get_search_service()
-    log.info("querying cloud search q={}, n={}".format(query, n))
+    log.debug("querying cloud search q={}, n={}".format(query, n))
     results = search_service.search(q=query, size=5000)
-    log.info("got restuls")
+    log.debug("got restuls")
     return results
-
-
-def get_most_important(results, field, term):
-    people = [r['fields'][field] for r in results if field in r['fields'].keys()]
-    people = list(itertools.chain.from_iterable(people))
-    people = Counter(people).most_common(100)  # TODO
-    people = Merger().merge_lists(people)
-    return [i for i in merge if i[0].upper() != term.upper()]
 
 
 def get_counter_and_de_alias(field, results):
@@ -57,7 +52,7 @@ def get_counter_and_de_alias(field, results):
 
 
 @lrudecorator(1000)
-def get_overview(results):
+def get_overview(results, query_term):
     output = {}
 
     people = get_counter_and_de_alias('people', results)
@@ -76,6 +71,14 @@ def get_overview(results):
 
     organizations = [(n[0], n[1] * orgs_df[n[0]]) for n in organizations]
     organizations.sort(key=lambda x: x[1])
+
+    ngrams = [n for n in ngrams if n[0].upper() != query_term.upper()]
+    people = [n for n in people if n[0].upper() != query_term.upper()]
+    organizations = [n for n in organizations if n[0].upper() != query_term.upper()]
+
+    ngrams = [n for n in ngrams if n[0] not in stop_ner]
+    people = [n for n in people if n[0] not in stop_ner]
+    organizations = [n for n in organizations if n[0] not in stop_ner]
 
     output['terms'] = ngrams[-3:]
     output['organizations'] = organizations[-3:]

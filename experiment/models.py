@@ -11,7 +11,7 @@ class Models(object):
     def search(query):
         '''search elastic search and return results'''
         results = query_cloud_search(query)
-        tops = get_overview(results)  # handle the cloudsearch results
+        tops = get_overview(results, query)  # handle the cloudsearch results
         return results, tops
 
     @staticmethod

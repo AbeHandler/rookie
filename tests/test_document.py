@@ -40,7 +40,7 @@ class GenericTestCase(unittest.TestCase):
         grams = N_Grammer()
         gram_total = len([(i[0].raw, i[1].raw) for i in
                          grams.get_ngrams(sentence.tokens)])
-        self.assertEqual(gram_total + 1, len(sentence.tokens))
+        self.assertEqual(gram_total, 52)
 
     def test_filter_ngrams(self):
         with open("data/sample_wrapper_output_2.json", "r") as to_read:
@@ -104,17 +104,6 @@ class GenericTestCase(unittest.TestCase):
                 window = Window.get_window(sentence.tokens, ner.tokens, 10)
                 self.assertTrue(len(window) - len(ner.tokens),
                                 20 - len(ner.tokens))
-
-    def test_strip_stop_words(self):
-        with open("data/sample_wrapper_output_2.json", "r") as to_read:
-            py_wrapper_output = json.loads(to_read.read())
-        corefs = Coreferences(py_wrapper_output)
-        doc = Document(py_wrapper_output, corefs)
-        sentence = doc.sentences[0]
-        valids = [i for i in get_gramner(sentence, True)]
-        self.assertEqual(len(valids), 25)  # 2 stop gramner stripped out
-        # 27 gramner to start
-        self.assertEqual(len(get_gramner(sentence, False)), 27)
 
     def test_strip_stop_words2(self):
         self.assertTrue(stop_word("NEW ORLEANS"))
