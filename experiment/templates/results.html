@@ -1,24 +1,24 @@
 <div id="explorer" class="row">
 	<p class="panel">
-		People: 
-		{% for person in people %}
-		  {{person}}  
-		{% endfor %}
 
-		<br>
-
-		Groups: 
-		{% for org in organizations %}
-		  {{org}}  
-		{% endfor %}
-
-		<br>
-
-		Terms: 
-		{% for term in terms %}
-		  {{term}}  
-		{% endfor %}
-
+	<table>
+	  <thead>
+	    <tr>
+	      <th>People</th>
+	      <th>Groups</th>
+	      <th>Terms</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	  {% for n in range(3) %}
+	    <tr>
+	      <td>{{people[n]}}</td>
+	      <td>{{organizations[n]}}</td>
+	      <td>{{terms[n]}}</td>
+	    </tr>
+	  {% endfor %}
+	  </tbody>
+	</table>
 	</p>
 </div>
 
@@ -28,11 +28,11 @@
 
 {% for result in n_results %}
 <h5 class="headline">{{ result['fields']['headline'] }}</h5>
-<div class="teaser">{{ result['fields']['text'][0:100] }}</div>
+<div class="teaser">{{ result['fields']['text'][0:250] }}</div>
 <br>
 {% endfor %}
 
-<div class="small-centered small-3 columns" id="pages">
+<div class="small-centered small-4 columns" id="pages">
 {% for page in pages %}
 <span id='page_{{page}}' class='page'>{{page}}</span> 
 {% endfor %}
