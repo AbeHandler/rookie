@@ -33,6 +33,8 @@ class IncomingFile(object):
                 self.pubdate = json_in['timestamp'].split(" ")[0]
                 data = json_in['lines']
                 self.doc = Document(data)
+                corefs = Coreferences(data, self.doc)
+                self.doc.coreferences = corefs
         except UnicodeEncodeError:
             pass
         except TypeError:
@@ -343,7 +345,7 @@ class NER(object):
 
 class Coreferences(object):
 
-    def __init__(self, data):
+    def __init__(self, data, document):
         try:
             entity_groups = data['entities']
             self.groups = []  # start with no coref groups
@@ -351,7 +353,7 @@ class Coreferences(object):
                 if not e['mentions'] is None:
                     group = []
                     for m in e['mentions']:
-                        group.append(Mention(m))
+                        group.append(Mention(m, document))
                     self.groups.append(group)
         except KeyError:
             self.groups = []
@@ -361,11 +363,16 @@ class Coreferences(object):
 
 class Mention(object):
 
-    def __init__(self, json_input):
-        self.sentence = json_input['sentence']
+    def __init__(self, json_input, document):
+        self.sentence = document.sentences[json_input['sentence']]
         self.tokspan = json_input['tokspan_in_sentence']
         self.span_start = self.tokspan[0]
         self.span_end = self.tokspan[1]
+        self.tokens = self.sentence.tokens[self.span_start: self.span_end]
+
+    def __repr__(self):
+        string = [o.raw for o in self.tokens]
+        return " ".join(string)
 
 
 class Gramner(object):

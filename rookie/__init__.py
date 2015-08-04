@@ -1,5 +1,6 @@
 import logging
 import os
+import pdb
 import socket
 
 
@@ -48,6 +49,7 @@ elif socket.getfqdn() == "abrams-air-3.home" or socket.getfqdn() == "Abrams-MacB
     core_nlp_location = "/Volumes/USB/stanford-corenlp-full-2015-04-20/*"
     window_length = 30
     server_port = 8000
+    corpus_loc = "/Users/abramhandler/research/rookie/data/lens_processed/"
 else:
     files_location = "/home/app/rookie/"
     server_port = 80
