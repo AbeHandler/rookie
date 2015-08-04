@@ -1,3 +1,7 @@
+'''
+A simple cherrypy server that runs the experiment
+'''
+
 # Import your application as:
 # from app import application
 # Example:

@@ -1,3 +1,8 @@
+'''
+This calcluates probability ratios for given terms
+'''
+
+
 import pickle
 import itertools
 import math

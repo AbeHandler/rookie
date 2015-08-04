@@ -148,7 +148,7 @@ def clean_punctuation(input_string):
 
 @lrudecorator(100)
 def get_document_frequencies(freq_type):
-    return get_pickled(files_location + "df_" + freq_type + ".p")
+    return get_pickled(files_location + "pickled/df_" + freq_type + ".p")
 
 
 def compress_sentence(sentence):

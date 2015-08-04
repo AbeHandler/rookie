@@ -22,8 +22,8 @@ doc_frequencies_people = defaultdict(int)
 doc_frequencies_ngrams = defaultdict(int)
 doc_frequencies_orgs = defaultdict(int)
 
-counts = get_pickled("counts.p")
-types_processed = get_pickled("types_processed.p")
+counts = get_pickled("pickled/counts.p")
+types_processed = get_pickled("pickled/types_processed.p")
 keys = set(counts.keys())
 
 
