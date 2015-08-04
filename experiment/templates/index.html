@@ -42,7 +42,7 @@ function get_results(start){
             $("#results").html(data);
             $('.page').on("click", function(e){
                $("#pages").html("");
-               var start_page = parseInt(this.id.replace("page_", "")) - 1;
+               var start_page = parseInt(this.id.replace("page_", ""));
                get_results(start_page);
             });
         }
@@ -89,14 +89,14 @@ addEvent(document, "mouseout", function(e) {
 
  $('#search_button').on('click', function(){
     hide_explorer();
-    get_results(0);
+    get_results(1);
  });
  
 
  $('body').bind('keypress', function(e){
    if ( e.keyCode == 13 ) {
      hide_explorer();
-     get_results(0);
+     get_results(1);
    }
  });
 

@@ -1,3 +1,4 @@
+import pdb
 from experiment.cloud_searcher import query_cloud_search
 from experiment.cloud_searcher import get_overview
 
@@ -16,7 +17,7 @@ class Models(object):
     @staticmethod
     def translate_page(page):
         try:
-            page = int(page)
+            page = int(page) - 1
         except:
             page = 0
 
@@ -29,7 +30,7 @@ class Models(object):
     def get_message(page, pages, total_results):
         '''search elastic search and return results'''
         total_results = str(total_results)
-        if page != 0:
+        if int(page) == 1:
             return "Found " + total_results + " results"
         else:
             return "Found {} results. Showing page {} of {}".format(total_results, page, max(pages))
