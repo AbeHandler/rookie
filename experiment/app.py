@@ -1,4 +1,5 @@
 import pdb
+import math
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -28,21 +29,22 @@ def search():
     log.debug('/search/ data:')
 
     query = request.args.get('q')  # TODO
+
     page = request.args.get('page')
-
-    log.debug("q=" + query + " start=" + page)
-
-    page = Models().translate_page(page)
 
     results, tops = Models().search(query)  # n=5000, query all
 
     total_results = len(results)
 
-    pages = range(1, total_results % page_size)
-
-    results = [r for r in results][page * 10:page * 10+10]
+    pages = range(1, int(math.ceil(float(total_results)/float(page_size))))
 
     message = Models().get_message(page, pages, total_results)
+
+    log.debug("q=" + query + " start=" + page)
+
+    page = Models().translate_page(page)
+
+    results = [r for r in results][page * 10:page * 10+10]
 
     view = Views().get_results_page(results, tops, page, query, total_results, message, pages)
 

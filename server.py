@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     # Configure the server object
     server.socket_host = "0.0.0.0"
-    server.socket_port = 8000
+    server.socket_port = server_port
     server.thread_pool = 30
 
     # For SSL Support
