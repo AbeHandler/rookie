@@ -8,7 +8,7 @@ from rookie.classes import IncomingFile, Gramner, N_Grammer
 from rookie.compressor import sentence_to_graph, show_graph
 from networkx.algorithms.traversal.depth_first_search import dfs_tree
 
-apposez = defaultdict(list)
+apposez_and_comp = defaultdict(list)
 grams_document_frequencies = defaultdict(int)
 
 to_run = glob.glob("data/lens_processed/*")
@@ -54,6 +54,15 @@ for f in to_run:
                         nodes.sort()
                         for node in nodes:
                             appos = appos + sentence_tokens[node].raw + " "
-                        apposez[str(person)].append(appos.strip())
+                        if len(appos.strip()) > 0:
+                            apposez_and_comp[str(person)].append(appos.strip())
+                comps = [i for i in g.out_edges(token.token_no) if deps[i]=="compound"]
+                comps = [i for i in comps if sentence_tokens[i[1]].raw not in str(person)]
+                comps.sort(key=lambda x: x[1])
+                comp_out = ""
+                for c in comps:
+                    comp_out = comp_out + sentence_tokens[c[1]].raw + " "
+                if len(comp_out.strip()) > 0:
+                    apposez_and_comp[str(person)].append(comp_out.strip())
 
-pickle.dump(apposez, open("pickled/people_windows.p", "w"))
+pickle.dump(apposez_and_comp, open("pickled/people_windows.p", "w"))

@@ -10,3 +10,4 @@ data/lens_processed/*
 data/lens
 .coverage
 devenv-key.pem
+test.dot

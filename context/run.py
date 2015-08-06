@@ -14,9 +14,7 @@ def tfidf(term):
 
 for key in windows.keys():
     itemz = collections.Counter(windows[key]).items()
-    things = [i for i in itemz if i[1] > 1]
-    if len(things) > 0:
-        print key, things
+    print key, itemz
 
 pdb.set_trace()
 
