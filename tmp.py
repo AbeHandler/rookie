@@ -1,27 +1,27 @@
-import pickle
-import glob
-from collections import defaultdict
-from rookie.classes import IncomingFile
+import pdb
+import collections
+from rookie.utils import get_pickled
 
-all_mentions = defaultdict(list)
+TOTAL_WINDOWS = 12098  # printed out from tmp2 counter
 
-to_run = glob.glob("data/lens_processed/*")
+windows = get_pickled("pickled/people_windows.p")
+window_counts = get_pickled("pickled/people_gram_df.p")
+total_counts = sum([v for k, v in window_counts.items()])
 
-pronouns = ["WP", "WP$", "PRP", "PRP$"]
 
-for f in to_run:
-    infile = IncomingFile(f)
-    try:
-        groups = infile.doc.coreferences.groups
-    except:
-        groups = []
-    for group in groups:
-        mentions = []
-        for mention in group:
-            mention_pos = set([i.pos for i in mention.tokens])
-            if not all(pos in pronouns for pos in mention_pos):
-                mentions.append(repr(mention))
-        if len(mentions) > 1:
-            all_mentions[repr(mentions[0])].append(mentions)
+def tfidf(term):
+    return term[1] * window_counts[term[0]]
 
-pickle.dump(all_mentions, open("pickled/all_mentions.p", "w"))
+for key in windows.keys():
+    itemz = collections.Counter(windows[key]).items()
+    things = [i for i in itemz if i[1] > 1]
+    if len(things) > 0:
+        print key, things
+
+pdb.set_trace()
+
+# landrieu = [(i, tfidf(i)) for i in collections.Counter(windows['Susan Guidry']).items() if i[1] > 1]
+
+# landrieu.sort(key=lambda x: x[1], reverse=True)
+
+# print landrieu[0:5]
