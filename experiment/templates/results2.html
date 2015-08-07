@@ -156,6 +156,7 @@ a#search_button {
 
 {% for result in n_results %}
 <h5 class="headline">{{ result['fields']['headline'] }}</h5>
+<h6 class="pudate">{{ result['fields']['pubdate'] }}</h6>
 <div class="teaser">{{ result['fields']['text'][0:250] }}</div>
 <br>
 {% endfor %}
