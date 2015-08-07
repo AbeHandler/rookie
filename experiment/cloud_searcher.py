@@ -51,10 +51,9 @@ def get_counter_and_de_alias(field, results):
     return most_common
 
 
-@lrudecorator(1000)
 def get_overview(results, query_term):
     output = {}
-
+    pdb.set_trace()
     people = get_counter_and_de_alias('people', results)
     organizations = get_counter_and_de_alias('organizations', results)
     ngrams = get_counter_and_de_alias('ngrams', results)

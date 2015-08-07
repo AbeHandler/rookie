@@ -1,15 +1,15 @@
 <div id="explorer" class="row">
 	<p class="panel">
     {% for person in people%}
-       <span id="{{person}}" class="term" data-term-type="person">{{person}}</span>, 
+       <span id="{{person}}" class="term" data-term-type="people">{{person}}</span>, 
     {% endfor %}
 
     {% for organization in organizations%}
-       <span id="{{organization}}" class="term" data-term-type="organization">{{organization}}</span>, 
+       <span id="{{organization}}" class="term" data-term-type="organizations">{{organization}}</span>, 
     {% endfor %}
 
     {% for term in terms%}
-       <span id="{{term}}" class="term" data-term-type="ngram">{{term}}</span>,
+       <span id="{{term}}" class="term" data-term-type="ngrams">{{term}}</span>,
     {% endfor %}
 	</p>
 </div>

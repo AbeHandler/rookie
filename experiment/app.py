@@ -54,7 +54,7 @@ def results():
 
     log.debug('/search/ data:')
 
-    query = request.args.get('q')  # TODO
+    query = request.args.get('q')
 
     term = request.args.get('term')
 
@@ -64,9 +64,9 @@ def results():
 
     page = Models().translate_page(current_page)
 
-    log.info("query {} and term {} and type".format(query, term, term_type))
+    log.info("query {} and term {} and type".format(query, term, term_type))  # TODO: pass a boolean array
 
-    results, tops = Models().search(query)
+    results, tops = Models().search(query, term, term_type)
 
     pages = Models.get_pages(len(results), page_size)
 

@@ -11,9 +11,12 @@ class Models(object):
 
     @staticmethod
     @lrudecorator(1000)
-    def search(query):
+    def search(query, term=None, termtype=None):
         '''search elastic search and return results'''
-        results = query_cloud_search(query)
+        results = [r for r in query_cloud_search(query)]
+        if term is not None and termtype is not None:
+            results = [r for r in results if termtype in r['fields'] and term in r['fields'][termtype]]
+        results = tuple(results)
         tops = get_overview(results, query)  # handle the cloudsearch results
         return results, tops
 
