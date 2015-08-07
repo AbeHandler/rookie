@@ -30,28 +30,53 @@ def search():
 
     query = request.args.get('q')  # TODO
 
-    page = request.args.get('page')
+    current_page = request.args.get('page')
+
+    page = Models().translate_page(current_page)
 
     results, tops = Models().search(query)  # n=5000, query all
 
-    total_results = len(results)
+    pages = Models.get_pages(len(results), page_size)
 
-    pages = range(1, int(math.ceil(float(total_results)/float(page_size))))
+    message = Models().get_message(current_page, pages, len(results))
 
-    message = Models().get_message(page, pages, total_results)
+    page_results = [r for r in results][page * 10:page * 10+10]
 
-    log.debug("q=" + query + " start=" + page)
-
-    page = Models().translate_page(page)
-
-    results = [r for r in results][page * 10:page * 10+10]
-
-    view = Views().get_results_page(results, tops, page, query, total_results, message, pages)
+    view = Views().get_results_page(page_results, tops, current_page, query, len(results), message, pages)
 
     log.debug('/search/ view:')
 
     return view
 
+
+@app.route('/results', methods=['GET'])
+def results():
+
+    log.debug('/search/ data:')
+
+    query = request.args.get('q')  # TODO
+
+    term = request.args.get('term')
+
+    term_type = request.args.get('termtype')
+
+    current_page = request.args.get('page')
+
+    page = Models().translate_page(current_page)
+
+    log.info("query {} and term {} and type".format(query, term, term_type))
+
+    results, tops = Models().search(query)
+
+    pages = Models.get_pages(len(results), page_size)
+
+    message = Models().get_message(current_page, pages, len(results))
+
+    page_results = [r for r in results][page * 10:page * 10+10]
+
+    view = Views().get_results2_page(page_results, tops, current_page, query, len(results), message, pages)
+
+    return view
 
 @app.route('/answer/<string:name>', methods=['POST'])
 def log_answer(name):

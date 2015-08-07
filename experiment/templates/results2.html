@@ -1,15 +1,15 @@
 <div id="explorer" class="row">
 	<p class="panel">
     {% for person in people%}
-       <span id="{{person}}" class="term" data-term-type="person">{{person}}</span>, 
+       <span id="{{person}}" class="term person">{{person}}</span>, 
     {% endfor %}
 
     {% for organization in organizations%}
-       <span id="{{organization}}" class="term" data-term-type="organization">{{organization}}</span>, 
+       <span id="{{organization}}" class="term organization">{{organization}}</span>, 
     {% endfor %}
 
     {% for term in terms%}
-       <span id="{{term}}" class="term" data-term-type="ngram">{{term}}</span>,
+       <span id="{{term}}" class="term ngram">{{term}}</span>,
     {% endfor %}
 	</p>
 </div>
@@ -24,7 +24,7 @@
 <br>
 {% endfor %}
 
-<div data-current-page="{{current_page}}" class="small-centered small-4 columns" id="pages">
+<div class="small-centered small-4 columns" id="pages">
 {% for page in pages %}
 <span id='page_{{page}}' class='page'>{{page}}</span> 
 {% endfor %}

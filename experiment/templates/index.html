@@ -31,8 +31,6 @@
 
 <script type="text/javascript">
 
-var compiled = _.template('<a href="<%= url %>"><h5 class="headline"><%= headline %></h5><h6 class="subheader"><small><%= url %></small></h6></a><div class="teaser"><%=teaser%> ..</div><br>');
-
 //wrapper for cloud search
 function get_results(start){
     $("#results").html("");
@@ -44,6 +42,11 @@ function get_results(start){
                $("#pages").html("");
                var start_page = parseInt(this.id.replace("page_", ""));
                get_results(start_page);
+            });
+            $(".term").on("click", function(e){
+                var term = $("#search_bar").val();
+                var url = "http://localhost:5000/results?q=" + term + "&term=" +  this.id + "&page=" + $("#pages").attr("data-current-page") + "&termtype=";
+                location.href = url;
             });
         }
     );
@@ -79,23 +82,14 @@ addEvent(document, "mouseout", function(e) {
  });
 */
 
- function show_explorer(){
-  $("#explore").css("display", "block");
- }
-
- function hide_explorer(){
-  $("#explore").css("display", "none");
- }
 
  $('#search_button').on('click', function(){
-    hide_explorer();
     get_results(1);
  });
  
 
  $('body').bind('keypress', function(e){
    if ( e.keyCode == 13 ) {
-     hide_explorer();
      get_results(1);
    }
  });
@@ -106,6 +100,8 @@ addEvent(document, "mouseout", function(e) {
    alert(data);
   });
  }
+
+
 
 </script>
 
