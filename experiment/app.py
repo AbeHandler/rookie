@@ -74,7 +74,7 @@ def results():
 
     page_results = [r for r in results][page * 10:page * 10+10]
 
-    view = Views().get_results2_page(page_results, tops, current_page, query, len(results), message, pages)
+    view = Views().get_results2_page(page_results, tops, current_page, query, len(results), message, pages, LENS_CSS, BANNER_CSS)
 
     return view
 

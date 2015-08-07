@@ -35,7 +35,7 @@ class Views(object):
 
     '''Render views.'''
     @staticmethod
-    def get_results2_page(results, tops, start, query, len_results, message, pages):
+    def get_results2_page(results, tops, start, query, len_results, message, pages, lens_css, banner_css):
         '''
         Renders the homepage (/contracts/).
         :param data: Data for the homepage.
@@ -55,7 +55,9 @@ class Views(object):
                 n_results=n_results,
                 pages=pages,
                 message=message,
-                number_of_documents=len_results
+                number_of_documents=len_results,
+                lens_css=lens_css,
+                banner_css=banner_css
         )
 
         return response

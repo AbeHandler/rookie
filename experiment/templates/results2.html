@@ -1,5 +1,141 @@
+<html>
+<head>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.5/css/foundation.min.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.1/js/foundation.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<title>Rookie</title>
+{% include 'head.html' %}
+</head>
+
+<body>
+{% include 'banner.html' %}
+<div class="row">
+
+  <div id="myModal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+    <h2 id="modalTitle">Please don't leave this page during the task</h2>
+    This is a controlled experiment. Turkers who use other resources will not get paid.
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+  </div>
+</div>
+
+<div class="row">
+
+    <div>
+        <input id="search_bar" type="text" class="small-12 columns" placeholder="Search the Lens archive"></input>
+    </div>
+
+    <a id="search_button" class="button right">Search</a>
+
+</div>
+
+<script type="text/javascript">
+
+//wrapper for cloud search
+function get_results(start){
+    $("#results").html("");
+    $("#search_status").html("");
+    var term = $("#search_bar").val();
+    $.post("/search?q=" + encodeURIComponent(term) + "&page=" + encodeURIComponent(String(start)), function(data){
+            $("#results").html(data);
+            $('.page').on("click", function(e){
+               $("#pages").html("");
+               var start_page = parseInt(this.id.replace("page_", ""));
+               get_results(start_page);
+            });
+            $(".term").on("click", function(e){
+                var term = $("#search_bar").val();
+                var url = "http://localhost:5000/results?q=" + term + "&term=" +  this.id + "&page=" + $("#pages").attr("data-current-page") + "&termtype=" + $("#" + this.id).attr("data-term-type");
+                location.href = url;
+            });
+        }
+    );
+}
+
+//stackoverflow.com/questions/923299/how-can-i-detect-when-the-mouse-leaves-the-window
+function addEvent(obj, evt, fn) {
+    if (obj.addEventListener) {
+        obj.addEventListener(evt, fn, false);
+    }
+    else if (obj.attachEvent) {
+        obj.attachEvent("on" + evt, fn);
+    }
+}
+
+addEvent(document, "mouseout", function(e) {
+    e = e ? e : window.event;
+    var from = e.relatedTarget || e.toElement;
+    if (!from || from.nodeName == "HTML") {
+       // $('#myModal').foundation('reveal', 'open');
+    }
+});
+
+/*
+ $('body').bind('keypress', function(e){
+   if ( e.keyCode == 13 ) {
+     post_answer()
+   }
+ });
+
+ $('#enter').on('click', function(e){
+     post_answer()
+ });
+*/
+
+
+ $('#search_button').on('click', function(){
+    get_results(1);
+ });
+ 
+
+ $('body').bind('keypress', function(e){
+   if ( e.keyCode == 13 ) {
+     get_results(1);
+   }
+ });
+
+ function post_answer(){
+   var name = $("#name").val()
+  $.post( "/answer/" + name, function( data ) {
+   alert(data);
+  });
+ }
+
+
+
+</script>
+
+<style type="text/css">
+
+.headline{
+  color: #B33125;
+}
+
+.teaser{
+  font-size: .9em;
+}
+
+a#search_button {
+    background-color: #B33125;
+}
+
+.search_status{
+  color: gray;
+  font-size: .9em;
+}
+
+.page{
+  color: #B33125;
+}
+
+</style>
+
+<div class="row">
+<div id="search_status"></div>
+<div id="results">
+
 <div id="explorer" class="row">
-	<p class="panel">
+  <p class="panel">
     {% for person in people%}
        <span id="{{person}}" class="term person">{{person}}</span>, 
     {% endfor %}
@@ -11,7 +147,7 @@
     {% for term in terms%}
        <span id="{{term}}" class="term ngram">{{term}}</span>,
     {% endfor %}
-	</p>
+  </p>
 </div>
 
 <div>
@@ -29,3 +165,29 @@
 <span id='page_{{page}}' class='page'>{{page}}</span> 
 {% endfor %}
 </div>
+</div>
+
+
+</div>
+
+
+<!--
+<div class="row">
+
+    <fieldset>
+     <legend>Questions</legend>
+
+       <div class="large-12 columns">
+         <label>What is your name bro?</label>
+         <input id="name" type="text" class="small-12 columns"></input>
+       </div>
+    </fieldset>
+
+<a id="enter" class="button right">Enter</a>
+
+</div>
+-->
+
+
+</body>
+</html>
