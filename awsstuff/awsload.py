@@ -6,6 +6,7 @@ import glob
 import json
 import pickle
 import math
+import pdb
 from rookie import files_location
 from rookie.utils import get_pickled
 from rookie.classes import IncomingFile
@@ -48,8 +49,8 @@ def to_aws_format(infile, counter):
     grams = [""]
     for gram in infile.doc.ngrams:
         try:
-            gram = str(" ".join([i.raw for i in gram]).upper())
-            if gram in keys:
+            gram = str(" ".join([i.raw for i in gram]))
+            if gram.upper() in keys:
                 grams.append(gram)
         except:
             print "unicode error"

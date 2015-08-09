@@ -69,19 +69,22 @@ def results():
 
     results, tops = Models().search(query, term, term_type)
 
+    results = [r for r in results]
+
     pages = Models.get_pages(len(results), page_size)
 
     message = Models().get_message(current_page, pages, len(results))
 
-    page_results = [r for r in results][page * 10:page * 10+10]
+    results.sort(key=lambda x: parse(x['fields']['pubdate']))
+
+    page_results = results[page * 10:page * 10+10]
 
     results = [r for r in results]
-
-    results.sort(key=lambda x: parse(x['fields']['pubdate']))
 
     view = Views().get_results2_page(page_results, tops, current_page, query, len(results), message, pages, LENS_CSS, BANNER_CSS)
 
     return view
+
 
 @app.route('/answer/<string:name>', methods=['POST'])
 def log_answer(name):
