@@ -1,5 +1,6 @@
 import pdb
 import math
+from dateutil.parser import parse
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -64,7 +65,7 @@ def results():
 
     page = Models().translate_page(current_page)
 
-    log.info("query {} and term {} and type".format(query, term, term_type))  # TODO: pass a boolean array
+    log.debug("query {} and term {} and type".format(query, term, term_type))  # TODO: pass a boolean array
 
     results, tops = Models().search(query, term, term_type)
 
@@ -76,7 +77,7 @@ def results():
 
     results = [r for r in results]
 
-    results.sort(key=lambda x: x['fields']['pubdate'])
+    results.sort(key=lambda x: parse(x['fields']['pubdate']))
 
     view = Views().get_results2_page(page_results, tops, current_page, query, len(results), message, pages, LENS_CSS, BANNER_CSS)
 

@@ -35,6 +35,8 @@ jac_threshold = .5
 
 page_size = 10
 
+people_captions_loc = "pickled/people_captions.p"
+
 if socket.getfqdn() == 'hobbes.cs.umass.edu':
     processed_location = "/home/ahandler/corpora/lens_processed/"
     corpus_loc = "/home/ahandler/corpora/lens/"

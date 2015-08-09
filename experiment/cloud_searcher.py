@@ -2,7 +2,7 @@ import boto.cloudsearch
 import itertools
 import heapq
 import pdb
-from rookie.utils import get_document_frequencies
+from rookie.utils import get_document_frequencies, get_pickled
 import collections
 import os
 from collections import Counter
@@ -51,6 +51,14 @@ def get_counter_and_de_alias(field, results):
     return most_common
 
 
+def get_caption(name):
+    captions_people = get_pickled("pickled/people_captions.p")
+    try:
+        return captions_people[name]
+    except:
+        return ""
+
+
 def get_overview(results, query_term):
     output = {}
     people = get_counter_and_de_alias('people', results)
@@ -80,7 +88,10 @@ def get_overview(results, query_term):
 
     output['terms'] = ngrams[-3:]
     output['organizations'] = organizations[-3:]
-    output['people'] = people[-3:]
+
+    people = people[-3:]
+    people = [(p[0], p[1], get_caption(p[0])) for p in people]
+    output['people'] = people
 
     return output
 

@@ -44,7 +44,7 @@ class Views(object):
         '''
 
         organizations = [p[0] for p in tops['organizations']]
-        people = [p[0] for p in tops['people']]
+        people = [(p[0], p[2]) for p in tops['people']]
         terms = [p[0] for p in tops['terms']]
         n_results = [r for r in results]
         response = render_template(
