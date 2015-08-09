@@ -32,7 +32,8 @@ class Models(object):
         return results, tops
 
     @staticmethod
-    def translate_page(page):
+    def translate_page(params):
+        page = params['page']
         try:
             page = int(page) - 1
         except:
@@ -56,3 +57,29 @@ class Models(object):
     def get_pages(total_results, page_size):
         '''search elastic search and return results'''
         return range(1, int(math.ceil(float(total_results)/float(page_size))))
+
+    @staticmethod
+    def get_parameters(request):
+        '''get parameters'''
+        output = {}
+
+        output['q'] = request.args.get('q')
+
+        output['term'] = request.args.get('term')
+
+        output['termtype'] = request.args.get('termtype')
+
+        output['current_page'] = request.args.get('page')
+
+        output['startdate'] = request.args.get('startdate')
+
+        output['enddate'] = request.args.get('enddate')
+
+        log = ""
+
+        for key in output.keys():
+            log = log + key + "||" + output[key]
+
+        log.debug(log)  # TODO: pass a boolean array
+
+        return output
