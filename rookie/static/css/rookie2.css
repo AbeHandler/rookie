@@ -31,3 +31,7 @@ a#search_button {
 .ui-state-default, .ui-widget-header .ui-state-default {
     color: black !important;
 }
+
+.toggler {
+    display: none;
+}
