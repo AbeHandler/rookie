@@ -50,7 +50,7 @@ def to_aws_format(infile, counter):
     for gram in infile.doc.ngrams:
         try:
             gram = str(" ".join([i.raw for i in gram]))
-            if gram.upper() in keys:
+            if gram.upper() in keys and len(gram.split(" ")) > 1:
                 grams.append(gram)
         except:
             print "unicode error"
