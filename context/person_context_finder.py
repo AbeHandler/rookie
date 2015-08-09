@@ -1,11 +1,12 @@
 import pickle
 import glob
-import pdb
 import math
+import pdb
+import collections
 import networkx as nx
 from collections import defaultdict
-from rookie.classes import IncomingFile, Gramner, N_Grammer
-from rookie.compressor import sentence_to_graph, show_graph
+from rookie.classes import IncomingFile
+from rookie.compressor import sentence_to_graph
 from networkx.algorithms.traversal.depth_first_search import dfs_tree
 
 apposez_and_comp = defaultdict(list)
@@ -65,4 +66,16 @@ for f in to_run:
                 if len(comp_out.strip()) > 0:
                     apposez_and_comp[str(person)].append(comp_out.strip())
 
-pickle.dump(apposez_and_comp, open("pickled/people_windows.p", "w"))
+output = {}
+
+for key in apposez_and_comp.keys():
+    itemz = collections.Counter(apposez_and_comp[key]).items()
+    itemz.sort(key=lambda x: len(x[0]), reverse=True)  # longer come first
+    itemz = [i for i in itemz if len(i[0].split(" ")) < 8]
+    try:
+        val = max(itemz, key=lambda x: x[1])[0]
+    except ValueError:
+        val = ""
+    output[key] = val
+
+pickle.dump(output, open("pickled/people_captions.p", "w"))
