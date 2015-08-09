@@ -26,7 +26,6 @@ LAMBDA = .5
 
 LENS_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/lens.css'
 BANNER_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/banner.css'
-CONTRACTS_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/contracts.css'
 SEARCH_JS = 'http://s3-us-west-2.amazonaws.com/rookielens/js/search.js'
 CLOUD_JS = 'http://s3-us-west-2.amazonaws.com/rookielens/js/cloud.js'
 CLOUD_LAYOUT_JS = 'http://s3-us-west-2.amazonaws.com/rookielens/js/d3.layout.cloud.js'

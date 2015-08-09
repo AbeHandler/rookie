@@ -1,0 +1,33 @@
+
+.headline{
+  color: #B33125;
+}
+
+.teaser{
+  font-size: .9em;
+}
+
+a#search_button {
+    background-color: #B33125;
+}
+
+.search_status{
+  color: gray;
+  font-size: .9em;
+}
+
+.page{
+  color: #B33125;
+}
+
+.ui-widget-header{
+  background: #B33125 !important;
+}
+
+.ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
+    background: white;
+}
+
+.ui-state-default, .ui-widget-header .ui-state-default {
+    color: black !important;
+}
