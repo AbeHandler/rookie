@@ -3,6 +3,7 @@ import math
 from pylru import lrudecorator
 from experiment.cloud_searcher import query_cloud_search
 from experiment.cloud_searcher import get_overview
+from dateutil.parser import parse
 
 
 class Models(object):
@@ -11,11 +12,21 @@ class Models(object):
 
     @staticmethod
     @lrudecorator(1000)
-    def search(query, term=None, termtype=None):
+    def search(query, term=None, termtype=None, startdate=None, enddate=None):
         '''search elastic search and return results'''
         results = [r for r in query_cloud_search(query)]
         if term is not None and termtype is not None:
             results = [r for r in results if termtype in r['fields'] and term in r['fields'][termtype]]
+        try:
+            startdate = parse(startdate)
+        except:
+            startdate = None
+        try:
+            enddate = parse(enddate)
+        except:
+            enddate = None
+        if startdate and enddate:
+            results = [r for r in results if (parse(r['fields']['pubdate']) >= startdate) and (parse(r['fields']['pubdate']) <= enddate)]
         results = tuple(results)
         tops = get_overview(results, query)  # handle the cloudsearch results
         return results, tops

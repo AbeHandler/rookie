@@ -19,7 +19,7 @@ function get_results(start){
             });
             $(".term").on("click", function(e){
                 var term = $("#search_bar").val();
-                var url = "http://localhost:5000/results?q=" + term + "&term=" +  this.id + "&page=" + $("#pages").attr("data-current-page") + "&termtype=" + this.getAttribute("data-term-type");
+                var url = "http://localhost:5000/results?q=" + term + "&term=" +  this.id + "&page=" + $("#pages").attr("data-current-page") + "&termtype=" + this.getAttribute("data-term-type") + "&startdate=" + $("#datepicker1").val() + "&enddate=" + $("#datepicker2").val();
                 location.href = url;
             });
         }

@@ -63,11 +63,15 @@ def results():
 
     current_page = request.args.get('page')
 
+    startdate = request.args.get('startdate')
+
+    enddate = request.args.get('enddate')
+
     page = Models().translate_page(current_page)
 
-    log.debug("query {} and term {} and type".format(query, term, term_type))  # TODO: pass a boolean array
+    log.debug("query {} and term {} and type{} and start {} and end {}".format(query, term, term_type, startdate, enddate))  # TODO: pass a boolean array
 
-    results, tops = Models().search(query, term, term_type)
+    results, tops = Models().search(query, term, term_type, startdate=startdate, enddate=enddate)
 
     results = [r for r in results]
 
