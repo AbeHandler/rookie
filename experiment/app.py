@@ -29,13 +29,9 @@ def results():
 
     log.debug('/search/ data:')
 
-    params = Models.get_params(request)
+    params = Models.get_parameters(request)
 
-    page = Models().translate_page(current_page)
-
-    log.debug("query {} and term {} and type{} and start {} and end {}".format(query, term, term_type, startdate, enddate))  # TODO: pass a boolean array
-
-    results, tops = Models().search(query, term, term_type, startdate=startdate, enddate=enddate)
+    results, tops = Models().search(params)
 
     results = [r for r in results]
 
@@ -49,7 +45,7 @@ def results():
 
     results = [r for r in results]
 
-    view = Views().get_results2_page(page_results, tops, current_page, query, len(results), message, pages, LENS_CSS, BANNER_CSS)
+    view = Views().get_results2_page(page_results, tops, len(results), message, pages, LENS_CSS, BANNER_CSS, params)
 
     return view
 

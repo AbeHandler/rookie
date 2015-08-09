@@ -1,9 +1,22 @@
 import pdb
 import math
+from rookie import log
 from pylru import lrudecorator
 from experiment.cloud_searcher import query_cloud_search
 from experiment.cloud_searcher import get_overview
 from dateutil.parser import parse
+
+
+class Parameters(object):
+
+    def __init__(self):
+        self.q = None
+        self.term = None
+        self.termtype = None
+        self.current_page = None
+        self.startdate = None
+        self.enddate = None
+        self.page = None
 
 
 class Models(object):
@@ -32,14 +45,13 @@ class Models(object):
         return results, tops
 
     @staticmethod
-    def translate_page(params):
-        page = params['page']
+    def translate_page(page):
         try:
             page = int(page) - 1
         except:
             page = 0
 
-        if page < 0:
+        if int(page) < 0:
             page = 0
 
         return page
@@ -61,25 +73,20 @@ class Models(object):
     @staticmethod
     def get_parameters(request):
         '''get parameters'''
-        output = {}
+        output = Parameters()
 
-        output['q'] = request.args.get('q')
+        output.q = request.args.get('q')
 
-        output['term'] = request.args.get('term')
+        output.term = request.args.get('term')
 
-        output['termtype'] = request.args.get('termtype')
+        output.termtype = request.args.get('termtype')
 
-        output['current_page'] = request.args.get('page')
+        output.current_page = request.args.get('page')
 
-        output['startdate'] = request.args.get('startdate')
+        output.startdate = request.args.get('startdate')
 
-        output['enddate'] = request.args.get('enddate')
+        output.enddate = request.args.get('enddate')
 
-        log = ""
-
-        for key in output.keys():
-            log = log + key + "||" + output[key]
-
-        log.debug(log)  # TODO: pass a boolean array
+        output.page = Models().translate_page(output.current_page)
 
         return output
