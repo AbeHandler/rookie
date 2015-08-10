@@ -1,16 +1,24 @@
- $(function() {
+ jQuery.fn.exists = function(){return this.length>0;}
+
+ if ($("#datepicker1").exists() && $("#datepicker2").exists()){
+  $(function() {
     $("#datepicker1").datepicker();
   });
   $(function() {
     $("#datepicker2").datepicker();
   });
+}
 
 //wrapper for cloud search
 function get_results(start){
     $("#results").html("");
     $("#search_status").html("");
     var term = $("#search_bar").val();
-    var url = "http://localhost:5000/results?q=" + term + "&term=" +  this.id + "&page=" + $("#pages").attr("data-current-page") + "&termtype=" + this.getAttribute("data-term-type") + "&startdate=" + $("#datepicker1").val() + "&enddate=" + $("#datepicker2").val();
+    if (!$("#explorer").exists()){
+      var url = "http://localhost:5000/results?q=" + term + "&page=1"
+    }else{
+      var url = "http://localhost:5000/results?q=" + term + "&term=" +  this.id + "&page=" + $("#pages").attr("data-current-page") + "&termtype=" + this.getAttribute("data-term-type") + "&startdate=" + $("#datepicker1").val() + "&enddate=" + $("#datepicker2").val();
+    }
     location.href = url;
 }
 
@@ -58,11 +66,7 @@ addEvent(document, "mouseout", function(e) {
 
 
  $('#search_button').on('click', function(){
-    $("#results").html("");
-    $("#search_status").html("");
-    var term = $("#search_bar").val();
-    var url = "http://localhost:5000/results?q=" + term + "&page=1" 
-    window.location = url;
+    get_results(1);
  });
   
  //https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript 

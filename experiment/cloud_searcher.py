@@ -26,10 +26,10 @@ def get_search_service():
 
 
 @lrudecorator(1000)
-def query_cloud_search(query, n=None):
+def query_cloud_search(params, n=None):
     search_service = get_search_service()
-    log.debug("querying cloud search q={}, n={}".format(query, n))
-    results = search_service.search(q=query, size=5000)
+    log.debug("querying cloud search q={}, n={}".format(params.q, n))
+    results = search_service.search(params.q, size=5000)
     log.debug("got restuls")
     return results
 
@@ -59,7 +59,7 @@ def get_caption(name):
         return ""
 
 
-def get_overview(results, query_term):
+def get_overview(results, params):
     output = {}
     people = get_counter_and_de_alias('people', results)
     organizations = get_counter_and_de_alias('organizations', results)
@@ -78,9 +78,9 @@ def get_overview(results, query_term):
     organizations = [(n[0], n[1] * orgs_df[n[0]]) for n in organizations]
     organizations.sort(key=lambda x: x[1])
 
-    ngrams = [n for n in ngrams if n[0].upper() != query_term.upper()]
-    people = [n for n in people if n[0].upper() != query_term.upper()]
-    organizations = [n for n in organizations if n[0].upper() != query_term.upper()]
+    ngrams = [n for n in ngrams if n[0].upper() != params.q.upper()]
+    people = [n for n in people if n[0].upper() != params.q.upper()]
+    organizations = [n for n in organizations if n[0].upper() != params.q.upper()]
 
     ngrams = [n for n in ngrams if n[0] not in stop_ner]
     people = [n for n in people if n[0] not in stop_ner]
