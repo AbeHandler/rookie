@@ -72,7 +72,10 @@
   <br>
   Search again for {{query}} and related items: 
       {% for person in people%}
-         <span id="{{person[0]}}" class="term person">{{person[0]}}</span> <span class="title">({{person[1]}})</span>, 
+         <span id="{{person[0]}}" class="term person">{{person[0]}}</span> 
+         {% if person[1]|length > 1 %}
+            <span class="title">({{person[1]}})</span>, 
+         {% endif %}
       {% endfor %}
 
       {% for organization in organizations%}
