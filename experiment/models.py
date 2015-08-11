@@ -90,17 +90,15 @@ class Models(object):
 
         try:
             output.startdate = parse(request.args.get('startdate'))
+            if len(output.startdate) == 0:
+                output.startdate = None
         except:
             output.startdate = None
         try:
             output.enddate = parse(request.args.get('enddate'))
+            if len(output.enddate) == 0:
+                output.enddate = None
         except:
-            output.enddate = None
-
-        if len(output.startdate) == 0:
-            output.startdate = None
-
-        if len(output.enddate) == 0:
             output.enddate = None
 
         output.page = Models().translate_page(output.current_page)
