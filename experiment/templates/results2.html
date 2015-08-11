@@ -88,17 +88,11 @@
   </div>
 
   {% for result in n_results %}
-  <h5 class="headline">{{ result['fields']['headline'] }}</h5>
-  <h6 class="pudate">{{ result['fields']['pubdate'] }}</h6>
-  <div class="teaser">{{ result['fields']['text'][0:250] }}</div>
+  <span>{{ result['fields']['pubdate'] }}</span>  <span class="headline">{{ result['fields']['headline'] }}</span>
   <br>
   {% endfor %}
 
-  <div class="small-centered small-4 columns" id="pages">
-  {% for page in pages %}
-  <span id='page_{{page}}' class='page'>{{page}}</span> 
-  {% endfor %}
-  </div>
+
   </div>
   </div>
 

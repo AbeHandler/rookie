@@ -47,8 +47,10 @@ def results():
 
     log.debug('got message')
 
-    page_results = results[params.page * 10:params.page * 10+10]
+    #page_results = results[params.page * 10:params.page * 10+10]
 
+    page_results = results
+    results.sort(key=lambda x: parse(x['fields']['pubdate']))
     view = Views().get_results2_page(params.q, page_results, tops, len(results), message, pages, LENS_CSS, BANNER_CSS)
 
     return view
