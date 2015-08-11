@@ -89,11 +89,11 @@ class Models(object):
             output.current_page = 1
 
         try:
-            output.startdate = request.args.get('startdate')
+            output.startdate = parse(request.args.get('startdate'))
         except:
             output.startdate = None
         try:
-            output.enddate = request.args.get('enddate')
+            output.enddate = parse(request.args.get('enddate'))
         except:
             output.enddate = None
 
