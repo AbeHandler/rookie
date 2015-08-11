@@ -24,7 +24,7 @@
 <div id="controls" class="row">
 
   <div>
-    <input id="search_bar" type="text" class="small-12 columns" placeholder="Search the Lens archive"></input>
+    <input id="search_bar" type="text" class="small-12 columns" placeholder="{{query}}"></input>
   </div>
 
   <div class="right">
@@ -40,7 +40,6 @@
     </div>
 </div>
 
-<script type="text/javascript" src="https://s3-us-west-2.amazonaws.com/rookie2/js/rookie2.js"></script>
 
 <div class="row">
   <div id="search_status"></div>
@@ -72,19 +71,19 @@
   <br>
   Search again for {{query}} and related items: 
       {% for person in people%}
-         <span id="{{person[0]}}" class="term person">{{person[0]}}</span> 
+         <span id="{{person[0]}}" class="term person" data-term-type="people">{{person[0]}}</span> 
          {% if person[1]|length > 1 %}
-            <span class="title">({{person[1]}})</span>, 
+            <span class="title" data-term-type="person">({{person[1]}})</span>, 
          {% else %},
          {% endif %}
       {% endfor %}
 
       {% for organization in organizations%}
-         <span id="{{organization}}" class="term organization">{{organization}}</span>, 
+         <span id="{{organization}}" class="term organization" data-term-type="organizations">{{organization}}</span>, 
       {% endfor %}
 
       {% for term in terms%}
-         <span id="{{term}}" class="term ngram">{{term}}</span>,
+         <span id="{{term}}" class="term ngram" data-term-type="ngrams">{{term}}</span>,
       {% endfor %}
   </div>
   <br>
@@ -124,6 +123,7 @@
 </div>
 -->
 
+<script type="text/javascript" src="https://s3-us-west-2.amazonaws.com/rookie2/js/rookie2.js"></script>
 
 </body>
 </html>

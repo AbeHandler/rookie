@@ -25,25 +25,17 @@ class Models(object):
 
     @staticmethod
     @lrudecorator(1000)
-    def search(query, term=None, termtype=None, startdate=None, enddate=None):
+    def search(params):
         '''search elastic search and return results'''
-        results = [r for r in query_cloud_search(query)]
-        log.debug("query={}, term={}, termtype={}, startdate={}, enddate={}".format(query, term, termtype, startdate, enddate))
-        if term is not None and termtype is not None:
-            results = [r for r in results if termtype in r['fields'] and term in r['fields'][termtype]]
-        try:
-            startdate = parse(startdate)
-        except:
-            startdate = None
-        try:
-            enddate = parse(enddate)
-        except:
-            enddate = None
-        if startdate and enddate:
-            results = [r for r in results if (parse(r['fields']['pubdate']) >= startdate) and (parse(r['fields']['pubdate']) <= enddate)]
+        results = [r for r in query_cloud_search(params.q)]
+        if params.term is not None and params.termtype is not None:
+            log.debug("filtering by term {}".format(params.term))
+            results = [r for r in results if params.termtype in r['fields'] and params.term in r['fields'][params.termtype]]
+        if params.startdate and params.enddate:
+            results = [r for r in results if (parse(r['fields']['pubdate']) >= params.startdate) and (parse(r['fields']['pubdate']) <= params.enddate)]
         results = tuple(results)
         log.debug("processed results")
-        tops = get_overview(results, query)  # handle the cloudsearch results
+        tops = get_overview(results, params.q)  # handle the cloudsearch results
         return results, tops
 
     @staticmethod
@@ -59,7 +51,13 @@ class Models(object):
         return page
 
     @staticmethod
-    def get_message(page, pages, total_results, q):
+    def get_message(params, pages, total_results):
+        page = params.current_page
+        q = params.q
+
+        if params.term and params.termtype:
+            q = q + " and " + params.term
+
         '''search elastic search and return results'''
         total_results = str(total_results)
         if int(page) == 1:
@@ -85,9 +83,25 @@ class Models(object):
 
         output.current_page = request.args.get('page')
 
-        output.startdate = request.args.get('startdate')
+        try:
+            output.current_page = int(output.current_page)
+        except:
+            output.current_page = 1
 
-        output.enddate = request.args.get('enddate')
+        try:
+            output.startdate = request.args.get('startdate')
+        except:
+            output.startdate = None
+        try:
+            output.enddate = request.args.get('enddate')
+        except:
+            output.enddate = None
+
+        if len(output.startdate) == 0:
+            output.startdate = None
+
+        if len(output.enddate) == 0:
+            output.enddate = None
 
         output.page = Models().translate_page(output.current_page)
 

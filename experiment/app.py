@@ -37,7 +37,7 @@ def results():
 
     pages = Models.get_pages(len(results), page_size)
 
-    message = Models().get_message(params.current_page, pages, len(results), params.q)
+    message = Models().get_message(params, pages, len(results))
 
     results.sort(key=lambda x: parse(x['fields']['pubdate']))
 
