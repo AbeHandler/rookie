@@ -46,10 +46,11 @@
   <div id="search_status"></div>
   <div id="results">
 
+<!--
   <div id="explorer" class="row">
     <p class="panel">
       {% for person in people%}
-         <span id="{{person}}" class="term person">{{person}}</span>, 
+         <span id="{{person[0]}}" class="term person">{{person[0]}}</span> <span class="title">({{person[1]}})</span>, 
       {% endfor %}
 
       {% for organization in organizations%}
@@ -61,11 +62,28 @@
       {% endfor %}
     </p>
   </div>
+-->
 
   <div class="row columns small-12">
   <div>
   {{message}}
   </div>
+  <div>
+  <br>
+  Search again for {{query}} and related items: 
+      {% for person in people%}
+         <span id="{{person[0]}}" class="term person">{{person[0]}}</span> <span class="title">({{person[1]}})</span>, 
+      {% endfor %}
+
+      {% for organization in organizations%}
+         <span id="{{organization}}" class="term organization">{{organization}}</span>, 
+      {% endfor %}
+
+      {% for term in terms%}
+         <span id="{{term}}" class="term ngram">{{term}}</span>,
+      {% endfor %}
+  </div>
+  <br>
 
   {% for result in n_results %}
   <h5 class="headline">{{ result['fields']['headline'] }}</h5>

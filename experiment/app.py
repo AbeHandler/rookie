@@ -37,7 +37,7 @@ def results():
 
     pages = Models.get_pages(len(results), page_size)
 
-    message = Models().get_message(params.current_page, pages, len(results))
+    message = Models().get_message(params.current_page, pages, len(results), params.q)
 
     results.sort(key=lambda x: parse(x['fields']['pubdate']))
 
@@ -45,7 +45,7 @@ def results():
 
     results = [r for r in results]
 
-    view = Views().get_results2_page(page_results, tops, len(results), message, pages, LENS_CSS, BANNER_CSS)
+    view = Views().get_results2_page(params.q, page_results, tops, len(results), message, pages, LENS_CSS, BANNER_CSS)
 
     return view
 

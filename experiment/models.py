@@ -28,6 +28,7 @@ class Models(object):
     def search(query, term=None, termtype=None, startdate=None, enddate=None):
         '''search elastic search and return results'''
         results = [r for r in query_cloud_search(query)]
+        log.debug("query={}, term={}, termtype={}, startdate={}, enddate={}".format(query, term, termtype, startdate, enddate))
         if term is not None and termtype is not None:
             results = [r for r in results if termtype in r['fields'] and term in r['fields'][termtype]]
         try:
@@ -41,6 +42,7 @@ class Models(object):
         if startdate and enddate:
             results = [r for r in results if (parse(r['fields']['pubdate']) >= startdate) and (parse(r['fields']['pubdate']) <= enddate)]
         results = tuple(results)
+        log.debug("processed results")
         tops = get_overview(results, query)  # handle the cloudsearch results
         return results, tops
 
@@ -57,13 +59,13 @@ class Models(object):
         return page
 
     @staticmethod
-    def get_message(page, pages, total_results):
+    def get_message(page, pages, total_results, q):
         '''search elastic search and return results'''
         total_results = str(total_results)
         if int(page) == 1:
-            return "Found " + total_results + " results"
+            return "Found " + total_results + " results for " + q
         else:
-            return "Found {} results. Showing page {} of {}".format(total_results, page, max(pages))
+            return "Found {} results for {}. Showing page {} of {}".format(total_results, q, page, max(pages))
 
     @staticmethod
     def get_pages(total_results, page_size):
