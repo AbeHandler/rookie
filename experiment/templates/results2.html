@@ -75,6 +75,7 @@
          <span id="{{person[0]}}" class="term person">{{person[0]}}</span> 
          {% if person[1]|length > 1 %}
             <span class="title">({{person[1]}})</span>, 
+         {% else %},
          {% endif %}
       {% endfor %}
 
