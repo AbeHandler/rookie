@@ -67,9 +67,9 @@
   <div>
   {{message}}
   </div>
-  <div>
   <br>
-  Search again for {{query}} and related items: 
+  Related to {{query}}: 
+  <div id="top_panel" class="panel">
       {% for person in people%}
          <span id="{{person[0]}}" class="term person" data-term-type="people">{{person[0]}}</span> 
          {% if person[1]|length > 1 %}
@@ -86,7 +86,6 @@
          <span id="{{term}}" class="term ngram" data-term-type="ngrams">{{term}}</span>,
       {% endfor %}
   </div>
-  <br>
 
   {% for result in n_results %}
   <h5 class="headline">{{ result['fields']['headline'] }}</h5>
