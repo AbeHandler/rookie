@@ -31,19 +31,23 @@ def results():
 
     params = Models.get_parameters(request)
 
+    log.debug('got params')
+
     results, tops = Models().search(params)
+
+    log.debug('got results and tops')
 
     results = [r for r in results]
 
     pages = Models.get_pages(len(results), page_size)
 
+    log.debug('got pages')
+
     message = Models().get_message(params, pages, len(results))
 
-    results.sort(key=lambda x: parse(x['fields']['pubdate']))
+    log.debug('got message')
 
     page_results = results[params.page * 10:params.page * 10+10]
-
-    results = [r for r in results]
 
     view = Views().get_results2_page(params.q, page_results, tops, len(results), message, pages, LENS_CSS, BANNER_CSS)
 
