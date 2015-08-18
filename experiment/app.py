@@ -8,6 +8,7 @@ from experiment import log
 from experiment.views import Views
 from experiment.models import Models
 from rookie import page_size
+from rookie.snippets.generator import get_snippet
 from experiment import LENS_CSS, BANNER_CSS
 from rookie import (
     log

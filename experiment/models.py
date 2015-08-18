@@ -36,7 +36,18 @@ class Models(object):
         results = tuple(results)
         log.debug("processed results")
         tops = get_overview(results, params.q)  # handle the cloudsearch results
+
+        for termtype in tops.keys():
+            for term in tops[t]:
+                limited_results = Models().get_limited(results, term[0], termtype)
+                snippet = get_snippet(params.q, limited_results)
+                print snippet
+
         return results, tops
+
+    @staticmethod
+    def get_limited(results, term, termtype):
+        return [r for r in results if termtype in r['fields'] and term in r['fields'][termtype]]
 
     @staticmethod
     def translate_page(page):

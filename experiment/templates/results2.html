@@ -45,23 +45,6 @@
   <div id="search_status"></div>
   <div id="results">
 
-<!--
-  <div id="explorer" class="row">
-    <p class="panel">
-      {% for person in people%}
-         <span id="{{person[0]}}" class="term person">{{person[0]}}</span> <span class="title">({{person[1]}})</span>, 
-      {% endfor %}
-
-      {% for organization in organizations%}
-         <span id="{{organization}}" class="term organization">{{organization}}</span>, 
-      {% endfor %}
-
-      {% for term in terms%}
-         <span id="{{term}}" class="term ngram">{{term}}</span>,
-      {% endfor %}
-    </p>
-  </div>
--->
 
   <div class="row columns small-12">
   <div>
@@ -87,10 +70,13 @@
       {% endfor %}
   </div>
 
+
+<!--
   {% for result in n_results %}
   <span>{{ result['fields']['pubdate'] }}</span>  <span class="headline">{{ result['fields']['headline'] }}</span>
   <br>
   {% endfor %}
+-->
 
 
   </div>
@@ -98,6 +84,22 @@
 
 </div>
 
+
+<div class="row">
+
+{% for person in people%}
+    {{person}} <br>
+{% endfor %}
+
+{% for organization in organizations%}
+    {{organization}} <br>
+{% endfor %}
+
+{% for term in terms%}
+    {{term}} <br>
+{% endfor %}
+
+</div>
 
 <!--
 <div class="row">
