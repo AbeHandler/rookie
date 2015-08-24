@@ -42,11 +42,11 @@ if socket.getfqdn() == 'hobbes.cs.umass.edu':
     files_location = "/home/ahandler/rookie/"
     core_nlp_location = "/home/sw/corenlp/stanford-corenlp-full-2015-04-20/*"
     window_length = 35
-elif socket.getfqdn() == "abrams-air-3.home" or socket.getfqdn() == "Abrams-MacBook-Air-3.local" or socket.getfqdn()=='53.1.168.192.in-addr.arpa' or "guest" in socket.getfqdn():
+elif socket.getfqdn() == "abrams-air-3.home" or socket.getfqdn().lower() == "abrams-macbook-air-3.local" or socket.getfqdn()=='53.1.168.192.in-addr.arpa' or "guest" in socket.getfqdn():
     processed_location = '/Users/abramhandler/research/rookie/data/lens_processed/'
     tagger_base = "/Volumes/USB/stanford-postagger-2015-04-20/"
     corpus_loc = "/Users/abramhandler/research/rookie/data/lens/"
-    files_location = "//Users/abramhandler/research/rookie/"
+    files_location = "/Users/abramhandler/research/rookie/"
     core_nlp_location = "/Volumes/USB/stanford-corenlp-full-2015-04-20/*"
     window_length = 30
     server_port = 8000

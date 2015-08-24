@@ -59,7 +59,7 @@ def get_caption(name):
         return ""
 
 
-def get_overview(results, q):
+def get_overview(results, q, top_n=3):
     output = {}
     people = get_counter_and_de_alias('people', results)
     organizations = get_counter_and_de_alias('organizations', results)
@@ -86,10 +86,10 @@ def get_overview(results, q):
     people = [n for n in people if n[0] not in stop_ner]
     organizations = [n for n in organizations if n[0] not in stop_ner]
 
-    output['terms'] = ngrams[-3:]
-    output['organizations'] = organizations[-3:]
+    output['terms'] = ngrams[-top_n:]
+    output['organizations'] = organizations[-top_n:]
 
-    people = people[-3:]
+    people = people[-top_n:]
     people = [(p[0], p[1], get_caption(p[0])) for p in people]
     output['people'] = people
 
