@@ -29,6 +29,8 @@ types = defaultdict(list)
 
 unigrams = defaultdict(int)
 
+unigram_df = defaultdict(int)
+
 try:
     limit = int(sys.argv[1])
     files_to_check = glob.glob(processed_location + "/*")[0:limit]
@@ -77,11 +79,18 @@ def count_everything(files_to_check):
         if infile.doc is None:
             pass
         else:
+            total_tokens_in_doc = []
             for sentence in infile.doc.sentences:
                 try:
                     process_sentence(infile, sentence)
+                    for token in [i.raw for i in sentence.tokens]:
+                        total_tokens_in_doc.append(token.lower())
                 except UnicodeEncodeError:  # TODO: fix ascii error upstream
                     pass
+            total_tokens_in_doc = [i for i in set(total_tokens_in_doc)]
+            for token in total_tokens_in_doc:
+                unigram_df[token] += 1
+
 
 count_everything(files_to_check)
 
@@ -101,6 +110,8 @@ def reduce_instances(instances):
 # the BIG 5 MB instances dict can be reduced before the upcoming merges
 instances = reduce_instances(instances)
 
+
+pickle.dump(unigram_df, open(files_location + "unigram_df.p", "wb"))
 pickle.dump(unigrams, open(files_location + "unigrams.p", "wb"))
 pickle.dump(joint_counts, open(files_location + "joint_counts.p", "wb"))
 pickle.dump(counts, open(files_location + "counts.p", "wb"))
