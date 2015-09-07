@@ -1,8 +1,10 @@
 import pdb
 import pickle
 import random
+import math
 import itertools
 import numpy as np
+import matplotlib.pyplot as plt
 from rookie.classes import IncomingFile
 
 '''
@@ -23,6 +25,7 @@ inf = IncomingFile(file_loc + fn)
 
 query = ["common", "core", "gary", "robichaux"]
 
+sources = ['G', 'Q', 'D']  # potential values for d
 
 '''
 Find the document's vocabulary
@@ -51,8 +54,8 @@ for word in doc_vocab:
 pi_pseudo_counts = {'D': 1, 'Q': 1, 'G': 1}
 
 lms = {}
-lms["query"] = {"counts": query_lm_counts, "pseudocounts": query_pseudoc}
-lms["document"] = {"counts": doc_lm_counts, "pseudocounts": doc_pseudoc}
+lms["Q"] = {"counts": query_lm_counts, "pseudocounts": query_pseudoc}
+lms["D"] = {"counts": doc_lm_counts, "pseudocounts": doc_pseudoc}
 
 
 def random_z():
@@ -82,8 +85,9 @@ def lookup_p_lms(counts, pseudocounts):
     return output
 
 
-def flip_for_z(p_tokens, p_lms):
-    sources = ['G', 'Q', 'D']
+def flip_for_z(p_tokens, p_lms, token):
+    if token in query:
+        return "Q"
     total = 0.
     ranges = {}
     for source in sources:
@@ -99,6 +103,27 @@ def flip_for_z(p_tokens, p_lms):
             return i
 
 
+def flip_for_pi_count(pi_pseudo_c, sentence):
+    denom = sum(v for k, v in pi_pseudo_c.items())
+    denom = float(denom + sum(v for k, v in sentence['pi_counts'].items()))
+    total = 0.
+    ranges = {}
+    tokens = sentence['tokens']
+    for source in sources:
+        old_total = total
+        p_counts = (pi_pseudo_c[source] + sentence['pi_counts'][source])/denom
+        z_count_source = len([i for i in tokens if tokens[i]['z'] == source])
+        p_zs = float(z_count_source) / float(len(tokens))
+        source_area = p_zs * p_counts
+        new_total = total + source_area
+        ranges[source] = (old_total, new_total)
+        total = new_total
+    flip = random.uniform(0, total)
+    for i in ranges.keys():
+        win_zone = ranges[i]
+        if flip >= win_zone[0] and flip <= win_zone[1]:
+            return i
+
 '''
 Setup data structure and initialize sampler
 '''
@@ -111,19 +136,34 @@ for s in range(0, len(inf.doc.sentences)):
     sentence_pi_counts = {'D': 0, 'Q': 0, 'G': 0}
     document[s] = {'pi_counts': sentence_pi_counts, 'tokens': tokens_dict}
 
-iterations = 1000
+iterations = 15
+
+z_flips_counts = []
 
 for i in range(0, iterations):
+    print i
+    z_flips_this_iteration = 0
     for sentence in document.keys():
         pi_counts = document[sentence]['pi_counts']
         for token_no in document[sentence]['tokens']:
             token = document[sentence]['tokens'][token_no]
             p_tokens = {}
             p_tokens['G'] = corpus_lm[token['word']]
-            p_tokens['Q'] = lookup_p_token(token['word'], 'query')
-            p_tokens['D'] = lookup_p_token(token['word'], 'document')
+            p_tokens['Q'] = lookup_p_token(token['word'], 'Q')
+            p_tokens['D'] = lookup_p_token(token['word'], 'D')
             p_lms = lookup_p_lms(pi_counts, pi_pseudo_counts)
             old_z = token['z']
-            new_z = flip_for_z(p_tokens, p_lms)
+            new_z = flip_for_z(p_tokens, p_lms, token['word'])
+            if old_z != new_z:
+                z_flips_this_iteration += 1
             document[sentence]['tokens'][token_no]['z'] = new_z
-            pdb.set_trace()
+            if new_z != "G":  # general LM is fixed
+                lms[new_z]['counts'][token['word']] += 1
+        pi_count = flip_for_pi_count(pi_pseudo_counts, document[sentence])
+        # increment the pi counts
+        document[sentence]['pi_counts'][pi_count] += 1
+    z_flips_counts.append(math.log(z_flips_this_iteration))
+
+pdb.set_trace()
+plt.scatter(range(0, len(z_flips_counts)), z_flips_counts)
+plt.show()
