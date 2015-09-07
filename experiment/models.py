@@ -35,13 +35,7 @@ class Models(object):
             results = [r for r in results if (parse(r['fields']['pubdate']) >= params.startdate) and (parse(r['fields']['pubdate']) <= params.enddate)]
         results = tuple(results)
         log.debug("processed results")
-        tops = get_overview(results, params.q)  # handle the cloudsearch results
-
-        for termtype in tops.keys():
-            for term in tops[t]:
-                limited_results = Models().get_limited(results, term[0], termtype)
-                snippet = get_snippet(params.q, limited_results)
-                print snippet
+        tops = get_overview(results, params.q, 100)  # handle the cloudsearch results
 
         return results, tops
 

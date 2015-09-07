@@ -134,14 +134,11 @@ class N_Grammer(object):
         return self.pairwise(words, n)
 
     def is_syntactically_valid(self, ngram):
-        valid_one_grams = ["N"]
-        valid_two_grams = ["NN", "AN", "NV", "VN"]
-        valid_three_grams = ["AAN", "NNN", "ANN", "NPN", "ANV", "NNV", "NVV", "TVN", "VPN", "VNN", "VAN", "VDN"]
-        valid_four_grams = ["ANPV", "NNNN", "ANNN", "NNNV", "ANTV", "NNTV", "TVPN", "VANN", "VNNN", "VPNN"]
+        valid_two_grams = ["NN", "AN"]  # , "NV", "VN"]
+        valid_three_grams = ["AAN", "NNN", "ANN", "NPN"]  # , "ANV", "NNV", "NVV", "TVN", "VPN", "VNN", "VAN", "VDN"]
+        valid_four_grams = ["ANPV", "NNNN", "ANNN"] # , "NNNV", "ANTV", "NNTV", "TVPN", "VANN", "VNNN", "VPNN"]
 
         pattern = "".join([(j.abreviated_pos()) for j in ngram])
-        if pattern in valid_one_grams and len(pattern) == 1:
-            return True
         if pattern in valid_two_grams and len(pattern) == 2:
             return True
         if pattern in valid_three_grams and len(pattern) == 3:
