@@ -32,13 +32,13 @@ Load the sample file and query
 '''
 # query = [["common", "core"], ["gary", "robichaux"]]
 
-query = [["orleans", "parish", "prison"], ["vera", "institute"]]
+query = [["common", "core"], ["gary", "robichaux"]]
 
 sources = ['G', 'Q', 'D']  # potential values for d
 
 file_loc = "/Users/abramhandler/research/rookie/data/lens_processed/"
 
-fns = ["48a455f3b50685d18e7be9e5bb3bacbbafb582a898659812d9cb1aa1"]  # , "54b47042283234b7d34df98a19c2252acc7947becc8a257935fc0f9c"
+fns = ["54b47042283234b7d34df98a19c2252acc7947becc8a257935fc0f9c"] # "48a455f3b50685d18e7be9e5bb3bacbbafb582a898659812d9cb1aa1"] 
 
 fn = fns[0]
 
@@ -239,7 +239,6 @@ for word in doc_vocab_counter:
         most_common_labeled_q.append((word, 0))
     else:
         most_common_labeled_q.append((word, total_occurances_zs/total_occurances))
-
 most_common_labeled_q.sort(key=lambda x: x[1])
 
 
@@ -255,21 +254,20 @@ for word in doc_vocab_counter:
         most_common_labeled_d.append((word, total_occurances_zs/total_occurances))
 most_common_labeled_d.sort(key=lambda x: x[1])
 
-pdb.set_trace()
 
 q_label_good = []
 for sentence in document.keys():
     pi_counts = document[sentence]['pi_counts']
-    tokens = document[sentence]['tokens']
-    sente = ""
-    for key in tokens.keys():
-        sente = sente + " " + tokens[key]['word']
+    sente = " ".join([i.raw for i in inf.doc.sentences[sentence].tokens])
     tot_query = float(sum(v for k, v in pi_counts.items() if k == "Q"))
-    tot_counts = float(sum(v for k, v in pi_counts.items()))
+    tot_counts = float(sum(v for k, v in pi_counts.items()) + sum(v for k, v in pi_pseudo_counts.items()))
     if tot_counts == 0:
         pct_pi_counts = 0
     else:
-        pct_pi_counts = tot_query / tot_counts
+        frac = tot_query / tot_counts
+        if frac == 1.:
+            pdb.set_trace()
+        pct_pi_counts = frac
     q_label_good.append((pct_pi_counts, sente))
 
 q_label_good.sort(key=lambda x: x[0])

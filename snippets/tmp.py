@@ -229,7 +229,7 @@ for sentence in document.keys():
     for key in tokens.keys():
         sente = sente + " " + tokens[key]['word']
     tot_query = float(sum(v for k, v in pi_counts.items() if k == "Q"))
-    tot_counts = float(sum(v for k, v in pi_counts.items()))
+    tot_counts = float(sum(v for k, v in pi_counts.items()) + sum(v for k, v in pi_pseudo_counts.items()))
     pct_pi_counts = tot_query / tot_counts
     q_label_good.append((pct_pi_counts, sente))
 
