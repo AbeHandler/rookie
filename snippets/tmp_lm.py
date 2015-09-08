@@ -13,6 +13,7 @@ from rookie import processed_location
 from collections import Counter
 from collections import defaultdict
 from rookie.classes import IncomingFile
+from snippets.utils import flip
 
 jaccard_threshold = .75
 
@@ -101,13 +102,16 @@ def lookup_p_token(token, lm):
     return float(numerator)/float(denom)
 
 
-def lookup_p_lms(counts, pseudocounts):
-    denom = sum(v for k, v in counts.items())
-    denom = denom + sum(v for k, v in pseudocounts.items())
+def lookup_p_lms(tokens):
+    net_counts = {}
     output = {}
-    output['Q'] = float((counts['Q'] + pseudocounts['Q'])) / denom
-    output['G'] = float((counts['G'] + pseudocounts['G'])) / denom
-    output['D'] = float((counts['D'] + pseudocounts['D'])) / denom
+    for source in sources:
+        net_counts[source] = pi_pseudo_counts[source]
+    for token in tokens.keys():
+        net_counts[tokens[0]['z']] += 1
+    sum_counts = float(sum(v for k,v in net_counts.items()))
+    for source in sources:
+        output[source] = float(net_counts[source]) / sum_counts
     return output
 
 
@@ -117,43 +121,31 @@ def flip_for_z(p_tokens, p_lms, token):
         union = float(len([i for i in set(term).union(set(token.split(" ")))]))
         if (intersect/union) > jaccard_threshold:
             return "Q"
-    total = 0.
-    ranges = {}
+    ranges = []
     for source in sources: # sources defined at top of file. bad
-        old_total = total
-        source_area = p_tokens[source] * p_lms[source]
-        new_total = total + source_area
-        ranges[source] = (old_total, new_total)
-        total = new_total
-    flip = random.uniform(0, total)
-    for i in ranges.keys():
-        win_zone = ranges[i]
-        if flip >= win_zone[0] and flip <= win_zone[1]:
-            return i
+        ranges.append(p_tokens[source] * p_lms[source])
+    winner = flip(ranges)
+    return sources[winner]
 
 
 def flip_for_pi_count(pi_pseudo_c, sentence):
     denom = sum(v for k, v in pi_pseudo_c.items())
-    denom = float(denom + sum(v for k, v in sentence['pi_counts'].items()))
+    # denom = float(denom + sum(v for k, v in sentence['pi_counts'].items()))
     total = 0.
     ranges = {}
     tokens = sentence['tokens']
     if len(tokens) == 0:
         return "NA"
+    ranges = []
     for source in sources:
         old_total = total
-        p_counts = (pi_pseudo_c[source] + sentence['pi_counts'][source])/denom
+        # p_counts = (pi_pseudo_c[source] + sentence['pi_counts'][source])/denom
         z_count_source = len([i for i in tokens if tokens[i]['z'] == source])
         p_zs = float(z_count_source) / float(len(tokens))
         source_area = p_zs * p_counts
-        new_total = total + source_area
-        ranges[source] = (old_total, new_total)
-        total = new_total
-    flip = random.uniform(0, total)
-    for i in ranges.keys():
-        win_zone = ranges[i]
-        if flip >= win_zone[0] and flip <= win_zone[1]:
-            return i
+        ranges.append(source_area)
+    winner = flip(ranges)
+    return sources[winner]
 
 
 def get_document(inf):
@@ -170,8 +162,8 @@ def get_document(inf):
         tokens = pplorgsngrams
         for t in range(0, len(tokens)):
             tokens_dict[t] = {'word': tokens[t], 'z': random_z()}
-        sentence_pi_counts = {'D': 0, 'Q': 0, 'G': 0}
-        document[s] = {'pi_counts': sentence_pi_counts, 'tokens': tokens_dict}
+        # sentence_pi_counts = {'D': 0, 'Q': 0, 'G': 0}
+        document[s] = {'tokens': tokens_dict}
     return document
 
 documents[0] = get_document(inf)
@@ -190,14 +182,14 @@ for i in range(0, iterations):
         document = documents[doc]
         z_flips_this_iteration = 0
         for sentence in document.keys():
-            pi_counts = document[sentence]['pi_counts']
+            # pi_counts = document[sentence]['pi_counts']
             for token_no in document[sentence]['tokens']:
                 token = document[sentence]['tokens'][token_no]
                 p_tokens = {}
                 p_tokens['G'] = corpus_lm[token['word']]
                 p_tokens['Q'] = lookup_p_token(token['word'], 'Q')
                 p_tokens['D'] = lookup_p_token(token['word'], 'D')
-                p_lms = lookup_p_lms(pi_counts, pi_pseudo_counts)
+                p_lms = lookup_p_lms(document[sentence]['tokens'])
                 old_z = token['z']
                 new_z = flip_for_z(p_tokens, p_lms, token['word'])
                 if old_z != new_z:
@@ -208,7 +200,6 @@ for i in range(0, iterations):
                         lms[new_z]['counts'][token['word']] += 1 # increment the LM
                     if old_z != "G" and lms[old_z]['counts'][token['word']] > 0:
                         lms[old_z]['counts'][token['word']] -= 1
-            pi_count = flip_for_pi_count(pi_pseudo_counts, document[sentence])
 
         # some score keeping for the model to be cleaned up later. TODO
         score_keeping = []

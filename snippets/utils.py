@@ -1,6 +1,6 @@
 import random
 
-def flip(*regions):
+def flip(regions):
     '''
     Each region is a float representing
     some part of an overall probability space
@@ -9,7 +9,7 @@ def flip(*regions):
     sum_regions = sum(regions)
     region_boundries = []
     for region in regions:
-    	assert type(region) is float
+        assert type(region) is float
         old_total = running_total
         new_total = running_total + region
         region_boundries.append((old_total, new_total))
