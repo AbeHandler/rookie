@@ -16,7 +16,7 @@ from rookie.classes import IncomingFile
 
 jaccard_threshold = .75
 
-pi_pseudo_counts = {'D': 2, 'Q': 2, 'G': 2}
+pi_pseudo_counts = {'D': 1, 'Q': 1, 'G': 1}
 
 lms = {}  # variable to hold the langauge model counts/pseudocounts
 
@@ -42,7 +42,7 @@ fns = ["e2c1d798aca417cf982268410274b07010c78fa1f638343455c87069"]  # "48a455f3b
 
 fn = fns[0]
 
-inf = IncomingFile(processed_location + fn)
+inf = IncomingFile(processed_location + "/" + fn)
 
 documents = {}
 
@@ -209,9 +209,6 @@ for i in range(0, iterations):
                     if old_z != "G" and lms[old_z]['counts'][token['word']] > 0:
                         lms[old_z]['counts'][token['word']] -= 1
             pi_count = flip_for_pi_count(pi_pseudo_counts, document[sentence])
-            # increment the pi counts
-            if pi_count != "NA":
-                document[sentence]['pi_counts'][pi_count] += 1
 
         # some score keeping for the model to be cleaned up later. TODO
         score_keeping = []
@@ -268,20 +265,26 @@ for word in doc_vocab_counter:
 most_common_labeled_d.sort(key=lambda x: x[1])
 
 
+def get_pct_of_sentence(sentence_tokens, target):
+    assert (target == "D" or target=="Q" or target=="G")
+    total = 0
+    target_total = 0
+    for key in sentence_tokens.keys():
+        total += 1
+        zval = sentence_tokens[key]['z'] 
+        if zval == target:
+            target_total +=1
+    if total == 0:
+        return 0
+    else:
+        return float(target_total)/float(total)
+
+
 q_label_good = []
 for sentence in document.keys():
-    pi_counts = document[sentence]['pi_counts']
+    frac = get_pct_of_sentence(document[sentence]['tokens'], "Q")
     sente = " ".join([i.raw for i in inf.doc.sentences[sentence].tokens])
-    tot_query = float(sum(v for k, v in pi_counts.items() if k == "Q"))
-    tot_counts = float(sum(v for k, v in pi_counts.items()) + sum(v for k, v in pi_pseudo_counts.items()))
-    if tot_counts == 0:
-        pct_pi_counts = 0
-    else:
-        frac = tot_query / tot_counts
-        if frac == 1.:
-            pdb.set_trace()
-        pct_pi_counts = frac
-    q_label_good.append((pct_pi_counts, sente))
+    q_label_good.append((frac, sente))
 
 q_label_good.sort(key=lambda x: x[0])
 
