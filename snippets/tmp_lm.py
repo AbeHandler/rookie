@@ -15,7 +15,7 @@ unigram_counts = pickle.load(open("pickled/unigram_df.p", "r"))
 
 jaccard_threshold = .75
 
-pi_pseudo_counts = {'D': 1, 'Q': 1, 'G': 1}
+pi_pseudo_counts = {'D': 2, 'Q': 2, 'G': 2}
 
 lms = {}  # variable to hold the langauge model counts/pseudocounts
 
@@ -30,19 +30,22 @@ vocab = corpus_lm.keys()
 '''
 Load the sample file and query
 '''
-# query = [["common", "core"], ["gary", "robichaux"]]
 
-query = [["common", "core"], ["gary", "robichaux"]]
+query = [["orleans", "parish", "prison"], ["vera", "institute"]]
+
+# query = [["common", "core"], ["gary", "robichaux"]]
 
 sources = ['G', 'Q', 'D']  # potential values for d
 
 file_loc = "/Users/abramhandler/research/rookie/data/lens_processed/"
 
-fns = ["54b47042283234b7d34df98a19c2252acc7947becc8a257935fc0f9c"] # "48a455f3b50685d18e7be9e5bb3bacbbafb582a898659812d9cb1aa1"] 
+fns = ["e2c1d798aca417cf982268410274b07010c78fa1f638343455c87069"]  # "48a455f3b50685d18e7be9e5bb3bacbbafb582a898659812d9cb1aa1"]
 
 fn = fns[0]
 
 inf = IncomingFile(file_loc + fn)
+
+documents = {}
 
 
 def get_doc_tokens(inf):
@@ -153,23 +156,30 @@ def flip_for_pi_count(pi_pseudo_c, sentence):
         if flip >= win_zone[0] and flip <= win_zone[1]:
             return i
 
-'''
-Setup data structure and initialize sampler
-'''
-document = {}
-for s in range(0, len(inf.doc.sentences)):
-    tokens_dict = {}
-    pplorgsngrams = [str(i).lower() for i in inf.doc.sentences[s].ner if i.type == "ORGANIZATION" or i.type == "PEOPLE"]
-    ngrams = [i for i in inf.doc.sentences[s].ngrams]
-    for n in ngrams:
-        pplorgsngrams.append(" ".join([i.raw for i in n]).lower())
-    tokens = pplorgsngrams
-    for t in range(0, len(tokens)):
-        tokens_dict[t] = {'word': tokens[t], 'z': random_z()}
-    sentence_pi_counts = {'D': 0, 'Q': 0, 'G': 0}
-    document[s] = {'pi_counts': sentence_pi_counts, 'tokens': tokens_dict}
 
-iterations = 100
+def get_document(inf):
+    '''
+    Setup data structure and initialize sampler
+    '''
+    document = {}
+    for s in range(0, len(inf.doc.sentences)):
+        tokens_dict = {}
+        pplorgsngrams = [str(i).lower() for i in inf.doc.sentences[s].ner if i.type == "ORGANIZATION" or i.type == "PEOPLE"]
+        ngrams = [i for i in inf.doc.sentences[s].ngrams]
+        for n in ngrams:
+            pplorgsngrams.append(" ".join([i.raw for i in n]).lower())
+        tokens = pplorgsngrams
+        for t in range(0, len(tokens)):
+            tokens_dict[t] = {'word': tokens[t], 'z': random_z()}
+        sentence_pi_counts = {'D': 0, 'Q': 0, 'G': 0}
+        document[s] = {'pi_counts': sentence_pi_counts, 'tokens': tokens_dict}
+    return document
+
+documents[0] = get_document(inf)
+
+document = documents[0]
+
+iterations = 10
 
 z_flips_counts = []
 grand_total_score_keeping = {}
@@ -177,52 +187,53 @@ grand_total_score_keeping["Q"] = []
 grand_total_score_keeping["D"] = []
 
 for i in range(0, iterations):
-    print i
-    z_flips_this_iteration = 0
-    for sentence in document.keys():
-        pi_counts = document[sentence]['pi_counts']
-        for token_no in document[sentence]['tokens']:
-            token = document[sentence]['tokens'][token_no]
-            p_tokens = {}
-            p_tokens['G'] = corpus_lm[token['word']]
-            p_tokens['Q'] = lookup_p_token(token['word'], 'Q')
-            p_tokens['D'] = lookup_p_token(token['word'], 'D')
-            p_lms = lookup_p_lms(pi_counts, pi_pseudo_counts)
-            old_z = token['z']
-            new_z = flip_for_z(p_tokens, p_lms, token['word'])
-            if old_z != new_z:
-                z_flips_this_iteration += 1
-            document[sentence]['tokens'][token_no]['z'] = new_z
-            if new_z != "G":  # general LM is fixed
-                lms[new_z]['counts'][token['word']] += 1
-        pi_count = flip_for_pi_count(pi_pseudo_counts, document[sentence])
-        # increment the pi counts
-        if pi_count != "NA":
-            document[sentence]['pi_counts'][pi_count] += 1
+    for doc in documents:
+        document = documents[doc]
+        z_flips_this_iteration = 0
+        for sentence in document.keys():
+            pi_counts = document[sentence]['pi_counts']
+            for token_no in document[sentence]['tokens']:
+                token = document[sentence]['tokens'][token_no]
+                p_tokens = {}
+                p_tokens['G'] = corpus_lm[token['word']]
+                p_tokens['Q'] = lookup_p_token(token['word'], 'Q')
+                p_tokens['D'] = lookup_p_token(token['word'], 'D')
+                p_lms = lookup_p_lms(pi_counts, pi_pseudo_counts)
+                old_z = token['z']
+                new_z = flip_for_z(p_tokens, p_lms, token['word'])
+                if old_z != new_z:
+                    z_flips_this_iteration += 1
+                document[sentence]['tokens'][token_no]['z'] = new_z
+                if new_z != "G":  # general LM is fixed
+                    lms[new_z]['counts'][token['word']] += 1
+            pi_count = flip_for_pi_count(pi_pseudo_counts, document[sentence])
+            # increment the pi counts
+            if pi_count != "NA":
+                document[sentence]['pi_counts'][pi_count] += 1
 
-    # some score keeping for the model to be cleaned up later. TODO
-    score_keeping = []
-    all_tokens = []
-    for sentence in document.keys():
-        sentence_tokens = document[sentence]['tokens']
-        for word_no in sentence_tokens.keys():
-            word = document[sentence]['tokens'][word_no]
-            all_tokens.append((word['word'], word['z']))
-    for w in doc_vocab_counter:
-        isquery = sum(1 for t in all_tokens if t[0] == w and t[1] == "Q")
-        score_keeping.append((w, doc_vocab_counter[w], isquery))
-    grand_total_score_keeping["Q"].append(score_keeping)
+        # some score keeping for the model to be cleaned up later. TODO
+        score_keeping = []
+        all_tokens = []
+        for sentence in document.keys():
+            sentence_tokens = document[sentence]['tokens']
+            for word_no in sentence_tokens.keys():
+                word = document[sentence]['tokens'][word_no]
+                all_tokens.append((word['word'], word['z']))
+        for w in doc_vocab_counter:
+            isquery = sum(1 for t in all_tokens if t[0] == w and t[1] == "Q")
+            score_keeping.append((w, doc_vocab_counter[w], isquery))
+        grand_total_score_keeping["Q"].append(score_keeping)
 
-    score_keeping = []
-    for w in doc_vocab_counter:
-        isquery = sum(1 for t in all_tokens if t[0] == w and t[1] == "D")
-        score_keeping.append((w, doc_vocab_counter[w], isquery))
-    grand_total_score_keeping["D"].append(score_keeping)
+        score_keeping = []
+        for w in doc_vocab_counter:
+            isquery = sum(1 for t in all_tokens if t[0] == w and t[1] == "D")
+            score_keeping.append((w, doc_vocab_counter[w], isquery))
+        grand_total_score_keeping["D"].append(score_keeping)
 
-    if z_flips_this_iteration == 0:
-        z_flips_counts.append(0)
-    else:
-        z_flips_counts.append(math.log(z_flips_this_iteration))
+        if z_flips_this_iteration == 0:
+            z_flips_counts.append(0)
+        else:
+            z_flips_counts.append(math.log(z_flips_this_iteration))
 
 
 '''
