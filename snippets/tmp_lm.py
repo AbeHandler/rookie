@@ -8,11 +8,16 @@ import matplotlib.pyplot as plt
 import pickle
 
 from collections import Counter
+from collections import defaultdict
 from rookie.classes import IncomingFile
 
 unigram_counts = pickle.load(open("pickled/unigram_df.p", "r"))
 
-jaccard_threshold = .5
+jaccard_threshold = .75
+
+pi_pseudo_counts = {'D': 1, 'Q': 1, 'G': 1}
+
+lms = {}  # variable to hold the langauge model counts/pseudocounts
 
 '''
 Load the precomputed corpus language model
@@ -25,30 +30,34 @@ vocab = corpus_lm.keys()
 '''
 Load the sample file and query
 '''
-
-file_loc = "/Users/abramhandler/research/rookie/data/lens_processed/"
-
-fn = "31ec3ae1df97f31f889d90e973934d3ee02e88c034672c14cd4e54af"
-
-# fn = "54b47042283234b7d34df98a19c2252acc7947becc8a257935fc0f9c"
-inf = IncomingFile(file_loc + fn)
-
 # query = [["common", "core"], ["gary", "robichaux"]]
 
 query = [["orleans", "parish", "prison"], ["vera", "institute"]]
 
 sources = ['G', 'Q', 'D']  # potential values for d
 
-'''
-Find the document's vocabulary
-'''
+file_loc = "/Users/abramhandler/research/rookie/data/lens_processed/"
 
-all_tokens = [str(i) for i in inf.doc.people] + [str(i) for i in inf.doc.organizations]
+fns = ["48a455f3b50685d18e7be9e5bb3bacbbafb582a898659812d9cb1aa1"]  # , "54b47042283234b7d34df98a19c2252acc7947becc8a257935fc0f9c"
 
-ngrams = inf.doc.ngrams
-for n in ngrams:
-    all_tokens.append(" ".join([i.raw for i in n]))
+fn = fns[0]
 
+inf = IncomingFile(file_loc + fn)
+
+
+def get_doc_tokens(inf):
+    '''
+    Get the document's tokens
+    '''
+    all_tokens = [str(i).lower() for i in inf.doc.people] + [str(i) for i in inf.doc.organizations]
+
+    ngrams = inf.doc.ngrams
+    for n in ngrams:
+        all_tokens.append(" ".join([i.raw for i in n]).lower())
+
+    return all_tokens
+
+all_tokens = get_doc_tokens(inf)
 doc_vocab = [i.lower() for i in all_tokens]
 doc_vocab_counter = Counter(doc_vocab)  # count of each word in doc
 doc_vocab = [i for i in set(doc_vocab)]
@@ -57,21 +66,18 @@ doc_vocab = [i for i in set(doc_vocab)]
 '''
 Setup pseudocounts and counts for doc/query LMs + sentence distributions.
 '''
-query_pseudoc = {}
-query_lm_counts = {}
+query_pseudoc = defaultdict(int)
+query_lm_counts = defaultdict(int)
 for word in doc_vocab:
     query_pseudoc[word] = 1
     query_lm_counts[word] = 0
 
-doc_pseudoc = {}
-doc_lm_counts = {}
+doc_pseudoc = defaultdict(int)
+doc_lm_counts = defaultdict(int)
 for word in doc_vocab:
     doc_pseudoc[word] = 1
     doc_lm_counts[word] = 0
 
-pi_pseudo_counts = {'D': 1, 'Q': 1, 'G': 1}
-
-lms = {}
 lms["Q"] = {"counts": query_lm_counts, "pseudocounts": query_pseudoc}
 lms["D"] = {"counts": doc_lm_counts, "pseudocounts": doc_pseudoc}
 
@@ -213,7 +219,10 @@ for i in range(0, iterations):
         score_keeping.append((w, doc_vocab_counter[w], isquery))
     grand_total_score_keeping["D"].append(score_keeping)
 
-    z_flips_counts.append(math.log(z_flips_this_iteration))
+    if z_flips_this_iteration == 0:
+        z_flips_counts.append(0)
+    else:
+        z_flips_counts.append(math.log(z_flips_this_iteration))
 
 
 '''
