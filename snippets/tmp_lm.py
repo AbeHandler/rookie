@@ -119,7 +119,7 @@ def flip_for_z(p_tokens, p_lms, token):
             return "Q"
     total = 0.
     ranges = {}
-    for source in sources:
+    for source in sources: # sources defined at top of file. bad
         old_total = total
         source_area = p_tokens[source] * p_lms[source]
         new_total = total + source_area

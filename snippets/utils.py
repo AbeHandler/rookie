@@ -1,42 +1,22 @@
+import random
 
-import glob
-import pdb
-import pickle
-from collections import defaultdict
+def flip(*regions):
+    '''
+    Each region is a float representing
+    some part of an overall probability space
+    '''
+    running_total = 0.
+    sum_regions = sum(regions)
+    region_boundries = []
+    for region in regions:
+    	assert type(region) is float
+        old_total = running_total
+        new_total = running_total + region
+        region_boundries.append((old_total, new_total))
+        running_total = new_total
 
-from rookie.classes import IncomingFile
-
-language_model = defaultdict(int)
-jk_language_model = defaultdict(int)
-
-files = glob.glob("/Users/abramhandler/research/rookie/data/lens_processed/*")
-
-counter = 0
-for fi in files:
-    print "{} of {}".format(counter, len(files))
-    inf = IncomingFile(fi)
-    try:
-        tokens = inf.doc.full_text.split(" ")
-        for ngram in inf.doc.ngrams:
-            jk_language_model[" ".join([i.raw.lower() for i in ngram])] += 1
-        for person in inf.doc.people:
-            jk_language_model[str(person).lower()] += 1
-        for org in inf.doc.organizations:
-            jk_language_model[str(org).lower()] += 1
-
-        for t in tokens:
-            language_model[t.lower()] += 1
-    except AttributeError:
-        pass
-
-total_tokens = sum(v for k, v in language_model.items())
-
-for key in language_model.keys():
-    language_model[key] = float(language_model[key]) / float(total_tokens)
-
-total_tokens_jk = sum(v for k, v in jk_language_model.items())
-for key in jk_language_model.keys():
-    jk_language_model[key] = float(jk_language_model[key]) / float(total_tokens_jk)
-
-pickle.dump(language_model, open("lm.p", "wb"))
-pickle.dump(jk_language_model, open("jk_lm.p", "wb"))
+    flip = random.uniform(0, sum_regions)
+    for i in range(0, len(region_boundries)):
+        win_zone = region_boundries[i]
+        if flip >= win_zone[0] and flip <= win_zone[1]:
+            return i
