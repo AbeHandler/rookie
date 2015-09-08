@@ -6,10 +6,13 @@ import itertools
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
+
 from collections import Counter
 from rookie.classes import IncomingFile
 
 unigram_counts = pickle.load(open("pickled/unigram_df.p", "r"))
+
+jaccard_threshold = .5
 
 '''
 Load the precomputed corpus language model
@@ -24,10 +27,15 @@ Load the sample file and query
 '''
 
 file_loc = "/Users/abramhandler/research/rookie/data/lens_processed/"
+
 fn = "31ec3ae1df97f31f889d90e973934d3ee02e88c034672c14cd4e54af"
+
+# fn = "54b47042283234b7d34df98a19c2252acc7947becc8a257935fc0f9c"
 inf = IncomingFile(file_loc + fn)
 
-query = ["orleans", "parish", "prison", "vera", "institute"]
+# query = [["common", "core"], ["gary", "robichaux"]]
+
+query = [["orleans", "parish", "prison"], ["vera", "institute"]]
 
 sources = ['G', 'Q', 'D']  # potential values for d
 
@@ -52,16 +60,16 @@ Setup pseudocounts and counts for doc/query LMs + sentence distributions.
 query_pseudoc = {}
 query_lm_counts = {}
 for word in doc_vocab:
-    query_pseudoc[word] = 5
+    query_pseudoc[word] = 1
     query_lm_counts[word] = 0
 
 doc_pseudoc = {}
 doc_lm_counts = {}
 for word in doc_vocab:
-    doc_pseudoc[word] = 5
+    doc_pseudoc[word] = 1
     doc_lm_counts[word] = 0
 
-pi_pseudo_counts = {'D': 4, 'Q': 4, 'G': 4}
+pi_pseudo_counts = {'D': 1, 'Q': 1, 'G': 1}
 
 lms = {}
 lms["Q"] = {"counts": query_lm_counts, "pseudocounts": query_pseudoc}
@@ -96,8 +104,10 @@ def lookup_p_lms(counts, pseudocounts):
 
 
 def flip_for_z(p_tokens, p_lms, token):
-    for word in query:
-        if word in token:
+    for term in query:
+        intersect = float(len([i for i in set(term).intersection(set(token.split(" ")))]))
+        union = float(len([i for i in set(term).union(set(token.split(" ")))]))
+        if (intersect/union) > jaccard_threshold:
             return "Q"
     total = 0.
     ranges = {}
@@ -120,6 +130,8 @@ def flip_for_pi_count(pi_pseudo_c, sentence):
     total = 0.
     ranges = {}
     tokens = sentence['tokens']
+    if len(tokens) == 0:
+        return "NA"
     for source in sources:
         old_total = total
         p_counts = (pi_pseudo_c[source] + sentence['pi_counts'][source])/denom
@@ -141,7 +153,11 @@ Setup data structure and initialize sampler
 document = {}
 for s in range(0, len(inf.doc.sentences)):
     tokens_dict = {}
-    tokens = [i.raw.lower() for i in inf.doc.sentences[s].tokens]
+    pplorgsngrams = [str(i).lower() for i in inf.doc.sentences[s].ner if i.type == "ORGANIZATION" or i.type == "PEOPLE"]
+    ngrams = [i for i in inf.doc.sentences[s].ngrams]
+    for n in ngrams:
+        pplorgsngrams.append(" ".join([i.raw for i in n]).lower())
+    tokens = pplorgsngrams
     for t in range(0, len(tokens)):
         tokens_dict[t] = {'word': tokens[t], 'z': random_z()}
     sentence_pi_counts = {'D': 0, 'Q': 0, 'G': 0}
@@ -150,7 +166,9 @@ for s in range(0, len(inf.doc.sentences)):
 iterations = 100
 
 z_flips_counts = []
-grand_total_score_keeping = []
+grand_total_score_keeping = {}
+grand_total_score_keeping["Q"] = []
+grand_total_score_keeping["D"] = []
 
 for i in range(0, iterations):
     print i
@@ -173,7 +191,8 @@ for i in range(0, iterations):
                 lms[new_z]['counts'][token['word']] += 1
         pi_count = flip_for_pi_count(pi_pseudo_counts, document[sentence])
         # increment the pi counts
-        document[sentence]['pi_counts'][pi_count] += 1
+        if pi_count != "NA":
+            document[sentence]['pi_counts'][pi_count] += 1
 
     # some score keeping for the model to be cleaned up later. TODO
     score_keeping = []
@@ -186,7 +205,14 @@ for i in range(0, iterations):
     for w in doc_vocab_counter:
         isquery = sum(1 for t in all_tokens if t[0] == w and t[1] == "Q")
         score_keeping.append((w, doc_vocab_counter[w], isquery))
-    grand_total_score_keeping.append(score_keeping)
+    grand_total_score_keeping["Q"].append(score_keeping)
+
+    score_keeping = []
+    for w in doc_vocab_counter:
+        isquery = sum(1 for t in all_tokens if t[0] == w and t[1] == "D")
+        score_keeping.append((w, doc_vocab_counter[w], isquery))
+    grand_total_score_keeping["D"].append(score_keeping)
+
     z_flips_counts.append(math.log(z_flips_this_iteration))
 
 
@@ -195,7 +221,7 @@ Score keeping and debugging
 '''
 
 most_common_labeled_q = []
-joined = [i for i in itertools.chain(*grand_total_score_keeping)]
+joined = [i for i in itertools.chain(*grand_total_score_keeping["Q"])]
 for word in doc_vocab_counter:
     tmp = [o for o in joined if o[0] == word]
     total_occurances = float(sum(i[1] for i in tmp))
@@ -204,6 +230,23 @@ for word in doc_vocab_counter:
         most_common_labeled_q.append((word, 0))
     else:
         most_common_labeled_q.append((word, total_occurances_zs/total_occurances))
+
+most_common_labeled_q.sort(key=lambda x: x[1])
+
+
+most_common_labeled_d = []
+joined = [i for i in itertools.chain(*grand_total_score_keeping["D"])]
+for word in doc_vocab_counter:
+    tmp = [o for o in joined if o[0] == word]
+    total_occurances = float(sum(i[1] for i in tmp))
+    total_occurances_zs = float(sum(i[2] for i in tmp))
+    if total_occurances_zs == 0:
+        most_common_labeled_d.append((word, 0))
+    else:
+        most_common_labeled_d.append((word, total_occurances_zs/total_occurances))
+most_common_labeled_d.sort(key=lambda x: x[1])
+
+pdb.set_trace()
 
 q_label_good = []
 for sentence in document.keys():
@@ -214,7 +257,10 @@ for sentence in document.keys():
         sente = sente + " " + tokens[key]['word']
     tot_query = float(sum(v for k, v in pi_counts.items() if k == "Q"))
     tot_counts = float(sum(v for k, v in pi_counts.items()))
-    pct_pi_counts = tot_query / tot_counts
+    if tot_counts == 0:
+        pct_pi_counts = 0
+    else:
+        pct_pi_counts = tot_query / tot_counts
     q_label_good.append((pct_pi_counts, sente))
 
 q_label_good.sort(key=lambda x: x[0])

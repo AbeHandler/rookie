@@ -47,16 +47,16 @@ Setup pseudocounts and counts for doc/query LMs + sentence distributions.
 query_pseudoc = {}
 query_lm_counts = {}
 for word in doc_vocab:
-    query_pseudoc[word] = 5
+    query_pseudoc[word] = 1
     query_lm_counts[word] = 0
 
 doc_pseudoc = {}
 doc_lm_counts = {}
 for word in doc_vocab:
-    doc_pseudoc[word] = 5
+    doc_pseudoc[word] = 1
     doc_lm_counts[word] = 0
 
-pi_pseudo_counts = {'D': 4, 'Q': 4, 'G': 4}
+pi_pseudo_counts = {'D': 1, 'Q': 1, 'G': 1}
 
 lms = {}
 lms["Q"] = {"counts": query_lm_counts, "pseudocounts": query_pseudoc}
@@ -146,6 +146,10 @@ iterations = 100
 z_flips_counts = []
 grand_total_score_keeping = []
 
+grand_total_score_keeping = {}
+grand_total_score_keeping["Q"] = []
+grand_total_score_keeping["D"] = []
+
 for i in range(0, iterations):
     print i
     z_flips_this_iteration = 0
@@ -180,16 +184,20 @@ for i in range(0, iterations):
     for w in doc_vocab_counter:
         isquery = sum(1 for t in all_tokens if t[0] == w and t[1] == "Q")
         score_keeping.append((w, doc_vocab_counter[w], isquery))
-    grand_total_score_keeping.append(score_keeping)
+    grand_total_score_keeping["Q"].append(score_keeping)
     z_flips_counts.append(math.log(z_flips_this_iteration))
 
-
+    score_keeping = []
+    for w in doc_vocab_counter:
+        isquery = sum(1 for t in all_tokens if t[0] == w and t[1] == "D")
+        score_keeping.append((w, doc_vocab_counter[w], isquery))
+    grand_total_score_keeping["D"].append(score_keeping)
 '''
 Score keeping and debugging
 '''
 
 most_common_labeled_q = []
-joined = [i for i in itertools.chain(*grand_total_score_keeping)]
+joined = [i for i in itertools.chain(*grand_total_score_keeping["Q"])]
 for word in doc_vocab_counter:
     tmp = [o for o in joined if o[0] == word]
     total_occurances = float(sum(i[1] for i in tmp))
@@ -198,6 +206,20 @@ for word in doc_vocab_counter:
         most_common_labeled_q.append((word, 0))
     else:
         most_common_labeled_q.append((word, total_occurances_zs/total_occurances))
+most_common_labeled_q.sort(key=lambda x: x[1])
+
+most_common_labeled_d = []
+joined = [i for i in itertools.chain(*grand_total_score_keeping["D"])]
+for word in doc_vocab_counter:
+    tmp = [o for o in joined if o[0] == word]
+    total_occurances = float(sum(i[1] for i in tmp))
+    total_occurances_zs = float(sum(i[2] for i in tmp))
+    if total_occurances_zs == 0:
+        most_common_labeled_d.append((word, 0))
+    else:
+        most_common_labeled_d.append((word, total_occurances_zs/total_occurances))
+most_common_labeled_d.sort(key=lambda x: x[1])
+
 
 q_label_good = []
 for sentence in document.keys():
