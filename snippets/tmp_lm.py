@@ -15,17 +15,16 @@ from collections import defaultdict
 from rookie.classes import IncomingFile
 from snippets.utils import flip
 
-jaccard_threshold = .75
+jaccard_threshold = .60
 
-pi_pseudo_counts = {'D': 1, 'Q': 1, 'G': 1}
+pi_pseudo_counts = {'D': 5, 'Q': 5, 'G': 5}
 
 lms = {}  # variable to hold the langauge model counts/pseudocounts
 
 '''
 Load the precomputed corpus language model
 '''
-
-corpus_lm = pickle.load(open("snippets/jk_lm.p", "rb"))
+corpus_lm = pickle.load(open("snippets/lm.p", "rb"))
 
 vocab = corpus_lm.keys()
 
@@ -52,13 +51,16 @@ def get_doc_tokens(inf):
     '''
     Get the document's tokens
     '''
-    all_tokens = [str(i).lower() for i in inf.doc.people] + [str(i) for i in inf.doc.organizations]
 
-    ngrams = inf.doc.ngrams
-    for n in ngrams:
-        all_tokens.append(" ".join([i.raw for i in n]).lower())
+#    pdb.set_trace()
+#    all_tokens = [str(i).lower() for i in inf.doc.people] + [str(i) for i in inf.doc.organizations]
 
-    return all_tokens
+#    ngrams = inf.doc.ngrams
+#    for n in ngrams:
+#        all_tokens.append(" ".join([i.raw for i in n]).lower())
+
+    return [i.raw for i in inf.doc.tokens]
+#    return all_tokens
 
 all_tokens = get_doc_tokens(inf)
 doc_vocab = [i.lower() for i in all_tokens]
@@ -155,11 +157,12 @@ def get_document(inf):
     document = {}
     for s in range(0, len(inf.doc.sentences)):
         tokens_dict = {}
-        pplorgsngrams = [str(i).lower() for i in inf.doc.sentences[s].ner if i.type == "ORGANIZATION" or i.type == "PEOPLE"]
-        ngrams = [i for i in inf.doc.sentences[s].ngrams]
-        for n in ngrams:
-            pplorgsngrams.append(" ".join([i.raw for i in n]).lower())
-        tokens = pplorgsngrams
+        #pplorgsngrams = [str(i).lower() for i in inf.doc.sentences[s].ner if i.type == "ORGANIZATION" or i.type == "PEOPLE"]
+        tokens = [i.raw.lower() for i in inf.doc.sentences[s].tokens]
+        # ngrams = [i for i in inf.doc.sentences[s].ngrams]
+        # for n in ngrams:
+        #    pplorgsngrams.append(" ".join([i.raw for i in n]).lower())
+        # tokens = pplorgsngrams
         for t in range(0, len(tokens)):
             tokens_dict[t] = {'word': tokens[t], 'z': random_z()}
         # sentence_pi_counts = {'D': 0, 'Q': 0, 'G': 0}
@@ -170,7 +173,7 @@ documents[0] = get_document(inf)
 
 document = documents[0]
 
-iterations = 10
+iterations = 100
 
 z_flips_counts = []
 grand_total_score_keeping = {}
@@ -200,7 +203,7 @@ for i in range(0, iterations):
                         lms[new_z]['counts'][token['word']] += 1 # increment the LM
                     if old_z != "G" and lms[old_z]['counts'][token['word']] > 0:
                         lms[old_z]['counts'][token['word']] -= 1
-
+        pdb.set_trace()
         # some score keeping for the model to be cleaned up later. TODO
         score_keeping = []
         all_tokens = []
