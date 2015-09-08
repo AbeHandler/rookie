@@ -7,11 +7,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 
+import pdb
+
+from rookie import processed_location
 from collections import Counter
 from collections import defaultdict
 from rookie.classes import IncomingFile
-
-unigram_counts = pickle.load(open("pickled/unigram_df.p", "r"))
 
 jaccard_threshold = .75
 
@@ -37,13 +38,11 @@ query = [["orleans", "parish", "prison"], ["vera", "institute"]]
 
 sources = ['G', 'Q', 'D']  # potential values for d
 
-file_loc = "/Users/abramhandler/research/rookie/data/lens_processed/"
-
 fns = ["e2c1d798aca417cf982268410274b07010c78fa1f638343455c87069"]  # "48a455f3b50685d18e7be9e5bb3bacbbafb582a898659812d9cb1aa1"]
 
 fn = fns[0]
 
-inf = IncomingFile(file_loc + fn)
+inf = IncomingFile(processed_location + fn)
 
 documents = {}
 
@@ -204,8 +203,11 @@ for i in range(0, iterations):
                 if old_z != new_z:
                     z_flips_this_iteration += 1
                 document[sentence]['tokens'][token_no]['z'] = new_z
-                if new_z != "G":  # general LM is fixed
-                    lms[new_z]['counts'][token['word']] += 1
+                if new_z != old_z:  # general LM is fixed
+                    if new_z != "G":
+                        lms[new_z]['counts'][token['word']] += 1 # increment the LM
+                    if old_z != "G" and lms[old_z]['counts'][token['word']] > 0:
+                        lms[old_z]['counts'][token['word']] -= 1
             pi_count = flip_for_pi_count(pi_pseudo_counts, document[sentence])
             # increment the pi counts
             if pi_count != "NA":

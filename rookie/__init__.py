@@ -37,7 +37,7 @@ page_size = 10
 people_captions_loc = "pickled/people_captions.p"
 
 if socket.getfqdn() == 'hobbes.cs.umass.edu':
-    processed_location = "/home/ahandler/corpora/lens_processed/"
+    processed_location = "/Users/ahandler/research/rookie/data/lens_processed"
     corpus_loc = "/home/ahandler/corpora/lens/"
     files_location = "/home/ahandler/rookie/"
     core_nlp_location = "/home/sw/corenlp/stanford-corenlp-full-2015-04-20/*"
