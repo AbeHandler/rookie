@@ -39,66 +39,12 @@ Load the sample file and query
 
 query = [["orleans", "parish", "prison"], ["vera", "institute"]]
 
-# query = [["common", "core"], ["gary", "robichaux"]]
-
 sources = ['G', 'Q', 'D']  # potential values for d
 
 fns = ["e2c1d798aca417cf982268410274b07010c78fa1f638343455c87069",
        "48a455f3b50685d18e7be9e5bb3bacbbafb582a898659812d9cb1aa1"]
 
 documents = {}
-
-part of reason query + doc are tied is qurey vocab should be across all docs
-
-def get_doc_tokens(inf):
-    '''
-    Get the document's tokens
-    '''
-    doc_tokens = [i.raw.lower() for i in inf.doc.tokens]
-    doc_vocab_counter = Counter(doc_tokens)
-    log.debug(inf.filename + ", " + json.dumps(doc_vocab_counter))
-    return set(doc_tokens)
-
-
-def get_document(inf):
-    '''
-    Get document data structure
-    '''
-    document = {}
-    for s in range(0, len(inf.doc.sentences)):
-        tokens_dict = {}
-        tokens = [i.raw.lower() for i in inf.doc.sentences[s].tokens]
-        for t in range(0, len(tokens)):
-            tokens_dict[t] = {'word': tokens[t], 'z': random_z()}
-        document[s] = {'tokens': tokens_dict}
-    return document
-
-'''
-Load up documents
-'''
-for fn in range(0, fns):
-    inf = IncomingFile(processed_location + "/" + fn)
-    doc_vocab = get_doc_tokens(inf)
-    documents[fn] = get_document(inf)
-
-
-'''
-Setup pseudocounts and counts for doc/query LMs + sentence distributions.
-'''
-query_pseudoc = defaultdict(int)
-query_lm_counts = defaultdict(int)
-for word in doc_vocab:
-    query_pseudoc[word] = 1
-    query_lm_counts[word] = 0
-
-doc_pseudoc = defaultdict(int)
-doc_lm_counts = defaultdict(int)
-for word in doc_vocab:
-    doc_pseudoc[word] = 1
-    doc_lm_counts[word] = 0
-
-lms["Q"] = {"counts": query_lm_counts, "pseudocounts": query_pseudoc}
-lms["D"] = {"counts": doc_lm_counts, "pseudocounts": doc_pseudoc}
 
 
 def random_z():
@@ -111,10 +57,92 @@ def random_z():
         return "Q"
 
 
-def lookup_p_token(token, lm):
-    numerator = lms[lm]['counts'][token] + lms[lm]['pseudocounts'][token]
-    denom = sum(v for k, v in lms[lm]['counts'].items())
-    denom = denom + sum(v for k, v in lms[lm]['pseudocounts'].items())
+def get_doc_tokens(inf):
+    '''
+    Get the document's tokens
+    '''
+    doc_tokens = [i.raw.lower() for i in inf.doc.tokens]
+    doc_vocab_counter = Counter(doc_tokens)
+    log.debug(inf.filename + ", " + json.dumps(doc_vocab_counter))
+    return [i for i in set(doc_tokens)]
+
+
+def get_doc_lm(inf):
+    doc_pseudoc = defaultdict(int)
+    doc_lm_counts = defaultdict(int)
+    doc_vocab = get_doc_tokens(inf)
+    for word in doc_vocab:
+        doc_pseudoc[word] = 1
+        doc_lm_counts[word] = 0
+    doc_lm = {"counts": doc_lm_counts, "pseudocounts": doc_pseudoc}
+    return doc_lm
+
+
+def get_document(inf):
+    '''
+    Get document data structure
+    '''
+    document = {}
+    for s in range(0, len(inf.doc.sentences)):
+        tokens_dict = {}
+        tokens = get_doc_tokens(inf)
+        for t in range(0, len(tokens)):
+            tokens_dict[t] = {'word': tokens[t], 'z': random_z()}
+        document[s] = {'tokens': tokens_dict}
+    document['lm'] = get_doc_lm(inf)
+    return document
+
+
+def get_documents(fns):
+    '''
+    Load up documents
+    '''
+    documents = {}
+    for fn in range(0, len(fns)):
+        inf = IncomingFile(processed_location + "/" + fns[fn])
+        documents[fn] = get_document(inf)
+    return documents
+
+
+def get_query_vocab(documents):
+    query_vocab = []
+    for d in documents.keys():
+        document = documents[d]
+        doc_vocab = document['lm']['counts'].keys()
+        query_vocab = query_vocab + doc_vocab
+    return [i for i in set(query_vocab)]
+
+
+def get_query_lm(documents):
+    query_pseudoc = defaultdict(int)
+    query_lm_counts = defaultdict(int)
+    all_words_from_docs = get_query_vocab(documents)
+    for word in all_words_from_docs:
+        query_pseudoc[word] = 1
+        query_lm_counts[word] = 0
+    return {"counts": query_lm_counts, "pseudocounts": query_pseudoc}
+
+
+documents = get_documents(fns)
+query_lm = get_query_lm(documents)
+
+
+'''
+Setup pseudocounts and counts for doc/query LMs + sentence distributions.
+'''
+
+
+def lookup_p_token(token, lm_var, doc=None):
+    if lm_var == "G":
+        return corpus_lm[token]
+    lm = None
+    if lm_var == "D":
+        lm = doc['lm']
+    if lm_var == "Q":
+        lm = query_lm
+    numerator = lm['counts'][token] + lm['pseudocounts'][token]
+    denom = sum(v for k, v in lm['counts'].items())
+    denom = denom + sum(v for k, v in lm['pseudocounts'].items())  # TODO: add decrements
     return float(numerator)/float(denom)
 
 
@@ -142,23 +170,19 @@ def flip_for_z(p_tokens, p_lms, token):
     return sources[winner]
 
 z_flips_counts = []
-grand_total_score_keeping = {}
-grand_total_score_keeping["Q"] = []
-grand_total_score_keeping["D"] = []
 
 for i in range(0, iterations):
     print i
     for doc in documents:
         document = documents[doc]
         z_flips_this_iteration = 0
-        for sentence in document.keys():
-            # pi_counts = document[sentence]['pi_counts']
+        for sentence in (i for i in document.keys() if i != "lm"):
             for token_no in document[sentence]['tokens']:
                 token = document[sentence]['tokens'][token_no]
                 p_tokens = {}
-                p_tokens['G'] = corpus_lm[token['word']]
+                p_tokens['G'] = lookup_p_token(token['word'], 'G')
                 p_tokens['Q'] = lookup_p_token(token['word'], 'Q')
-                p_tokens['D'] = lookup_p_token(token['word'], 'D')
+                p_tokens['D'] = lookup_p_token(token['word'], 'D', document)
                 p_lms = lookup_p_lms(document[sentence]['tokens'])
                 old_z = token['z']
                 new_z = flip_for_z(p_tokens, p_lms, token['word'])
@@ -166,11 +190,14 @@ for i in range(0, iterations):
                     z_flips_this_iteration += 1
                 document[sentence]['tokens'][token_no]['z'] = new_z
                 if new_z != old_z:  # general LM is fixed
-                    if new_z != "G":
-                        lms[new_z]['counts'][token['word']] += 1
-                    if old_z != "G":
-                        if lms[old_z]['counts'][token['word']] > 0:
-                            lms[old_z]['counts'][token['word']] -= 1
+                    if new_z == "D":
+                        document['lm']['counts'][token['word']] += 1
+                    if new_z == "Q":
+                        query_lm['counts'][token['word']] += 1
+                    if old_z == "D" and document['lm']['counts'][token['word']] > 0:
+                        document['lm']['counts'][token['word']] -= 1
+                    if old_z == "Q" and query_lm['counts'][token['word']] > 0:
+                        query_lm['counts'][token['word']] -= 1
         if z_flips_this_iteration == 0:
             z_flips_counts.append(0)
         else:
