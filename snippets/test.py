@@ -19,7 +19,7 @@ from snippets import log
 
 iterations = 10
 
-pi_pseudo_counts = {'D': 1, 'Q': 1, 'G': 1}
+pi_pseudo_counts = {'D': 3, 'Q': 1, 'G': 3}
 
 lms = {}  # variable to hold the langauge model counts/pseudocounts
 
@@ -36,10 +36,16 @@ query = [["orleans", "parish", "prison"], ["vera", "institute"]]
 
 sources = ['G', 'Q', 'D']  # potential values for d
 
-fns = ["e2c1d798aca417cf982268410274b07010c78fa1f638343455c87069",
-       "48a455f3b50685d18e7be9e5bb3bacbbafb582a898659812d9cb1aa1"]
+fns = [o.replace("\n", "") for o in open("snippets/oppverafiles.txt", "r")]
 
 documents = {}
+
+
+def sentence_to_human(sentence):
+    human = [(k, v) for k,v in sentence.items()]
+    human.sort(key=lambda x: x[0])
+    human = " ".join([o[1]['word'] for o in human])
+    return human
 
 
 def random_z():
@@ -82,7 +88,7 @@ def get_document(inf):
         tokens = [o.raw for o in inf.doc.sentences[s].tokens]
         tokens_dict = {}
         for t in range(0, len(tokens)):
-            tokens_dict[t] = {'word': tokens[t], 'z': random_z()}
+            tokens_dict[t] = {'word': tokens[t].lower(), 'z': random_z()}
         document[s] = {'tokens': tokens_dict}
     document['lm'] = get_doc_lm(inf)
     document['fn'] = inf.filename
@@ -182,6 +188,8 @@ for i in range(0, iterations):
                 p_tokens['D'] = lookup_p_token(token['word'], 'D', document)
                 p_lms = lookup_p_lms(document[sentence]['tokens'])
                 old_z = token['z']
+                if sentence == 1 and document[sentence]['tokens'][1]['word']=="parish":
+                    pdb.set_trace()
                 new_z = flip_for_z(p_tokens, p_lms, token['word'])
                 if old_z != new_z:
                     z_flips_this_iteration += 1
@@ -195,5 +203,5 @@ for i in range(0, iterations):
                         document['lm']['counts'][token['word']] -= 1
                     if old_z == "Q" and query_lm['counts'][token['word']] > 0:
                         query_lm['counts'][token['word']] -= 1
-            log.debug("{} || {} || {} || {}".format(document['fn'], sentence, i, json.dumps(document[sentence])))
+            log.debug("sentence_snapshot {} || {} || {} || {}".format(document['fn'], i, sentence, json.dumps(document[sentence])))
         log.debug("zflips || {} || {} || {}".format(document['fn'], i, doc, z_flips_this_iteration))
