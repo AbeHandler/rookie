@@ -17,12 +17,7 @@ from rookie.classes import IncomingFile
 from snippets.utils import flip
 from snippets import log
 
-import logging
-
-LOG_FILENAME = 'run_log'
-logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
-
-iterations = 100
+iterations = 10
 
 pi_pseudo_counts = {'D': 1, 'Q': 1, 'G': 1}
 
@@ -63,7 +58,7 @@ def get_doc_tokens(inf):
     '''
     doc_tokens = [i.raw.lower() for i in inf.doc.tokens]
     doc_vocab_counter = Counter(doc_tokens)
-    log.debug(inf.filename + ", " + json.dumps(doc_vocab_counter))
+    log.debug("DVOCAB||" + inf.filename + "||" + json.dumps(doc_vocab_counter))
     return [i for i in set(doc_tokens)]
 
 
@@ -84,12 +79,13 @@ def get_document(inf):
     '''
     document = {}
     for s in range(0, len(inf.doc.sentences)):
+        tokens = [o.raw for o in inf.doc.sentences[s].tokens]
         tokens_dict = {}
-        tokens = get_doc_tokens(inf)
         for t in range(0, len(tokens)):
             tokens_dict[t] = {'word': tokens[t], 'z': random_z()}
         document[s] = {'tokens': tokens_dict}
     document['lm'] = get_doc_lm(inf)
+    document['fn'] = inf.filename
     return document
 
 
@@ -176,7 +172,8 @@ for i in range(0, iterations):
     for doc in documents:
         document = documents[doc]
         z_flips_this_iteration = 0
-        for sentence in (i for i in document.keys() if i != "lm"):
+        sent_keys = (i for i in document.keys() if i != ("lm") and i != "fn")
+        for sentence in sent_keys:
             for token_no in document[sentence]['tokens']:
                 token = document[sentence]['tokens'][token_no]
                 p_tokens = {}
@@ -198,7 +195,5 @@ for i in range(0, iterations):
                         document['lm']['counts'][token['word']] -= 1
                     if old_z == "Q" and query_lm['counts'][token['word']] > 0:
                         query_lm['counts'][token['word']] -= 1
-        if z_flips_this_iteration == 0:
-            z_flips_counts.append(0)
-        else:
-            z_flips_counts.append(math.log(z_flips_this_iteration))
+            log.debug("{} || {} || {} || {}".format(document['fn'], sentence, i, json.dumps(document[sentence])))
+        log.debug("zflips || {} || {} || {}".format(document['fn'], i, doc, z_flips_this_iteration))
