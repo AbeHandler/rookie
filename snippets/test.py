@@ -17,7 +17,7 @@ from snippets.utils import flip
 
 jaccard_threshold = .60
 
-pi_pseudo_counts = {'D': 5, 'Q': 5, 'G': 5}
+pi_pseudo_counts = {'D': 5, 'Q': 3, 'G': 5}
 
 lms = {}  # variable to hold the langauge model counts/pseudocounts
 
@@ -118,10 +118,9 @@ def lookup_p_lms(tokens):
 
 
 def flip_for_z(p_tokens, p_lms, token):
+    pdb.set_trace()
     for term in query:
-        intersect = float(len([i for i in set(term).intersection(set(token.split(" ")))]))
-        union = float(len([i for i in set(term).union(set(token.split(" ")))]))
-        if (intersect/union) > jaccard_threshold:
+        if token in term:
             return "Q"
     ranges = []
     for source in sources: # sources defined at top of file. bad
@@ -173,7 +172,7 @@ documents[0] = get_document(inf)
 
 document = documents[0]
 
-iterations = 100
+iterations = 10
 
 z_flips_counts = []
 grand_total_score_keeping = {}
@@ -203,8 +202,7 @@ for i in range(0, iterations):
                         lms[new_z]['counts'][token['word']] += 1 # increment the LM
                     if old_z != "G" and lms[old_z]['counts'][token['word']] > 0:
                         lms[old_z]['counts'][token['word']] -= 1
-        pdb.set_trace()
-        # some score keeping for the model to be cleaned up later. TODO
+        # some score keeping for the model to be cleaned up later. TODO Scorekeeper is a different function
         score_keeping = []
         all_tokens = []
         for sentence in document.keys():
