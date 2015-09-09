@@ -11,7 +11,7 @@ doc_vocabs = {}
 
 def sentence_to_human(sentence):
     human = [(k, v) for k,v in sent_json.items()]
-    human.sort(key=lambda x: x[0])
+    human.sort(key=lambda x: int(x[0]))
     human = " ".join([o[1]['word'] for o in human])
     return human
 

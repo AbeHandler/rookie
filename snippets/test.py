@@ -17,9 +17,9 @@ from rookie.classes import IncomingFile
 from snippets.utils import flip
 from snippets import log
 
-iterations = 10
+iterations = 50
 
-pi_pseudo_counts = {'D': 3, 'Q': 1, 'G': 3}
+pi_pseudo_counts = {'D': 1, 'Q': 1, 'G': 1}
 
 lms = {}  # variable to hold the langauge model counts/pseudocounts
 
@@ -154,7 +154,7 @@ def lookup_p_lms(tokens):
     for source in sources:
         net_counts[source] = pi_pseudo_counts[source]
     for token in tokens.keys():
-        net_counts[tokens[0]['z']] += 1
+        net_counts[tokens[token]['z']] += 1
     sum_counts = float(sum(v for k, v in net_counts.items()))
     for source in sources:
         output[source] = float(net_counts[source]) / sum_counts
@@ -188,8 +188,6 @@ for i in range(0, iterations):
                 p_tokens['D'] = lookup_p_token(token['word'], 'D', document)
                 p_lms = lookup_p_lms(document[sentence]['tokens'])
                 old_z = token['z']
-                if sentence == 1 and document[sentence]['tokens'][1]['word']=="parish":
-                    pdb.set_trace()
                 new_z = flip_for_z(p_tokens, p_lms, token['word'])
                 if old_z != new_z:
                     z_flips_this_iteration += 1
