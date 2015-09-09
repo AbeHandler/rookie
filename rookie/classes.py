@@ -35,6 +35,7 @@ class IncomingFile(object):
                 self.doc = Document(data)
                 corefs = Coreferences(data, self.doc)
                 self.doc.coreferences = corefs
+                self.filename = filename
         except UnicodeEncodeError:
             pass
         except TypeError:
