@@ -32,17 +32,17 @@ corpus_lm = pickle.load(open("snippets/lm.p", "rb"))
 Load the sample file and query
 '''
 
-query = [["common", "core"], ["gary", "robichaux"]]
+query = [["vera", "institute"], ["orleans", "parish", "prison"]]
 
 sources = ['G', 'Q', 'D']  # potential values for d
 
-fns = [o.replace("\n", "") for o in open("snippets/commoncorefiles.txt", "r")]
+fns = [o.replace("\n", "") for o in open("snippets/oppverafiles.txt", "r")]
 
 documents = {}
 
 
 def sentence_to_human(sentence):
-    human = [(k, v) for k,v in sentence.items()]
+    human = [(k, v) for k, v in sentence.items()]
     human.sort(key=lambda x: x[0])
     human = " ".join([o[1]['word'] for o in human])
     return human
@@ -175,10 +175,11 @@ z_flips_counts = []
 
 for iteration in range(0, iterations):
     print iteration
+    z_flips_this_iteration = 0
     for doc in documents:
         document = documents[doc]
-        z_flips_this_iteration = 0
-        sent_keys = (iteration for iteration in document.keys() if iteration != ("lm") and iteration != "fn")
+        sent_keys = (i for i in document.keys() if
+                     i != ("lm") and i != "fn")
         for sentence in sent_keys:
             for token_no in document[sentence]['tokens']:
                 token = document[sentence]['tokens'][token_no]
@@ -202,4 +203,4 @@ for iteration in range(0, iterations):
                     if old_z == "Q" and query_lm['counts'][token['word']] > 0:
                         query_lm['counts'][token['word']] -= 1
             log.debug("sentence_snapshot {} || {} || {} || {}".format(document['fn'], iteration, sentence, json.dumps(document[sentence])))
-        log.debug("zflips || {} || iteration {} || flips {}".format(document['fn'], doc, iteration, z_flips_this_iteration))
+    log.debug("zflips || {} || {}".format(iteration, z_flips_this_iteration))
