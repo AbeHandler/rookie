@@ -32,11 +32,11 @@ corpus_lm = pickle.load(open("snippets/lm.p", "rb"))
 Load the sample file and query
 '''
 
-query = [["common", "core"], ["gary", "robichaux"]]
+query = [["orleans", "parish", "prison"], ["vera", "institute"]]
 
 sources = ['G', 'Q', 'D']  # potential values for d
 
-fns = [o.replace("\n", "") for o in open("snippets/commoncorefiles.txt", "r")]
+fns = [o.replace("\n", "") for o in open("snippets/oppverafiles.txt", "r")]
 
 documents = {}
 

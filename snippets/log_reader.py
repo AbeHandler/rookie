@@ -63,6 +63,8 @@ for doc_vocab in doc_vocabs_original:
 See which words are most associated with the query
 '''
 
+sentence_scores = defaultdict(list)
+
 all_words = defaultdict(list)
 
 all_sentences = [i.replace("\n", "").split("||").pop() for i in log if "sentence_snapshot" in i]
