@@ -17,29 +17,6 @@ from rookie.classes import IncomingFile
 from snippets.utils import flip
 from snippets import log
 
-iterations = 50
-
-pi_pseudo_counts = {'D': 1, 'Q': 1, 'G': 1}
-
-lms = {}  # variable to hold the langauge model counts/pseudocounts
-
-'''
-Load the precomputed corpus language model
-'''
-corpus_lm = pickle.load(open("snippets/lm.p", "rb"))
-
-'''
-Load the sample file and query
-'''
-
-query = [["vera", "institute"], ["orleans", "parish", "prison"]]
-
-sources = ['G', 'Q', 'D']  # potential values for d
-
-fns = [o.replace("\n", "") for o in open("snippets/oppverafiles.txt", "r")]
-
-documents = {}
-
 
 def sentence_to_human(sentence):
     human = [(k, v) for k, v in sentence.items()]
@@ -125,10 +102,6 @@ def get_query_lm(documents):
     return {"counts": query_lm_counts, "pseudocounts": query_pseudoc}
 
 
-documents = get_documents(fns)
-query_lm = get_query_lm(documents)
-
-
 '''
 Setup pseudocounts and counts for doc/query LMs + sentence distributions.
 '''
@@ -170,6 +143,33 @@ def flip_for_z(p_tokens, p_lms, token):
         ranges.append(p_tokens[source] * p_lms[source])
     winner = flip(ranges)
     return sources[winner]
+
+
+iterations = 10
+
+pi_pseudo_counts = {'D': 1, 'Q': 1, 'G': 1}
+
+lms = {}  # variable to hold the langauge model counts/pseudocounts
+
+'''
+Load the precomputed corpus language model
+'''
+corpus_lm = pickle.load(open("snippets/lm.p", "rb"))
+
+'''
+Load the sample file and query
+'''
+
+query = [["vera", "institute"], ["orleans", "parish", "prison"]]
+
+sources = ['G', 'Q', 'D']  # potential values for d
+
+fns = [o.replace("\n", "") for o in open("snippets/oppverafiles.txt", "r")]
+
+documents = {}
+
+documents = get_documents(fns)
+query_lm = get_query_lm(documents)
 
 z_flips_counts = []
 

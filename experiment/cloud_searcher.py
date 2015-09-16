@@ -38,6 +38,7 @@ def get_counter_and_de_alias(field, results):
     subset = [r['fields'][field] for r in results if field in r['fields'].keys()]
     subset = list(itertools.chain.from_iterable(subset))
     most_common = collections.Counter(subset).most_common(100)
+    pdb.set_trace()
     aliases = Merger.merge_lists([[o[0]] for o in most_common])
     for names in aliases:
         master_name = get_representitive_item(names, field)
@@ -48,11 +49,12 @@ def get_counter_and_de_alias(field, results):
                 pop_this = [i for i in most_common if i[0] == name].pop()
                 most_common.remove(pop_this)
             most_common.append(replacement)
+    pdb.set_trace()
     return most_common
 
 
 def get_caption(name):
-    captions_people = get_pickled("pickled/people_captions.p")
+    captions_people = pickle.load(open("pickled/people_captions.p", "r"))
     try:
         return captions_people[name]
     except:
