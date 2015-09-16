@@ -35,7 +35,7 @@ class Models(object):
             results = [r for r in results if (parse(r['fields']['pubdate']) >= params.startdate) and (parse(r['fields']['pubdate']) <= params.enddate)]
         results = tuple(results)
         log.debug("processed results")
-        tops = get_overview(results, params.q, 100)  # handle the cloudsearch results
+        tops = get_overview(results, params.q, 3)  # handle the cloudsearch results
 
         return results, tops
 

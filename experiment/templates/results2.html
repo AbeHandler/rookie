@@ -12,14 +12,6 @@
 
 <body>
 {% include 'banner.html' %}
-<div class="row">
-
-  <div id="myModal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
-    <h2 id="modalTitle">Please don't leave this page during the task</h2>
-    This is a controlled experiment. Turkers who use other resources will not get paid.
-    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
-  </div>
-</div>
 
 <div id="controls" class="row">
 
@@ -71,52 +63,16 @@
   </div>
 
 
-<!--
   {% for result in n_results %}
   <span>{{ result['fields']['pubdate'] }}</span>  <span class="headline">{{ result['fields']['headline'] }}</span>
   <br>
   {% endfor %}
--->
-
 
   </div>
   </div>
 
 </div>
 
-
-<div class="row">
-
-{% for person in people%}
-    {{person}} <br>
-{% endfor %}
-
-{% for organization in organizations%}
-    {{organization}} <br>
-{% endfor %}
-
-{% for term in terms%}
-    {{term}} <br>
-{% endfor %}
-
-</div>
-
-<!--
-<div class="row">
-
-    <fieldset>
-     <legend>Questions</legend>
-
-       <div class="large-12 columns">
-         <label>What is your name bro?</label>
-         <input id="name" type="text" class="small-12 columns"></input>
-       </div>
-    </fieldset>
-
-<a id="enter" class="button right">Enter</a>
-
-</div>
--->
 
 <script type="text/javascript" src="https://s3-us-west-2.amazonaws.com/rookie2/js/rookie2.js"></script>
 

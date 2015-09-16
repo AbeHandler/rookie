@@ -16,7 +16,7 @@ from rookie import (
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.route('/old')
 def index():
     log.info("index routing")
     return render_template('index.html',
@@ -24,7 +24,7 @@ def index():
                            banner_css=BANNER_CSS)
 
 
-@app.route('/results', methods=['GET'])
+@app.route('/old/results', methods=['GET'])
 def results():
 
     log.debug('/search/ data:')
@@ -55,11 +55,6 @@ def results():
 
     return view
 
-
-@app.route('/answer/<string:name>', methods=['POST'])
-def log_answer(name):
-    log.debug(name)
-    return "awesome bro"
 
 if __name__ == '__main__':
     app.run(debug=True)

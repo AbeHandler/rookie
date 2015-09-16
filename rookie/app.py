@@ -19,7 +19,7 @@ app = Flask(__name__)
 pmis = get_pmi()
 
 
-@app.route('/rookie/', methods=['GET'])
+@app.route('/rookie/old', methods=['GET'])
 def intro():
     """
     Intro page for the web app
@@ -38,7 +38,7 @@ def intro():
     return view
 
 
-@app.route('/rookie/search', methods=['GET'])
+@app.route('/rookie/search/old', methods=['GET'])
 def search():
     """
     Do a search
