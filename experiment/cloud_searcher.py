@@ -18,7 +18,7 @@ stop_ner = ["The Lens", "THE LENS"]  # TODO refactor this out of the loader
 
 
 def get_search_service():
-    conn = boto.connect_cloudsearch2(region="us-west-2",
+    conn = boto.connect_cloudsearch2(region="us-east-1",
                     aws_access_key_id=os.environ.get('aws_access_key_id'),
                     aws_secret_access_key=os.environ.get('aws_secret_access_key'))
 
