@@ -13,9 +13,23 @@ import pdb
 from rookie import processed_location
 from collections import Counter
 from collections import defaultdict
+from experiment.cloud_searcher import query_cloud_search
 from rookie.classes import IncomingFile
 from snippets.utils import flip
 from snippets import log
+
+
+# delete this later
+class Parameters(object):
+
+    def __init__(self):
+        self.q = None
+        self.term = None
+        self.termtype = None
+        self.current_page = None
+        self.startdate = None
+        self.enddate = None
+        self.page = None
 
 
 def sentence_to_human(sentence):
@@ -35,20 +49,22 @@ def random_z():
         return "Q"
 
 
-def get_doc_tokens(inf):
+def get_doc_tokens(doc):
     '''
     Get the document's tokens
     '''
-    doc_tokens = [i.raw.lower() for i in inf.doc.tokens]
+    for sentence in inf:
+        print sentence
+        pdb.set_trace()
     doc_vocab_counter = Counter(doc_tokens)
     log.debug("DVOCAB||" + inf.filename + "||" + json.dumps(doc_vocab_counter))
     return [i for i in set(doc_tokens)]
 
 
-def get_doc_lm(inf):
+def get_doc_lm(doc):
     doc_pseudoc = defaultdict(int)
     doc_lm_counts = defaultdict(int)
-    doc_vocab = get_doc_tokens(inf)
+    doc_vocab = get_doc_tokens(doc)
     for word in doc_vocab:
         doc_pseudoc[word] = 1
         doc_lm_counts[word] = 0
@@ -56,19 +72,22 @@ def get_doc_lm(inf):
     return doc_lm
 
 
-def get_document(inf):
+def get_document(cloud_document):
     '''
     Get document data structure
     '''
+    sentences = cloud_document['fields']['sentences'][0].split("||")
     document = {}
-    for s in range(0, len(inf.doc.sentences)):
-        tokens = [o.raw for o in inf.doc.sentences[s].tokens]
+    for s in range(0, len(sentences)):
+        sentence = sentences[s]
+        tokens = sentence.split("&&")
         tokens_dict = {}
         for t in range(0, len(tokens)):
             tokens_dict[t] = {'word': tokens[t].lower(), 'z': random_z()}
         document[s] = {'tokens': tokens_dict}
-    document['lm'] = get_doc_lm(inf)
+    document['lm'] = get_doc_lm(document)
     document['fn'] = inf.filename
+    pdb.set_trace()
     return document
 
 
@@ -160,15 +179,11 @@ corpus_lm = pickle.load(open("snippets/lm.p", "rb"))
 Load the sample file and query
 '''
 
-query = [["vera", "institute"], ["orleans", "parish", "prison"]]
-
 sources = ['G', 'Q', 'D']  # potential values for d
-
-fns = [o.replace("\n", "") for o in open("snippets/oppverafiles.txt", "r")]
 
 documents = {}
 
-documents = get_documents(fns)
+documents = [get_document(i) for i in query_cloud_search("orleans parish prison")]
 query_lm = get_query_lm(documents)
 
 z_flips_counts = []

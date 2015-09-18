@@ -22,7 +22,6 @@ doc_frequencies_ngrams = defaultdict(int)
 doc_frequencies_orgs = defaultdict(int)
 
 counts = get_pickled("pickled/counts.p")
-types_processed = get_pickled("pickled/types_processed.p")
 keys = set(counts.keys())
 
 
@@ -32,9 +31,9 @@ def to_aws_format(infile, counter):
     upload['id'] = counter
     data = {}
     data['text'] = infile.doc.full_text
-    sentences = []
+    sentences = "" #amazon has some wierdo format so storing sentences like this
     for sent in infile.doc.sentences:
-        sentences.append([o.raw for o in sent.tokens])
+        sentences = sentences + "&&".join([o.raw for o in sent.tokens]) + "||"
     data['sentences'] = sentences
     data['headline'] = infile.headline
     data['url'] = infile.url

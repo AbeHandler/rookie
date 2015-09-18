@@ -3,9 +3,12 @@
 #"DomainId": "878503168987/rookie" 
 #aws cloudsearch describe-domains --domain-names rookie
 ENDPOINT=$(aws cloudsearch describe-domains --domain-names rookieversion3 | jsawk 'return this.DomainStatusList[0].DocService.Endpoint')
-aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --content-type application/json --documents data/aws/1.json
 aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --content-type application/json --documents data/aws/0.json
+aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --content-type application/json --documents data/aws/1.json
 aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --content-type application/json --documents data/aws/2.json
+aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --content-type application/json --documents data/aws/3.json
+aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --content-type application/json --documents data/aws/4.json
+aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --content-type application/json --documents data/aws/5.json
 
 #create security group
 #aws ec2 create-security-group --group-name rookie --description "Rookie security group"

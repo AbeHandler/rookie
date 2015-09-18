@@ -110,10 +110,10 @@ def reduce_instances(instances):
 # the BIG 5 MB instances dict can be reduced before the upcoming merges
 instances = reduce_instances(instances)
 
-
-pickle.dump(unigram_df, open(files_location + "unigram_df.p", "wb"))
-pickle.dump(unigrams, open(files_location + "unigrams.p", "wb"))
-pickle.dump(joint_counts, open(files_location + "joint_counts.p", "wb"))
-pickle.dump(counts, open(files_location + "counts.p", "wb"))
-pickle.dump(instances, open(files_location + "instances.p", "wb"))
-pickle.dump(types, open(files_location + "types.p", "wb"))
+pdb.set_trace()
+pickle.dump(unigram_df, open(files_location + "pickled/unigram_df.p", "wb"))
+pickle.dump(unigrams, open(files_location + "pickled/unigrams.p", "wb"))
+pickle.dump(joint_counts, open(files_location + "pickled/joint_counts.p", "wb"))
+pickle.dump(counts, open(files_location + "pickled/counts.p", "wb"))
+pickle.dump(instances, open(files_location + "pickled/instances.p", "wb"))
+pickle.dump(types, open(files_location + "pickled/types.p", "wb"))
