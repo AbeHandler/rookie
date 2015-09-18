@@ -15,8 +15,6 @@ from rookie import processed_location
 
 files_to_check = glob.glob(processed_location + "/*")
 
-chuunks = 15
-
 N = 0
 
 doc_frequencies_people = defaultdict(int)
@@ -34,10 +32,10 @@ def to_aws_format(infile, counter):
     upload['id'] = counter
     data = {}
     data['text'] = infile.doc.full_text
-    tokens = []
-    for s in infile.doc.sentences:
-        tokens = tokens + [o.raw for o in inf.doc.sentences[s].tokens]
-    data['tokens'] = tokens
+    sentences = []
+    for sent in infile.doc.sentences:
+        sentences.append([o.raw for o in sent.tokens])
+    data['sentences'] = sentences
     data['headline'] = infile.headline
     data['url'] = infile.url
     data['pubdate'] = infile.pubdate
@@ -72,7 +70,7 @@ datas = {}
 
 file_counter = 0
 
-chunks = 3
+chunks = 6
 
 for i in range(0, chunks):
     datas[i] = []
