@@ -25,7 +25,15 @@ class Models(object):
 
     @staticmethod
     @lrudecorator(1000)
-    def search(params):
+    def get_snippet():
+        snip = '''Lorem ipsum dolor sit amet, in enim ancillae his, an vis nostrum facilisi, vis intellegam definitionem in. Et intellegat reprimique sit, ne vix vitae recteque. Rebum fuisset adolescens ad usu, tempor aliquando te nec, nonumes antiopam democritum cu vel. Adhuc dolor ridens his an, duo aliquid expetendis definiebas cu. No his regione eripuit qualisque, ei molestie percipitur cum. Saepe accusata concludaturque te eam, nam ne brute novum deterruisset.
+               Odio reprehendunt eam te, justo dicta ex ius. Est id doming gubergren efficiendi, ut prima eleifend mei. Eos utinam delenit consequat no. Te ubique legendos voluptatibus mel, quo ei congue scripta inciderint. An vitae recusabo eos, eu sed cibo scripta commune.
+               Pro suscipit maiestatis id, vel ne lucilius delicata, lorem tritani indoctum mea ex. Pro et integre blandit temporibus. Qui omnis accusata pericula at, nam cu clita laboramus voluptaria. Reque exerci theophrastus no nam.'''
+        return snip.replace("\n", "...")
+
+    @staticmethod
+    @lrudecorator(1000)
+    def search(params, snippets=False):
         '''search elastic search and return results'''
         results = [r for r in query_cloud_search(params.q)]
         if params.term is not None and params.termtype is not None:
@@ -35,9 +43,17 @@ class Models(object):
             results = [r for r in results if (parse(r['fields']['pubdate']) >= params.startdate) and (parse(r['fields']['pubdate']) <= params.enddate)]
         results = tuple(results)
         log.debug("processed results")
-        tops = get_overview(results, params.q, 3)  # handle the cloudsearch results
+        if not snippets:
+            tops = get_overview(results, params.q, 3)  # handle the cloudsearch results
+            return results, tops
+        else:
+            tops = get_overview(results, params.q, 3)
+            output = []
+            for ent_type in tops:
+                for ent in tops[ent_type]:
+                    output.append((ent[0], Models.get_snippet()))
+            return results, tuple(output)
 
-        return results, tops
 
     @staticmethod
     def get_limited(results, term, termtype):

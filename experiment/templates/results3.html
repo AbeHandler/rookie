@@ -33,38 +33,26 @@
 </div>
 
 
-<div class="row">
-  <div id="search_status"></div>
-  <div id="results">
+
+{% for term in terms%}
 
 
-  <div class="row columns small-12">
-  <div>
-  {{message}}
-  </div>
-  <br>
-  Related to {{query}}: 
-  <div id="relationships">
-      {% for person in people%}
-         <span id="{{person[0]}}" class="term person" data-term-type="people">{{person[0]}}</span> 
-         {% if person[1]|length > 1 %}
-            <span class="title" data-term-type="person">({{person[1]}})</span>, 
-         {% else %},
-         {% endif %}
-      {% endfor %}
+        <div class="row">
+          <div class="small-3 columns">
+            <div class="callout panel">
+              <p>{{term[0]}}</p>
+            </div>
+          </div>
+          <div class="small-9 columns">
+            <div class="callout panel">
+              <p>{{term[1]}}</p>
+            </div>
+          </div>
+        </div>
+        
+{% endfor %}
+ 
 
-      {% for organization in organizations%}
-         <span id="{{organization}}" class="term organization" data-term-type="organizations">{{organization}}</span>, 
-      {% endfor %}
-
-      {% for term in terms%}
-         <span id="{{term}}" class="term ngram" data-term-type="ngrams">{{term}}</span>,
-      {% endfor %}
-  </div>
-
-
-  </div>
-  </div>
 
 </div>
 
