@@ -34,6 +34,10 @@ def to_aws_format(infile, counter):
     upload['id'] = counter
     data = {}
     data['text'] = infile.doc.full_text
+    tokens = []
+    for s in infile.doc.sentences:
+        tokens = tokens + [o.raw for o in inf.doc.sentences[s].tokens]
+    data['tokens'] = tokens
     data['headline'] = infile.headline
     data['url'] = infile.url
     data['pubdate'] = infile.pubdate

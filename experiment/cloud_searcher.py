@@ -22,7 +22,7 @@ def get_search_service():
                     aws_access_key_id=os.environ.get('aws_access_key_id'),
                     aws_secret_access_key=os.environ.get('aws_secret_access_key'))
 
-    domain = conn.lookup('rookie3')
+    domain = conn.lookup('rookieversion3')
     return domain.get_search_service()
 
 
