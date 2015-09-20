@@ -38,11 +38,13 @@ class Models(object):
         results = [r for r in query_cloud_search(params.q)]
         if params.term is not None and params.termtype is not None:
             log.debug("filtering by term {}".format(params.term))
+            results = [r for r in results if params.termtype in r['fields']]
+            terms = [" ".join(r['fields'][params.termtype]) for r in results]
+            pdb.set_trace()
             results = [r for r in results if params.termtype in r['fields'] and params.term in r['fields'][params.termtype]]
         if params.startdate and params.enddate:
             results = [r for r in results if (parse(r['fields']['pubdate']) >= params.startdate) and (parse(r['fields']['pubdate']) <= params.enddate)]
         results = tuple(results)
-        pdb.set_trace()
         if not overview:
             return results
         log.debug("processed results")
