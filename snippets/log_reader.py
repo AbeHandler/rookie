@@ -101,10 +101,6 @@ with open("qwords", "w") as outfile:
 See which sentences are most associated with the query
 '''
 
-all_sentences = [i.replace("\n", "").split("||").pop() for i in log if "sentence_snapshot" in i]
-
-sentence_scores = defaultdict(list)
-
 for sentence in sentence_scores:
     vals = sentence_scores[sentence]
     sentence_scores[sentence] = sum(vals) / float(len(vals))

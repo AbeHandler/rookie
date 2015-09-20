@@ -39,9 +39,7 @@ class Models(object):
         if params.term is not None and params.termtype is not None:
             log.debug("filtering by term {}".format(params.term))
             results = [r for r in results if params.termtype in r['fields']]
-            terms = [" ".join(r['fields'][params.termtype]) for r in results]
-            pdb.set_trace()
-            results = [r for r in results if params.termtype in r['fields'] and params.term in r['fields'][params.termtype]]
+            results = [r for r in results if params.term in " ".join(r['fields'][params.termtype]).lower()]
         if params.startdate and params.enddate:
             results = [r for r in results if (parse(r['fields']['pubdate']) >= params.startdate) and (parse(r['fields']['pubdate']) <= params.enddate)]
         results = tuple(results)

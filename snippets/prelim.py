@@ -32,6 +32,12 @@ class Parameters(object):
         self.page = None
 
 
+p = Parameters()
+p.q = "orleans parish prison"
+p.term = "vera institute"
+p.termtype = "organizations"
+
+
 def sentence_to_human(sentence):
     human = [(k, v) for k, v in sentence.items()]
     human.sort(key=lambda x: x[0])
@@ -155,10 +161,9 @@ def lookup_p_lms(tokens):
     return output
 
 
-def flip_for_z(p_tokens, p_lms, token):
-    for term in query:
-        if token in term:
-            return "Q"
+def flip_for_z(p_tokens, p_lms, token, params):
+    if token in params.q + " " + params.term:
+        return "Q"
     ranges = []
     for source in sources:  # sources defined at top of file. bad
         ranges.append(p_tokens[source] * p_lms[source])
@@ -185,18 +190,10 @@ sources = ['G', 'Q', 'D']  # potential values for d
 
 documents = {}
 
+# results = Models.search(p, overview=False)
+results = pickle.load(open("pickled/oppveraresults.p", "r"))
+documents = [get_document(r) for r in results]
 
-p = Parameters()
-p.q = "orleans parish prison"
-p.term = "vera institute"
-p.termtype = "organizations"
-
-results = Models.search(p, overview=False)
-
-pdb.set_trace()
-
-documents = [get_document(i) for i in
-             pre_filtered if filter_doc(i, term, term_type)]
 query_lm = get_query_lm(documents)
 
 z_flips_counts = []
@@ -215,7 +212,7 @@ for iteration in range(0, iterations):
                 p_tokens['D'] = lookup_p_token(token['word'], 'D', document)
                 p_lms = lookup_p_lms(document['sentences'][sentence]['tokens'])
                 old_z = token['z']
-                new_z = flip_for_z(p_tokens, p_lms, token['word'])
+                new_z = flip_for_z(p_tokens, p_lms, token['word'], p)
                 if old_z != new_z:
                     z_flips_this_iteration += 1
                 document['sentences'][sentence]['tokens'][token_no]['z'] = new_z
