@@ -33,7 +33,7 @@ class Models(object):
 
     @staticmethod
     @lrudecorator(1000)
-    def search(params, snippets=False):
+    def search(params, overview=True, snippets=False):
         '''search elastic search and return results'''
         results = [r for r in query_cloud_search(params.q)]
         if params.term is not None and params.termtype is not None:
@@ -42,6 +42,9 @@ class Models(object):
         if params.startdate and params.enddate:
             results = [r for r in results if (parse(r['fields']['pubdate']) >= params.startdate) and (parse(r['fields']['pubdate']) <= params.enddate)]
         results = tuple(results)
+        pdb.set_trace()
+        if not overview:
+            return results
         log.debug("processed results")
         if not snippets:
             tops = get_overview(results, params.q, 3)  # handle the cloudsearch results

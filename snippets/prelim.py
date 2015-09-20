@@ -13,7 +13,7 @@ import pdb
 from rookie import processed_location
 from collections import Counter
 from collections import defaultdict
-from experiment.cloud_searcher import query_cloud_search
+from experiment.models import Models
 from rookie.classes import IncomingFile
 from snippets.utils import flip
 from snippets import log
@@ -53,11 +53,13 @@ def get_doc_tokens(doc):
     '''
     Get the document's tokens
     '''
-    for sentence in inf:
-        print sentence
-        pdb.set_trace()
+    doc_tokens = []
+    for sentence_no in doc['sentences']:
+        for token in doc['sentences'][sentence_no]['tokens']:
+            tok = doc['sentences'][sentence_no]['tokens'][token]['word']
+            doc_tokens.append(tok)
     doc_vocab_counter = Counter(doc_tokens)
-    log.debug("DVOCAB||" + inf.filename + "||" + json.dumps(doc_vocab_counter))
+    log.debug("DVOCAB||" + doc['url'] + "||" + json.dumps(doc_vocab_counter))
     return [i for i in set(doc_tokens)]
 
 
@@ -78,16 +80,16 @@ def get_document(cloud_document):
     '''
     sentences = cloud_document['fields']['sentences'][0].split("||")
     document = {}
+    document['sentences'] = {}
+    document['url'] = cloud_document['fields']['url']
     for s in range(0, len(sentences)):
         sentence = sentences[s]
         tokens = sentence.split("&&")
         tokens_dict = {}
         for t in range(0, len(tokens)):
             tokens_dict[t] = {'word': tokens[t].lower(), 'z': random_z()}
-        document[s] = {'tokens': tokens_dict}
+        document['sentences'][s] = {'tokens': tokens_dict}
     document['lm'] = get_doc_lm(document)
-    document['fn'] = inf.filename
-    pdb.set_trace()
     return document
 
 
@@ -104,8 +106,7 @@ def get_documents(fns):
 
 def get_query_vocab(documents):
     query_vocab = []
-    for d in documents.keys():
-        document = documents[d]
+    for document in documents:
         doc_vocab = document['lm']['counts'].keys()
         query_vocab = query_vocab + doc_vocab
     return [i for i in set(query_vocab)]
@@ -136,7 +137,8 @@ def lookup_p_token(token, lm_var, doc=None):
         lm = query_lm
     numerator = lm['counts'][token] + lm['pseudocounts'][token]
     denom = sum(v for k, v in lm['counts'].items())
-    denom = denom + sum(v for k, v in lm['pseudocounts'].items())  # TODO: add decrements
+    # TODO: add decrements
+    denom = denom + sum(v for k, v in lm['pseudocounts'].items())
     return float(numerator)/float(denom)
 
 
@@ -183,7 +185,18 @@ sources = ['G', 'Q', 'D']  # potential values for d
 
 documents = {}
 
-documents = [get_document(i) for i in query_cloud_search("orleans parish prison")]
+
+p = Parameters()
+p.q = "orleans parish prison"
+p.term = "vera institute"
+p.termtype = "organizations"
+
+results = Models.search(p, overview=False)
+
+pdb.set_trace()
+
+documents = [get_document(i) for i in
+             pre_filtered if filter_doc(i, term, term_type)]
 query_lm = get_query_lm(documents)
 
 z_flips_counts = []
@@ -191,23 +204,21 @@ z_flips_counts = []
 for iteration in range(0, iterations):
     print iteration
     z_flips_this_iteration = 0
-    for doc in documents:
-        document = documents[doc]
-        sent_keys = (i for i in document.keys() if
-                     i != ("lm") and i != "fn")
+    for document in documents:
+        sent_keys = document['sentences']
         for sentence in sent_keys:
-            for token_no in document[sentence]['tokens']:
-                token = document[sentence]['tokens'][token_no]
+            for token_no in document['sentences'][sentence]['tokens']:
+                token = document['sentences'][sentence]['tokens'][token_no]
                 p_tokens = {}
                 p_tokens['G'] = lookup_p_token(token['word'], 'G')
                 p_tokens['Q'] = lookup_p_token(token['word'], 'Q')
                 p_tokens['D'] = lookup_p_token(token['word'], 'D', document)
-                p_lms = lookup_p_lms(document[sentence]['tokens'])
+                p_lms = lookup_p_lms(document['sentences'][sentence]['tokens'])
                 old_z = token['z']
                 new_z = flip_for_z(p_tokens, p_lms, token['word'])
                 if old_z != new_z:
                     z_flips_this_iteration += 1
-                document[sentence]['tokens'][token_no]['z'] = new_z
+                document['sentences'][sentence]['tokens'][token_no]['z'] = new_z
                 if new_z != old_z:  # general LM is fixed
                     if new_z == "D":
                         document['lm']['counts'][token['word']] += 1
@@ -217,5 +228,5 @@ for iteration in range(0, iterations):
                         document['lm']['counts'][token['word']] -= 1
                     if old_z == "Q" and query_lm['counts'][token['word']] > 0:
                         query_lm['counts'][token['word']] -= 1
-            log.debug("sentence_snapshot {} || {} || {} || {}".format(document['fn'], iteration, sentence, json.dumps(document[sentence])))
+            log.debug("sentence_snapshot {} || {} || {} || {}".format(document['url'], iteration, sentence, json.dumps(document['sentences'][sentence])))
     log.debug("zflips || {} || {}".format(iteration, z_flips_this_iteration))
