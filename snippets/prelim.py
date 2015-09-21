@@ -6,43 +6,18 @@ import itertools
 import json
 import numpy as np
 import matplotlib.pyplot as plt
-import pickle
-
 import pdb
-
+from pylru import lrudecorator
 from rookie import processed_location
 from collections import Counter
 from collections import defaultdict
-from experiment.models import Models
+from experiment.models import Models, Parameters
 from rookie.classes import IncomingFile
 from snippets.utils import flip
 from snippets import log
 
 
-# delete this later
-class Parameters(object):
-
-    def __init__(self):
-        self.q = None
-        self.term = None
-        self.termtype = None
-        self.current_page = None
-        self.startdate = None
-        self.enddate = None
-        self.page = None
-
-
-p = Parameters()
-p.q = "orleans parish prison"
-p.term = "vera institute"
-p.termtype = "organizations"
-
-
-def sentence_to_human(sentence):
-    human = [(k, v) for k, v in sentence.items()]
-    human.sort(key=lambda x: x[0])
-    human = " ".join([o[1]['word'] for o in human])
-    return human
+iterations = 10
 
 
 def random_z():
@@ -128,13 +103,9 @@ def get_query_lm(documents):
     return {"counts": query_lm_counts, "pseudocounts": query_pseudoc}
 
 
-'''
-Setup pseudocounts and counts for doc/query LMs + sentence distributions.
-'''
-
-
 def lookup_p_token(token, lm_var, doc=None):
     if lm_var == "G":
+        corpus_lm = get_corpus_lm()
         return corpus_lm[token]
     lm = None
     if lm_var == "D":
@@ -148,11 +119,11 @@ def lookup_p_token(token, lm_var, doc=None):
     return float(numerator)/float(denom)
 
 
-def lookup_p_lms(tokens):
+def lookup_p_lms(tokens, alpha):
     net_counts = {}
     output = {}
     for source in sources:
-        net_counts[source] = pi_pseudo_counts[source]
+        net_counts[source] = alpha
     for token in tokens.keys():
         net_counts[tokens[token]['z']] += 1
     sum_counts = float(sum(v for k, v in net_counts.items()))
@@ -162,7 +133,8 @@ def lookup_p_lms(tokens):
 
 
 def flip_for_z(p_tokens, p_lms, token, params):
-    if token in params.q + " " + params.term:
+    query = params.q + " " + params.term
+    if token in query.split(" "):
         return "Q"
     ranges = []
     for source in sources:  # sources defined at top of file. bad
@@ -171,32 +143,41 @@ def flip_for_z(p_tokens, p_lms, token, params):
     return sources[winner]
 
 
-iterations = 10
-
-pi_pseudo_counts = {'D': 1, 'Q': 1, 'G': 1}
-
-lms = {}  # variable to hold the langauge model counts/pseudocounts
-
-'''
-Load the precomputed corpus language model
-'''
-corpus_lm = pickle.load(open("snippets/lm.p", "rb"))
-
-'''
-Load the sample file and query
-'''
+@lrudecorator(1000)
+def get_corpus_lm():
+    corpus_lm = pickle.load(open("snippets/lm.p", "rb"))
+    return corpus_lm
 
 sources = ['G', 'Q', 'D']  # potential values for d
 
-documents = {}
 
-# results = Models.search(p, overview=False)
-results = pickle.load(open("pickled/oppveraresults.p", "r"))
-documents = [get_document(r) for r in results]
+def search_for_documents(params):
+    results = Models.search(params, overview=False)
+    # results = pickle.load(open("pickled/oppveraresults.p", "r"))
+    documents = [get_document(r) for r in results]
+    return documents
+
+p = Parameters()
+p.q = "orleans parish prison"
+p.term = "vera institute"
+p.termtype = "organizations"
+
+alpha = 1
+
+documents = search_for_documents(p)
 
 query_lm = get_query_lm(documents)
 
 z_flips_counts = []
+
+
+def lookup_p_tokens(token, document):
+    p_tokens = {}
+    p_tokens['G'] = lookup_p_token(token['word'], 'G')
+    p_tokens['Q'] = lookup_p_token(token['word'], 'Q')
+    p_tokens['D'] = lookup_p_token(token['word'], 'D', document)
+    return p_tokens
+
 
 for iteration in range(0, iterations):
     print iteration
@@ -206,11 +187,8 @@ for iteration in range(0, iterations):
         for sentence in sent_keys:
             for token_no in document['sentences'][sentence]['tokens']:
                 token = document['sentences'][sentence]['tokens'][token_no]
-                p_tokens = {}
-                p_tokens['G'] = lookup_p_token(token['word'], 'G')
-                p_tokens['Q'] = lookup_p_token(token['word'], 'Q')
-                p_tokens['D'] = lookup_p_token(token['word'], 'D', document)
-                p_lms = lookup_p_lms(document['sentences'][sentence]['tokens'])
+                p_tokens = lookup_p_tokens(token, document)
+                p_lms = lookup_p_lms(document['sentences'][sentence]['tokens'], alpha)
                 old_z = token['z']
                 new_z = flip_for_z(p_tokens, p_lms, token['word'], p)
                 if old_z != new_z:
