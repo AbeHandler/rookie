@@ -73,7 +73,10 @@ for sentence in all_sentences:
     sent_json = json.loads(sentence.replace("\n", ""))['tokens']
     total_tokens = float(len(sent_json))
     total_q = float(len([v['z'] for k, v in sent_json.items() if v['z'] == "Q"]))
-    frac = total_q/total_tokens
+    if int(total_tokens) == 0:
+        frac = 0.
+    else:
+        frac = total_q/total_tokens
     sentence_scores[sentence_to_human(sentence)].append(frac)
     for token in sent_json:
         all_words[sent_json[token]['word']].append(sent_json[token]['z'])

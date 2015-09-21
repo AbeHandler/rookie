@@ -68,8 +68,10 @@ def get_document(cloud_document):
         tokens = sentence.split("&&")
         tokens_dict = {}
         for t in range(0, len(tokens)):
-            tokens_dict[t] = {'word': tokens[t].lower(), 'z': random_z()}
-        document['sentences'][s] = {'tokens': tokens_dict}
+            if len(tokens[t]) > 0:
+                tokens_dict[t] = {'word': tokens[t].lower(), 'z': random_z()}
+        if len(tokens) > 5:  # ignore short sentence fragments
+            document['sentences'][s] = {'tokens': tokens_dict}
     document['lm'] = get_doc_lm(document)
     return document
 
