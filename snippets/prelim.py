@@ -67,7 +67,10 @@ class DocFetcher:
                     draw = np.random.multinomial(1, [1/3.] * 3, size=1)[0].tolist()
                     tokens_dict[t] = {'word': tokens[t].lower(), 'z': self.sources[draw.index(1)]}
             if len(tokens) > 5:  # ignore short sentence fragments
-                document['sentences'][s] = {'tokens': tokens_dict}
+                zcounts = {"D": 0, "Q": 0, "G": 0}
+                for token in tokens_dict:
+                    zcounts[tokens_dict[token]['z']] += 1
+                document['sentences'][s] = {'tokens': tokens_dict, 'zcounts': zcounts, 'zpseudo': {"D": 1, "Q": 1, "G": 1}}
         document['lm'] = self.get_doc_lm(document)
         return document
 
@@ -104,16 +107,16 @@ class Sampler:
             query_lm_counts[word] = 0
         return {"counts": query_lm_counts, "pseudocounts": query_pseudoc}
 
-    def lookup_p_lms(self, tokens, alpha):
-        net_counts = {}
+    def lookup_p_lms(self, tokens, alpha, token_no, zcounts, zpseudo):
+        missing_z = tokens[token_no]['z']
+        denom = sum(zcounts.values()) - 1 + sum(zpseudo.values())
         output = {}
         for source in self.sources:
-            net_counts[source] = alpha
-        for token in tokens.keys():
-            net_counts[tokens[token]['z']] += 1
-        sum_counts = float(sum(v for k, v in net_counts.items()))
-        for source in self.sources:
-            output[source] = float(net_counts[source]) / sum_counts
+            if source == missing_z:
+                num = zcounts[source] - 1 + zpseudo[tokens[token_no]['z']]
+            else:
+                num = zcounts[source] + zpseudo[tokens[token_no]['z']]
+            output[source] = float(num) / denom
         return output
 
     def flip_for_z(self, p_tokens, p_lms, token):
@@ -128,13 +131,13 @@ class Sampler:
 
     def lookup_p_token(self, token, lm_var, doclm=None):
         if lm_var == "G":
-            return self.corpus_lm[token]
-        lm = None
+            return self.corpus_lm[token['word']]
         if lm_var == "D":
             lm = doclm
         if lm_var == "Q":
             lm = self.query_lm
-        numerator = lm['counts'][token] + lm['pseudocounts'][token]
+        # decrement here to pretend you have not seen token. Gibbs.
+        numerator = lm['counts'][token['word']] + lm['pseudocounts'][token['word']]
         denom = sum(v for k, v in lm['counts'].items())
         # TODO: add decrements
         denom = denom + sum(v for k, v in lm['pseudocounts'].items())
@@ -142,16 +145,22 @@ class Sampler:
 
     def lookup_p_tokens(self, token, document):
         p_tokens = {}
-        p_tokens['G'] = self.lookup_p_token(token['word'], 'G')
-        p_tokens['Q'] = self.lookup_p_token(token['word'], 'Q')
-        p_tokens['D'] = self.lookup_p_token(token['word'], 'D', document['lm'])
+        p_tokens['G'] = self.lookup_p_token(token, 'G')
+        p_tokens['Q'] = self.lookup_p_token(token, 'Q')
+        p_tokens['D'] = self.lookup_p_token(token, 'D', document['lm'])
         return p_tokens
 
-    def sample_token(self, token, sentence, document, alpha):
+    def sample_token(self, token, token_no, sentence, document, alpha, zcounts, zpseudo):
         p_tokens = self.lookup_p_tokens(token, document)
-        p_lms = self.lookup_p_lms(document['sentences'][sentence]['tokens'], alpha)
+        p_lms = self.lookup_p_lms(document['sentences'][sentence]['tokens'], alpha, token_no, zcounts, zpseudo)
         new_z = self.flip_for_z(p_tokens, p_lms, token['word'])
         return new_z
+
+    def adjust_sentence_z_counts(self, zcounts, oldz, newz):
+        zcounts[oldz] -= 1
+        zcounts[newz] += 1
+        assert sum(1 for i in zcounts.values() if i < 0) == 0
+        return zcounts
 
     def run(self, alpha):
         z_flips_counts = []
@@ -163,10 +172,11 @@ class Sampler:
                 for sentence in sent_keys:
                     for token_no in document['sentences'][sentence]['tokens']:
                         token = document['sentences'][sentence]['tokens'][token_no]
-                        new_z = self.sample_token(token, sentence, document, alpha)
+                        new_z = self.sample_token(token, token_no, sentence, document, alpha, document['sentences'][sentence]['zcounts'], document['sentences'][sentence]['zpseudo'])
                         if token['z'] != new_z:
                             z_flips_this_iteration += 1
                         if new_z != token['z']:  # general LM is fixed
+                            document['sentences'][sentence]['zcounts'] = self.adjust_sentence_z_counts(document['sentences'][sentence]['zcounts'], token['z'], new_z)
                             if new_z == "D":
                                 document['lm']['counts'][token['word']] += 1
                             if new_z == "Q":
@@ -180,10 +190,13 @@ class Sampler:
             log.debug("zflips || {} || {}".format(iteration, z_flips_this_iteration))
 
 p = Parameters()
-p.q = "orleans parish prison"
+p.q = "prison"
 p.term = "vera institute"
 p.termtype = "organizations"
 
 df = DocFetcher()
-sampler = Sampler(df.search_for_documents(p), 10, p)
+docs = df.search_for_documents(p)
+# pickle.dump(docs, open("docs.p", "w"))
+# docs = pickle.load(open("docs.p", "r"))
+sampler = Sampler(docs, 10, p)
 sampler.run(1)
