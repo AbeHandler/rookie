@@ -194,9 +194,9 @@ class Sampler:
             log.debug("zflips || {} || {}".format(iteration, z_flips_this_iteration))
 
 p = Parameters()
-p.q = "prison"
-p.term = "vera institute"
-p.termtype = "organizations"
+p.q = "coastal restoration"
+p.term = "bobby jindal"
+p.termtype = "people"
 
 df = DocFetcher()
 docs = df.search_for_documents(p)
