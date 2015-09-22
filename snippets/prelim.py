@@ -105,22 +105,6 @@ def get_query_lm(documents):
     return {"counts": query_lm_counts, "pseudocounts": query_pseudoc}
 
 
-def lookup_p_token(token, lm_var, doc=None):
-    if lm_var == "G":
-        corpus_lm = get_corpus_lm()
-        return corpus_lm[token]
-    lm = None
-    if lm_var == "D":
-        lm = doc['lm']
-    if lm_var == "Q":
-        lm = query_lm
-    numerator = lm['counts'][token] + lm['pseudocounts'][token]
-    denom = sum(v for k, v in lm['counts'].items())
-    # TODO: add decrements
-    denom = denom + sum(v for k, v in lm['pseudocounts'].items())
-    return float(numerator)/float(denom)
-
-
 def lookup_p_lms(tokens, alpha):
     net_counts = {}
     output = {}
@@ -166,44 +150,66 @@ p.termtype = "organizations"
 
 alpha = 1
 
-documents = search_for_documents(p)
-
-query_lm = get_query_lm(documents)
 
 z_flips_counts = []
 
 
-def lookup_p_tokens(token, document):
-    p_tokens = {}
-    p_tokens['G'] = lookup_p_token(token['word'], 'G')
-    p_tokens['Q'] = lookup_p_token(token['word'], 'Q')
-    p_tokens['D'] = lookup_p_token(token['word'], 'D', document)
-    return p_tokens
+class Sampler:
 
+    def __init__(self, documents, iterations):
+        self.documents = documents
+        self.iterations = iterations
+        self.query_lm = get_query_lm(documents)
 
-for iteration in range(0, iterations):
-    print iteration
-    z_flips_this_iteration = 0
-    for document in documents:
-        sent_keys = document['sentences']
-        for sentence in sent_keys:
-            for token_no in document['sentences'][sentence]['tokens']:
-                token = document['sentences'][sentence]['tokens'][token_no]
-                p_tokens = lookup_p_tokens(token, document)
-                p_lms = lookup_p_lms(document['sentences'][sentence]['tokens'], alpha)
-                old_z = token['z']
-                new_z = flip_for_z(p_tokens, p_lms, token['word'], p)
-                if old_z != new_z:
-                    z_flips_this_iteration += 1
-                document['sentences'][sentence]['tokens'][token_no]['z'] = new_z
-                if new_z != old_z:  # general LM is fixed
-                    if new_z == "D":
-                        document['lm']['counts'][token['word']] += 1
-                    if new_z == "Q":
-                        query_lm['counts'][token['word']] += 1
-                    if old_z == "D" and document['lm']['counts'][token['word']] > 0:
-                        document['lm']['counts'][token['word']] -= 1
-                    if old_z == "Q" and query_lm['counts'][token['word']] > 0:
-                        query_lm['counts'][token['word']] -= 1
-            log.debug("sentence_snapshot {} || {} || {} || {}".format(document['url'], iteration, sentence, json.dumps(document['sentences'][sentence])))
-    log.debug("zflips || {} || {}".format(iteration, z_flips_this_iteration))
+    def lookup_p_token(self, token, lm_var, doc=None):
+        if lm_var == "G":
+            corpus_lm = get_corpus_lm()
+            return corpus_lm[token]
+        lm = None
+        if lm_var == "D":
+            lm = doc['lm']
+        if lm_var == "Q":
+            lm = self.query_lm
+        numerator = lm['counts'][token] + lm['pseudocounts'][token]
+        denom = sum(v for k, v in lm['counts'].items())
+        # TODO: add decrements
+        denom = denom + sum(v for k, v in lm['pseudocounts'].items())
+        return float(numerator)/float(denom)
+
+    def lookup_p_tokens(self, token, document):
+        p_tokens = {}
+        p_tokens['G'] = self.lookup_p_token(token['word'], 'G')
+        p_tokens['Q'] = self.lookup_p_token(token['word'], 'Q')
+        p_tokens['D'] = self.lookup_p_token(token['word'], 'D', document)
+        return p_tokens
+
+    def run(self):
+        for iteration in range(0, self.iterations):
+            print iteration
+            z_flips_this_iteration = 0
+            for document in self.documents:
+                sent_keys = document['sentences']
+                for sentence in sent_keys:
+                    for token_no in document['sentences'][sentence]['tokens']:
+                        token = document['sentences'][sentence]['tokens'][token_no]
+                        p_tokens = self.lookup_p_tokens(token, document)
+                        p_lms = lookup_p_lms(document['sentences'][sentence]['tokens'], alpha)
+                        old_z = token['z']
+                        new_z = flip_for_z(p_tokens, p_lms, token['word'], p)
+                        if old_z != new_z:
+                            z_flips_this_iteration += 1
+                        document['sentences'][sentence]['tokens'][token_no]['z'] = new_z
+                        if new_z != old_z:  # general LM is fixed
+                            if new_z == "D":
+                                document['lm']['counts'][token['word']] += 1
+                            if new_z == "Q":
+                                self.query_lm['counts'][token['word']] += 1
+                            if old_z == "D" and document['lm']['counts'][token['word']] > 0:
+                                document['lm']['counts'][token['word']] -= 1
+                            if old_z == "Q" and self.query_lm['counts'][token['word']] > 0:
+                                self.query_lm['counts'][token['word']] -= 1
+                    log.debug("sentence_snapshot {} || {} || {} || {}".format(document['url'], iteration, sentence, json.dumps(document['sentences'][sentence])))
+            log.debug("zflips || {} || {}".format(iteration, z_flips_this_iteration))
+
+sampler = Sampler(search_for_documents(p), 10)
+sampler.run()
