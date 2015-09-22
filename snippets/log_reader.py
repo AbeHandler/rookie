@@ -25,7 +25,7 @@ if os.path.isfile("most_general_words"):
 
 log = [i for i in open("run.log")]
 
-vocabs = [o.replace("\n", "") for o in log if "DVOCAB" in o]
+vocabs = [o.replace("\n", "") for o in log if "DVOC" in o]
 
 doc_vocabs_original = {}
 

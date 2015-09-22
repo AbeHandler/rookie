@@ -37,7 +37,7 @@ class DocFetcher:
                 tok = doc['sentences'][sentence_no]['tokens'][token]['word']
                 doc_tokens.append(tok)
         doc_vocab_counter = Counter(doc_tokens)
-        log.debug("DVOCAB||" + doc['url'] + "||" + json.dumps(doc_vocab_counter))
+        log.debug("DVOC||" + doc['url'] + "||" + json.dumps(doc_vocab_counter))
         return [i for i in set(doc_tokens)]
 
     def get_doc_lm(self, doc):
@@ -47,7 +47,9 @@ class DocFetcher:
         for word in doc_vocab:
             doc_pseudoc[word] = 1
             doc_lm_counts[word] = 0
-        doc_lm = {"counts": doc_lm_counts, "pseudocounts": doc_pseudoc}
+        pseudocounts_tot = sum(doc_pseudoc.values())
+        counts_tot = sum(doc_lm_counts.values())
+        doc_lm = {"counts_tot": counts_tot, "counts": doc_lm_counts, "pseudocounts": doc_pseudoc, "pseudo_tot": pseudocounts_tot}
         return doc_lm
 
     def get_document(self, cloud_document):
@@ -105,7 +107,8 @@ class Sampler:
         for word in all_words_from_docs:
             query_pseudoc[word] = 1
             query_lm_counts[word] = 0
-        return {"counts": query_lm_counts, "pseudocounts": query_pseudoc}
+        counts_tot = sum(query_lm_counts.values())
+        return {"counts_tot": counts_tot, "counts": query_lm_counts, "pseudocounts": query_pseudoc, "pseudo_tot": sum(query_pseudoc.values())}
 
     def lookup_p_lms(self, tokens, alpha, token_no, zcounts, zpseudo):
         missing_z = tokens[token_no]['z']
@@ -137,8 +140,8 @@ class Sampler:
         if lm_var == "Q":
             lm = self.query_lm
         numerator = lm['counts'][token['word']] + lm['pseudocounts'][token['word']]
-        denom = sum(v for v in lm['counts'].values())
-        denom = denom + sum(v for v in lm['pseudocounts'].values())
+        denom = lm['counts_tot']
+        denom = denom + lm['pseudo_tot']
         # pretend you have not seen this token yet...
         denom = denom - 1  # for so query_lm and doclm have -1 tokens
         if token['z'] == lm_var:  # if the token's z value adds to the numerator count
@@ -197,7 +200,7 @@ p.termtype = "organizations"
 
 df = DocFetcher()
 docs = df.search_for_documents(p)
-# pickle.dump(docs, open("docs.p", "w"))
-# docs = pickle.load(open("docs.p", "r"))
+pickle.dump(docs, open("docs.p", "w"))
+docs = pickle.load(open("docs.p", "r"))
 sampler = Sampler(docs, 10, p)
 sampler.run(1)
