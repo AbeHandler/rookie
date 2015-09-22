@@ -17,17 +17,12 @@ from snippets.utils import flip
 from snippets import log
 
 
-p = Parameters()
-p.q = "orleans parish prison"
-p.term = "vera institute"
-p.termtype = "organizations"
-
-alpha = 1
-
-z_flips_counts = []
-
-
 class DocFetcher:
+
+    '''
+    Searches for documents on Amazon cloudsearch and converts them into
+    nested dictionaries with language models for the sampler
+    '''
 
     def __init__(self):
         self.sources = ['G', 'Q', 'D']
@@ -85,12 +80,13 @@ class DocFetcher:
 
 class Sampler:
 
-    def __init__(self, documents, iterations):
+    def __init__(self, documents, iterations, params):
         self.documents = documents
         self.iterations = iterations
         self.query_lm = self.get_query_lm(documents)
         self.corpus_lm = pickle.load(open("snippets/lm.p", "rb"))
         self.sources = ['G', 'Q', 'D']
+        self.params = params
 
     def get_query_vocab(self, documents):
         query_vocab = []
@@ -120,8 +116,8 @@ class Sampler:
             output[source] = float(net_counts[source]) / sum_counts
         return output
 
-    def flip_for_z(self, p_tokens, p_lms, token, params):
-        query = params.q + " " + params.term
+    def flip_for_z(self, p_tokens, p_lms, token):
+        query = self.params.q + " " + self.params.term
         if token in query.split(" "):
             return "Q"
         ranges = []
@@ -151,7 +147,14 @@ class Sampler:
         p_tokens['D'] = self.lookup_p_token(token['word'], 'D', document)
         return p_tokens
 
-    def run(self):
+    def sample_token(self, token, sentence, document, alpha):
+        p_tokens = self.lookup_p_tokens(token, document)
+        p_lms = self.lookup_p_lms(document['sentences'][sentence]['tokens'], alpha)
+        new_z = self.flip_for_z(p_tokens, p_lms, token['word'])
+        return new_z
+
+    def run(self, alpha):
+        z_flips_counts = []
         for iteration in range(0, self.iterations):
             print iteration
             z_flips_this_iteration = 0
@@ -160,25 +163,28 @@ class Sampler:
                 for sentence in sent_keys:
                     for token_no in document['sentences'][sentence]['tokens']:
                         token = document['sentences'][sentence]['tokens'][token_no]
-                        p_tokens = self.lookup_p_tokens(token, document)
-                        p_lms = self.lookup_p_lms(document['sentences'][sentence]['tokens'], alpha)
-                        old_z = token['z']
-                        new_z = self.flip_for_z(p_tokens, p_lms, token['word'], p)
-                        if old_z != new_z:
+                        new_z = self.sample_token(token, sentence, document, alpha)
+                        if token['z'] != new_z:
                             z_flips_this_iteration += 1
                         document['sentences'][sentence]['tokens'][token_no]['z'] = new_z
-                        if new_z != old_z:  # general LM is fixed
+                        if new_z != token['z']:  # general LM is fixed
                             if new_z == "D":
                                 document['lm']['counts'][token['word']] += 1
                             if new_z == "Q":
                                 self.query_lm['counts'][token['word']] += 1
-                            if old_z == "D" and document['lm']['counts'][token['word']] > 0:
+                            if token['z'] == "D" and document['lm']['counts'][token['word']] > 0:
                                 document['lm']['counts'][token['word']] -= 1
-                            if old_z == "Q" and self.query_lm['counts'][token['word']] > 0:
+                            if token['z'] == "Q" and self.query_lm['counts'][token['word']] > 0:
                                 self.query_lm['counts'][token['word']] -= 1
+                        token['z'] = new_z
                     log.debug("sentence_snapshot {} || {} || {} || {}".format(document['url'], iteration, sentence, json.dumps(document['sentences'][sentence])))
             log.debug("zflips || {} || {}".format(iteration, z_flips_this_iteration))
 
+p = Parameters()
+p.q = "orleans parish prison"
+p.term = "vera institute"
+p.termtype = "organizations"
+
 df = DocFetcher()
-sampler = Sampler(df.search_for_documents(p), 10)
-sampler.run()
+sampler = Sampler(df.search_for_documents(p), 10, p)
+sampler.run(1)
