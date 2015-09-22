@@ -136,11 +136,13 @@ class Sampler:
             lm = doclm
         if lm_var == "Q":
             lm = self.query_lm
-        # decrement here to pretend you have not seen token. Gibbs.
         numerator = lm['counts'][token['word']] + lm['pseudocounts'][token['word']]
-        denom = sum(v for k, v in lm['counts'].items())
-        # TODO: add decrements
-        denom = denom + sum(v for k, v in lm['pseudocounts'].items())
+        denom = sum(v for v in lm['counts'].values())
+        denom = denom + sum(v for v in lm['pseudocounts'].values())
+        # pretend you have not seen this token yet...
+        denom = denom - 1  # for so query_lm and doclm have -1 tokens
+        if token['z'] == lm_var:  # if the token's z value adds to the numerator count
+            numerator -= 1  # decrement the numerator
         return float(numerator)/float(denom)
 
     def lookup_p_tokens(self, token, document):
@@ -159,7 +161,6 @@ class Sampler:
     def adjust_sentence_z_counts(self, zcounts, oldz, newz):
         zcounts[oldz] -= 1
         zcounts[newz] += 1
-        assert sum(1 for i in zcounts.values() if i < 0) == 0
         return zcounts
 
     def run(self, alpha):
