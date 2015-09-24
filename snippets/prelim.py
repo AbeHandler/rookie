@@ -79,22 +79,10 @@ class DocFetcher:
         results = Models.search(params, overview=False)
         # results = pickle.load(open("pickled/oppveraresults.p", "r"))
         documents = [self.get_document(r) for r in results]
-        return documents
-
-
-class Sampler:
-
-    '''
-    Runs a sampler to discover pct pi per sentence over n iternations
-    '''
-
-    def __init__(self, documents, iterations, params):
-        self.documents = documents
-        self.iterations = iterations
-        self.query_lm = self.get_query_lm(documents)
-        self.corpus_lm = pickle.load(open("snippets/lm.p", "rb"))
-        self.sources = ['G', 'Q', 'D']
-        self.params = params
+        output = {}
+        output['query_lm'] = self.get_query_lm(documents)
+        output['docs'] = documents
+        return output
 
     def get_query_vocab(self, documents):
         query_vocab = []
@@ -110,8 +98,28 @@ class Sampler:
         for word in all_words_from_docs:
             query_pseudoc[word] = 1
             query_lm_counts[word] = 0
+        for document in documents:
+            for sentence in document['sentences'].values():
+                for token in sentence['tokens'].values():
+                    if token['z'] == "Q":
+                        query_lm_counts[token['word']] += 1
         counts_tot = sum(query_lm_counts.values())
         return {"counts_tot": counts_tot, "counts": query_lm_counts, "pseudocounts": query_pseudoc, "pseudo_tot": sum(query_pseudoc.values())}
+
+
+class Sampler:
+
+    '''
+    Runs a sampler to discover pct pi per sentence over n iternations
+    '''
+
+    def __init__(self, documents, iterations, params):
+        self.documents = documents['docs']
+        self.iterations = iterations
+        self.query_lm = documents['query_lm']
+        self.corpus_lm = pickle.load(open("snippets/lm.p", "rb"))
+        self.sources = ['G', 'Q', 'D']
+        self.params = params
 
     def lookup_p_lms(self, tokens, alpha, token_no, zcounts, zpseudo):
         missing_z = tokens[token_no]['z']
@@ -189,11 +197,13 @@ class Sampler:
                                 document['lm']['counts_tot'] += 1
                             if new_z == "Q":
                                 self.query_lm['counts'][token['word']] += 1
+                                self.query_lm['counts_tot'] += 1
                             if token['z'] == "D" and document['lm']['counts'][token['word']] > 0:
                                 document['lm']['counts'][token['word']] -= 1
                                 document['lm']['counts_tot'] -= 1
                             if token['z'] == "Q" and self.query_lm['counts'][token['word']] > 0:
                                 self.query_lm['counts'][token['word']] -= 1
+                                self.query_lm['counts_tot'] -= 1
                         document['sentences'][sentence]['tokens'][token_no]['z'] = new_z
                     log.debug("sentence_snapshot {} || {} || {} || {}".format(document['url'], iteration, sentence, json.dumps(document['sentences'][sentence])))
             log.debug("zflips || {} || {}".format(iteration, z_flips_this_iteration))
