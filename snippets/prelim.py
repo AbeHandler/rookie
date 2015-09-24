@@ -1,18 +1,13 @@
 import pdb
 import pickle
-import random
-import math
-import itertools
 import json
 import numpy as np
 import matplotlib.pyplot as plt
 import pdb
 from pylru import lrudecorator
-from rookie import processed_location
 from collections import Counter
 from collections import defaultdict
 from experiment.models import Models, Parameters
-from rookie.classes import IncomingFile
 from snippets.utils import flip
 from snippets import log
 
@@ -47,6 +42,10 @@ class DocFetcher:
         for word in doc_vocab:
             doc_pseudoc[word] = 1
             doc_lm_counts[word] = 0
+        for sentence in doc['sentences'].values():
+            for token in sentence['tokens'].values():
+                if token['z'] == "D":
+                    doc_lm_counts[token['word']] += 1
         pseudocounts_tot = sum(doc_pseudoc.values())
         counts_tot = sum(doc_lm_counts.values())
         doc_lm = {"counts_tot": counts_tot, "counts": doc_lm_counts, "pseudocounts": doc_pseudoc, "pseudo_tot": pseudocounts_tot}
@@ -84,6 +83,10 @@ class DocFetcher:
 
 
 class Sampler:
+
+    '''
+    Runs a sampler to discover pct pi per sentence over n iternations
+    '''
 
     def __init__(self, documents, iterations, params):
         self.documents = documents
@@ -183,10 +186,12 @@ class Sampler:
                             document['sentences'][sentence]['zcounts'] = self.adjust_sentence_z_counts(document['sentences'][sentence]['zcounts'], token['z'], new_z)
                             if new_z == "D":
                                 document['lm']['counts'][token['word']] += 1
+                                document['lm']['counts_tot'] += 1
                             if new_z == "Q":
                                 self.query_lm['counts'][token['word']] += 1
                             if token['z'] == "D" and document['lm']['counts'][token['word']] > 0:
                                 document['lm']['counts'][token['word']] -= 1
+                                document['lm']['counts_tot'] -= 1
                             if token['z'] == "Q" and self.query_lm['counts'][token['word']] > 0:
                                 self.query_lm['counts'][token['word']] -= 1
                         document['sentences'][sentence]['tokens'][token_no]['z'] = new_z

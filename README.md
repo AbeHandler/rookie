@@ -2,7 +2,7 @@ To see a demo of rookie, go [here](http://rookielens.s3-website-us-west-2.amazon
 
 #### Rookie.
 
-Imagine you are a new reporter just assigned to a beat. Or a community activist interested in researching a certain political figure or government agency. News archives have lots of information that can help bring you up to speed. But reading thousands (or millions) of articles returned from a search enginge takes lots of time. So you'll have to spend a lot of time before you understand what is going on. Rookie is designed to help you. 
+Imagine you are a new reporter just assigned to a beat. Or a community activist interested in researching a certain political figure or government agency. News archives have lots of information that can help bring you up to speed. But reading thousands (or millions) of articles returned from a search enginge takes lots of time. Rookie is designed to help you. 
 
 [Abe Handler](https://www.abehandler.com "Abe Handler") did most of the research and coding for Rookie. He got lots of conceptual help from [Steve Myers](https://twitter.com/myersnews "Steve Myers") and [Brendan O'Connor](http://brenocon.com "Brendan O'Connor").
 
