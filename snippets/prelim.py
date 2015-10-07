@@ -208,6 +208,9 @@ class Sampler:
                     log.debug("sentence_snapshot {} || {} || {} || {}".format(document['url'], iteration, sentence, json.dumps(document['sentences'][sentence])))
             log.debug("zflips || {} || {}".format(iteration, z_flips_this_iteration))
 
+
+# class Run:
+
 p = Parameters()
 p.q = "coastal restoration"
 p.term = "bobby jindal"
@@ -217,5 +220,5 @@ df = DocFetcher()
 docs = df.search_for_documents(p)
 pickle.dump(docs, open("docs.p", "w"))
 docs = pickle.load(open("docs.p", "r"))
-sampler = Sampler(docs, 10, p)
+sampler = Sampler(docs, 100, p)
 sampler.run(1)
