@@ -72,7 +72,8 @@ def results():
     # turn into a mutable list. was tuples for for caching
     results = [r for r in results]  
     tops = [o for o in tops] 
-
+     
+    pdb.set_trace()
     view = Views().get_results_page_relational(params.q, tops, LENS_CSS, BANNER_CSS)
 
     return view
