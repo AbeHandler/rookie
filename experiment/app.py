@@ -1,12 +1,12 @@
 import pdb
-import math
+import pickle
 from dateutil.parser import parse
 from flask import Flask
 from flask import render_template
 from flask import request
 from experiment import log
 from experiment.views import Views
-from experiment.models import Models
+from experiment.models import Models, Parameters
 from snippets.prelim import DocFetcher
 from rookie import page_size
 from experiment import LENS_CSS, BANNER_CSS
@@ -81,7 +81,7 @@ def results():
 
 
 @app.route('/testing', methods=['GET'])
-def results():
+def testing():
 
     log.debug('/search/ data:')
 
@@ -102,9 +102,21 @@ def results():
     p.term = "bobby jindal"
     p.termtype = "people"
 
-    df = DocFetcher()
-    docs = df.search_for_documents(p)
+    # df = DocFetcher()
+    # docs = df.search_for_documents(p)
+    # pdb.set_trace()
+    # docs = df.search_for_documents(p)
+    coastal = pickle.load(open("coastal.tmp", "r"))
 
+    for docno, doc in enumerate(coastal['docs']):
+        for sentenceno in doc['sentences']:
+            sentence_tokens = doc['sentences'][sentenceno]['tokens']
+            sentence = ""
+            for token in sentence_tokens:
+                sentence = sentence + " " + sentence_tokens[token]
+            pdb.set_trace()
+
+    coastaljindal = pickle.load(open("coastaljindal.p", "r"))
     pdb.set_trace()
     view = Views().get_results_page_relational(params.q, tops, LENS_CSS, BANNER_CSS)
 

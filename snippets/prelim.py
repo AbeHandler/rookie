@@ -210,15 +210,19 @@ class Sampler:
 
 
 # class Run:
+def sample():
+    p = Parameters()
+    p.q = "coastal restoration"
+    p.term = "bobby jindal"
+    p.termtype = "people"
 
-p = Parameters()
-p.q = "coastal restoration"
-p.term = "bobby jindal"
-p.termtype = "people"
+    df = DocFetcher()
+    docs = df.search_for_documents(p)
+    pickle.dump(docs, open("docs.p", "w"))
+    docs = pickle.load(open("docs.p", "r"))
+    sampler = Sampler(docs, 100, p)
+    sampler.run(1)
 
-df = DocFetcher()
-docs = df.search_for_documents(p)
-pickle.dump(docs, open("docs.p", "w"))
-docs = pickle.load(open("docs.p", "r"))
-sampler = Sampler(docs, 100, p)
-sampler.run(1)
+
+if __name__ == "__main__":
+    sample()
