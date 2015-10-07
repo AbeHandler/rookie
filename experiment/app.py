@@ -7,6 +7,7 @@ from flask import request
 from experiment import log
 from experiment.views import Views
 from experiment.models import Models
+from snippets.prelim import DocFetcher
 from rookie import page_size
 from experiment import LENS_CSS, BANNER_CSS
 from rookie import (
@@ -70,14 +71,44 @@ def results():
     log.debug('got results and tops')
 
     # turn into a mutable list. was tuples for for caching
-    results = [r for r in results]  
-    tops = [o for o in tops] 
-     
+    results = [r for r in results]
+    tops = [o for o in tops]
+
     pdb.set_trace()
     view = Views().get_results_page_relational(params.q, tops, LENS_CSS, BANNER_CSS)
 
     return view
 
+
+@app.route('/testing', methods=['GET'])
+def results():
+
+    log.debug('/search/ data:')
+
+    params = Models.get_parameters(request)
+
+    log.debug('got params')
+
+    results, tops = Models().search(params, snippets=True)
+
+    log.debug('got results and tops')
+
+    # turn into a mutable list. was tuples for for caching
+    results = [r for r in results]
+    tops = [o for o in tops]
+
+    p = Parameters()
+    p.q = "coastal restoration"
+    p.term = "bobby jindal"
+    p.termtype = "people"
+
+    df = DocFetcher()
+    docs = df.search_for_documents(p)
+
+    pdb.set_trace()
+    view = Views().get_results_page_relational(params.q, tops, LENS_CSS, BANNER_CSS)
+
+    return view
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -57,6 +57,11 @@ class Models(object):
                     output.append((ent[0], Models.get_snippet()))
             return results, tuple(output)
 
+    @staticmethod
+    def get_parsed_docs(params):
+        df = DocFetcher()
+        docs = df.search_for_documents(p)
+
 
     @staticmethod
     def get_limited(results, term, termtype):
