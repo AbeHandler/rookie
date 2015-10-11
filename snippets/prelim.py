@@ -40,6 +40,12 @@ def get_snippet(term, termtype, subset, original_query):
                 sentences_dict[unicode(str(docno) + "-" + str(sentenceno))] = (sentence, parser.parse(pubdate))
                 print "adding t"
 
+            # if len(q.intersection(sentence_set)) >= .5 * (len(q)):
+            #    sentence = unicode(sentence)
+            #    ci_writer.add_document(title=unicode(str(docno) + "-" + str(sentenceno)), path=u"/" + str(docno) + "-" + str(sentenceno), content=sentence, date=pubdate)
+            #    sentences_dict[unicode(str(docno) + "-" + str(sentenceno))] = (sentence, parser.parse(pubdate))
+            #    print "adding q"
+
     ci_writer.commit()
     jindal_writer.commit()
 
@@ -51,6 +57,13 @@ def get_snippet(term, termtype, subset, original_query):
         results = searcher.search(myquery)
         for i in results[0:7]:
             final.append(sentences_dict[i['title']])
+
+#    with coastal_index.searcher() as searcher:
+#        qp = QueryParser("content", coastal_index.schema)
+#        myquery = qp.parse(original_query)
+#        results = searcher.search(myquery)
+#        for i in results[0:5]:
+#            final.append(sentences_dict[i['title']])
 
     final = [o for o in set(final)]
     final.sort(key=lambda x: x[1])
