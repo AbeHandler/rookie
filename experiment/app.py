@@ -73,7 +73,6 @@ def results():
     # turn into a mutable list. was tuples for for caching
     results = [r for r in results]
     tops = [o for o in tops]
-    pdb.set_trace()
     view = Views().get_results_page_relational(params.q, tops, LENS_CSS, BANNER_CSS)
 
     return view
@@ -84,14 +83,11 @@ def testing():
 
     log.debug('/search/ data:')
 
-    params = Models.get_parameters(request)
+    p = Models.get_parameters(request)
 
     log.debug('got params')
 
     log.debug('got results and tops')
-
-    p = Parameters()
-    p.q = "coastal restoration"
 
     df = DocFetcher()
     tops, docs = df.search_for_documents(p)
@@ -104,7 +100,7 @@ def testing():
             if len(snippet) > 0:
                 q_and_t.append((term[0], snippet))
 
-    view = Views().get_results_page_relational(params.q, q_and_t, LENS_CSS, BANNER_CSS)
+    view = Views().get_results_page_relational(p.q, q_and_t, LENS_CSS, BANNER_CSS)
 
     return view
 

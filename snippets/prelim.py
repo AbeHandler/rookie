@@ -24,9 +24,8 @@ def get_snippet(term, termtype, subset, original_query):
     ci_writer = coastal_index.writer(mergetype=writing.CLEAR)
     jindal_writer = jindal_index.writer(mergetype=writing.CLEAR)
     sentences_dict = {}
-    q = set(original_query.split(" "))
-    t = set(term.split(" "))
-
+    q = set([i.lower() for i in original_query.split(" ")])
+    t = set([i.lower() for i in term.split(" ")])
     for docno, doc in enumerate(subset):
         pubdate = doc['pubdate']
         for sentenceno in doc['sentences']:
@@ -35,14 +34,11 @@ def get_snippet(term, termtype, subset, original_query):
             for token in sentence_tokens:
                 sentence = sentence + " " + sentence_tokens[token]['word']
             sentence_set = set(sentence.split(" "))
-            if len(q.intersection(sentence_set)) > 1:
-                sentence = unicode(sentence)
-                sentences_dict[unicode(str(docno) + "-" + str(sentenceno))] = (sentence, parser.parse(pubdate))
-                ci_writer.add_document(title=unicode(str(docno) + "-" + str(sentenceno)), path=u"/" + str(docno) + "-" + str(sentenceno), content=sentence, date=pubdate)
-            if len(t.intersection(sentence_set)) in sentence_set:
+            if len(t.intersection(sentence_set)) >= .5 * (len(t)):
                 sentence = unicode(sentence)
                 jindal_writer.add_document(title=unicode(str(docno) + "-" + str(sentenceno)), path=u"/" + str(docno) + "-" + str(sentenceno), content=sentence, date=pubdate)
                 sentences_dict[unicode(str(docno) + "-" + str(sentenceno))] = (sentence, parser.parse(pubdate))
+                print "adding t"
 
     ci_writer.commit()
     jindal_writer.commit()
@@ -53,19 +49,12 @@ def get_snippet(term, termtype, subset, original_query):
         qp = QueryParser("content", jindal_index.schema)
         myquery = qp.parse(original_query)
         results = searcher.search(myquery)
-        for i in results[0:5]:
-            final.append(sentences_dict[i['title']])
-
-    with coastal_index.searcher() as searcher:
-        qp = QueryParser("content", coastal_index.schema)
-        myquery = qp.parse(original_query)
-        results = searcher.search(myquery)
-        for i in results[0:5]:
+        for i in results[0:7]:
             final.append(sentences_dict[i['title']])
 
     final = [o for o in set(final)]
-    final.sort(key=lambda x:x[1])
-
+    final.sort(key=lambda x: x[1])
+    print final
     return final
 
 
