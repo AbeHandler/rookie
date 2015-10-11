@@ -58,6 +58,7 @@ class DocFetcher:
         sentences = cloud_document['fields']['sentences'][0].split("||")
         document = {}
         document['sentences'] = {}
+        document['pubdate'] = cloud_document['fields']['pubdate']
         document['url'] = cloud_document['fields']['url']
         for s in range(0, len(sentences)):
             sentence = sentences[s]
@@ -76,13 +77,13 @@ class DocFetcher:
         return document
 
     def search_for_documents(self, params):
-        results = Models.search(params, overview=False)
+        results, tops = Models.search(params)
         # results = pickle.load(open("pickled/oppveraresults.p", "r"))
         documents = [self.get_document(r) for r in results]
         output = {}
         output['query_lm'] = self.get_query_lm(documents)
         output['docs'] = documents
-        return output
+        return tops, output
 
     def get_query_vocab(self, documents):
         query_vocab = []
