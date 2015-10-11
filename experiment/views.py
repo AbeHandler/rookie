@@ -37,7 +37,7 @@ class Views(object):
 
 
     @staticmethod
-    def get_results_page_relational(query, tops, lens_css, banner_css):
+    def get_results_page_relational(query, q_and_t, lens_css, banner_css):
         '''
         Renders the homepage (/contracts/).
         :param data: Data for the homepage.
@@ -48,7 +48,7 @@ class Views(object):
         response = render_template(
                 'results3.html',
                 query=query,
-                terms=tops,
+                terms=q_and_t,
                 lens_css=lens_css,
                 banner_css=banner_css
         )

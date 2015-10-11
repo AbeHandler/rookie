@@ -2,6 +2,7 @@ import pdb
 import pickle
 import json
 import numpy as np
+from dateutil import parser
 import matplotlib.pyplot as plt
 import pdb
 from pylru import lrudecorator
@@ -10,6 +11,62 @@ from collections import defaultdict
 from experiment.models import Models, Parameters
 from snippets.utils import flip
 from snippets import log
+from whoosh.index import create_in
+from whoosh.qparser import QueryParser
+from whoosh.fields import *
+from whoosh import writing
+
+
+def get_snippet(term, termtype, subset, original_query):
+    schema = Schema(title=TEXT(stored=True), path=ID(stored=True), content=TEXT, date=DATETIME)
+    coastal_index = create_in("coastal", schema)
+    jindal_index = create_in("jindal", schema)
+    ci_writer = coastal_index.writer(mergetype=writing.CLEAR)
+    jindal_writer = jindal_index.writer(mergetype=writing.CLEAR)
+    sentences_dict = {}
+    q = set(original_query.split(" "))
+    t = set(term.split(" "))
+
+    for docno, doc in enumerate(subset):
+        pubdate = doc['pubdate']
+        for sentenceno in doc['sentences']:
+            sentence_tokens = doc['sentences'][sentenceno]['tokens']
+            sentence = ""
+            for token in sentence_tokens:
+                sentence = sentence + " " + sentence_tokens[token]['word']
+            sentence_set = set(sentence.split(" "))
+            if len(q.intersection(sentence_set)) > 1:
+                sentence = unicode(sentence)
+                sentences_dict[unicode(str(docno) + "-" + str(sentenceno))] = (sentence, parser.parse(pubdate))
+                ci_writer.add_document(title=unicode(str(docno) + "-" + str(sentenceno)), path=u"/" + str(docno) + "-" + str(sentenceno), content=sentence, date=pubdate)
+            if len(t.intersection(sentence_set)) in sentence_set:
+                sentence = unicode(sentence)
+                jindal_writer.add_document(title=unicode(str(docno) + "-" + str(sentenceno)), path=u"/" + str(docno) + "-" + str(sentenceno), content=sentence, date=pubdate)
+                sentences_dict[unicode(str(docno) + "-" + str(sentenceno))] = (sentence, parser.parse(pubdate))
+
+    ci_writer.commit()
+    jindal_writer.commit()
+
+    final = []
+
+    with jindal_index.searcher() as searcher:
+        qp = QueryParser("content", jindal_index.schema)
+        myquery = qp.parse(original_query)
+        results = searcher.search(myquery)
+        for i in results[0:5]:
+            final.append(sentences_dict[i['title']])
+
+    with coastal_index.searcher() as searcher:
+        qp = QueryParser("content", coastal_index.schema)
+        myquery = qp.parse(original_query)
+        results = searcher.search(myquery)
+        for i in results[0:5]:
+            final.append(sentences_dict[i['title']])
+
+    final = [o for o in set(final)]
+    final.sort(key=lambda x:x[1])
+
+    return final
 
 
 class DocFetcher:
@@ -60,6 +117,18 @@ class DocFetcher:
         document['sentences'] = {}
         document['pubdate'] = cloud_document['fields']['pubdate']
         document['url'] = cloud_document['fields']['url']
+        try:
+            document['organizations'] = cloud_document['fields']['organizations']
+        except KeyError:
+            pass
+        try:
+            document['people'] = cloud_document['fields']['people']
+        except KeyError:
+            pass
+        try:
+            document['ngrams'] = cloud_document['fields']['ngrams']
+        except KeyError:
+            pass
         for s in range(0, len(sentences)):
             sentence = sentences[s]
             tokens = sentence.split("&&")
