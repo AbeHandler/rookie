@@ -1,0 +1,62 @@
+<html>
+<head>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.5/css/foundation.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.1/js/foundation.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<title>Rookie</title>
+{% include 'head.html' %}
+</head>
+
+<body>
+{% include 'banner.html' %}
+
+<div id="controls" class="row">
+
+  <div>
+    <input id="search_bar" type="text" class="small-12 columns" placeholder="{{query}}"></input>
+  </div>
+
+  <div class="right">
+    <div> <div id="search_button" class="button">Search</div> <div class="" id="advanced_search">Search by date</div></div>
+  </div>
+
+</div>
+
+<div class="toggler row">
+    <div class="columns small-3 right" id="datepickers">
+      <div class="columns"><p>Start date: <input type="text" id="datepicker1"></p></div>
+      <div class="columns"><p>End date: <input type="text" id="datepicker2"></p></div>
+    </div>
+</div>
+
+
+
+{% for term in terms%}
+
+
+        <div class="row">
+          <div class="small-5 columns uncollapse">
+          </div>
+          <div class="small-7 columns terms">
+            <div class="callout text-left">
+              <p data-termtype="{{term[1]}}">{{term[0][0]}}</p>
+              <div id={{term[0][0]}}"-panel">
+              </div>
+            </div>
+          </div>
+        </div>
+
+{% endfor %}
+ 
+
+
+</div>
+
+
+<script type="text/javascript" src="https://s3-us-west-2.amazonaws.com/rookie2/js/rookie2.js"></script>
+
+</body>
+</html>

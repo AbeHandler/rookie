@@ -1,5 +1,6 @@
 import pdb
 import pickle
+import os
 import json
 import numpy as np
 from dateutil import parser
@@ -17,7 +18,11 @@ from whoosh.fields import *
 from whoosh import writing
 
 
-def get_snippet(term, termtype, subset, original_query):
+@lrudecorator(1000)
+def get_snippet(term, termtype, sentences, original_query):
+    for directory in ["coastal", "jindal"]:
+        if not os.path.exists(directory):
+            os.makedirs(directory)
     schema = Schema(title=TEXT(stored=True), path=ID(stored=True), content=TEXT, date=DATETIME)
     coastal_index = create_in("coastal", schema)
     jindal_index = create_in("jindal", schema)
@@ -26,19 +31,13 @@ def get_snippet(term, termtype, subset, original_query):
     sentences_dict = {}
     q = set([i.lower() for i in original_query.split(" ")])
     t = set([i.lower() for i in term.split(" ")])
-    for docno, doc in enumerate(subset):
-        pubdate = doc['pubdate']
-        for sentenceno in doc['sentences']:
-            sentence_tokens = doc['sentences'][sentenceno]['tokens']
-            sentence = ""
-            for token in sentence_tokens:
-                sentence = sentence + " " + sentence_tokens[token]['word']
-            sentence_set = set(sentence.split(" "))
-            if len(t.intersection(sentence_set)) >= .5 * (len(t)):
-                sentence = unicode(sentence)
-                jindal_writer.add_document(title=unicode(str(docno) + "-" + str(sentenceno)), path=u"/" + str(docno) + "-" + str(sentenceno), content=sentence, date=pubdate)
-                sentences_dict[unicode(str(docno) + "-" + str(sentenceno))] = (sentence, parser.parse(pubdate))
-                print "adding t"
+    for sentence in sentences:
+        pubdate = sentence[1]
+        tag = sentence[2]
+        sentence_set = set(sentence[0].split(" "))
+        if len(t.intersection(sentence_set)) >= .5 * (len(t)):
+            jindal_writer.add_document(title=tag, path=u"/" + tag, content=sentence[0], date=pubdate)
+            sentences_dict[tag] = (sentence[0], parser.parse(pubdate))
 
             # if len(q.intersection(sentence_set)) >= .5 * (len(q)):
             #    sentence = unicode(sentence)
@@ -67,7 +66,7 @@ def get_snippet(term, termtype, subset, original_query):
 
     final = [o for o in set(final)]
     final.sort(key=lambda x: x[1])
-    print final
+
     return final
 
 

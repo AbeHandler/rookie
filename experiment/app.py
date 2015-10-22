@@ -1,11 +1,13 @@
 import pdb
 import pickle
+import threading
 from dateutil.parser import parse
 from flask import Flask
 from flask import render_template
 from flask import request
 from experiment import log
 from experiment.views import Views
+from collections import defaultdict
 from experiment.models import Models, Parameters
 from snippets.prelim import DocFetcher, get_snippet
 from rookie import page_size
@@ -15,6 +17,31 @@ from rookie import (
 )
 
 app = Flask(__name__)
+
+
+def tokens_to_sentence(sentence_tokens):
+    sentence = ""
+    for token in sentence_tokens:
+        sentence = sentence + " " + sentence_tokens[token]['word']
+    return sentence.strip(" ")
+
+
+def documents_to_sentences(subset):
+    output = []
+    for docno, doc in enumerate(subset):
+        pubdate = doc['pubdate']
+        for sentenceno in doc['sentences']:
+            sentence = tokens_to_sentence(doc['sentences'][sentenceno]['tokens'])
+            output.append((unicode(sentence), pubdate, unicode(str(docno) + "-"+ str(sentenceno))))
+    return tuple(output)
+
+
+def worker(queue, snippets_dict):
+    print len(queue)
+    for index, q_item in enumerate(queue):
+        print index
+        get_snippet(q_item[0][0], q_item[1], documents_to_sentences(q_item[2]), q_item[3].q)
+    return snippets_dict
 
 
 @app.route('/')
@@ -85,22 +112,26 @@ def testing():
 
     p = Models.get_parameters(request)
 
-    log.debug('got params')
-
-    log.debug('got results and tops')
+    snippets_dict = defaultdict(str)
 
     df = DocFetcher()
     tops, docs = df.search_for_documents(p)
 
     q_and_t = []
+    queue = []
     for termtype in tops:
         for term in tops[termtype]:
             subset = [d for d in docs['docs'] if termtype in d.keys() and term[0] in d[termtype]]
-            snippet = get_snippet(term[0], termtype, subset, p.q)
-            if len(snippet) > 0:
-                q_and_t.append((term[0], snippet))
+            queue.append((term, termtype, subset, p,))
+            q_and_t.append((term, termtype))
+    t = threading.Thread(target=worker, args=(queue, snippets_dict))
+    t.start()
+    
+    print "here so fast"
 
-    view = Views().get_results_page_relational(p.q, q_and_t, LENS_CSS, BANNER_CSS)
+    view = Views().get_results_page_relational_overview(p.q, q_and_t, LENS_CSS, BANNER_CSS)
+
+    # view = Views().get_results_page_relational(p.q, q_and_t, LENS_CSS, BANNER_CSS)
 
     return view
 

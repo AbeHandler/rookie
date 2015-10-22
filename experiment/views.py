@@ -54,3 +54,22 @@ class Views(object):
         )
 
         return response
+
+    @staticmethod
+    def get_results_page_relational_overview(query, q_and_t, lens_css, banner_css):
+        '''
+        Renders the homepage (/contracts/).
+        :param data: Data for the homepage.
+        :type data: dict
+        :returns: HTML. Rendered and ready for display to the user.
+        '''
+
+        response = render_template(
+                'results4.html',
+                query=query,
+                terms=q_and_t,
+                lens_css=lens_css,
+                banner_css=banner_css
+        )
+
+        return response
