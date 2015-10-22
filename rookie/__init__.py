@@ -44,7 +44,7 @@ if socket.getfqdn() == 'hobbes.cs.umass.edu':
     files_location = "/home/ahandler/rookie/"
     core_nlp_location = "/home/sw/corenlp/stanford-corenlp-full-2015-04-20/*"
     window_length = 35
-elif socket.getfqdn() == 'dewey.cs.umass.edu':
+elif socket.gethostname() == 'dewey':
     files_location = "/Users/ahandler/research/rookie/"
     processed_location = "/Users/ahandler/research/rookie/data/lens_processed"
 elif getpass.getuser() == "abramhandler":
