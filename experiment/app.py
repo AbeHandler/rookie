@@ -105,6 +105,12 @@ def results():
     return view
 
 
+
+@app.route('/get_snippet_post', methods=['POST'])
+def get_snippet_post():
+    return "heeeeer"
+
+
 @app.route('/testing', methods=['GET'])
 def testing():
 
@@ -114,8 +120,13 @@ def testing():
 
     snippets_dict = defaultdict(str)
 
-    df = DocFetcher()
-    tops, docs = df.search_for_documents(p)
+    # df = DocFetcher()
+    # tops, docs = df.search_for_documents(p)
+
+    # pickle.dump(tops, open("tops", "w"))
+    # pickle.dump(docs, open("docs", "w"))
+    tops = pickle.load(open("tops", "r"))
+    docs = pickle.load(open("docs", "r"))
 
     q_and_t = []
     queue = []

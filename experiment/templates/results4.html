@@ -33,7 +33,6 @@
 </div>
 
 
-
 {% for term in terms%}
 
 
@@ -42,7 +41,7 @@
           </div>
           <div class="small-7 columns terms">
             <div class="callout text-left">
-              <p data-termtype="{{term[1]}}">{{term[0][0]}}</p>
+              <p id="{{term[0][0]}}-label" class="facet" data-termtype="{{term[1]}}">{{term[0][0]}}</p>
               <div id={{term[0][0]}}"-panel">
               </div>
             </div>
@@ -51,9 +50,17 @@
 
 {% endfor %}
  
-
-
 </div>
+
+<script type="text/javascript">
+$(".facet").on("click", function() {
+  $.post("get_snippet_post?q=Mitch%20Landrieu&page=1", function (data) {
+    var termtype = $("#" + this.id).attr("data-termtype");
+    var id = this.id;
+    // body...
+  })
+});
+</script>
 
 
 <script type="text/javascript" src="https://s3-us-west-2.amazonaws.com/rookie2/js/rookie2.js"></script>
