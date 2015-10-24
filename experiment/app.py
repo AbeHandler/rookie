@@ -1,6 +1,7 @@
 import pdb
 import pickle
 import threading
+import pylru
 from dateutil.parser import parse
 from flask import Flask
 from flask import render_template
@@ -17,6 +18,8 @@ from rookie import (
 )
 
 app = Flask(__name__)
+
+cache = pylru.lrucache(100)
 
 
 def tokens_to_sentence(sentence_tokens):
@@ -39,9 +42,9 @@ def documents_to_sentences(subset):
 def worker(queue, snippets_dict):
     print len(queue)
     for index, q_item in enumerate(queue):
-        print index
-        get_snippet(q_item[0][0], q_item[1], documents_to_sentences(q_item[2]), q_item[3].q)
-    return snippets_dict
+        key = q_item[0][0] + "-" +  q_item[1]
+        print key
+        cache[key] = get_snippet(q_item[0][0], q_item[1], documents_to_sentences(q_item[2]), q_item[3].q)
 
 
 @app.route('/')
@@ -108,7 +111,11 @@ def results():
 
 @app.route('/get_snippet_post', methods=['POST'])
 def get_snippet_post():
-    return "heeeeer"
+    term = request.args.get('term')
+    termtype = request.args.get('termtype')
+    key = term + "-" + termtype
+    snippet = cache.peek(key) # TO DO: handle cache failures
+    return snippet
 
 
 @app.route('/testing', methods=['GET'])

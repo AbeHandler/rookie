@@ -54,9 +54,9 @@
 
 <script type="text/javascript">
 $(".facet").on("click", function() {
-  $.post("get_snippet_post?q=Mitch%20Landrieu&page=1", function (data) {
-    var termtype = $("#" + this.id).attr("data-termtype");
-    var id = this.id;
+  var termtype = $("#" + this.id).attr("data-termtype");
+  var term = this.id.replace("-label", "");
+  $.post("get_snippet_post?term=" + term + "&termtype=" + termtype, function (data) {
     // body...
   })
 });
