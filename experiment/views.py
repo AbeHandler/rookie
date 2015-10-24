@@ -9,10 +9,6 @@ class Views(object):
     @staticmethod
     def get_results2_page(query, results, tops, len_results, message, pages, lens_css, banner_css):
         '''
-        Renders the homepage (/contracts/).
-        :param data: Data for the homepage.
-        :type data: dict
-        :returns: HTML. Rendered and ready for display to the user.
         '''
 
         organizations = [p[0] for p in tops['organizations']]
@@ -39,10 +35,6 @@ class Views(object):
     @staticmethod
     def get_results_page_relational(query, q_and_t, lens_css, banner_css):
         '''
-        Renders the homepage (/contracts/).
-        :param data: Data for the homepage.
-        :type data: dict
-        :returns: HTML. Rendered and ready for display to the user.
         '''
 
         response = render_template(
@@ -58,10 +50,6 @@ class Views(object):
     @staticmethod
     def get_results_page_relational_overview(query, q_and_t, lens_css, banner_css):
         '''
-        Renders the homepage (/contracts/).
-        :param data: Data for the homepage.
-        :type data: dict
-        :returns: HTML. Rendered and ready for display to the user.
         '''
 
         response = render_template(
@@ -70,6 +58,19 @@ class Views(object):
                 terms=q_and_t,
                 lens_css=lens_css,
                 banner_css=banner_css
+        )
+
+        return response
+
+
+    @staticmethod
+    def print_snippet(snippet):
+        '''
+        '''
+
+        response = render_template(
+                'snippet.html',
+                snippet=snippet
         )
 
         return response

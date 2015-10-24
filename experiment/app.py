@@ -114,8 +114,8 @@ def get_snippet_post():
     term = request.args.get('term')
     termtype = request.args.get('termtype')
     key = term + "-" + termtype
-    snippet = cache.peek(key) # TO DO: handle cache failures
-    return snippet
+    snippet = cache.peek(key) # TODO: handle cache failures
+    return Views().print_snippet(snippet)
 
 
 @app.route('/testing', methods=['GET'])
