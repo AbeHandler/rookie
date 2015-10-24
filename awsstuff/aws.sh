@@ -28,6 +28,5 @@ aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --conte
 #Get the IP for the instance
 #aws ec2 describe-instances --instance-ids i-5c24d5aa --query 'Reservations[0].Instances[0].PublicIpAddress'
 
-#ssh -i awsstuff/devenv-key.pem ubuntu@52.27.242.183
-
+# ssh -i "awsstuff/two" ec2-user@52.88.14.189
 # aws ec2 terminate-instances --instance-ids i-5c24d5aa

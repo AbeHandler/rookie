@@ -4,7 +4,6 @@ import os
 import json
 import numpy as np
 from dateutil import parser
-import matplotlib.pyplot as plt
 import pdb
 from pylru import lrudecorator
 from collections import Counter
