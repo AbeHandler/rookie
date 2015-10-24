@@ -115,6 +115,7 @@ def get_snippet_post():
     termtype = request.args.get('termtype')
     key = term + "-" + termtype
     snippet = cache.peek(key) # TODO: handle cache failures
+
     return Views().print_snippet(snippet)
 
 
@@ -127,11 +128,11 @@ def testing():
 
     snippets_dict = defaultdict(str)
 
-    # df = DocFetcher()
-    # tops, docs = df.search_for_documents(p)
+    df = DocFetcher()
+    tops, docs = df.search_for_documents(p)
 
-    # pickle.dump(tops, open("tops", "w"))
-    # pickle.dump(docs, open("docs", "w"))
+    pickle.dump(tops, open("tops", "w"))
+    pickle.dump(docs, open("docs", "w"))
     tops = pickle.load(open("tops", "r"))
     docs = pickle.load(open("docs", "r"))
 

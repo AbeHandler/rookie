@@ -70,7 +70,7 @@ def get_overview(results, q, top_n=3):
     orgs_df = get_document_frequencies("orgs")
     ngrams_df = get_document_frequencies("ngrams")
 
-    ngrams = [(n[0], n[1] * ngrams_df[n[0]]) for n in ngrams]
+    ngrams = [(n[0], n[1] * ngrams_df[n[0].upper()]) for n in ngrams]
     ngrams.sort(key=lambda x: x[1])
 
     people = [(n[0], n[1] * people_df[n[0]]) for n in people]
@@ -87,13 +87,13 @@ def get_overview(results, q, top_n=3):
     people = [n for n in people if n[0] not in stop_ner]
     organizations = [n for n in organizations if n[0] not in stop_ner]
 
-    output['terms'] = ngrams[-top_n:]
-    output['organizations'] = organizations[-top_n:]
+    output['terms'] = [(o[0], o[1]) for o in ngrams[-top_n:]]
+    output['organizations'] = [(o[0], o[1]) for o in organizations[-top_n:]]
 
     people = people[-top_n:]
     people = [(p[0], p[1], get_caption(p[0])) for p in people]
-    output['people'] = people
-
+    output['people'] = [(p[0], p[1], p[2]) for p in people]
+     
     return output
 
 

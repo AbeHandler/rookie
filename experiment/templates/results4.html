@@ -54,10 +54,10 @@
 
 <script type="text/javascript">
 $(".facet").on("click", function() {
-  var termtype = $("#" + this.id).attr("data-termtype");
   var term = this.id.replace("-label", "");
+  var termtype = $("[id='" + this.id + "']").attr("data-termtype");
   $.post("get_snippet_post?term=" + term + "&termtype=" + termtype, function (data) {
-    $("#" + term + "-" + termtype + "-panel").html(data);
+    $("[id='" + term + "-" + termtype + "-panel" + "']").html(data);
   })
 });
 </script>
