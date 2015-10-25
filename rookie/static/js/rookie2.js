@@ -14,11 +14,7 @@ function get_results(start){
     $("#results").html("");
     $("#search_status").html("");
     var term = $("#search_bar").val();
-    if (!$("#explorer").exists()){
-      var url = "http://52.27.242.183/results?q=" + term + "&page=1"
-    }else{
-      var url = "http://52.27.242.183/results?q=" + term + "&term=" +  this.id + "&page=" + $("#pages").attr("data-current-page") + "&termtype=" + this.getAttribute("data-term-type") + "&startdate=" + $("#datepicker1").val() + "&enddate=" + $("#datepicker2").val();
-    }
+    var url = "http://54.187.8.229/testing?q=" + term + "&page=1";
     location.href = url;
 }
 
