@@ -10,6 +10,8 @@ aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --conte
 aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --content-type application/json --documents data/aws/4.json
 aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --content-type application/json --documents data/aws/5.json
 
+ssh -i awsstuff/two ubuntu@54.187.8.229
+
 #create security group
 #aws ec2 create-security-group --group-name rookie --description "Rookie security group"
 
