@@ -1,0 +1,5 @@
+<div class="panel radius">
+ {% for item in snippet %}
+    <span class="terms">{{item[1].strftime('%Y-%m-%d')}}</span> <span>{{item[0]}}</span>
+ {% endfor %}
+</div>
