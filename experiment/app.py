@@ -1,5 +1,6 @@
 import pdb
 import pickle
+import datetime
 import threading
 import pylru
 from dateutil.parser import parse
@@ -128,8 +129,14 @@ def testing():
 
     snippets_dict = defaultdict(str)
 
+    before = datetime.datetime.now()
+
     df = DocFetcher()
     tops, docs = df.search_for_documents(p)
+
+    after = datetime.datetime.now()
+
+    log.debug('fetching documents took {}'.format((after - before).seconds))
 
     pickle.dump(tops, open("tops", "w"))
     pickle.dump(docs, open("docs", "w"))

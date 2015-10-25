@@ -14,8 +14,8 @@ function get_results(start){
     $("#results").html("");
     $("#search_status").html("");
     var term = $("#search_bar").val();
-    var url = "http://54.187.8.229/testing?q=" + term + "&page=1";
-    location.href = url;
+    var url = "http://54.187.8.229/testing?q=" + term;
+    window.location.href = url;
 }
 
 $('.page').on("click", function(e){
