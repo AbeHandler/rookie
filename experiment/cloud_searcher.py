@@ -35,9 +35,10 @@ def query_cloud_search(q, n=None):
     return results
 
 
-def get_counter_and_de_alias(field, results):
-    subset = [r['fields'][field] for r in results if field in r['fields'].keys()]
-    subset = list(itertools.chain.from_iterable(subset))
+def get_counter_and_de_alias(field, subset):
+    '''
+    Subset is the list of things to be dealiased
+    '''
     most_common = collections.Counter(subset).most_common(100)
     aliases = Merger.merge_lists([[o[0]] for o in most_common])
     for names in aliases:
@@ -60,11 +61,11 @@ def get_caption(name):
         return ""
 
 
-def get_overview(results, q, top_n=3):
+def get_overview(query, people, organizations, ngrams, top_n=3):
     output = {}
-    people = get_counter_and_de_alias('people', results)
-    organizations = get_counter_and_de_alias('organizations', results)
-    ngrams = get_counter_and_de_alias('ngrams', results)
+    people = get_counter_and_de_alias('people', people)
+    organizations = get_counter_and_de_alias('organizations', organizations)
+    ngrams = get_counter_and_de_alias('ngrams', ngrams)
 
     people_df = get_document_frequencies("people")
     orgs_df = get_document_frequencies("orgs")
@@ -79,9 +80,9 @@ def get_overview(results, q, top_n=3):
     organizations = [(n[0], n[1] * orgs_df[n[0]]) for n in organizations]
     organizations.sort(key=lambda x: x[1])
 
-    ngrams = [n for n in ngrams if n[0].upper() != q.upper()]
-    people = [n for n in people if n[0].upper() != q.upper()]
-    organizations = [n for n in organizations if n[0].upper() != q.upper()]
+    ngrams = [n for n in ngrams if n[0].upper() != query.upper()]
+    people = [n for n in people if n[0].upper() != query.upper()]
+    organizations = [n for n in organizations if n[0].upper() != query.upper()]
 
     ngrams = [n for n in ngrams if n[0] not in stop_ner]
     people = [n for n in people if n[0] not in stop_ner]

@@ -1,3 +1,4 @@
+from __future__ import division
 import pdb
 import pickle
 import os
@@ -17,7 +18,6 @@ from whoosh.fields import *
 from whoosh import writing
 
 
-@lrudecorator(1000)
 def get_snippet(term, termtype, sentences, original_query):
     for directory in ["coastal", "jindal"]:
         if not os.path.exists(directory):
@@ -30,14 +30,17 @@ def get_snippet(term, termtype, sentences, original_query):
     sentences_dict = {}
     q = set([i.lower() for i in original_query.split(" ")])
     t = set([i.lower() for i in term.split(" ")])
-    for sentence in sentences:
+    for index, sentence in enumerate(sentences):
         pubdate = sentence[1]
-        tag = sentence[2]
-        sentence_set = set(sentence[0].split(" "))
-        if len(t.intersection(sentence_set)) >= .5 * (len(t)):
-            jindal_writer.add_document(title=tag, path=u"/" + tag, content=sentence[0], date=pubdate)
-            sentences_dict[tag] = (sentence[0], parser.parse(pubdate))
-
+        doc_path = sentence[2]
+        sentence_set = set([i.lower() for i in sentence[0].split(" ")])
+        if "Bobby" in sentence_set and term == "Bobby Jindal":
+            print len(t.intersection(sentence_set))/(len(t))
+            pdb.set_trace()
+        if len(t.intersection(sentence_set))/(len(t)) >= .5:
+            sentence_path = u"{}-{}".format(doc_path, index)
+            jindal_writer.add_document(title=sentence_path, path=u"/" + sentence_path, content=sentence[0], date=pubdate)
+            sentences_dict[sentence_path] = (sentence[0], parser.parse(pubdate))
             # if len(q.intersection(sentence_set)) >= .5 * (len(q)):
             #    sentence = unicode(sentence)
             #    ci_writer.add_document(title=unicode(str(docno) + "-" + str(sentenceno)), path=u"/" + str(docno) + "-" + str(sentenceno), content=sentence, date=pubdate)
@@ -52,7 +55,7 @@ def get_snippet(term, termtype, sentences, original_query):
     with jindal_index.searcher() as searcher:
         qp = QueryParser("content", jindal_index.schema)
         myquery = qp.parse(original_query)
-        results = searcher.search(myquery)
+        results = searcher.search(myquery, limit=None) #TODO potential bug
         for i in results[0:7]:
             final.append(sentences_dict[i['title']])
 
