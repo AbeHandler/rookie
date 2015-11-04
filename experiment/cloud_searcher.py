@@ -88,12 +88,12 @@ def get_overview(query, people, organizations, ngrams, top_n=3):
     people = [n for n in people if n[0] not in stop_ner]
     organizations = [n for n in organizations if n[0] not in stop_ner]
 
-    output['terms'] = [(o[0], o[1]) for o in ngrams[-top_n:]]
-    output['organizations'] = [(o[0], o[1]) for o in organizations[-top_n:]]
+    output['terms'] = ((o[0], o[1]) for o in ngrams[-top_n:])
+    output['organizations'] = ((o[0], o[1]) for o in organizations[-top_n:])
 
     people = people[-top_n:]
     people = [(p[0], p[1], get_caption(p[0])) for p in people]
-    output['people'] = [(p[0], p[1], p[2]) for p in people]
+    output['people'] = ((p[0], p[1], p[2]) for p in people)
      
     return output
 

@@ -11,12 +11,13 @@ from experiment import log
 from experiment.views import Views
 from collections import defaultdict
 from experiment.models import Models, Parameters
-from snippets.prelim import DocFetcher, get_snippet
+# from snippets.prelim import DocFetcher, get_snippet
 from rookie import page_size
 from experiment import LENS_CSS, BANNER_CSS
 from rookie import (
     log
 )
+from whooshy.reader import query_whoosh
 
 app = Flask(__name__)
 
@@ -131,30 +132,24 @@ def testing():
 
     before = datetime.datetime.now()
 
-    df = DocFetcher()
-    tops, docs = df.search_for_documents(p)
+    query_back = query_whoosh(p.q)
 
     after = datetime.datetime.now()
 
     log.debug('fetching documents took {}'.format((after - before).seconds))
 
-    pickle.dump(tops, open("tops", "w"))
-    pickle.dump(docs, open("docs", "w"))
-    tops = pickle.load(open("tops", "r"))
-    docs = pickle.load(open("docs", "r"))
-
     q_and_t = []
     queue = []
-    for termtype in tops:
-        for term in tops[termtype]:
-            subset = [d for d in docs['docs'] if termtype in d.keys() and term[0] in d[termtype]]
-            queue.append((term, termtype, subset, p,))
-            q_and_t.append((term, termtype))
-    t = threading.Thread(target=worker, args=(queue, snippets_dict))
-    t.start()
+    for termtype in query_back[1].keys():
+        for term in query_back[1][termtype]:
+            # subset = [d for d in docs['docs'] if termtype in d.keys() and term[0] in d[termtype]]
+            # queue.append((term, termtype, subset, p,))
+            q_and_t.append((term[0], termtype))
+    # t = threading.Thread(target=worker, args=(queue, snippets_dict))
+    # t.start()
     
-    print "here so fast"
-
+    #print "here so fast"
+    
     view = Views().get_results_page_relational_overview(p.q, q_and_t, LENS_CSS, BANNER_CSS)
 
     # view = Views().get_results_page_relational(p.q, q_and_t, LENS_CSS, BANNER_CSS)
