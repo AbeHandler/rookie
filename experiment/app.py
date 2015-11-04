@@ -11,13 +11,15 @@ from experiment import log
 from experiment.views import Views
 from collections import defaultdict
 from experiment.models import Models, Parameters
-# from snippets.prelim import DocFetcher, get_snippet
+from snippets.prelim import get_snippet
 from rookie import page_size
 from experiment import LENS_CSS, BANNER_CSS
 from rookie import (
     log
 )
 from whooshy.reader import query_whoosh
+from whooshy.reader import query_subset
+from snippets.prelim import get_snippet
 
 app = Flask(__name__)
 
@@ -43,10 +45,14 @@ def documents_to_sentences(subset):
 
 def worker(queue, snippets_dict):
     print len(queue)
-    for index, q_item in enumerate(queue):
+    for index, q_item in enumerate(queue):       
         key = q_item[0][0] + "-" +  q_item[1]
-        print key
-        cache[key] = get_snippet(q_item[0][0], q_item[1], documents_to_sentences(q_item[2]), q_item[3].q)
+        sentences = []
+        for item in q_item[2]:
+            for sentence in item[1]['sentences']:
+                sentences.append(sentence)
+        pdb.set_trace()
+        cache[key] = get_snippet(q_item[0][0], q_item[1], sentences, q_item[3].q)
 
 
 @app.route('/')
@@ -142,11 +148,11 @@ def testing():
     queue = []
     for termtype in query_back[1].keys():
         for term in query_back[1][termtype]:
-            # subset = [d for d in docs['docs'] if termtype in d.keys() and term[0] in d[termtype]]
-            # queue.append((term, termtype, subset, p,))
+            subset = query_subset(query_back[0], term, termtype)
+            queue.append((term, termtype, subset, p,))
             q_and_t.append((term[0], termtype))
-    # t = threading.Thread(target=worker, args=(queue, snippets_dict))
-    # t.start()
+    t = threading.Thread(target=worker, args=(queue, snippets_dict))
+    t.start()
     
     #print "here so fast"
     

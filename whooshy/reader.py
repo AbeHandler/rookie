@@ -47,20 +47,23 @@ def query_whoosh(qry_string):
     # qp = MultifieldParser(["title", "people"], schema=ix.schema)
     qp = QueryParser("content", schema=ix.schema)
     q = qp.parse(qry_string)
+    results = []
     with ix.searcher() as srch:    
-        # search the index with a collector
-        # our simple collector limits the results,
-        # but there are also sorting collectors, timed collectors,
-        # and unlimited results etc.
         results_a = srch.search(q, limit=None)
+        for a in results_a:
+            results.append(a.get("path").replace("/", ""))
         all_people = get_metadata("people", results_a)
         all_org = get_metadata("org", results_a)
         all_ngrams = get_metadata("ngram", results_a)
-        overview = get_overview(qry_string, all_people, all_org, all_ngrams)  
-    return results_a, overview
+        overview = get_overview(qry_string, all_people, all_org, all_ngrams)
+        sentences = get_sentences(results_a)
+    return results, overview, sentences
 
-    # sentences = get_sentences(results_a)
-    # for termtype in overview:
-    #    for term in overview[termtype]:
-    #        print term
-    #        print get_snippet(term[0], termtype, sentences, query)
+
+def query_subset(results, term, term_type):
+    if term_type == 'organizations':
+        term_type = 'org' # not sure where htis gets mixed up. fix in loader
+    if term_type == 'terms':
+        term_type = 'ngram'
+    return [(i, metadata[i]) for i in results if term[0] in metadata[i][term_type]]
+    
