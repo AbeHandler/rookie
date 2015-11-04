@@ -33,26 +33,17 @@ def tokens_to_sentence(sentence_tokens):
     return sentence.strip(" ")
 
 
-def documents_to_sentences(subset):
-    output = []
-    for docno, doc in enumerate(subset):
-        pubdate = doc['pubdate']
-        for sentenceno in doc['sentences']:
-            sentence = tokens_to_sentence(doc['sentences'][sentenceno]['tokens'])
-            output.append((unicode(sentence), pubdate, unicode(str(docno) + "-"+ str(sentenceno))))
-    return tuple(output)
-
-
 def worker(queue, snippets_dict):
     print len(queue)
     for index, q_item in enumerate(queue):       
         key = q_item[0][0] + "-" +  q_item[1]
         sentences = []
         for item in q_item[2]:
+            pubd = item[1]['pubdate']
             for sentence in item[1]['sentences']:
-                sentences.append(sentence)
-        pdb.set_trace()
+                sentences.append((sentence, pubd, item[0]))
         cache[key] = get_snippet(q_item[0][0], q_item[1], sentences, q_item[3].q)
+        print get_snippet(q_item[0][0], q_item[1], sentences, q_item[3].q)
 
 
 @app.route('/')
