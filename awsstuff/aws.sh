@@ -2,15 +2,12 @@
 #cat created | jsawk 'return this.DomainStatus.DomainId'
 #"DomainId": "878503168987/rookie" 
 #aws cloudsearch describe-domains --domain-names rookie
-ENDPOINT=$(aws cloudsearch describe-domains --domain-names rookieversion3 | jsawk 'return this.DomainStatusList[0].DocService.Endpoint')
-aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --content-type application/json --documents data/aws/0.json
-aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --content-type application/json --documents data/aws/1.json
-aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --content-type application/json --documents data/aws/2.json
-aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --content-type application/json --documents data/aws/3.json
-aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --content-type application/json --documents data/aws/4.json
-aws cloudsearchdomain --endpoint-url 'http://'$ENDPOINT upload-documents --content-type application/json --documents data/aws/5.json
 
-ssh -i awsstuff/two ubuntu@54.187.8.229
+ssh -i "awsstuff/two" ubuntu@54.191.10.239
+
+sudo docker run -i -t -p 80:80 d328fc0d4cbe /bin/bash
+
+http://stackoverflow.com/questions/19688314/how-do-you-attach-and-detach-from-dockers-process
 
 #create security group
 #aws ec2 create-security-group --group-name rookie --description "Rookie security group"
