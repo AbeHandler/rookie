@@ -89,7 +89,7 @@ $('.page').on("click", function(e){
 
 $(".term").on("click", function(e){
   var term = $("#search_bar").val();
-  var url = "http://localhost/results?q=" + term + "&term=" +  this.id + "&page=" + $("#pages").attr("data-current-page") + "&termtype=" + this.getAttribute("data-term-type") + "&startdate=" + $("#datepicker1").val() + "&enddate=" + $("#datepicker2").val();
+  var url = "http://54.191.10.239/results?q=" + term + "&term=" +  this.id + "&page=" + $("#pages").attr("data-current-page") + "&termtype=" + this.getAttribute("data-term-type") + "&startdate=" + $("#datepicker1").val() + "&enddate=" + $("#datepicker2").val();
    location.href = url;
 });
 
