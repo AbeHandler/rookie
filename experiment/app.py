@@ -114,7 +114,6 @@ def get_snippet_post():
     termtype = request.args.get('termtype')
     key = term + "-" + termtype
     snippet = cache.peek(key) # TODO: handle cache failures
-
     return Views().print_snippet(snippet)
 
 
