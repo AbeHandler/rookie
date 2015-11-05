@@ -1,7 +1,5 @@
 import pdb
 from flask import render_template
-from rookie import page_size
-
 
 class Views(object):
 
@@ -33,19 +31,18 @@ class Views(object):
 
 
     @staticmethod
-    def get_results_page_relational(query, q_and_t, lens_css, banner_css):
+    def get_start_page(lens_css, banner_css):
         '''
         '''
 
         response = render_template(
-                'results3.html',
-                query=query,
-                terms=q_and_t,
+                'index.html',
                 lens_css=lens_css,
                 banner_css=banner_css
         )
 
         return response
+
 
     @staticmethod
     def get_results_page_relational_overview(query, q_and_t, lens_css, banner_css):

@@ -1,7 +1,5 @@
-#aws cloudsearch create-domain --domain-name rookie > created
-#cat created | jsawk 'return this.DomainStatus.DomainId'
-#"DomainId": "878503168987/rookie" 
-#aws cloudsearch describe-domains --domain-names rookie
+# Deployment:
+# change the IP in index.html
 
 ssh -i "awsstuff/two" ubuntu@54.191.10.239
 
