@@ -1,4 +1,4 @@
-To see a demo of rookie, go [here](http://rookielens.s3-website-us-west-2.amazonaws.com "here"). This repo just holds the source code.
+To see a demo of rookie, go [here](http://54.191.10.239/ "here"). This repo just holds the source code.
 
 #### Rookie.
 
@@ -6,7 +6,7 @@ Imagine you are a new reporter just assigned to a beat. Or a community activist 
 
 [Abe Handler](https://www.abehandler.com "Abe Handler") did most of the research and coding for Rookie. He got lots of conceptual help from [Steve Myers](https://twitter.com/myersnews "Steve Myers") and [Brendan O'Connor](http://brenocon.com "Brendan O'Connor").
 
-This project began at [The Lens](http://www.thelensnola.org "The Lens") with [support](http://www.knightfoundation.org/grants/201550791/ "support") from the John S and James L Knight foundation.
+This project began at [The Lens](http://www.thelensnola.org "The Lens") with [support](http://www.knightfoundation.org/grants/201550791/ "support") from the Knight foundation.
 
 #### Tests and coverage
 
