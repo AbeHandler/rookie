@@ -35,7 +35,7 @@
 <div class="row">
   <div class="small-3 columns">
     {% for term in terms%}
-     <p id="{{term[0]}}-label" class="facet" data-termtype="{{term[1]}}">{{term[0]}}</p>
+     <p id="{{term[0]}}-label" class="term facet" data-termtype="{{term[1]}}">{{term[0]}}</p>
     {% endfor %}
   </div>
   <div class="small-9 columns" id="detail-panel">
@@ -45,6 +45,12 @@
 
  
 </div>
+
+<style>
+.selected {
+    text-decoration: underline;
+} 
+</style>
 
 <script type="text/javascript">
 $(".facet").on("click", function() {
@@ -81,11 +87,6 @@ $('.page').on("click", function(e){
   get_results(start_page);
 });
 
-$(".term").on("click", function(e){
-  var term = $("#search_bar").val();
-  var url = "http://54.191.10.239/results?q=" + term + "&term=" +  this.id + "&page=" + $("#pages").attr("data-current-page") + "&termtype=" + this.getAttribute("data-term-type") + "&startdate=" + $("#datepicker1").val() + "&enddate=" + $("#datepicker2").val();
-   location.href = url;
-});
 
 //stackoverflow.com/questions/923299/how-can-i-detect-when-the-mouse-leaves-the-window
 function addEvent(obj, evt, fn) {
@@ -144,6 +145,11 @@ addEvent(document, "mouseout", function(e) {
    if ( e.keyCode == 13 ) {
      get_results(1);
    }
+ });
+
+ $(".facet").on("click", function(){
+   $(".term").removeClass("selected");
+   $("[id='" + this.id + "']").addClass("selected");
  });
 
  function post_answer(){
