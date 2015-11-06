@@ -1,5 +1,12 @@
 <div class="panel radius">
  {% for item in snippet %}
-    <span class="terms">{{item[1].strftime('%Y-%m-%d')}}</span> <span>{{item[0]}}</span>
+    <div class="row">
+      <div class="small-2 columns">
+        <span id={{item[0]}} class="term">{{item[1].strftime('%Y-%m-%d')}}</span>
+      </div>
+      <div class="small-10 columns" id="detail-panel">
+        {{item[0]}}
+      </div>
+    </div>
  {% endfor %}
 </div>

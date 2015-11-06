@@ -32,23 +32,17 @@
     </div>
 </div>
 
+<div class="row">
+  <div class="small-3 columns">
+    {% for term in terms%}
+     <p id="{{term[0]}}-label" class="facet" data-termtype="{{term[1]}}">{{term[0]}}</p>
+    {% endfor %}
+  </div>
+  <div class="small-9 columns" id="detail-panel">
 
-{% for term in terms%}
+  </div>
+</div>
 
-
-        <div class="row">
-          <div class="small-5 columns uncollapse">
-          </div>
-          <div class="small-7 columns terms">
-            <div class="callout text-left">
-              <p id="{{term[0]}}-label" class="facet" data-termtype="{{term[1]}}">{{term[0]}}</p>
-            </div>
-          </div>
-          <div class="small-12 columns" id="{{term[0]}}-{{term[1]}}-panel">
-          </div>
-        </div>
-
-{% endfor %}
  
 </div>
 
@@ -57,7 +51,7 @@ $(".facet").on("click", function() {
   var term = this.id.replace("-label", "");
   var termtype = $("[id='" + this.id + "']").attr("data-termtype");
   $.post("get_snippet_post?term=" + term + "&termtype=" + termtype, function (data) {
-    $("[id='" + term + "-" + termtype + "-panel" + "']").html(data);
+    $("[id='detail-panel']").html(data);
   })
 });
 
