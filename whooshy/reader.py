@@ -16,10 +16,7 @@ import whoosh
 
 stop_ner = ["The Lens", "THE LENS"]  # TODO refactor this out of the loader
 
-
-with open("data/meta_data.json") as inf:
-    metadata = json.load(inf)
-
+from experiment.models import get_metadata_file
 
 def get_caption(name):
     captions_people = pickle.load(open("pickled/people_captions.p", "r"))
@@ -119,14 +116,19 @@ def get_counter_and_de_alias(field, subset):
             most_common.append(replacement)
     return most_common
 
+
 def standard_path(record):
     return record.get("path").replace("/", "")
 
+
 def get_metadata(term, results):
+    metadata = get_metadata_file()
     tmp = [[i for i in metadata[standard_path(record)][term]] for record in results]
     return list(itertools.chain.from_iterable(tmp))
 
+
 def get_sentences(results_a):
+    metadata = get_metadata_file()
     paths = [standard_path(i) for i in results_a]
     sentences = [[(s, metadata[p]['pubdate'], p) for s in metadata[p]['sentences']] for p in paths]
     return [i for i in itertools.chain.from_iterable(sentences)]
@@ -156,5 +158,6 @@ def query_subset(results, term, term_type):
         term_type = 'org' # not sure where htis gets mixed up. fix in loader
     if term_type == 'terms':
         term_type = 'ngram'
+    metadata = get_metadata_file()
     return [(i, metadata[i]) for i in results if term[0] in metadata[i][term_type]]
     

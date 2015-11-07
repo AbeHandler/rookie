@@ -14,6 +14,7 @@ from experiment import (
 )
 from whooshy.reader import query_whoosh
 from whooshy.reader import query_subset
+from collections import OrderedDict
 
 app = Flask(__name__)
 
@@ -71,20 +72,27 @@ def detail():
 
     q_and_t = []
 
+    #TODO: this logic should go in query_whoosh
     for termtype in query_back[1].keys():
         for term in query_back[1][termtype]:
             q_and_t.append((term[0], termtype))
 
-    tokens = ["a", "b", "c"]
+    dt = Models.get_tokens(docid)
 
-    view = Views().get_detail_page(p.q, q_and_t, tokens, LENS_CSS, BANNER_CSS)
+    dt = OrderedDict(sorted(dt.items(), key=lambda t: int(t[0])))
+
+    tokens = [dt[i] for i in dt.keys()]
+
+    headline = Models.get_headline(docid)
+
+    pubdate = Models.get_pub_date(docid)
+
+    view = Views().get_detail_page(p.q, q_and_t, headline, pubdate, tokens, LENS_CSS, BANNER_CSS)
 
     return view
 
 @app.route('/testing', methods=['GET'])
 def testing():
-
-    log.debug('/search/ data:')
 
     p = Models.get_parameters(request)
 

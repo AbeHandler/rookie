@@ -19,12 +19,14 @@ class Views(object):
 
 
     @staticmethod
-    def get_detail_page(query, q_and_t, tokens, lens_css, banner_css):
+    def get_detail_page(query, q_and_t, headline, dateline, tokens, lens_css, banner_css):
         '''
         '''
         response = render_template(
                 'detail.html',
                 query=query,
+                headline=headline,
+                dateline=dateline,
                 tokens=tokens,
                 terms=q_and_t,
                 lens_css=lens_css,

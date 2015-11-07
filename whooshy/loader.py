@@ -4,6 +4,7 @@ from whoosh import writing
 from rookie.classes import IncomingFile
 from rookie import processed_location
 import pdb
+import itertools
 import json
 import glob
 
@@ -28,10 +29,16 @@ for counter, infile in enumerate(files_to_check):
         meta_data['people'] = [unicode(str(i)) for i in IncomingFile(infile).doc.people]
         meta_data['org'] = [unicode(str(i)) for i in IncomingFile(infile).doc.organizations]
         meta_data['ngram'] = [unicode(" ".join(i.raw for i in j)) for j in IncomingFile(infile).doc.ngrams]
+        meta_data['headline'] = IncomingFile(infile).headline
         sentences = [" ".join([j.raw for j in i.tokens]) for i in IncomingFile(infile).doc.sentences]
         meta_data['sentences'] = sentences
-        with open("articles/{}".format(counter), "w") as outfile:
-            outfile.write(full_text.encode("ascii", "ignore"))
+        tokens = itertools.chain(*[[j.raw for j in i.tokens] for i in IncomingFile(infile).doc.sentences])
+        with open('articles/{}'.format(counter), 'w') as outfile:
+            tokens = [i.encode("ascii", "ignore") for i in tokens]
+            toks = {}
+            for index, i in enumerate(tokens):
+                toks[index] = i
+            json.dump(toks, outfile)
         meta_data['pubdate'] = IncomingFile(infile).pubdate
         people_org_ngram_index[counter] = meta_data
         if len(headline) > 0 and len(full_text) > 0:

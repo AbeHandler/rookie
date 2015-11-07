@@ -1,5 +1,14 @@
 import pdb
+import json
+from pylru import lrudecorator
 from dateutil.parser import parse
+
+
+@lrudecorator(100)
+def get_metadata_file():
+    with open("data/meta_data.json") as inf:
+        metadata = json.load(inf)
+    return metadata
 
 
 class Parameters(object):
@@ -20,8 +29,20 @@ class Models(object):
     '''Handles logic for the experiment app'''
 
     @staticmethod
-    def get_limited(results, term, termtype):
-        return [r for r in results if termtype in r['fields'] and term in r['fields'][termtype]]
+    def get_tokens(docid):
+        with open('articles/' + docid) as data_file:    
+            data = json.load(data_file)
+        return data
+
+    @staticmethod
+    def get_headline(docid):
+        dt = get_metadata_file()
+        return dt[docid]['headline']
+
+    @staticmethod
+    def get_pub_date(docid):
+        dt = get_metadata_file()
+        return dt[docid]['pubdate']
 
     @staticmethod
     def get_parameters(request):
