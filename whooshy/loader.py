@@ -30,6 +30,8 @@ for counter, infile in enumerate(files_to_check):
         meta_data['ngram'] = [unicode(" ".join(i.raw for i in j)) for j in IncomingFile(infile).doc.ngrams]
         sentences = [" ".join([j.raw for j in i.tokens]) for i in IncomingFile(infile).doc.sentences]
         meta_data['sentences'] = sentences
+        with open("articles/{}".format(counter), "w") as outfile:
+            outfile.write(full_text.encode("ascii", "ignore"))
         meta_data['pubdate'] = IncomingFile(infile).pubdate
         people_org_ngram_index[counter] = meta_data
         if len(headline) > 0 and len(full_text) > 0:

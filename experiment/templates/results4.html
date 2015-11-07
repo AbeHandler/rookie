@@ -58,6 +58,13 @@ $(".facet").on("click", function() {
   var termtype = $("[id='" + this.id + "']").attr("data-termtype");
   $.post("get_snippet_post?term=" + term + "&termtype=" + termtype, function (data) {
     $("[id='detail-panel']").html(data);
+    $(".extract").on("click", function () {
+      var docid = this.attributes['data-doc'].value;
+      var dataterm = this.attributes['data-term'].value;
+      var q = $("#search_bar").val();
+      var url = "http://localhost:5000/detail?q=" + q + "&docid=" + docid + "&t=" + dataterm;
+      window.location.href = url;
+    });
   })
 });
 
@@ -77,7 +84,7 @@ function get_results(start){
     $("#results").html("");
     $("#search_status").html("");
     var term = $("#search_bar").val();
-    var url = "http://54.191.10.239/testing?q=" + term;
+    var url = "http://localhost:5000/testing?q=" + term;
     window.location.href = url;
 }
 

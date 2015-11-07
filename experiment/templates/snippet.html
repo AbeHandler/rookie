@@ -1,6 +1,6 @@
 <div class="panel radius">
  {% for item in snippet %}
-    <div class="row">
+    <div data-doc={{item[2]}} data-term='{{item[3]}}' class="row extract">
       <div class="small-2 columns">
         <span id={{item[0]}} class="term">{{item[1].strftime('%Y-%m-%d')}}</span>
       </div>

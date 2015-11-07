@@ -38,4 +38,3 @@ if __name__ == "__main__":
     query = sys.argv[2]
     inf = IncomingFile(file_name)
     full_text = inf.doc.full_text
-    print get_snippet(query, full_text)
