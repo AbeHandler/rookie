@@ -39,9 +39,11 @@
     {% endfor %}
   </div>
   <div class="small-9 columns" id="detail-panel">
-     <div> <span class="headline"> {{ headline }} </span> | <span class="dateline grey"> {{ dateline }} </span></div>
-     
+     <div> <span class="headline">{{ headline }}</span></div>
+     <div class="panel">
+     <span class="dateline grey">{{ dateline }}</span> –
      {% include 'spanme.html' %}
+    </div>
   </div>
 </div>
 
