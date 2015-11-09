@@ -56,10 +56,9 @@ class Views(object):
     def print_snippet(snippet):
         '''
         '''
-
         response = render_template(
                 'snippet.html',
-                snippet=snippet
+                snippet=snippet #TODO: sort out tokenization
         )
 
         return response

@@ -65,6 +65,7 @@ def get_snippet(term, termtype, sentences, original_query):
 
     final = [o for o in set(final)]
     final.sort(key=lambda x: x[1])
-
+    
+    final = [(f[0].split(" "), f[1], f[2], f[3]) for f in final] # TODO deal w/ tokenization for real
     return final
 

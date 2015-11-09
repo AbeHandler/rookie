@@ -16,11 +16,12 @@
 <div id="controls" class="row">
 
   <div>
-    <input id="search_bar" type="text" class="small-12 columns" placeholder="{{query}}"></input>
-  </div>
-
-  <div class="right">
-    <div> <div id="search_button" class="button">Search</div> <div class="" id="advanced_search">Search by date</div></div>
+    <div class="small-10 columns">
+      <input id="search_bar" type="text" class="small-12 columns" placeholder="{{query}}"></input>
+    </div>
+    <div class="small-2 columns">
+      <a href="#" class="button postfix" id="search_button">Search</a>
+    </div>
   </div>
 
 </div>
@@ -49,6 +50,7 @@
 <style>
 .selected {
     text-decoration: underline;
+    color: darkred;
 } 
 </style>
 
@@ -65,6 +67,7 @@ $(".facet").on("click", function() {
       var url = "http://54.191.10.239/detail?q=" + q + "&docid=" + docid + "&t=" + dataterm;
       window.location.href = url;
     });
+    bold_q();
   })
 });
 
@@ -94,24 +97,38 @@ $('.page').on("click", function(e){
   get_results(start_page);
 });
 
-
-//stackoverflow.com/questions/923299/how-can-i-detect-when-the-mouse-leaves-the-window
-function addEvent(obj, evt, fn) {
-    if (obj.addEventListener) {
-        obj.addEventListener(evt, fn, false);
-    }
-    else if (obj.attachEvent) {
-        obj.attachEvent("on" + evt, fn);
-    }
+function bold_q(){
+  var qtoks = $("#search_bar").val().split(" ");
+  for (i = 0; i < qtoks.length; i++) { 
+    $("[data-word='" + qtoks[i] + "']").css("font-weight", "bold");
+  }
+  var elementExists = document.getElementById("search_button");
+  if ($('.selected').length > 0){
+     var ftoks = $(".selected").first().html().split(" ");
+     for (i = 0; i < ftoks.length; i++) { 
+       $("[data-word='" + ftoks[i] + "']").addClass("selected");
+     }  
+  }
 }
 
-addEvent(document, "mouseout", function(e) {
-    e = e ? e : window.event;
-    var from = e.relatedTarget || e.toElement;
-    if (!from || from.nodeName == "HTML") {
-       // $('#myModal').foundation('reveal', 'open');
-    }
-});
+
+//stackoverflow.com/questions/923299/how-can-i-detect-when-the-mouse-leaves-the-window
+//function addEvent(obj, evt, fn) {
+//    if (obj.addEventListener) {
+//        obj.addEventListener(evt, fn, false);
+//    }
+//    else if (obj.attachEvent) {
+//        obj.attachEvent("on" + evt, fn);
+//    }
+//}
+
+//addEvent(document, "mouseout", function(e) {
+ //   e = e ? e : window.event;
+//    var from = e.relatedTarget || e.toElement;
+//    if (!from || from.nodeName == "HTML") {
+//       // $('#myModal').foundation('reveal', 'open');
+//    }
+//});
 
 /*
  $('body').bind('keypress', function(e){

@@ -10,6 +10,11 @@
 
 #search_button {
     background-color: #B33125;
+    color: white;
+}
+
+input#search_bar {
+    font-weight: bold;
 }
 
 #advanced_search {
@@ -26,7 +31,8 @@
 }
 
 .term{
-  color: darkred;
+  color: gray;
+  cursor: hand;
 }
 
 .page{

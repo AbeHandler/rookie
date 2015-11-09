@@ -5,7 +5,9 @@
         <span id={{item[0]}} class="term">{{item[1].strftime('%Y-%m-%d')}}</span>
       </div>
       <div class="small-10 columns" id="detail-panel">
-        {{item[0]}}
+        {% for j in item[0]%}
+            <span data-word="{{j}}">{{j}}</span>
+        {% endfor %}
       </div>
     </div>
  {% endfor %}
