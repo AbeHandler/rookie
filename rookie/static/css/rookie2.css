@@ -8,6 +8,11 @@
   font-size: .9em;
 }
 
+.selected {
+    text-decoration: underline;
+    color: darkred !important;
+} 
+
 #search_button {
     background-color: #B33125;
     color: white;
