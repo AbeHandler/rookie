@@ -2,7 +2,7 @@
  {% for item in snippet %}
     <div data-doc={{item[2]}} data-term='{{item[3]}}' class="row extract">
       <div class="small-2 columns">
-        <span id={{item[0]}} class="term">{{item[1].strftime("%b %d %Y")}}</span>
+        <span id={{item[0]}} class="term">{{item[1].strftime("%b %d %Y").replace(' 0', ' ')}}</span>
       </div>
       <div class="small-10 columns" id="detail-panel">
         {% for j in item[0]%}
