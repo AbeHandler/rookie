@@ -3,6 +3,7 @@ from whoosh.fields import *
 from whoosh import writing
 from rookie.classes import IncomingFile
 from rookie import processed_location
+from collections import defaultdict
 import pdb
 import itertools
 import json
@@ -50,3 +51,24 @@ writer.commit(mergetype=writing.CLEAR)
 
 with open('data/meta_data.json', 'w') as outfile:
     json.dump(people_org_ngram_index, outfile)
+
+'''
+Code below reads the meta_data dictionary to create an index of
+what was mentioned at what pubdate
+'''
+
+tracker = defaultdict(lambda: defaultdict(list))
+
+interested = ['people', 'ngram', 'org']
+
+md = json.load(open("data/meta_data.json", "r"))
+
+for doc in md:
+    pdate = md[doc]['pubdate']
+    for itm in interested:
+        items = md[doc][itm]
+        for j in items:
+            tracker[itm][j].append(pdate)
+
+with open('data/date_instances.json', 'w') as outfile:
+    json.dump(dict(tracker), outfile)

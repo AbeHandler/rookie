@@ -29,7 +29,7 @@ def tokens_to_sentence(sentence_tokens):
 
 
 def worker(queue, snippets_dict):
-    for index, q_item in enumerate(queue):       
+    for index, q_item in enumerate(queue):
         key = q_item[0][0] + "-" +  q_item[1]
         sentences = []
         for item in q_item[2]:
@@ -72,7 +72,7 @@ def detail():
 
     q_and_t = []
 
-    #TODO: this logic should go in query_whoosh
+    # TODO: this logic should go in query_whoosh
     for termtype in query_back[1].keys():
         for term in query_back[1][termtype]:
             q_and_t.append((term[0], termtype))

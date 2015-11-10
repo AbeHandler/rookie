@@ -95,7 +95,7 @@ def get_overview(query, people, organizations, ngrams, top_n=3):
     people = people[-top_n:]
     people = [(p[0], p[1], get_caption(p[0])) for p in people]
     output['people'] = ((p[0], p[1], p[2]) for p in people)
-     
+
     return output
 
 
@@ -141,7 +141,7 @@ def query_whoosh(qry_string):
     qp = QueryParser("content", schema=ix.schema)
     q = qp.parse(qry_string)
     results = []
-    with ix.searcher() as srch:    
+    with ix.searcher() as srch:
         results_a = srch.search(q, limit=None)
         for a in results_a:
             results.append(a.get("path").replace("/", ""))
