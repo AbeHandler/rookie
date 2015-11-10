@@ -94,17 +94,6 @@ class GenericTestCase(unittest.TestCase):
         doc = Document(py_wrapper_output, corefs)
         propagate_first_mentions(doc)
 
-    def test_get_windows(self):
-        with open("data/sample_wrapper_output_2.json", "r") as to_read:
-            py_wrapper_output = json.loads(to_read.read())
-        corefs = Coreferences(py_wrapper_output)
-        doc = Document(py_wrapper_output, corefs)
-        for sentence in doc.sentences:
-            for ner in sentence.ner:
-                window = Window.get_window(sentence.tokens, ner.tokens, 10)
-                self.assertTrue(len(window) - len(ner.tokens),
-                                20 - len(ner.tokens))
-
     def test_strip_stop_words2(self):
         self.assertTrue(stop_word("NEW ORLEANS"))
 

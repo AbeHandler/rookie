@@ -108,19 +108,6 @@ def get_pmi():
 
 
 @lrudecorator(100)
-def get_windows():
-    with (open(files_location + "instances.json", "r")) as rw:
-        windows = json.load(rw)
-    return windows
-
-
-@lrudecorator(100)
-def get_window(term):
-    windows = get_windows()
-    return windows[term]
-
-
-@lrudecorator(100)
 def clean_whitespace(full_text):
     pattern = re.compile("\ {2,}")  # clean any big spaces left over
     full_text = pattern.sub(" ", full_text)  # replace w/ small spaces
