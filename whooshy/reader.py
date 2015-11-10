@@ -13,10 +13,12 @@ from whoosh.qparser import MultifieldParser
 from snippets.prelim import get_snippet
 from Levenshtein import distance
 import whoosh
+from experiment.models import get_metadata_file, get_date_tracker_file
 
 stop_ner = ["The Lens", "THE LENS"]  # TODO refactor this out of the loader
 
-from experiment.models import get_metadata_file
+date_tracker = get_date_tracker_file()
+
 
 def get_caption(name):
     captions_people = pickle.load(open("pickled/people_captions.p", "r"))
@@ -105,11 +107,22 @@ def get_counter_and_de_alias(field, subset):
     '''
     most_common = collections.Counter(subset).most_common(100)
     aliases = Merger.merge_lists([[o[0]] for o in most_common])
+    date_mentions = {}
     for names in aliases:
         master_name = get_representitive_item(names, field)
+        if field == 'organizations':
+            term_type = 'org'  # TODO: standarize
         if master_name:  # can't always find a master name
+            date_mentions = [date_tracker[field][n] for n in names if n in date_tracker[field]]
             total = sum(i[1] for i in most_common if i[0] in names)
-            replacement = (master_name, total)
+            date_mentions = itertools.chain(*date_mentions)
+            date_mentions = [i for i in date_mentions]
+            replacement = (master_name, total, date_mentions)
+            print len(date_mentions)
+            print total
+            if len(date_mentions) != total:
+                # TODO why is this happening?
+                pass
             for name in names:
                 pop_this = [i for i in most_common if i[0] == name].pop()
                 most_common.remove(pop_this)
@@ -155,9 +168,8 @@ def query_whoosh(qry_string):
 
 def query_subset(results, term, term_type):
     if term_type == 'organizations':
-        term_type = 'org' # not sure where htis gets mixed up. fix in loader
+        term_type = 'org' # TODO: not sure where htis gets mixed up. fix in loader
     if term_type == 'terms':
         term_type = 'ngram'
     metadata = get_metadata_file()
     return [(i, metadata[i]) for i in results if term[0] in metadata[i][term_type]]
-    

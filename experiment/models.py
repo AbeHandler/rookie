@@ -4,11 +4,21 @@ from pylru import lrudecorator
 from dateutil.parser import parse
 
 
+# TODO: merge two methods below
+
 @lrudecorator(100)
 def get_metadata_file():
     with open("data/meta_data.json") as inf:
         metadata = json.load(inf)
     return metadata
+
+
+@lrudecorator(100)
+def get_date_tracker_file():
+    with open("data/date_instances.json") as inf:
+        metadata = json.load(inf)
+    return metadata
+
 
 
 class Parameters(object):
