@@ -111,9 +111,10 @@ def get_counter_and_de_alias(field, subset):
     for names in aliases:
         master_name = get_representitive_item(names, field)
         if field == 'organizations':
-            term_type = 'org'  # TODO: standarize
+            field = 'org'  # TODO: standarize
+        if field == "ngrams":
+            field = "ngram"
         if master_name:  # can't always find a master name
-            date_mentions = [date_tracker[field][n] for n in names if n in date_tracker[field]]
             total = sum(i[1] for i in most_common if i[0] in names)
             date_mentions = itertools.chain(*date_mentions)
             date_mentions = [i for i in date_mentions]
