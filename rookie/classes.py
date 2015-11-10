@@ -236,15 +236,6 @@ class Sentence(object):
         # ngrams 1 thru 4
         for i in range(1, 5):
             grams = grams + ng.get_syntactic_ngrams(self.tokens, i)
- #       two_grams = []
- #       threegrams = grams[1]
- #       for twogram in grams[0]:  # TODO refactorr!!
- #           add = True
- #           for threegram in threegrams:
- #               if twogram in threegram:
- #                   add = False
- #           if add:
- #               two_grams.append(twogram)
         return grams
 
     def __init__(self, json_sentence, sentence_no):

@@ -48,10 +48,10 @@ class GenericTestCase(unittest.TestCase):
         doc = Document(py_wrapper_output)
         sentence = doc.sentences[0]
         grammer = N_Grammer()
-        bigrams = grammer.get_syntactic_ngrams(sentence.tokens)[0]
+        bigrams = grammer.get_syntactic_ngrams(sentence.tokens, 2)[0]
         self.assertTrue(all(bigram[0].is_noun() or
                             bigram[0].is_adjective()) for b in bigrams)
-        trigrams = grammer.get_syntactic_ngrams(sentence.tokens)[1]
+        trigrams = grammer.get_syntactic_ngrams(sentence.tokens, 3)[1]
         self.assertTrue(all(bigram[0].is_noun() or
                         bigram[0].is_adjective()) for b in trigrams)
 
@@ -66,47 +66,8 @@ class GenericTestCase(unittest.TestCase):
         target = "Mayor Mitch Landrieus Great"
         self.assertEqual(out, target)
 
-    def test_coref_groups(self):
-        with open("data/sample_wrapper_output_2.json", "r") as to_read:
-            py_wrapper_output = json.loads(to_read.read())
-        corefs = Coreferences(py_wrapper_output)
-        doc = Document(py_wrapper_output, corefs)
-        self.assertTrue(len(corefs.groups) > -1)
-
-    def test_coref_groups(self):
-        with open("data/sample_wrapper_output_2.json", "r") as to_read:
-            py_wrapper_output = json.loads(to_read.read())
-        corefs = Coreferences(py_wrapper_output)
-        doc = Document(py_wrapper_output, corefs)
-        for group in [doc.coreferences.groups[155]]:
-            for mention in [group[0]]:
-                alltoks = doc.sentences[mention.sentence].tokens
-                mentiontokens = alltoks[mention.span_start:mention.span_end]
-                raws = [t.raw for t in mentiontokens]
-                tags = [t.ner_tag for t in mentiontokens]
-                self.assertEqual(raws[0], "Alexandra")
-                self.assertEqual(tags[0], "PERSON")
-
-    def test_first_mention_person_or_org(self):
-        with open("data/sample_wrapper_output_2.json", "r") as to_read:
-            py_wrapper_output = json.loads(to_read.read())
-        corefs = Coreferences(py_wrapper_output)
-        doc = Document(py_wrapper_output, corefs)
-        propagate_first_mentions(doc)
-
     def test_strip_stop_words2(self):
         self.assertTrue(stop_word("NEW ORLEANS"))
-
-    def test_merging_people(self):
-        with open("data/sample_wrapper_output3.json", "r") as to_read:
-            py_wrapper_output = json.loads(to_read.read())['lines']
-            corefs = Coreferences(py_wrapper_output)
-            doc = Document(py_wrapper_output, corefs)
-            sentence = doc.sentences[0]
-            ner = sentence.ner
-            ner2 = dedupe_people(list(ner))  # pass a new copy
-            # The NER "Serpas" should lose to the NER "Ronal Serpas"
-            self.assertEqual(len(ner2) + 1, len(ner))
 
 if __name__ == '__main__':
     unittest.main()
