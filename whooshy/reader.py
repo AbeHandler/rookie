@@ -119,8 +119,6 @@ def get_counter_and_de_alias(field, subset):
             date_mentions = itertools.chain(*date_mentions)
             date_mentions = [i for i in date_mentions]
             replacement = (master_name, total, date_mentions)
-            print len(date_mentions)
-            print total
             if len(date_mentions) != total:
                 # TODO why is this happening?
                 pass

@@ -37,6 +37,9 @@ def worker(queue, snippets_dict):
             docid = item[0]
             for sentence in item[1]['sentences']:
                 sentences.append((sentence, pubd, item[0], docid))
+         
+        # snippet returns:
+        # tokens, datetime, article_id, ?, qtokenindex, ftokenindex)
         cache[key] = get_snippet(q_item[0][0], q_item[1], sentences, q_item[3].q)
         print "got snippet {}|{}|{}".format(q_item[0][0], q_item[1], q_item[3].q)
 
@@ -51,9 +54,23 @@ def index():
 def get_snippet_post():
     term = request.args.get('term')
     termtype = request.args.get('termtype')
+    query = request.args.get('q')
     key = term + "-" + termtype
     try:
         snippet = cache.peek(key) # TODO: handle cache failures
+        tokens = snippet[0][0]
+        qtoks = query.split(" ")
+        ftoks = term.split(" ")
+        pdb.set_trace()
+        # for item in final:
+        #    tokens = [i.lower() for i in item[0].split(" ")]
+        #    q_toks = tokens.index(original_query.lower().split(" ")[0])
+        #try:
+        #    f_toks = tokens.index(term.lower().split(" ")[0])
+        #except ValueError:
+        #    f_toks = 0
+        #output.append(f + (q_toks, f_toks))
+        # tokens, datetime, article_id, ?, qtokenindex, ftokenindex)
     except KeyError: # TODO FIX
         snippet = "waiting for cache fix TODO"
     return Views().print_snippet(snippet)

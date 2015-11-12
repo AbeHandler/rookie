@@ -19,6 +19,10 @@ from whoosh import writing
 
 
 def get_snippet(term, termtype, sentences, original_query):
+
+    # NOTE. this is 2x loose on aliasiing/coreference. if there is enuf intersection, sentence gets
+    # bumped up. so there is round 1 of aliasing. then this.
+
     for directory in ["coastal", "jindal"]:
         if not os.path.exists(directory):
             os.makedirs(directory)
@@ -62,7 +66,6 @@ def get_snippet(term, termtype, sentences, original_query):
 #        results = searcher.search(myquery)
 #        for i in results[0:5]:
 #            final.append(sentences_dict[i['title']])
-
     final = [o for o in set(final)]
     final.sort(key=lambda x: x[1])
     
