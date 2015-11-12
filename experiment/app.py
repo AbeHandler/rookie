@@ -62,7 +62,7 @@ def get_snippet_post():
         for s in snippet:
             s[0] = list(s[0])
         for s_index, sentence in enumerate(snippet):
-            tokens = sentence[0]  #TODO this is only one sentence
+            tokens = [i for i in sentence[0] if i != ","]  #TODO this is only one sentence
             qtoks = set(query.split(" ")).intersection(set(tokens))
             ftoks = set(term.split(" ")).intersection(set(tokens))
             qftoks = qtoks.union(ftoks)
@@ -95,6 +95,9 @@ def get_snippet_post():
             while tokens[i] not in qftoks and i < len(tokens) - 1:
                 slots[slots_index].append(str(tokens[i]))
                 i +=1
+            
+            test = []
+            test.append("e")
             snippet[s_index][0] = slots
 
 

@@ -6,8 +6,11 @@
     {% for item in snippet %}
     <tr data-doc={{item[2]}} data-term='{{item[3]}}' class="row extract">
       <td id={{item[0]}} class="term">{{item[1].strftime("%b %d<br>%Y").replace(' 0', ' ')|safe}}</td>
-     <td data-tokens='["one", "two"]' data-role="left"></td>
-     <td id="teseet" data-tokens='[{% for j in item[0]%}"{{j}}",{% endfor %}]' data-role="center"></td>
+     <td data-tokens='{{", ".join(item[0][0])}}' data-role="left"></td>
+     <td data-tokens='{{", ".join(item[0][1])}}' data-role="center"></td>
+     <td data-tokens='{{", ".join(item[0][2])}}' data-role="center"></td>
+     <td data-tokens='{{", ".join(item[0][3])}}' data-role="center"></td>
+     <td data-tokens='{{", ".join(item[0][4])}}' data-role="center"></td>
     </tr>
     {% endfor %}
   </tbody>
