@@ -58,19 +58,46 @@ def get_snippet_post():
     key = term + "-" + termtype
     try:
         snippet = cache.peek(key) # TODO: handle cache failures
-        tokens = snippet[0][0]
-        qtoks = query.split(" ")
-        ftoks = term.split(" ")
-        pdb.set_trace()
-        # for item in final:
-        #    tokens = [i.lower() for i in item[0].split(" ")]
-        #    q_toks = tokens.index(original_query.lower().split(" ")[0])
-        #try:
-        #    f_toks = tokens.index(term.lower().split(" ")[0])
-        #except ValueError:
-        #    f_toks = 0
-        #output.append(f + (q_toks, f_toks))
-        # tokens, datetime, article_id, ?, qtokenindex, ftokenindex)
+        snippet = list([list(i) for i in snippet])
+        for s in snippet:
+            s[0] = list(s[0])
+        for s_index, sentence in enumerate(snippet):
+            tokens = sentence[0]  #TODO this is only one sentence
+            qtoks = set(query.split(" ")).intersection(set(tokens))
+            ftoks = set(term.split(" ")).intersection(set(tokens))
+            qftoks = qtoks.union(ftoks)
+            left = []
+            box_l = []
+            center = []
+            box_r = []
+            right = []
+            slots = [left, box_l, center, box_r, right]
+            slots_index = 0
+            place_keeper = 0
+            i = 0
+            looking_for_qf = False
+            while tokens[i] not in qftoks and i < len(tokens) - 1:
+                slots[slots_index].append(str(tokens[i]))
+                i +=1
+            slots_index += 1
+            while tokens[i] in qftoks and i < len(tokens) - 1:
+                slots[slots_index].append(str(tokens[i]))
+                i += 1
+            slots_index += 1
+            while tokens[i] not in qftoks and i < len(tokens) - 1:
+                slots[slots_index].append(str(tokens[i]))
+                i +=1
+            slots_index += 1
+            while tokens[i] in qftoks and i < len(tokens) - 1:
+                slots[slots_index].append(str(tokens[i]))
+                i +=1
+            slots_index += 1
+            while tokens[i] not in qftoks and i < len(tokens) - 1:
+                slots[slots_index].append(str(tokens[i]))
+                i +=1
+            snippet[s_index][0] = slots
+
+
     except KeyError: # TODO FIX
         snippet = "waiting for cache fix TODO"
     return Views().print_snippet(snippet)

@@ -1,4 +1,20 @@
-<div class="panel radius">
+
+<table>
+  <thead>
+  </thead>
+  <tbody>
+    {% for item in snippet %}
+    <tr data-doc={{item[2]}} data-term='{{item[3]}}' class="row extract">
+      <td id={{item[0]}} class="term">{{item[1].strftime("%b %d<br>%Y").replace(' 0', ' ')|safe}}</td>
+     <td data-tokens='["one", "two"]' data-role="left"></td>
+     <td id="teseet" data-tokens='[{% for j in item[0]%}"{{j}}",{% endfor %}]' data-role="center"></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+{# 
  {% for item in snippet %}
     <div data-doc={{item[2]}} data-term='{{item[3]}}' class="row extract">
       <div class="small-2 columns">
@@ -12,4 +28,4 @@
     </div>
     <br>
  {% endfor %}
-</div>
+#}
