@@ -41,7 +41,7 @@
      <a id="{{term[0]}}-label" class="term facet tiny button secondary" data-termtype="{{term[1]}}">{{term[0]}}</a>
   {% endfor %}
 </div>
-<div class="row">
+<div class="main-content">
   <div class="small-12 columns" id="detail-panel">
   </div>
 </div>
@@ -50,13 +50,67 @@
  
 </div>
 
+<style type="text/css">
+pre{
+   display: inline;
+}
+</style>
+
 <script type="text/javascript">
 $(".facet").on("click", function() {
   var term = this.id.replace("-label", "");
   var termtype = $("[id='" + this.id + "']").attr("data-termtype");
   $.post("get_snippet_post?term=" + term + "&termtype=" + termtype + "&q=" + $("#search_bar").val(), function (data) {
-    $("[id='detail-panel']").html(data);
     //$("#last").append(data);
+    var json = $.parseJSON(data);
+    ls = 0;
+    rs = 0;
+    cs = 0;
+    var counter = 0;
+    var char_size = 14;
+    
+    $.each(json, function () {
+        ls += this.l.join(' ').length;
+        rs += this.r.join(' ').length;
+        cs += this.c.join(' ').length;
+        $("[id='detail-panel']").append("<div style='font-size: " + char_size + "px' id='row-" + counter + "' class='row'></div>");
+        counter += 1;
+    });
+    var avg_l = ls/json.length;
+    var avg_r = ls/json.length;
+    var avg_c = ls/json.length;
+
+    var avg_l = 40;
+    var avg_c = 40;
+
+
+    var counter = 0;
+    $.each(json, function () {
+        var insert_l = this.l.join(" ");
+        var insert_r = this.r.join(" ");
+        var insert_c = this.c.join(" ");
+        if (insert_l.length > avg_l){
+            insert_l = insert_l.substring(0, avg_l - 3) + "... ";
+        }
+        else if (insert_l.length < avg_l){
+          var l_before_space = insert_l.length;
+          for (i = 0; i < (avg_l - l_before_space); i++) { 
+              insert_l = " " + insert_l;
+          }
+        }
+        if (insert_c.length > avg_c){
+            insert_c = insert_c.substring(0, avg_c - 3) + "... ";
+        }
+        else if (insert_c.length < avg_c){
+          var c_before_space = insert_c.length;
+          for (i = 0; i < (avg_c - c_before_space); i++) { 
+              insert_c = " " + insert_c;
+          }
+        }
+        $("#row-" + counter).html("<span><pre width='30'>" + insert_l + "</pre></span><span class='facet'>" + this.col_l.join(" ") + "</span><pre width='30'>" + insert_c + "</pre><span>" + this.col_r.join(" ") + "</span>");
+        counter += 1;
+    });
+
     $(".extract").on("click", function () {
       var docid = this.attributes['data-doc'].value;
       var dataterm = this.attributes['data-term'].value;
@@ -107,7 +161,6 @@ function bold_q(){
      }  
   }
 }
-
 
 //stackoverflow.com/questions/923299/how-can-i-detect-when-the-mouse-leaves-the-window
 //function addEvent(obj, evt, fn) {

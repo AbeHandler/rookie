@@ -2,6 +2,7 @@ import pdb
 import datetime
 import threading
 import pylru
+import json
 from flask import Flask
 from flask import request
 from experiment.views import Views
@@ -59,6 +60,7 @@ def get_snippet_post():
     try:
         snippet = cache.peek(key) # TODO: handle cache failures
         snippet = list([list(i) for i in snippet])
+        snippet_json = []
         for s in snippet:
             s[0] = list(s[0])
         for s_index, sentence in enumerate(snippet):
@@ -96,14 +98,21 @@ def get_snippet_post():
                 slots[slots_index].append(str(tokens[i]))
                 i +=1
             
-            test = []
-            test.append("e")
-            snippet[s_index][0] = slots
+            sentence_json = {}
+            sentence_json['time'] = snippet[s_index][1].strftime("%b %d<br>%Y").replace(' 0', ' ')
+            sentence_json['l'] = slots[0]
+            sentence_json['col_l'] = slots[1]
+            sentence_json['c'] = slots[2]
+            sentence_json['col_r'] = slots[3]
+            sentence_json['r'] = slots[4]
+            snippet_json.append(sentence_json)
+
 
 
     except KeyError: # TODO FIX
         snippet = "waiting for cache fix TODO"
-    return Views().print_snippet(snippet)
+    
+    return json.dumps(snippet_json)
 
 
 @app.route('/detail', methods=['GET'])

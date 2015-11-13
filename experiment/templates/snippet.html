@@ -1,16 +1,20 @@
 
+<style type="text/css">
+.trleft{
+  text-align: right;
+}
+</style>
+
 <table>
   <thead>
   </thead>
   <tbody>
+    {% set counter = 0 -%}
     {% for item in snippet %}
-    <tr data-doc={{item[2]}} data-term='{{item[3]}}' class="row extract">
-      <td id={{item[0]}} class="term">{{item[1].strftime("%b %d<br>%Y").replace(' 0', ' ')|safe}}</td>
-     <td data-tokens='{{", ".join(item[0][0])}}' data-role="left"></td>
-     <td data-tokens='{{", ".join(item[0][1])}}' data-role="center"></td>
-     <td data-tokens='{{", ".join(item[0][2])}}' data-role="center"></td>
-     <td data-tokens='{{", ".join(item[0][3])}}' data-role="center"></td>
-     <td data-tokens='{{", ".join(item[0][4])}}' data-role="center"></td>
+    <tr data-tokens='{{item[0]}}' id="row-{{ counter + loop.index0 }}" data-doc={{item[2]}} data-term='{{item[3]}}' class="row extract">
+     <td width="10%" class="term">{{item[1].strftime("%b %d<br>%Y").replace(' 0', ' ')|safe}}</td>
+     
+     <td width="90%" class="trleft"><div>test</div></td>
     </tr>
     {% endfor %}
   </tbody>
