@@ -68,7 +68,7 @@ $(".facet").on("click", function() {
     cs = 0;
     var counter = 0;
     var char_size = 14;
-    
+    $("[id='detail-panel']").html("");
     $.each(json, function () {
         ls += this.l.join(' ').length;
         rs += this.r.join(' ').length;

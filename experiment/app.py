@@ -160,9 +160,10 @@ def testing():
     queue = []
     for termtype in query_back[1].keys():
         for term in query_back[1][termtype]:
-            subset = query_subset(query_back[0], term, termtype)
-            queue.append((term, termtype, subset, p,))
-            q_and_t.append((term[0], termtype))
+            if len(set(p.q.split(" ")).intersection(set(term[0].split(" ")))) == 0:
+                subset = query_subset(query_back[0], term, termtype)
+                queue.append((term, termtype, subset, p,))
+                q_and_t.append((term[0], termtype))
     t = threading.Thread(target=worker, args=(queue, snippets_dict))
     t.start()
 
