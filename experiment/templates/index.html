@@ -59,7 +59,7 @@ function get_results(start){
     $("#results").html("");
     $("#search_status").html("");
     var term = $("#search_bar").val();
-    var url = "http://54.191.10.239/testing?q=" + term;
+    var url = "http://localhost:5000/facets?q=" + term;
     window.location.href = url;
 }
 

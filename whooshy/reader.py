@@ -17,16 +17,6 @@ from experiment.models import get_metadata_file, get_date_tracker_file
 
 stop_ner = ["The Lens", "THE LENS"]  # TODO refactor this out of the loader
 
-date_tracker = get_date_tracker_file()
-
-
-def get_caption(name):
-    captions_people = pickle.load(open("pickled/people_captions.p", "r"))
-    try:
-        return captions_people[name]
-    except:
-        return ""
-
 
 def get_representitive_item(aliases, kind_of_item=None):
     if len(aliases) == 1:

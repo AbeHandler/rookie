@@ -46,6 +46,7 @@ def get_representitive_item(aliases, kind_of_item=None):
     scores.sort(key=lambda x:x[1], reverse=True)
     return scores[0][0]
 
+
 class Rookie:
     """The Rookie engine"""
     def __init__(self, path):
@@ -56,9 +57,11 @@ class Rookie:
         self.orgs_df = pickle.load(open(self.path + "/df_orgs.p", "rb"))
         self.ngrams_df = pickle.load(open(self.path + "/df_ngrams.p", "rb"))
 
+
     def index(self, documents):
         # load into whoosh and index what you need
         return 'hello world'
+
 
     def query(self, qry_string):
         index = open_dir(self.path)
@@ -68,10 +71,11 @@ class Rookie:
             results_a = srch.search(query, limit=None)
             return [a.get("path").replace("/", "") for a in results_a]
 
+
     def tfidf(self, word, tf, field):
-        if field == "ngrams":
-            return self.ngrams_df[word] * tf
-        elif field == "orgs":
+        if field == "ngram":
+            return self.ngrams_df[word.upper()] * tf
+        elif field == "org":
             return self.orgs_df[word] * tf
         elif field == "people":
             return self.people_df[word] * tf
@@ -98,8 +102,9 @@ class Rookie:
             scores[score] = self.tfidf(score, scores[score], field)
         
         scores = [(k,v) for k, v in scores.items()]
-        scores.sort(key=lambda x:x[1])
+        scores.sort(key=lambda x:x[1], reverse=True)
         return scores
+
 
     def de_alias(self, field, subset):
         '''

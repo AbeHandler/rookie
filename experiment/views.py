@@ -35,14 +35,13 @@ class Views(object):
 
         return response
 
-
     @staticmethod
-    def get_results_page_relational_overview(query, q_and_t, lens_css, banner_css):
+    def get_q_response(query, q_and_t, lens_css, banner_css):
         '''
         '''
 
         response = render_template(
-                'results4.html',
+                'results5.html',
                 query=query,
                 terms=q_and_t,
                 lens_css=lens_css,
