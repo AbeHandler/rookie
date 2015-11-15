@@ -44,39 +44,58 @@
 -->
 
 <div class="main-content">
-  <div class="small-3 columns">
+  <div class="small-6 columns">
     {% for term in terms%}
-     <div>
-     <span id="{{term}}-label" class="term facet" data-termtype="{{term}}">{{term}}</span>
-     <span id="chart"> </span>
-    </div>
+     <div class="row">
+        <div class="small-4 columns class='left'">
+          <span id="{{term}}-label" class="term facet" data-termtype="{{term}}">{{term}}</span>
+        </div>
+        <div class="small-8 columns class='right'">
+          <span id="{{term}}-chart">sparkline</span>
+        </div>
+     </div>
     {% endfor %}
   </div>
-  <div class="small-9 columns" id="detail-panel">
-
+  <div class="small-6 columns" id="doclist">
+     doclist
   </div>
 </div>
 
   <script type="text/javascript">
-      var chart = c3.generate({
-        bindto: '#chart',
+
+      function make_chart(term){
+        c3.generate({
+        bindto: "#" + term + 'chart',
         size: {
             height: 100,
             width: 480
         },
         data: {
+            x: 'x',
+    //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
             columns: [
-                ['data1', 30, 200, 100, 400, 150]
-            ],
-            type: 'bar'
+                ['x', '2013-01-01', '2013-01-02', '2013-01-03', '2013-01-04', '2013-01-05', '2013-01-06'],
+    //            ['x', '20130101', '20130102', '20130103', '20130104', '20130105', '20130106'],
+                ['data1', 30, 200, 100, 400, 150, 250],
+                ['data2', 130, 340, 200, 500, 250, 350]
+            ]
         },
         tooltip: {
             show: false
         },
         legend: {
             show: false
+        },
+        axis: {
+            x: {
+                type: 'timeseries',
+                tick: {
+                    format: '%Y-%m-%d'
+                }
+            }
         }
-    });
+       });
+      }
 
   </script>
 
