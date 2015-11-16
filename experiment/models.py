@@ -3,22 +3,15 @@ import json
 import itertools
 from rookie.rookie import Rookie
 from pylru import lrudecorator
+from collections import defaultdict
 from dateutil.parser import parse
 
 
 @lrudecorator(100)
 def get_metadata_file():
-    with open("data/meta_data.json") as inf:
+    with open("rookieindex/meta_data.json") as inf:
         metadata = json.load(inf)
     return metadata
-
-
-@lrudecorator(100)
-def get_date_tracker_file():
-    with open("data/date_instances.json") as inf:
-        metadata = json.load(inf)
-    return metadata
-
 
 
 class Parameters(object):
@@ -41,6 +34,19 @@ def ovelaps_with_query(facet, query_tokens):
         return True
 
 
+def bin_dates(dates, interval=12):
+    '''
+    Put the dates in bins. Default interval is 12 months
+    '''
+    output = defaultdict(lambda : defaultdict(int))
+    if interval == 12:
+        for term in dates.keys():
+            for dt in dates[term]:
+                output[term][dt[0:4]] += 1
+    return output
+
+
+
 def overlaps_with_output(facet, output):
     '''
     Is this facet already in the list?
@@ -60,51 +66,18 @@ def passes_one_word_heuristic(on_deck):
     return True
 
 
-def get_facets(params, n_facets=9):
-
+def facet_occurs(metadata, facet, aliases):
     '''
-    Note this method has to kinds of counters.
-    counter % 3 loops over facet types in cycle.
-    facet_counters progresses lineararly down each facet list
+    Does the facet or any of its aliases show up
+    in the metadata for one document?
     '''
-
-    rookie = Rookie("rookieindex")
-
-    results = rookie.query(params.q)
-
-    all_facets = {}
-
-    facet_types = ["people", "org", "ngram"]
-     
-    # there are 3 facets so counter mod 3 switches
-    counter = 0
-
-    stop_facets = set(["THE LENS", "LENS"])
-
-    query_tokens = set(params.q.split(" "))
-
-    facet_counters = {} # a pointer to which facet to include
-
-    for f_type in facet_types:
-        all_facets[counter] = rookie.facets(results, f_type)
-        facet_counters[counter] = 0
-        counter += 1
-
+    all_names = [unicode(facet)] + aliases
     output = []
-
-    while len(output) < n_facets:
-        try:
-            on_deck = all_facets[counter % 3][facet_counters[counter % 3]][0]
-            if not ovelaps_with_query(on_deck, query_tokens) and not overlaps_with_output(on_deck, output) and passes_one_word_heuristic(on_deck):
-                output.append(all_facets[counter % 3][facet_counters[counter % 3]][0])
-        except IndexError: # facet counter is too high? just end loop early
-            break
-        counter += 1
-        facet_counters[counter % 3] += 1
-
+    for key in [u'people', u'ngram', u'org']:
+        for name in all_names:
+            if name in metadata[key]:
+                output.append(metadata['pubdate'])
     return output
-
-
 
 class Models(object):
 
@@ -164,4 +137,76 @@ class Models(object):
 
         output.page = 1
 
+        return output
+
+    @staticmethod
+    def get_results(params):
+
+        '''
+        Note this method has to kinds of counters.
+        counter % 3 loops over facet types in cycle.
+        facet_counters progresses lineararly down each facet list
+        '''
+
+        rookie = Rookie("rookieindex")
+
+        results = rookie.query(params.q)
+
+        return results
+
+    @staticmethod
+    def get_facets(params, results, n_facets=9):
+
+        '''
+        Note this method has to kinds of counters.
+        counter % 3 loops over facet types in cycle.
+        facet_counters progresses lineararly down each facet list
+        '''
+        
+        rookie = Rookie("rookieindex")
+
+        all_facets = {}
+
+        facet_types = ["people", "org", "ngram"]
+         
+        # there are 3 facets so counter mod 3 switches
+        counter = 0
+
+        stop_facets = set(["THE LENS", "LENS"])
+
+        query_tokens = set(params.q.split(" "))
+
+        facet_counters = {} # a pointer to which facet to include
+        
+        all_aliases = {}
+
+        # Get each of the facets
+        for f_type in facet_types:
+            tmpfacets, newaliases = rookie.facets(results, f_type)
+            all_facets[counter] = tmpfacets
+            all_aliases.update(newaliases)
+            facet_counters[counter] = 0
+            counter += 1
+
+        output = []
+
+        # Figure out which facets to include in the UI
+        while len(output) < n_facets:
+            try:
+                on_deck = all_facets[counter % 3][facet_counters[counter % 3]][0]
+                if not ovelaps_with_query(on_deck, query_tokens) and not overlaps_with_output(on_deck, output) and passes_one_word_heuristic(on_deck):
+                    output.append(all_facets[counter % 3][facet_counters[counter % 3]][0])
+            except IndexError: # facet counter is too high? just end loop early
+                break
+            counter += 1
+            facet_counters[counter % 3] += 1
+
+        # Get the pub dates
+        mt = get_metadata_file()
+        dates = defaultdict(list)
+        for r in results:
+            for o in output:
+                dates[o].extend(facet_occurs(mt[r], o, all_aliases[o]))
+        dates_bin = bin_dates(dates)
+        print dates_bin
         return output

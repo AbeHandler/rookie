@@ -4,7 +4,6 @@ import threading
 import pylru
 import json
 from flask import Flask
-from experiment.models import get_facets
 from rookie.rookie import Rookie
 from flask import request
 from experiment.views import Views
@@ -207,10 +206,13 @@ def testing():
 
     params = Models.get_parameters(request)
 
-    facets = get_facets(params)
+    results = Models.get_results(params)
+
+    facets = Models.get_facets(params, results)
 
     print facets
-    view = Views().get_q_response(params.q, facets, LENS_CSS, BANNER_CSS)
+
+    view = Views().get_q_response(params.q, results, facets, LENS_CSS, BANNER_CSS)
 
     return view
 

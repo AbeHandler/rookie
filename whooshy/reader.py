@@ -9,11 +9,10 @@ from experiment.simplemerger import Merger
 from whoosh.index import open_dir
 from collections import defaultdict
 from whoosh.qparser import QueryParser
-from whoosh.qparser import MultifieldParser
 from snippets.prelim import get_snippet
 from Levenshtein import distance
 import whoosh
-from experiment.models import get_metadata_file, get_date_tracker_file
+from experiment.models import get_metadata_file
 
 stop_ner = ["The Lens", "THE LENS"]  # TODO refactor this out of the loader
 

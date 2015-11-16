@@ -6,12 +6,21 @@ import pickle
 import itertools
 import collections
 import pdb
+
+from pylru import lrudecorator
 from utils import get_jaccard
 from experiment.simplemerger import Merger
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser
 from collections import defaultdict
 from Levenshtein import distance
+
+
+@lrudecorator(100)
+def get_metadata_file():
+    with open("rookieindex/meta_data.json") as inf:
+        metadata = json.load(inf)
+    return metadata
 
 
 def get_representitive_item(aliases, kind_of_item=None):
@@ -84,7 +93,10 @@ class Rookie:
 
 
     def facets(self, results, field):
-        '''get facets from results set'''
+        '''
+        Get facets for a given field from results set
+        Rookie also returns aliases for more downstream processing   
+        '''
         tmp = [[i for i in self.metadata[record][field]] for record in results]
         tmp2 = list(itertools.chain.from_iterable(tmp))
         tmp3 = collections.Counter(tmp2).most_common(100)
@@ -103,7 +115,12 @@ class Rookie:
         
         scores = [(k,v) for k, v in scores.items()]
         scores.sort(key=lambda x:x[1], reverse=True)
-        return scores
+
+                # for alias in aliases[score[0]]:
+                #     if score[0].upper() in mt[r][field].upper():
+                #        counter ++
+
+        return scores, aliases
 
 
     def de_alias(self, field, subset):

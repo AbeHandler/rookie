@@ -31,6 +31,8 @@ for counter, infile in enumerate(files_to_check):
         meta_data['org'] = [unicode(str(i)) for i in IncomingFile(infile).doc.organizations]
         meta_data['ngram'] = [unicode(" ".join(i.raw for i in j)) for j in IncomingFile(infile).doc.ngrams]
         meta_data['headline'] = IncomingFile(infile).headline
+        meta_data['url'] = IncomingFile(infile).url
+        meta_data['pubdate'] = IncomingFile(infile).pubdate
         sentences = [" ".join([j.raw for j in i.tokens]) for i in IncomingFile(infile).doc.sentences]
         meta_data['sentences'] = sentences
         tokens = itertools.chain(*[[j.raw for j in i.tokens] for i in IncomingFile(infile).doc.sentences])
@@ -49,26 +51,5 @@ for counter, infile in enumerate(files_to_check):
 
 writer.commit(mergetype=writing.CLEAR)
 
-with open('data/meta_data.json', 'w') as outfile:
+with open('rookieindex/meta_data.json', 'w') as outfile:
     json.dump(people_org_ngram_index, outfile)
-
-'''
-Code below reads the meta_data dictionary to create an index of
-what was mentioned at what pubdate
-'''
-
-tracker = defaultdict(lambda: defaultdict(list))
-
-interested = ['people', 'ngram', 'org']
-
-md = json.load(open("data/meta_data.json", "r"))
-
-for doc in md:
-    pdate = md[doc]['pubdate']
-    for itm in interested:
-        items = md[doc][itm]
-        for j in items:
-            tracker[itm][j].append(pdate)
-
-with open('data/date_instances.json', 'w') as outfile:
-    json.dump(dict(tracker), outfile)
