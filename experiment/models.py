@@ -42,7 +42,13 @@ def bin_dates(dates, interval=12):
     if interval == 12:
         for term in dates.keys():
             for dt in dates[term]:
-                output[term][dt[0:4]] += 1
+                output[term][int(dt[0:4])] += 1
+    all_bins = set([i for i in itertools.chain(*[output[o].keys() for o in output])])
+    for bin in all_bins:
+        for key in output:
+            if bin not in output[key].keys():
+                output[key][bin] = 0
+    print output
     return output
 
 
@@ -208,5 +214,4 @@ class Models(object):
             for o in output:
                 dates[o].extend(facet_occurs(mt[r], o, all_aliases[o]))
         dates_bin = bin_dates(dates)
-        print dates_bin
-        return output
+        return dates_bin, output

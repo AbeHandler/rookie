@@ -208,11 +208,11 @@ def testing():
 
     results = Models.get_results(params)
 
-    facets = Models.get_facets(params, results)
+    dates_bins, facets = Models.get_facets(params, results)
 
-    print facets
+    keys = dates_bins[dates_bins.keys()[0]].keys()
 
-    view = Views().get_q_response(params.q, results, facets, LENS_CSS, BANNER_CSS)
+    view = Views().get_q_response(params.q, results, facets, LENS_CSS, BANNER_CSS, keys)
 
     return view
 
