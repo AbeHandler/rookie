@@ -161,6 +161,15 @@ class Models(object):
         return results
 
     @staticmethod
+    def get_doclist(results):
+        mt = get_metadata_file()
+        output = []
+        for r in results:
+            output.append((mt[r]['pubdate'], mt[r]['headline'], mt[r]['url']))
+        return output
+
+
+    @staticmethod
     def get_facets(params, results, n_facets=9):
 
         '''
