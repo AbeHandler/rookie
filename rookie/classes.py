@@ -43,8 +43,9 @@ class IncomingFile(object):
 
 '''
 Method below should take a first mention in text and replace 
-later mentions "ex. He, for Mitch Landrieu" with the original
-mention. This is more trouble than it is worth for now
+later mentions w/ the original mentions 
+"example: replace 'he', w/ Mitch Landrieu". 
+This is more trouble than it is worth for now
 
 def propagate_first_mentions(document):
 
