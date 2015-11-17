@@ -43,7 +43,7 @@ class IncomingFile(object):
 
 '''
 Method below should take a first mention in text and replace 
-later mentions w/ the original mentions 
+later mentions w/ the original mention
 "example: replace 'he', w/ Mitch Landrieu". 
 This is more trouble than it is worth for now
 
@@ -310,17 +310,3 @@ class Mention(object):
         string = [o.raw for o in self.tokens]
         return " ".join(string)
 '''
-
-
-class Gramner(object):
-    '''
-    An Gramner is a set of tokens that match syntactically valid
-    pattern or represent a named entity
-    '''
-    def __init__(self, tokens, window, intype):
-        self.tokens = tokens
-        self.window = " ".join([i.raw for i in window])
-        self.type = intype
-
-    def __repr__(self):
-        return " ".join([i.raw for i in self.tokens]).upper()
