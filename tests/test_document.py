@@ -4,11 +4,9 @@ import pdb
 import glob
 import itertools
 
-from rookie.classes import NPEPair
 from rookie.utils import dedupe_people
 from rookie import processed_location
 from rookie.classes import Document
-from rookie.classes import Window
 from rookie.classes import Coreferences
 from rookie.classes import N_Grammer
 from rookie.classes import propagate_first_mentions

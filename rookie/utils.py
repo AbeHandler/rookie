@@ -5,8 +5,6 @@ import datetime
 import itertools
 import pickle
 import pdb
-# from rookie.classes import NPEPair, Gramner
-# from rookie import files_location
 from pylru import lrudecorator
 
 
@@ -24,20 +22,6 @@ class Result(object):
     def __repr__(self):
             return string
 
-'''
-def calculate_pmi(term1, term2, counts, joint_counts):
-    try:
-        TOTAL_PAIRS = float(len(counts.keys()))
-        pxy = float(joint_counts[(term1, term2)] + 1) / TOTAL_PAIRS
-        px = float(counts[term1] + 1) / TOTAL_PAIRS
-        py = float(counts[term2] + 1) / TOTAL_PAIRS
-        pmi = pxy / (px * py)
-        return pmi
-    except KeyError:
-        log.info(term1 + "," + term2)
-        return 0
-'''
-
 
 def get_jaccard(one, two):
     one = set(one.split(" "))
@@ -45,28 +29,6 @@ def get_jaccard(one, two):
     jacard = float(len(one & two)) / len(one | two)
     return jacard
 
-'''
-def dedupe_people(ner):
-    Remove cases where there are two mentions of a person ner
-    in a group of entities. Assume coreference. Delete the shorter one
-    Ex. "Clinton" and "Bill Clinton"
-    if len(ner) == 0:
-        return ner
-    tner = ner
-    people = [i for i in tner if i.type == "PERSON"]
-    npe_product = set(itertools.product(people, people))
-    npe_product = [i for i in npe_product if not i[0] == i[1]]
-    pairs = [NPEPair(repr(i[0]), repr(i[1])) for i in npe_product]
-    pairs = set(pairs)
-    for i in pairs:
-        if i.word1 in i.word2:
-            try:
-                delete_this = min([i.word1, i.word2], key=lambda x: len(repr(x)))
-                tner.remove([i for i in ner if repr(i) == delete_this][0])
-            except IndexError:
-                pass  # sometimes earlier iterations of loop already got it
-    return tner
-'''
 
 def get_gramner(sentence, exclude_stop_words):
         grams = sentence.ngrams  # returns bigrams/trigrams

@@ -20,8 +20,7 @@ def stop_word(word):
 
 class IncomingFile(object):
     """
-    Mention of a ner or ngram
-    Each mention is associated with coccurances
+    Document (text) + metadata
     """
     def __init__(self, filename):
         try:
@@ -33,8 +32,7 @@ class IncomingFile(object):
                 self.pubdate = json_in['timestamp'].split(" ")[0]
                 data = json_in['lines']
                 self.doc = Document(data)
-                corefs = Coreferences(data, self.doc)
-                self.doc.coreferences = corefs
+                self.doc.coreferences = None # not being used right now
                 self.filename = filename
         except UnicodeEncodeError:
             pass
@@ -43,11 +41,14 @@ class IncomingFile(object):
         except ValueError:
             pass
 
+'''
+Method below should take a first mention in text and replace 
+later mentions "ex. He, for Mitch Landrieu" with the original
+mention. This is more trouble than it is worth for now
 
 def propagate_first_mentions(document):
-    '''
-    This is more trouble than it is worth for now
-    '''
+
+
     for group in document.coreferences.groups:
         first_mention = group[0]
         sentence = document.sentences[first_mention.sentence]
@@ -59,57 +60,7 @@ def propagate_first_mentions(document):
             for mention in group[1:]:  # slice_off first token
                 pass
                 # expand it, theoretically
-
-
-class NPEPair(object):
-
-    def __init__(self, one, two):
-        self.word1 = one
-        self.word2 = two
-
-    def __eq__(self, other):
-        if repr(self.word1) == repr(other.word1) and \
-                repr(self.word2) == repr(other.word2):
-            return True
-        elif repr(self.word1) == repr(other.word2) and \
-                repr(self.word2) == repr(other.word1):
-            return True
-        else:
-            return False
-
-    def __hash__(self):
-        tmp = repr(self.word1) + repr(self.word2)
-        hasss = tmp.__hash__()
-        return hasss
-
-    def __repr__(self):
-        return self.word1 + " " + self.word2
-
-
-class Window(object):
-
-    @staticmethod
-    def get_window(sentence_tokens, npe_tokens, window_size=10):
-        '''
-        Returns the token around an npe in a sentence. An npe
-        is either an entity or an ngram -- a (n)oun (p)hrase or (e)ntity
-        '''
-        tokens = sentence_tokens
-        start_ner = [i.raw for i in tokens].index(npe_tokens[0].raw)
-        end_ner = start_ner + len(npe_tokens)
-        start = start_ner - window_size
-        end = end_ner + window_size
-        # if start of window is before start of tokens, set to zero
-        if start < 0:
-            start = 0
-
-        # if end of window is after end of tokens, set to len(tokens)
-        if end > len(tokens):
-            end = len(tokens)
-
-        output = tokens[start: end]
-
-        return output
+'''
 
 
 class N_Grammer(object):
@@ -154,15 +105,6 @@ class N_Grammer(object):
         '''
         return [i for i in self.get_ngrams(words, n) if
                 self.is_syntactically_valid(i)]
-
-
-class Link(object):
-
-    def __init__(self, link):
-        '''Initialize with a result'''
-
-        self.link_text = link[0]
-        self.link_num = link[1]
 
 
 class Document(object):
@@ -332,6 +274,8 @@ class NER(object):
     def __repr__(self):
             return " ".join([i.raw for i in self.tokens])
 
+'''
+This code is not used right now. But is potentially useful later.
 
 class Coreferences(object):
 
@@ -351,6 +295,7 @@ class Coreferences(object):
             self.groups = []
 
 
+
 class Mention(object):
 
     def __init__(self, json_input, document):
@@ -363,6 +308,7 @@ class Mention(object):
     def __repr__(self):
         string = [o.raw for o in self.tokens]
         return " ".join(string)
+'''
 
 
 class Gramner(object):
