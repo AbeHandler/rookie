@@ -63,7 +63,7 @@
           <span id="{{term.replace(' ', '_')}}-label" class="term facet" data-termtype="{{term}}">{{term}}</span>
         </div>
         <div class="small-7 columns class='right'">
-          <span id="{{term.replace(' ', '_')}}-chart">sparkline</span>
+          <span id="{{term.replace(' ', '_')}}-chart"></span>
         </div>
      </div>
      <br>
@@ -83,6 +83,9 @@
 </div>
 
   <script type="text/javascript">
+      
+      dummy =  ['count', 0, 0, 0, 0, 0, 0];
+
       {% for term in terms%}
          {{term.replace(" ", "_")}} =  {{data[term] | safe}};
       {% endfor %}
@@ -113,7 +116,7 @@
             },
         },
         tooltip: {
-            show: false
+            show: true
         },
         legend: {
             show: false
@@ -138,7 +141,7 @@
       $(".facet").each(function(i, id){
         var facet = id.id.replace("-label", "");
         var axis = false;
-        if (i == 0 || i == facet_count -1){
+        if (id.id.replace("-label", "") == "dummy"){
           axis = false;
         }
         make_chart(facet, axis);
