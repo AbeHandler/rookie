@@ -7,11 +7,17 @@ from itertools import tee, izip, islice, chain
 
 @lrudecorator(100)
 def get_stopwords():
+    '''
+    Gets the stopwords file
+    '''
     stopwords = [i.replace("\n", "") for i in open("stopwords.txt")]
     return stopwords
 
 
 def stop_word(word):
+    '''
+    Is word a stop word? Returns y/n
+    '''
     stops = get_stopwords()
     if word in stops:
         return True
@@ -20,7 +26,8 @@ def stop_word(word):
 
 class IncomingFile(object):
     """
-    Document (text) + metadata
+    An incoming file wraps a Document + metadata
+    It hides all dealings with the file system
     """
     def __init__(self, filename):
         try:
@@ -71,12 +78,6 @@ class N_Grammer(object):
     and finds the syntactically valid ngrams
     '''
     # https://stackoverflow.com/questions/21883108/fast-optimize-n-gram-implementations-in-python
-
-    # valid_two_grams = ["NN", "AN"]
-    # valid_three_grams = ["AAN", "NNN", "ANN"]
-
-    # A = any adjective (PTB tag starts with JJ)
-    # N = any noun (PTB tag starts with NN)
 
     def pairwise(self, iterable, n=2):
         return izip(*(islice(it, pos, None) for pos, it
@@ -174,27 +175,26 @@ class Sentence(object):
         :param words: a list of all word tokens in a document
         :type words: Token
         '''
-        ng = N_Grammer()
+        ngrams = N_Grammer()
         grams = []
         # ngrams 1 thru 4
         for i in range(1, 5):
-            grams = grams + ng.get_syntactic_ngrams(self.tokens, i)
+            grams = grams + ngrams.get_syntactic_ngrams(self.tokens, i)
         return grams
 
     def __init__(self, json_sentence, sentence_no):
         '''
         Initialize w/ the json output
         '''
-        self.WIN_SIZE = 10
         self.sentence_no = sentence_no
         tokens = json_sentence['tokens']
         lemmas = json_sentence['lemmas']
         poses = json_sentence['pos']
         ner = json_sentence['ner']
         self.deps = json_sentence['deps_basic']
-        assert(len(tokens) == len(lemmas))
-        assert(len(poses) == len(lemmas))
-        assert(len(tokens) == len(poses))
+        assert len(tokens) == len(lemmas)
+        assert len(poses) == len(lemmas)
+        assert len(tokens) == len(poses)
         sentence_tokens = []
         for i in range(0, len(tokens)):
             t = Token(tokens[i], poses[i], lemmas[i], i, sentence_no, ner[i])
@@ -273,7 +273,7 @@ class NER(object):
         self.sentence_no = sentence_no
 
     def __repr__(self):
-            return " ".join([i.raw for i in self.tokens])
+        return " ".join([i.raw for i in self.tokens])
 
 '''
 This code is not used right now. But is potentially useful later.

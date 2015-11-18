@@ -16,6 +16,17 @@
     .c3-axis-y .tick {
        display: none;
     }
+    span.dateline {
+        color: #606060;
+    }
+    span.urlpreview {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      display: block;
+      font-size: small;
+      color: #C0C0C0;
+    }
 </style>
 
 <body>
@@ -44,21 +55,25 @@
 -->
 
 <div class="main-content">
-  <div class="small-6 columns">
+  <div class="small-4 columns">
     {% for term in terms%}
      <div class="row">
-        <div class="small-4 columns class='left'">
+        <div class="small-5 columns class='left'">
           <span id="{{term.replace(' ', '_')}}-label" class="term facet" data-termtype="{{term}}">{{term}}</span>
         </div>
-        <div class="small-8 columns class='right'">
+        <div class="small-7 columns class='right'">
           <span id="{{term.replace(' ', '_')}}-chart">sparkline</span>
         </div>
      </div>
     {% endfor %}
   </div>
-  <div class="small-6 columns" id="doclist">
+  <div class="small-8 columns" id="doclist">
       {% for doc in doc_list%}
-     <div class="result"><a href='{{doc[2]}}'>{{doc[1]}}{{doc[0]}}</a><div>
+     <div class="result"><a href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span> | <span class="dateline">{{doc[0]}}</span></a>
+      <div>
+        <span class="urlpreview">{{doc[2]}}</span>
+      </div>
+     </div>
      {% endfor %}
   </div>
 </div>
@@ -69,41 +84,29 @@
       {% endfor %}
 
      
-      function make_chart(term){
-        var chart = c3.generate({
-          data: {
-              columns: [
-                  ['data1', 300, 350, 300, 0, 0, 0]
-              ],
-              types: {
-                  data1: 'area-spline'
-              }
-          },
-          bindto: "#" + term + '-chart',
-          size: {
-            height: 75,
-            width: 300
-          },
-          tooltip: {
-              show: false
-          },
-          legend: {
-              show: false
-          }
-        });
+      function make_chart(term, show_axis){
 
-     /*  c3.generate({
+       c3.generate({
         bindto: "#" + term + '-chart',
         size: {
             height: 50,
-            width: 300
+            width: 200
         },
         data: {
             x: 'x',
             columns: [
                ['x' {% for key in keys%} ,'{{key}}-01-01' {% endfor %}],
                window[term]
-            ]
+            ],
+            type: 'area-spline',
+            colors: {
+                  x: '#ff0000',
+                  count: '#B33125'
+            },
+            color: function (color, d) {
+                  // d will be 'id' when called for legends
+                  return d.id && d.id === 'data3' ? d3.rgb(color).darker(d.value / 150) : color;
+            },
         },
         tooltip: {
             show: false
@@ -116,10 +119,14 @@
                 type: 'timeseries',
                 tick: {
                     format: '%Y'
-                }
+                },
+                show: show_axis
+            },
+            y: {
+              show:false
             }
         }
-       }); */
+       });
       }
 
       $(".facet").each(function(i, id){
@@ -187,37 +194,6 @@ function bold_q(){
 }
 
 
-//stackoverflow.com/questions/923299/how-can-i-detect-when-the-mouse-leaves-the-window
-//function addEvent(obj, evt, fn) {
-//    if (obj.addEventListener) {
-//        obj.addEventListener(evt, fn, false);
-//    }
-//    else if (obj.attachEvent) {
-//        obj.attachEvent("on" + evt, fn);
-//    }
-//}
-
-//addEvent(document, "mouseout", function(e) {
- //   e = e ? e : window.event;
-//    var from = e.relatedTarget || e.toElement;
-//    if (!from || from.nodeName == "HTML") {
-//       // $('#myModal').foundation('reveal', 'open');
-//    }
-//});
-
-/*
- $('body').bind('keypress', function(e){
-   if ( e.keyCode == 13 ) {
-     post_answer()
-   }
- });
-
- $('#enter').on('click', function(e){
-     post_answer()
- });
-*/
-
-
  $('#search_button').on('click', function(){
     get_results(1);
  });
@@ -250,13 +226,6 @@ function bold_q(){
    $(".term").removeClass("selected");
    $("[id='" + this.id + "']").addClass("selected");
  });
-
- function post_answer(){
-   var name = $("#name").val()
-  $.post( "/answer/" + name, function( data ) {
-   alert(data);
-  });
- }
 
 </script>
 
