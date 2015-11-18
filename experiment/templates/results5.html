@@ -56,6 +56,7 @@
 
 <div class="main-content">
   <div class="small-4 columns">
+    <div class="row">Common subjects in articles matching {{query_term}}</div>
     {% for term in terms%}
      <div class="row">
         <div class="small-5 columns class='left'">
@@ -65,8 +66,10 @@
           <span id="{{term.replace(' ', '_')}}-chart">sparkline</span>
         </div>
      </div>
+     <br>
     {% endfor %}
   </div>
+
   <div class="small-8 columns" id="doclist">
       <div>{{status}}</div>
       {% for doc in doc_list%}
@@ -136,7 +139,7 @@
         var facet = id.id.replace("-label", "");
         var axis = false;
         if (i == 0 || i == facet_count -1){
-          axis = true;
+          axis = false;
         }
         make_chart(facet, axis);
       });
