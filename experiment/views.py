@@ -35,7 +35,7 @@ class Views(object):
         return response
 
     @staticmethod
-    def get_q_response(query, results, q_and_t,lens_css, banner_css, keys, data):
+    def get_q_response(query, results, q_and_t,lens_css, banner_css, keys, data, status):
         '''
         '''
 
@@ -47,7 +47,8 @@ class Views(object):
                 keys=keys,
                 data=data,
                 doc_list=results,
-                banner_css=banner_css
+                banner_css=banner_css,
+                status=status
         )
 
         return response

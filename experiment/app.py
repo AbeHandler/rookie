@@ -208,6 +208,8 @@ def testing():
 
     results = Models.get_results(params)
 
+    status = Models.get_message(len(results), params)
+
     dates_bins, facets = Models.get_facets(params, results)
 
     doc_list = Models.get_doclist(results)
@@ -218,7 +220,7 @@ def testing():
     for f in facets:
         datas[f] = ["count"] + [dates_bins[f][o] for o in dates_bins[f].keys()]
 
-    view = Views().get_q_response(params.q, doc_list, facets, LENS_CSS, BANNER_CSS, keys, datas)
+    view = Views().get_q_response(params.q, doc_list, facets, LENS_CSS, BANNER_CSS, keys, datas, status)
 
     return view
 

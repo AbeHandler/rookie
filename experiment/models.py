@@ -106,6 +106,11 @@ class Models(object):
         return dt[docid]['pubdate']
 
     @staticmethod
+    def get_message(l_results, params):
+        output = "Showing {} results for {}".format(l_results, params.q)
+        return output
+
+    @staticmethod
     def get_parameters(request):
         '''get parameters'''
         output = Parameters()

@@ -68,8 +68,9 @@
     {% endfor %}
   </div>
   <div class="small-8 columns" id="doclist">
+      <div>{{status}}</div>
       {% for doc in doc_list%}
-     <div class="result"><a href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span> | <span class="dateline">{{doc[0]}}</span></a>
+     <div><a href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span> | <span class="dateline">{{doc[0]}}</span></a>
       <div>
         <span class="urlpreview">{{doc[2]}}</span>
       </div>
