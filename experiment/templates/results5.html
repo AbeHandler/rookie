@@ -128,10 +128,16 @@
         }
        });
       }
+      
+      var facet_count = $(".facet").length;
 
       $(".facet").each(function(i, id){
         var facet = id.id.replace("-label", "");
-        make_chart(facet);
+        var axis = false;
+        if (i == 0 || i == facet_count -1){
+          axis = true;
+        }
+        make_chart(facet, axis);
       });
 
   </script>
