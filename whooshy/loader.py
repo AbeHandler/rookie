@@ -1,3 +1,6 @@
+'''
+This module loads documents into whoosh and creates a sentence index
+'''
 from whoosh.index import create_in
 from whoosh.fields import *
 from whoosh import writing
@@ -33,7 +36,16 @@ for counter, infile in enumerate(files_to_check):
         meta_data['headline'] = IncomingFile(infile).headline
         meta_data['url'] = IncomingFile(infile).url
         meta_data['pubdate'] = IncomingFile(infile).pubdate
+        meta_data['raw'] = infile
+        meta_data['facet_index'] = defaultdict(list)
         sentences = [" ".join([j.raw for j in i.tokens]) for i in IncomingFile(infile).doc.sentences]
+        for s_index, sentence in enumerate(IncomingFile(infile).doc.sentences):
+            for ne in sentence.ner:
+                meta_data['facet_index'][str(ne)].append(s_index)
+            for ng in sentence.ngrams:
+                tmp = " ".join([i.raw for i in ng])
+                meta_data['facet_index'][tmp].append(s_index)
+        meta_data['facet_index'] = dict(meta_data['facet_index'])
         meta_data['sentences'] = sentences
         tokens = itertools.chain(*[[j.raw for j in i.tokens] for i in IncomingFile(infile).doc.sentences])
         with open('articles/{}'.format(counter), 'w') as outfile:
