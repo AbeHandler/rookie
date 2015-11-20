@@ -41,9 +41,9 @@ for counter, infile in enumerate(files_to_check):
         sentences = [" ".join([j.raw for j in i.tokens]) for i in IncomingFile(infile).doc.sentences]
         for s_index, sentence in enumerate(IncomingFile(infile).doc.sentences):
             for ne in sentence.ner:
-                meta_data['facet_index'][str(ne)].append(s_index)
+                meta_data['facet_index'][unicode(str(ne))].append(s_index)
             for ng in sentence.ngrams:
-                tmp = " ".join([i.raw for i in ng])
+                tmp = " ".join(unicode([i.raw.encode("ascii", "ignore") for i in ng]))
                 meta_data['facet_index'][tmp].append(s_index)
         meta_data['facet_index'] = dict(meta_data['facet_index'])
         meta_data['sentences'] = sentences
