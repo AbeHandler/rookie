@@ -210,7 +210,8 @@ class Token(object):
         '''
         Initialize w/ the json output
         '''
-        self.raw = raw_token
+        # Store tokens as unicode, but remove non standard chars for now #TODO
+        self.raw = raw_token.encode("ascii", "ignore").decode()
         self.pos = pos
         self.ner_tag = ner
         self.lemma_form = lemma_form

@@ -39,6 +39,7 @@ for counter, infile in enumerate(files_to_check):
         meta_data['raw'] = infile
         meta_data['facet_index'] = defaultdict(list)
         sentences = [" ".join([j.raw for j in i.tokens]) for i in IncomingFile(infile).doc.sentences]
+        print counter
         for s_index, sentence in enumerate(IncomingFile(infile).doc.sentences):
             for ne in sentence.ner:
                 meta_data['facet_index'][str(ne).decode("ascii", "ignore")].append(s_index)
