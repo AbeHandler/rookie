@@ -208,6 +208,8 @@ def testing():
 
     results = Models.get_results(params)
 
+    snippet = Models.get_snippet(results[0], params.q)
+
     status = Models.get_message(len(results), params)
 
     dates_bins, facets = Models.get_facets(params, results)

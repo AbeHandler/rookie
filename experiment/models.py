@@ -173,6 +173,12 @@ class Models(object):
             output.append((mt[r]['pubdate'], mt[r]['headline'], mt[r]['url']))
         return output
 
+    @staticmethod
+    def get_snippet(result, q):
+        mt = get_metadata_file()
+        facets = mt['2142']['facet_index']
+        pdb.set_trace()
+        return "S"
 
     @staticmethod
     def get_facets(params, results, n_facets=9):

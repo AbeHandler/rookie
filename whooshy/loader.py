@@ -44,7 +44,7 @@ for counter, infile in enumerate(files_to_check):
             for ne in sentence.ner:
                 meta_data['facet_index'][str(ne).decode("ascii", "ignore")].append(s_index)
             for ng in sentence.ngrams:
-                tmp = " ".join(unicode([i.raw.encode("ascii", "ignore") for i in ng]))
+                tmp = " ".join([i.raw.encode("ascii", "ignore") for i in ng])
                 meta_data['facet_index'][tmp].append(s_index)
         meta_data['facet_index'] = dict(meta_data['facet_index'])
         meta_data['sentences'] = sentences

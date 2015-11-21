@@ -6,6 +6,7 @@ import pickle
 import itertools
 import collections
 import pdb
+import math
 
 from pylru import lrudecorator
 from utils import get_jaccard
@@ -14,6 +15,7 @@ from whoosh.qparser import QueryParser
 from collections import defaultdict
 from Levenshtein import distance
 
+jac_threshold = .6
 
 class Merger(object):
     """

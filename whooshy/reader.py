@@ -2,17 +2,13 @@ import pdb
 import json
 import itertools
 import collections
-import pickle
-from pylru import lrudecorator
-from rookie.utils import get_document_frequencies, get_pickled
-from experiment.simplemerger import Merger
+from rookie.utils import get_document_frequencies
 from whoosh.index import open_dir
 from collections import defaultdict
 from whoosh.qparser import QueryParser
 from snippets.prelim import get_snippet
 from Levenshtein import distance
 import whoosh
-from experiment.models import get_metadata_file
 
 stop_ner = ["The Lens", "THE LENS"]  # TODO refactor this out of the loader
 
