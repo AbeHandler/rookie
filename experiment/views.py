@@ -4,21 +4,30 @@ from flask import render_template
 
 class Views(object):
 
-    @staticmethod
-    def get_start_page(lens_css, banner_css):
+    def __init__(self, lens_css, banner_css, IP):
+        '''
+        Initalize the views
+        '''
+        self.lens_css = lens_css
+        self.banner_css = banner_css
+        self.ip = IP
+
+
+    def get_start_page(self):
         '''
         Returns the first view of the application
         '''
         response = render_template(
                 'index.html',
-                lens_css=lens_css,
-                banner_css=banner_css
+                lens_css=self.lens_css,
+                banner_css=self.banner_css,
+                IP = self.ip
         )
 
         return response
 
-    @staticmethod
-    def get_detail_page(query, q_and_t, headline, dateline, tokens, lens_css, banner_css):
+
+    def get_detail_page(self, query, q_and_t, headline, dateline, tokens):
         '''
         '''
         response = render_template(
@@ -28,14 +37,15 @@ class Views(object):
                 dateline=dateline,
                 tokens=tokens,
                 terms=q_and_t,
-                lens_css=lens_css,
-                banner_css=banner_css
+                lens_css=self.lens_css,
+                banner_css=self.banner_css,
+                IP = self.ip
         )
 
         return response
 
-    @staticmethod
-    def get_q_response(query, results, q_and_t,lens_css, banner_css, keys, data, status, query_term):
+
+    def get_q_response(self, query, results, q_and_t, keys, data, status):
         '''
         '''
 
@@ -43,20 +53,19 @@ class Views(object):
                 'results5.html',
                 query=query,
                 terms=q_and_t,
-                lens_css=lens_css,
+                lens_css=self.lens_css,
                 keys=keys,
                 data=data,
                 doc_list=results,
-                banner_css=banner_css,
+                banner_css=self.banner_css,
                 status=status,
-                query_term=query_term
+                IP = self.ip
         )
 
         return response
 
 
-    @staticmethod
-    def print_snippet(snippet):
+    def print_snippet(self, snippet):
         '''
         '''
         response = render_template(

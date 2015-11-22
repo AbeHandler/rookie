@@ -11,7 +11,7 @@ from experiment.views import Views
 from collections import defaultdict
 from experiment.models import Models, Parameters
 from snippets.prelim import get_snippet
-from experiment import LENS_CSS, BANNER_CSS
+from experiment import LENS_CSS, BANNER_CSS, IP
 from experiment import (
      log
 )
@@ -23,6 +23,7 @@ app = Flask(__name__)
 
 cache = pylru.lrucache(100)
 
+views = Views(LENS_CSS, BANNER_CSS, IP)
 
 '''
 
@@ -53,7 +54,7 @@ def worker(queue, snippets_dict):
 @app.route('/', methods=['GET'])
 def index():
     log.info("index routing")
-    return Views().get_start_page(LENS_CSS, BANNER_CSS)
+    return views.get_start_page()
 
 '''
 @app.route('/get_snippet_post', methods=['POST'])
@@ -224,7 +225,7 @@ def testing():
     for f in facets:
         datas[f] = ["count"] + [dates_bins[f][o] for o in dates_bins[f].keys()]
 
-    view = Views().get_q_response(params.q, doc_list, facets, LENS_CSS, BANNER_CSS, keys, datas, status, params.q)
+    view = views.get_q_response(params.q, doc_list, facets, keys, datas, status)
 
     return view
 

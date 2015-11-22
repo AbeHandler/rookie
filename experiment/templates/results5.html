@@ -60,7 +60,7 @@
 
 <div class="main-content">
   <div class="small-4 columns">
-    <div class="row">Common subjects in articles matching {{query_term}}</div>
+    <div class="row">Common subjects in articles matching {{query}}</div>
     {% for term in terms%}
      <div class="row">
         <div class="small-5 columns class='left'">
@@ -189,7 +189,7 @@ function get_results(start){
     $("#results").html("");
     $("#search_status").html("");
     var term = $("#search_bar").val();
-    var url = "http://54.191.10.239/facets?q=" + term;
+    var url = "http://" + IP + "/facets?q=" + term;
     window.location.href = url;
 }
 
