@@ -166,7 +166,7 @@ $(".facet").on("click", function() {
       var docid = this.attributes['data-doc'].value;
       var dataterm = this.attributes['data-term'].value;
       var q = $("#search_bar").val();
-      var url = "http://" + IP + "/detail?q=" + q + "&docid=" + docid + "&t=" + dataterm;
+      var url = "http://" + "{{IP}}" + "/detail?q=" + q + "&docid=" + docid + "&t=" + dataterm;
       window.location.href = url;
     });
     bold_q();
@@ -189,7 +189,7 @@ function get_results(start){
     $("#results").html("");
     $("#search_status").html("");
     var term = $("#search_bar").val();
-    var url = "http://" + IP + "/facets?q=" + term;
+    var url = "http://" + "{{IP}}" + "/facets?q=" + term;
     window.location.href = url;
 }
 
