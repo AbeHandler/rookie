@@ -5,7 +5,7 @@ from rookie.rookie import Rookie
 from pylru import lrudecorator
 from collections import defaultdict
 from dateutil.parser import parse
-
+from rookie.classes import IncomingFile
 
 @lrudecorator(100)
 def get_metadata_file():
@@ -48,7 +48,6 @@ def bin_dates(dates, interval=12):
         for key in output:
             if bin not in output[key].keys():
                 output[key][bin] = 0
-    print output
     return output
 
 
@@ -154,9 +153,7 @@ class Models(object):
     def get_results(params):
 
         '''
-        Note this method has to kinds of counters.
-        counter % 3 loops over facet types in cycle.
-        facet_counters progresses lineararly down each facet list
+        Just query whoosh
         '''
 
         rookie = Rookie("rookieindex")
@@ -166,19 +163,41 @@ class Models(object):
         return results
 
     @staticmethod
-    def get_doclist(results):
+    def get_doclist(results, params):
         mt = get_metadata_file()
         output = []
         for r in results:
-            output.append((mt[r]['pubdate'], mt[r]['headline'], mt[r]['url']))
+            output.append((mt[r]['pubdate'], mt[r]['headline'], mt[r]['url'], Models.get_snippet(r, params.q, 200)))
         return output
 
     @staticmethod
-    def get_snippet(result, q):
+    def get_snippet(r, q, nchar):
+        #TODO: add aliasing. remove set sorting
         mt = get_metadata_file()
-        facets = mt['2142']['facet_index']
-        pdb.set_trace()
-        return "S"
+        try: #TODO not a list
+            queue = list(set(mt[r]['facet_index'][q]))
+        except KeyError:
+            queue = []
+        infile = IncomingFile(mt[r]['raw'])
+        # build a queue of sentences to include
+        for i in range(len(infile.doc.sentences)):
+            if i not in queue:
+                queue.append(i)
+        output = ""
+        for i in queue:
+            if len(output) > nchar:
+                return output
+            sentence = str(infile.doc.sentences[i])
+            try:
+                l = max(sentence.index(q)-25, 0)
+                r = max(sentence.index(q)+25, len(sentence))
+            except ValueError:
+                l = 0
+                r = 50
+            if output == "": # Google always starts snippet with a sentence
+                l = 0
+            output += sentence[l:r] + "..."
+        return output
 
     @staticmethod
     def get_facets(params, results, n_facets=9):

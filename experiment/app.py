@@ -3,6 +3,7 @@ import datetime
 import threading
 import pylru
 import json
+import time
 from flask import Flask
 from rookie.rookie import Rookie
 from flask import request
@@ -204,17 +205,18 @@ def testing():
 @app.route('/facets', methods=['GET'])
 def testing():
 
+    print "/facets"
     params = Models.get_parameters(request)
 
+    #TODO pagination
     results = Models.get_results(params)
+    dates_bins, facets = Models.get_facets(params, results)
 
-    snippet = Models.get_snippet(results[0], params.q)
+    results = results[0:10]
 
     status = Models.get_message(len(results), params)
 
-    dates_bins, facets = Models.get_facets(params, results)
-
-    doc_list = Models.get_doclist(results)
+    doc_list = Models.get_doclist(results, params)
 
     keys = dates_bins[dates_bins.keys()[0]].keys()
 

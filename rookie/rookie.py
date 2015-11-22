@@ -7,6 +7,7 @@ import itertools
 import collections
 import pdb
 import math
+import os
 
 from pylru import lrudecorator
 from utils import get_jaccard
@@ -111,6 +112,9 @@ class Rookie:
     """The Rookie engine"""
     def __init__(self, path):
         self.path = path
+        # for now, just checks if metadata_json is there, if not, runs index
+        if "meta_data.json" not in os.listdir(path):
+            self.index()
         with open(path + "/meta_data.json") as inf:
             self.metadata = json.load(inf)
         self.people_df = pickle.load(open(self.path + "/df_people.p", "rb"))
@@ -152,8 +156,8 @@ class Rookie:
 
 
 
-    def index(self, documents):
-        # load into whoosh and index what you need
+    def index(self):
+        print "[*] Indexing documents"
         return 'hello world'
 
 

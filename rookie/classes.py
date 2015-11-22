@@ -203,6 +203,8 @@ class Sentence(object):
         self.ngrams = self.get_ngrams()
         self.ner = self.get_ner(json_sentence, self.tokens)
 
+    def __repr__(self):
+        return " ".join([i.raw for i in self.tokens])
 
 class Token(object):
 

@@ -27,6 +27,10 @@
       font-size: small;
       color: #C0C0C0;
     }
+    .snippet{
+      color:#303030;
+      font-size: small; 
+    }
 </style>
 
 <body>
@@ -60,10 +64,10 @@
     {% for term in terms%}
      <div class="row">
         <div class="small-5 columns class='left'">
-          <span id="{{term.replace(' ', '_')}}-label" class="term facet" data-termtype="{{term}}">{{term}}</span>
+          <span id="{{term.replace(' ', '_').replace('.', '')}}-label" class="term facet" data-termtype="{{term}}">{{term}}</span>
         </div>
         <div class="small-7 columns class='right'">
-          <span id="{{term.replace(' ', '_')}}-chart"></span>
+          <span id="v{{term.replace(' ', '_').replace('.', '')}}-chart"></span>
         </div>
      </div>
      <br>
@@ -77,6 +81,9 @@
       <div>
         <span class="urlpreview">{{doc[2]}}</span>
       </div>
+      <div class="snippet">
+        {{doc[3]}}
+      </div>
      </div>
      {% endfor %}
   </div>
@@ -87,14 +94,14 @@
       dummy =  ['count', 0, 0, 0, 0, 0, 0];
 
       {% for term in terms%}
-         {{term.replace(" ", "_")}} =  {{data[term] | safe}};
+         {{"v" + term.replace(" ", "_").replace('.', '')}} =  {{data[term] | safe}};
       {% endfor %}
 
      
       function make_chart(term, show_axis){
 
        c3.generate({
-        bindto: "#" + term + '-chart',
+        bindto: "#v" + term + '-chart',
         size: {
             height: 50,
             width: 200
@@ -103,7 +110,7 @@
             x: 'x',
             columns: [
                ['x' {% for key in keys%} ,'{{key}}-01-01' {% endfor %}],
-               window[term]
+               window["v" + term]
             ],
             type: 'area-spline',
             colors: {
