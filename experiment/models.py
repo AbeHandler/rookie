@@ -6,6 +6,9 @@ from pylru import lrudecorator
 from collections import defaultdict
 from dateutil.parser import parse
 from rookie.classes import IncomingFile
+from experiment import (
+     log
+)
 
 @lrudecorator(100)
 def get_metadata_file():
@@ -235,6 +238,7 @@ class Models(object):
 
         output = []
 
+        log.debug('got facets. time to filter')
         # Figure out which facets to include in the UI
         while len(output) < n_facets:
             try:
@@ -246,6 +250,7 @@ class Models(object):
             counter += 1
             facet_counters[counter % 3] += 1
 
+        log.debug('get the pub dates')
         # Get the pub dates
         mt = get_metadata_file()
         dates = defaultdict(list)

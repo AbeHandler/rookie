@@ -206,12 +206,17 @@ def testing():
 @app.route('/facets', methods=['GET'])
 def testing():
 
-    print "/facets"
+    log.debug('facets')
+
     params = Models.get_parameters(request)
 
     #TODO pagination
     results = Models.get_results(params)
+
+    log.debug('got results')
+
     dates_bins, facets = Models.get_facets(params, results)
+    log.debug('got bins and facets')
 
     results = results[0:10]
 
