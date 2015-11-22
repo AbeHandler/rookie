@@ -9,6 +9,7 @@ from collections import defaultdict
 from rookie import processed_location
 import pdb
 import itertools
+import os
 import json
 import glob
 
@@ -37,7 +38,8 @@ def load(index_location, processed_location):
             meta_data['headline'] = IncomingFile(infile).headline
             meta_data['url'] = IncomingFile(infile).url
             meta_data['pubdate'] = IncomingFile(infile).pubdate
-            meta_data['raw'] = infile
+            path, fn = os.path.split(infile)
+            meta_data['raw'] = fn
             meta_data['facet_index'] = defaultdict(list)
             sentences = [" ".join([j.raw for j in i.tokens]) for i in IncomingFile(infile).doc.sentences]
             print counter

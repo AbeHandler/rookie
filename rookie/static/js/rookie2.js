@@ -1,3 +1,20 @@
+
+$(".facet").on("click", function() {
+  var term = this.id.replace("-label", "");
+  var termtype = $("[id='" + this.id + "']").attr("data-termtype");
+  $.post("get_snippet_post?term=" + term + "&termtype=" + termtype, function (data) {
+    $("[id='detail-panel']").html(data);
+    $(".extract").on("click", function () {
+      var docid = this.attributes['data-doc'].value;
+      var dataterm = this.attributes['data-term'].value;
+      var q = $("#search_bar").val();
+      var url = "http://" + "{{IP}}" + "/detail?q=" + q + "&docid=" + docid + "&t=" + dataterm;
+      window.location.href = url;
+    });
+    bold_q();
+  })
+});
+
  jQuery.fn.exists = function(){return this.length>0;}
 
  if ($("#datepicker1").exists() && $("#datepicker2").exists()){
@@ -14,7 +31,7 @@ function get_results(start){
     $("#results").html("");
     $("#search_status").html("");
     var term = $("#search_bar").val();
-    var url = "http://54.187.8.229/testing?q=" + term;
+    var url = "http://" + "{{IP}}" + "/facets?q=" + term;
     window.location.href = url;
 }
 
@@ -24,41 +41,19 @@ $('.page').on("click", function(e){
   get_results(start_page);
 });
 
-$(".term").on("click", function(e){
-  var term = $("#search_bar").val();
-  var url = "http://52.27.242.183/results?q=" + term + "&term=" +  this.id + "&page=" + $("#pages").attr("data-current-page") + "&termtype=" + this.getAttribute("data-term-type") + "&startdate=" + $("#datepicker1").val() + "&enddate=" + $("#datepicker2").val();
-   location.href = url;
-});
-
-//stackoverflow.com/questions/923299/how-can-i-detect-when-the-mouse-leaves-the-window
-function addEvent(obj, evt, fn) {
-    if (obj.addEventListener) {
-        obj.addEventListener(evt, fn, false);
-    }
-    else if (obj.attachEvent) {
-        obj.attachEvent("on" + evt, fn);
-    }
+function bold_q(){
+  var qtoks = $("#search_bar").val().split(" ");
+  for (i = 0; i < qtoks.length; i++) { 
+    $("[data-word='" + qtoks[i] + "']").css("font-weight", "bold");
+  }
+  var elementExists = document.getElementById("search_button");
+  if ($('.selected').length > 0){
+     var ftoks = $(".selected").first().html().split(" ");
+     for (i = 0; i < ftoks.length; i++) { 
+       $("[data-word='" + ftoks[i] + "']").addClass("selected");
+     }  
+  }
 }
-
-addEvent(document, "mouseout", function(e) {
-    e = e ? e : window.event;
-    var from = e.relatedTarget || e.toElement;
-    if (!from || from.nodeName == "HTML") {
-       // $('#myModal').foundation('reveal', 'open');
-    }
-});
-
-/*
- $('body').bind('keypress', function(e){
-   if ( e.keyCode == 13 ) {
-     post_answer()
-   }
- });
-
- $('#enter').on('click', function(e){
-     post_answer()
- });
-*/
 
 
  $('#search_button').on('click', function(){
@@ -89,9 +84,7 @@ addEvent(document, "mouseout", function(e) {
    }
  });
 
- function post_answer(){
-   var name = $("#name").val()
-  $.post( "/answer/" + name, function( data ) {
-   alert(data);
-  });
- }
+ $(".facet").on("click", function(){
+   $(".term").removeClass("selected");
+   $("[id='" + this.id + "']").addClass("selected");
+ });

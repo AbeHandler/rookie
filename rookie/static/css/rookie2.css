@@ -13,6 +13,28 @@
     color: darkred !important;
 } 
 
+.c3-axis-y .tick {
+  display: none;
+}
+    
+span.dateline {
+  color: #606060;
+}
+
+span.urlpreview {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  display: block;
+  font-size: small;
+  color: #C0C0C0;
+}
+
+.snippet{
+  color:#303030;
+  font-size: small; 
+}
+
 #search_button {
     background-color: #B33125;
     color: white;
