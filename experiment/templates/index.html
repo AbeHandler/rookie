@@ -59,7 +59,7 @@ function get_results(start){
     $("#results").html("");
     $("#search_status").html("");
     var term = $("#search_bar").val();
-    var url = "http://54.191.10.239/facets?q=" + term;
+    var url = "http://" + IP + "/facets?q=" + term;
     window.location.href = url;
 }
 
@@ -71,7 +71,7 @@ $('.page').on("click", function(e){
 
 $(".term").on("click", function(e){
   var term = $("#search_bar").val();
-  var url = "http://54.191.10.239//results?q=" + term + "&term=" +  this.id + "&page=" + $("#pages").attr("data-current-page") + "&termtype=" + this.getAttribute("data-term-type") + "&startdate=" + $("#datepicker1").val() + "&enddate=" + $("#datepicker2").val();
+  var url = "http://" + IP + "/results?q=" + term + "&term=" +  this.id + "&page=" + $("#pages").attr("data-current-page") + "&termtype=" + this.getAttribute("data-term-type") + "&startdate=" + $("#datepicker1").val() + "&enddate=" + $("#datepicker2").val();
    location.href = url;
 });
 

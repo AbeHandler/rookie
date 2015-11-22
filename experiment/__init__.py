@@ -5,6 +5,8 @@ BANNER_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/banner.css'
 
 LOG_PATH = "experiment.log"
 
+IP = "52.33.98.51"
+
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
