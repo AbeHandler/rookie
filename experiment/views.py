@@ -4,13 +4,14 @@ from flask import render_template
 
 class Views(object):
 
-    def __init__(self, lens_css, banner_css, IP):
+    def __init__(self, lens_css, banner_css, IP, ROOKIE_JS):
         '''
         Initalize the views
         '''
         self.lens_css = lens_css
         self.banner_css = banner_css
         self.ip = IP
+        self.js = ROOKIE_JS
 
 
     def get_start_page(self):
@@ -18,10 +19,11 @@ class Views(object):
         Returns the first view of the application
         '''
         response = render_template(
-                'index.html',
-                lens_css=self.lens_css,
-                banner_css=self.banner_css,
-                IP = self.ip
+            'index.html',
+            lens_css=self.lens_css,
+            banner_css=self.banner_css,
+            IP=self.ip,
+            ROOKIE_JS=self.js
         )
 
         return response
@@ -50,16 +52,17 @@ class Views(object):
         '''
 
         response = render_template(
-                'results5.html',
-                query=query,
-                terms=q_and_t,
-                lens_css=self.lens_css,
-                keys=keys,
-                data=data,
-                doc_list=results,
-                banner_css=self.banner_css,
-                status=status,
-                IP = self.ip
+            'results5.html',
+            query=query,
+            terms=q_and_t,
+            lens_css=self.lens_css,
+            keys=keys,
+            data=data,
+            doc_list=results,
+            banner_css=self.banner_css,
+            status=status,
+            IP = self.ip,
+            ROOKIE_JS = self.js
         )
 
         return response

@@ -2,10 +2,10 @@ import logging
 
 LENS_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/lens.css'
 BANNER_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/banner.css'
-
+ROOKIE_JS = "static/js/rookie2.js"
 LOG_PATH = "experiment.log"
 
-IP = "52.33.98.51"
+IP = "localhost"
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
