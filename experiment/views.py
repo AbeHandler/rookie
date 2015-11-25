@@ -4,7 +4,7 @@ from flask import render_template
 
 class Views(object):
 
-    def __init__(self, lens_css, banner_css, IP, ROOKIE_JS):
+    def __init__(self, lens_css, banner_css, IP, ROOKIE_JS, ROOKIE_CSS):
         '''
         Initalize the views
         '''
@@ -12,6 +12,7 @@ class Views(object):
         self.banner_css = banner_css
         self.ip = IP
         self.js = ROOKIE_JS
+        self.rookie_css = ROOKIE_CSS
 
 
     def get_start_page(self):
@@ -24,24 +25,6 @@ class Views(object):
             banner_css=self.banner_css,
             IP=self.ip,
             ROOKIE_JS=self.js
-        )
-
-        return response
-
-
-    def get_detail_page(self, query, q_and_t, headline, dateline, tokens):
-        '''
-        '''
-        response = render_template(
-                'detail.html',
-                query=query,
-                headline=headline,
-                dateline=dateline,
-                tokens=tokens,
-                terms=q_and_t,
-                lens_css=self.lens_css,
-                banner_css=self.banner_css,
-                IP = self.ip
         )
 
         return response
@@ -62,7 +45,8 @@ class Views(object):
             banner_css=self.banner_css,
             status=status,
             IP = self.ip,
-            ROOKIE_JS = self.js
+            ROOKIE_JS = self.js,
+            ROOKIE_CSS = self.rookie_css
         )
 
         return response

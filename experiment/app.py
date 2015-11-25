@@ -11,7 +11,7 @@ from experiment.views import Views
 from collections import defaultdict
 from experiment.models import Models, Parameters
 from snippets.prelim import get_snippet
-from experiment import LENS_CSS, BANNER_CSS, IP, ROOKIE_JS
+from experiment import LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS
 from experiment import (
      log
 )
@@ -23,7 +23,7 @@ app = Flask(__name__)
 
 cache = pylru.lrucache(100)
 
-views = Views(LENS_CSS, BANNER_CSS, IP, ROOKIE_JS)
+views = Views(LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS)
 
 '''
 

@@ -6,9 +6,7 @@ from pylru import lrudecorator
 from collections import defaultdict
 from dateutil.parser import parse
 from rookie.classes import IncomingFile
-from experiment import (
-     log
-)
+from experiment import log, CORPUS_LOC
 
 @lrudecorator(100)
 def get_metadata_file():
@@ -181,7 +179,7 @@ class Models(object):
             queue = list(set(mt[r]['facet_index'][q]))
         except KeyError:
             queue = []
-        infile = IncomingFile(mt[r]['raw'])
+        infile = IncomingFile(CORPUS_LOC + mt[r]['raw'])
         # build a queue of sentences to include
         for i in range(len(infile.doc.sentences)):
             if i not in queue:
