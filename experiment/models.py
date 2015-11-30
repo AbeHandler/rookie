@@ -1,11 +1,12 @@
 import pdb
 import json
 import itertools
-from rookie.rookie import Rookie
+from experiment.classes import Parameters
 from pylru import lrudecorator
 from collections import defaultdict
 from dateutil.parser import parse
 from rookie.classes import IncomingFile
+from rookie.rookie import Rookie
 from experiment import log, CORPUS_LOC
 
 @lrudecorator(100)
@@ -13,19 +14,6 @@ def get_metadata_file():
     with open("rookieindex/meta_data.json") as inf:
         metadata = json.load(inf)
     return metadata
-
-
-class Parameters(object):
-
-    def __init__(self):
-        self.q = None
-        self.term = None
-        self.termtype = None
-        self.current_page = None
-        self.startdate = None
-        self.enddate = None
-        self.docid = None
-        self.page = None
 
 
 def ovelaps_with_query(facet, query_tokens):
@@ -106,8 +94,12 @@ class Models(object):
         return dt[docid]['pubdate']
 
     @staticmethod
-    def get_message(l_results, params):
-        output = "Showing {} results for {}".format(l_results, params.q)
+    def get_message(l_results, params, len_doc_list, PAGE_LENGTH):
+        if params.page < 1:
+            params.page == 1
+        start = params.page * PAGE_LENGTH
+        end = params.page * PAGE_LENGTH + PAGE_LENGTH
+        output = "{} results for {}. Showing {} thru {}.".format(l_results, params.q, start, end)
         return output
 
     @staticmethod
@@ -121,12 +113,12 @@ class Models(object):
 
         output.termtype = request.args.get('termtype')
 
-        output.current_page = request.args.get('page')
+        output.page = request.args.get('page')
 
         try:
-            output.current_page = int(output.current_page)
+            output.page = int(output.page)
         except:
-            output.current_page = 1
+            output.page = 1
 
         try:
             output.startdate = parse(request.args.get('startdate'))
@@ -146,8 +138,6 @@ class Models(object):
         except:
             output.docid = None
 
-        output.page = 1
-
         return output
 
     @staticmethod
@@ -164,9 +154,13 @@ class Models(object):
         return results
 
     @staticmethod
-    def get_doclist(results, params):
+    def get_doclist(results, params, PAGE_LENGTH):
         mt = get_metadata_file()
         output = []
+        if params.page < 1:
+            params.page == 1
+        # chop off to only relevant results
+        results = results[params.page * PAGE_LENGTH:(params.page * PAGE_LENGTH + PAGE_LENGTH)]
         for r in results:
             output.append((mt[r]['pubdate'], mt[r]['headline'], mt[r]['url'], Models.get_snippet(r, params.q, 200)))
         return output

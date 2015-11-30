@@ -6,6 +6,7 @@ ROOKIE_CSS = "static/css/rookie2.css"
 ROOKIE_JS = "static/js/rookie2.js"
 LOG_PATH = "experiment.log"
 CORPUS_LOC = "data/lens_processed/"
+PAGE_LENGTH = 10
 
 IP = "localhost"
 

@@ -30,7 +30,7 @@ class Views(object):
         return response
 
 
-    def get_q_response(self, query, results, q_and_t, keys, data, status):
+    def get_q_response(self, query, results, q_and_t, keys, data, status, len_results):
         '''
         '''
 
@@ -44,6 +44,7 @@ class Views(object):
             doc_list=results,
             banner_css=self.banner_css,
             status=status,
+            len_results=len_results,
             IP = self.ip,
             ROOKIE_JS = self.js,
             ROOKIE_CSS = self.rookie_css

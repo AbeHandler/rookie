@@ -12,9 +12,8 @@ from collections import defaultdict
 from experiment.models import Models, Parameters
 from snippets.prelim import get_snippet
 from experiment import LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS
-from experiment import (
-     log
-)
+from experiment import log
+from experiment import PAGE_LENGTH
 from whooshy.reader import query_whoosh
 from whooshy.reader import query_subset
 from collections import OrderedDict
@@ -218,11 +217,9 @@ def testing():
     dates_bins, facets = Models.get_facets(params, results)
     log.debug('got bins and facets')
 
-    results = results[0:10]
+    doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
 
-    status = Models.get_message(len(results), params)
-
-    doc_list = Models.get_doclist(results, params)
+    status = Models.get_message(len(results), params, len(doc_list), PAGE_LENGTH)
 
     keys = dates_bins[dates_bins.keys()[0]].keys()
 
@@ -230,7 +227,7 @@ def testing():
     for f in facets:
         datas[f] = ["count"] + [dates_bins[f][o] for o in dates_bins[f].keys()]
 
-    view = views.get_q_response(params.q, doc_list, facets, keys, datas, status)
+    view = views.get_q_response(params.q, doc_list, facets, keys, datas, status, len(results))
 
     return view
 
