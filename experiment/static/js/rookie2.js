@@ -26,20 +26,13 @@ $(".facet").on("click", function() {
   });
 }
 
-//wrapper for cloud search
 function get_results(start){
     $("#results").html("");
     $("#search_status").html("");
     var term = $("#search_bar").val();
-    var url = "/facets?q=" + term;
+    var url = "/facets?q=" + term + "&page=" + start;
     window.location.href = url;
 }
-
-$('.page').on("click", function(e){
-  $("#pages").html("");
-  var start_page = parseInt(this.id.replace("page_", ""));
-  get_results(start_page);
-});
 
 function bold_q(){
   var qtoks = $("#search_bar").val().split(" ");
@@ -75,8 +68,6 @@ function bold_q(){
     })(window.location.search.substr(1).split('&'))
  })(jQuery);
 
- $("#search_bar").val($.QueryString["q"]);
- $("#advanced_search").on("click", function(){$(".toggler").toggle()});
 
  $('body').bind('keypress', function(e){
    if ( e.keyCode == 13 ) {
@@ -88,3 +79,5 @@ function bold_q(){
    $(".term").removeClass("selected");
    $("[id='" + this.id + "']").addClass("selected");
  });
+
+  $("#search_bar").val($.QueryString["q"]);

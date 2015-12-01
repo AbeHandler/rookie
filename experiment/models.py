@@ -99,7 +99,7 @@ class Models(object):
             params.page == 1
         start = params.page * PAGE_LENGTH
         end = params.page * PAGE_LENGTH + PAGE_LENGTH
-        output = "{} results for {}. Showing {} thru {}.".format(l_results, params.q, start, end)
+        output = "{} total results for {}. Showing {} thru {}".format(l_results, params.q, start, end)
         return output
 
     @staticmethod

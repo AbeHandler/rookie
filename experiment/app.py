@@ -227,7 +227,7 @@ def testing():
     for f in facets:
         datas[f] = ["count"] + [dates_bins[f][o] for o in dates_bins[f].keys()]
 
-    view = views.get_q_response(params.q, doc_list, facets, keys, datas, status, len(results))
+    view = views.get_q_response(params, doc_list, facets, keys, datas, status, len(results))
 
     return view
 

@@ -57,8 +57,7 @@
   </div>
 
   <div class="small-8 columns" id="doclist">
-      <div>{{status}} </div>
-
+      <div>{{status}}</div>
       {% for doc in doc_list%}
      <div><a href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span> | <span class="dateline">{{doc[0]}}</span></a>
       <div>
@@ -69,6 +68,12 @@
       </div>
      </div>
      {% endfor %}
+     <div>
+      {% if page > 1 %}
+      <a data-page="{{page}}" id="back" class="page">back</a> |
+      {% endif %}
+      <a data-page="{{page}}" id="next" class="page">next page</a>
+      </div>
   </div>
 </div>
 
@@ -136,6 +141,18 @@
         }
         make_chart(facet, axis);
       });
+
+      $('.page').on("click", function(e){
+        var page = parseInt(this.dataset.page);
+        if (this.id == "next"){
+          page += 1;
+        }else{
+          page -= 1;
+        }
+        get_results(page);
+      });
+
+      $("#search_bar").val($.QueryString["q"]);
 
   </script>
 

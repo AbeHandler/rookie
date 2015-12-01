@@ -30,13 +30,14 @@ class Views(object):
         return response
 
 
-    def get_q_response(self, query, results, q_and_t, keys, data, status, len_results):
+    def get_q_response(self, params, results, q_and_t, keys, data, status, len_results):
         '''
         '''
 
         response = render_template(
             'results5.html',
-            query=query,
+            query=params.q,
+            page=params.page,
             terms=q_and_t,
             lens_css=self.lens_css,
             keys=keys,
