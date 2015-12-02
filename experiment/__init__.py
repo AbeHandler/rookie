@@ -1,14 +1,20 @@
 import logging
+import socket
 
 LENS_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/lens.css'
 BANNER_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/banner.css'
 ROOKIE_CSS = "static/css/rookie2.css"
 ROOKIE_JS = "static/js/rookie2.js"
 LOG_PATH = "experiment.log"
-CORPUS_LOC = "data/lens_processed/"
+if socket.gethostname() == "dewey":
+    CORPUS_LOC = "data/lens_processed/"
+    IP = "localhost"
+else:
+    CORPUS_LOC = "/home/ubuntu/data/lens_processed/"
+    IP = "52.33.98.51"
 PAGE_LENGTH = 10
 
-IP = "localhost"
+
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
