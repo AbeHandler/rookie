@@ -55,27 +55,35 @@
       q_data = {{data | safe }};
       q_labels = {{labels | safe }}
       var chart = c3.generate({
-          data: {
-              x: 'x',
-              columns: [
-                  {{data | safe }},
-              ],
-              type: 'spline'
-          },
-          bindto: '#q_chart',
-          axis: {
-            x: {
-                type: 'timeseries',
-                tick: {
-                    format: '%Y'
-                },
-                show: true
-            },
-            y: {
-              show:false
+    data: {
+        x: 'x',
+        columns: [
+           ['x', '2013-01-01', '2013-01-02', '2013-01-03', '2013-01-04', '2013-01-05', '2013-01-06'],
+            {{data | safe }},
+            ['data2', 200, 130, 90, 240, 130, 220],
+            ['data3', 300, 200, 160, 400, 250, 250],
+            ['data4', 200, 130, 90, 240, 130, 220],
+            ['data5', 130, 120, 150, 140, 160, 150],
+            ['data6', 90, 70, 20, 50, 60, 120],
+        ],
+        type: 'timeseries',
+        types: {
+            count: 'spline',
+            data3: 'spline',
+            data4: 'line',
+            data6: 'area',
+        }
+    },
+     bindto: '#q_chart',
+    axis: {
+        x: {
+            type: 'timeseries',
+            tick: {
+                format: '%Y-%m-%d'
             }
-           }
-      });
+        }
+    }
+});
      /* function make_chart(term, show_axis){
         var width = $(".charts").first();
         c3.generate({
