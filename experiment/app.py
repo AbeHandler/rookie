@@ -1,9 +1,12 @@
-import pdb
+import ipdb
 import datetime
 import threading
 import pylru
 import json
 import time
+from experiment.classes import bin_dates
+
+from dateutil.parser import parse
 from flask import Flask
 from rookie.rookie import Rookie
 from flask import request
@@ -228,6 +231,25 @@ def testing():
         datas[f] = ["count"] + [dates_bins[f][o] for o in dates_bins[f].keys()]
 
     view = views.get_q_response(params, doc_list, facets, keys, datas, status, len(results))
+
+    return view
+
+@app.route('/bigviz', methods=['GET'])
+def bigviz():
+
+    log.debug('facets')
+
+    params = Models.get_parameters(request)
+
+    results = Models.get_results(params)
+
+    bins = bin_dates(results)
+
+    datas = ["count"] + [len(bins[b]) for b in bins]
+    labels = ["labels"] + [b for b in bins]
+    print labels
+
+    view = views.get_big_viz(params, datas, labels)
 
     return view
 

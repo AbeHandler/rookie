@@ -30,6 +30,22 @@ class Views(object):
         return response
 
 
+    def get_big_viz(self, params, datas, labels):
+        response = render_template(
+            'bigviz.html',
+            query=params.q,
+            page=params.page,
+            lens_css=self.lens_css,
+            keys=labels,
+            labels=labels,
+            data=datas,
+            IP = self.ip,
+            ROOKIE_JS = self.js,
+            ROOKIE_CSS = self.rookie_css
+        )
+
+        return response
+
     def get_q_response(self, params, results, q_and_t, keys, data, status, len_results):
         '''
         '''

@@ -1,7 +1,6 @@
 import pdb
 import json
 import itertools
-from experiment.classes import Parameters
 from pylru import lrudecorator
 from collections import defaultdict
 from dateutil.parser import parse
@@ -15,29 +14,26 @@ def get_metadata_file():
         metadata = json.load(inf)
     return metadata
 
+class Parameters(object):
+
+    def __init__(self):
+        '''
+        An object that holds params from request
+        '''
+        self.q = None
+        self.term = None
+        self.termtype = None
+        self.startdate = None
+        self.enddate = None
+        self.docid = None
+        self.page = None
+
 
 def ovelaps_with_query(facet, query_tokens):
     if len(set(facet.split(" ")).intersection(query_tokens)) == 0:
         return False
     else:
         return True
-
-
-def bin_dates(dates, interval=12):
-    '''
-    Put the dates in bins. Default interval is 12 months
-    '''
-    output = defaultdict(lambda : defaultdict(int))
-    if interval == 12:
-        for term in dates.keys():
-            for dt in dates[term]:
-                output[term][int(dt[0:4])] += 1
-    all_bins = set([i for i in itertools.chain(*[output[o].keys() for o in output])])
-    for bin in all_bins:
-        for key in output:
-            if bin not in output[key].keys():
-                output[key][bin] = 0
-    return output
 
 
 
@@ -76,6 +72,24 @@ def facet_occurs(metadata, facet, aliases):
 class Models(object):
 
     '''Handles logic for the experiment app'''
+
+    @staticmethod
+    def bin_dates(dates, interval=12):
+        '''
+        Put the dates in bins. Default interval is 12 months
+        '''
+        output = defaultdict(lambda : defaultdict(int))
+        if interval == 12:
+            for term in dates.keys():
+                for dt in dates[term]:
+                    output[term][int(dt[0:4])] += 1
+        all_bins = set([i for i in itertools.chain(*[output[o].keys() for o in output])])
+        for bin in all_bins:
+            for key in output:
+                if bin not in output[key].keys():
+                    output[key][bin] = 0
+        return output
+
 
     @staticmethod
     def get_tokens(docid):
@@ -249,5 +263,5 @@ class Models(object):
         for r in results:
             for o in output:
                 dates[o].extend(facet_occurs(mt[r], o, all_aliases[o]))
-        dates_bin = bin_dates(dates)
+        dates_bin = Models.bin_dates(dates)
         return dates_bin, output

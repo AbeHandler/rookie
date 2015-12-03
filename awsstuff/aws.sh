@@ -3,9 +3,9 @@
 
 ssh -i "awsstuff/two" ubuntu@54.191.10.239
 
-sudo docker run -i -t -p 80:80 d328fc0d4cbe /bin/bash
+# sudo docker run -i -t -v /home/ubuntu/data/lens_processed/:/home/ubuntu/data/lens_processed/  -p 80:80 d328fc0d4cbe /bin/bash
 
-http://stackoverflow.com/questions/19688314/how-do-you-attach-and-detach-from-dockers-process
+# http://stackoverflow.com/questions/19688314/how-do-you-attach-and-detach-from-dockers-process
 
 #create security group
 #aws ec2 create-security-group --group-name rookie --description "Rookie security group"
