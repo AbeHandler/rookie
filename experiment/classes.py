@@ -22,8 +22,9 @@ def years_between(d1, d2):
     return int(abs((d2 - d1).days / 365))
 
 
-def bin_dates(results):
+def bin_dates(results, facets):
     dates = [parse(Models.get_pub_date(o)) for o in results]
+    dates.sort()
     interval = days_between(min(dates), max(dates))
     delta = timedelta(days=1)
     bins = []
@@ -32,6 +33,7 @@ def bin_dates(results):
     bins = defaultdict(list)
     key = None
     d = start
+    results_counter = 0
     while d <= end_date:
         if interval < 60:
             key = d.strftime('%y-%m-%d')
@@ -41,7 +43,9 @@ def bin_dates(results):
         if interval >= (365 * 2):
             if key is None or d.day == 1 and d.month == 1:
                 key = d.strftime('%y')
-        bins[key].append(d)
+        while dates[results_counter] < d:
+            bins[key]["count"].append(d)
+            results_counter += 1
         d += delta
     return bins   
 

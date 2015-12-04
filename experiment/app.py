@@ -243,7 +243,9 @@ def bigviz():
 
     results = Models.get_results(params)
 
-    bins = bin_dates(results)
+    dates_bins, facets = Models.get_facets(params, results)
+
+    bins = bin_dates(results, facets)
 
     datas = ["count"] + [len(bins[b]) for b in bins]
     labels = ["labels"] + [b for b in bins]

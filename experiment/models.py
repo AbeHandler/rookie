@@ -9,10 +9,20 @@ from rookie.rookie import Rookie
 from experiment import log, CORPUS_LOC
 
 @lrudecorator(100)
+def get_pubdate_index():
+    with open("rookieindex/string_to_pubdate.json") as inf:
+        metadata = json.load(inf)
+    output = {}
+    for key in metadata:
+        output[key] = set([parse(p) for p in metadata[key]])
+    return output
+
+@lrudecorator(100)
 def get_metadata_file():
     with open("rookieindex/meta_data.json") as inf:
         metadata = json.load(inf)
     return metadata
+
 
 class Parameters(object):
 
@@ -255,13 +265,14 @@ class Models(object):
                 break
             counter += 1
             facet_counters[counter % 3] += 1
-
-        log.debug('get the pub dates')
+        return output, all_aliases
+        # log.debug('get the pub dates')
         # Get the pub dates
-        mt = get_metadata_file()
-        dates = defaultdict(list)
-        for r in results:
-            for o in output:
-                dates[o].extend(facet_occurs(mt[r], o, all_aliases[o]))
-        dates_bin = Models.bin_dates(dates)
-        return dates_bin, output
+        # mt = get_metadata_file()
+        # return output
+        #dates = defaultdict(list)
+        #for r in results:
+        #    for o in output:
+        #        dates[o].extend(facet_occurs(mt[r], o, all_aliases[o]))
+        #dates_bin = Models.bin_dates(dates)
+        #return dates_bin, output

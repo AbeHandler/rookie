@@ -20,6 +20,9 @@ def load(index_location, processed_location):
 
     people_org_ngram_index = {}
 
+    #this index stores when a string appears in publication
+    string_to_pubdate_index = defaultdict(list)
+
     files_to_check = glob.glob(processed_location + "/*")
 
     for counter, infile in enumerate(files_to_check):
@@ -46,10 +49,12 @@ def load(index_location, processed_location):
             for s_index, sentence in enumerate(IncomingFile(infile).doc.sentences):
                 for ne in sentence.ner:
                     meta_data['facet_index'][str(ne).decode("ascii", "ignore")].append(s_index)
+                    string_to_pubdate_index[str(ne)].append(IncomingFile(infile).pubdate)
                 for ng in sentence.ngrams:
                     tmp = " ".join([i.raw.encode("ascii", "ignore") for i in ng])
                     meta_data['facet_index'][tmp].append(s_index)
                     meta_data['facet_index'][tmp] = list(set(meta_data['facet_index'][tmp]))
+                    string_to_pubdate_index[tmp].append(IncomingFile(infile).pubdate)
             meta_data['facet_index'] = dict(meta_data['facet_index'])
             meta_data['sentences'] = sentences
             tokens = itertools.chain(*[[j.raw for j in i.tokens] for i in IncomingFile(infile).doc.sentences])
@@ -70,6 +75,8 @@ def load(index_location, processed_location):
 
     with open(index_location + '/meta_data.json', 'w') as outfile:
         json.dump(people_org_ngram_index, outfile)
+    with open(index_location + '/string_to_pubdate.json', 'w') as outfile:
+        json.dump(dict(string_to_pubdate_index), outfile)
 
 if __name__ == '__main__':
     load("rookieindex", processed_location)
