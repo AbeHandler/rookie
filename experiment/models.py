@@ -1,5 +1,7 @@
 import pdb
 import json
+import ipdb
+import pandas as pd
 import itertools
 from pylru import lrudecorator
 from collections import defaultdict
@@ -10,11 +12,13 @@ from experiment import log, CORPUS_LOC
 
 @lrudecorator(100)
 def get_pubdate_index():
+    print "loading pubdate index"
     with open("rookieindex/string_to_pubdate.json") as inf:
         metadata = json.load(inf)
     output = {}
     for key in metadata:
         output[key] = set([parse(p) for p in metadata[key]])
+    print "built index"
     return output
 
 @lrudecorator(100)
@@ -57,6 +61,43 @@ def overlaps_with_output(facet, output):
     return False
 
 
+def make_dataframe(p, facets, results, q_pubdates, aliases):
+    '''
+    Checks if given username and password match correct credentials.
+    :param p: params
+    :type username: Parameters
+    :param facets: facets
+    :type: unicode
+    :returns: pandas df. Columns get 1 if facet appears in pubdate
+    '''
+    df = pd.DataFrame()
+    df['id'] = results
+    df['pd'] = q_pubdates
+    df[p.q] = [1 for i in q_pubdates]
+    pub_index = get_pubdate_index()
+    for facet in facets:
+        alias = [pub_index[a] for a in aliases[facet]]
+        facet_dates = set([i for i in set([i for i in itertools.chain(*alias)]).union(pub_index[facet])])
+        gus = [int(p) for p in [p in facet_dates for p in q_pubdates]]
+        df[facet] = gus
+    return df
+
+
+def get_breakdown(df, facet):
+    '''
+    Gets a per-year breakdown of facet
+    :param facet: the facet that needs to be broken down by date
+    :type facet: unicode?
+    :param df: dataframe, facet cols get 1 if facet appears
+    :type: panadas df
+    :returns: json holding count per date bin for facet
+    '''
+    tmp = df
+    tmp = tmp.groupby([tmp['pd'].map(lambda x: x.year), tmp[facet]]).sum()
+    tmp = tmp[tmp[facet] != 0][facet].unstack(0).fillna(0)
+    return tmp.to_json()
+
+
 def passes_one_word_heuristic(on_deck):
     '''
     Short check for meaningless 1-grams like "commission"
@@ -66,40 +107,7 @@ def passes_one_word_heuristic(on_deck):
     return True
 
 
-def facet_occurs(metadata, facet, aliases):
-    '''
-    Does the facet or any of its aliases show up
-    in the metadata for one document?
-    '''
-    all_names = [unicode(facet)] + aliases
-    output = []
-    for key in [u'people', u'ngram', u'org']:
-        for name in all_names:
-            if name in metadata[key]:
-                output.append(metadata['pubdate'])
-    return output
-
 class Models(object):
-
-    '''Handles logic for the experiment app'''
-
-    @staticmethod
-    def bin_dates(dates, interval=12):
-        '''
-        Put the dates in bins. Default interval is 12 months
-        '''
-        output = defaultdict(lambda : defaultdict(int))
-        if interval == 12:
-            for term in dates.keys():
-                for dt in dates[term]:
-                    output[term][int(dt[0:4])] += 1
-        all_bins = set([i for i in itertools.chain(*[output[o].keys() for o in output])])
-        for bin in all_bins:
-            for key in output:
-                if bin not in output[key].keys():
-                    output[key][bin] = 0
-        return output
-
 
     @staticmethod
     def get_tokens(docid):
@@ -266,13 +274,3 @@ class Models(object):
             counter += 1
             facet_counters[counter % 3] += 1
         return output, all_aliases
-        # log.debug('get the pub dates')
-        # Get the pub dates
-        # mt = get_metadata_file()
-        # return output
-        #dates = defaultdict(list)
-        #for r in results:
-        #    for o in output:
-        #        dates[o].extend(facet_occurs(mt[r], o, all_aliases[o]))
-        #dates_bin = Models.bin_dates(dates)
-        #return dates_bin, output

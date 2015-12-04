@@ -4,9 +4,11 @@ import threading
 import pylru
 import json
 import time
-from experiment.classes import bin_dates
-
+import datetime as dt
+import itertools
 from dateutil.parser import parse
+from experiment.models import make_dataframe
+from experiment.models import get_breakdown
 from flask import Flask
 from rookie.rookie import Rookie
 from flask import request
@@ -20,6 +22,7 @@ from experiment import PAGE_LENGTH
 from whooshy.reader import query_whoosh
 from whooshy.reader import query_subset
 from collections import OrderedDict
+from experiment.models import get_metadata_file, get_pubdate_index
 
 app = Flask(__name__)
 
@@ -217,7 +220,8 @@ def testing():
 
     log.debug('got results')
 
-    dates_bins, facets = Models.get_facets(params, results)
+    dates_bins, facets = Models.get_facets(params, results, 3)
+
     log.debug('got bins and facets')
 
     doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
@@ -242,16 +246,38 @@ def bigviz():
     params = Models.get_parameters(request)
 
     results = Models.get_results(params)
+    print "got results"
 
-    dates_bins, facets = Models.get_facets(params, results)
+    facets, aliases = Models.get_facets(params, results, 3)
+    print "got facets"
 
-    bins = bin_dates(results, facets)
+    mt = get_metadata_file()
 
-    datas = ["count"] + [len(bins[b]) for b in bins]
-    labels = ["labels"] + [b for b in bins]
-    print labels
+    print "got metadata"
+    metadata = [mt[r] for r in results]
 
-    view = views.get_big_viz(params, datas, labels)
+    q_pubdates = [parse(h["pubdate"]) for h in metadata]
+    print "parsed dates"
+    # df = make_dataframe(params, facets, results, q_pubdates, aliases)
+
+    bins = {}
+    for f in facets:
+        print "making df"
+        df = make_dataframe(params, facets, results, q_pubdates, aliases)
+        print "processing df"
+        bins[f] = get_breakdown(df, f)
+
+    #datas = ["count"] + [len(bins[b]) for b in bins]
+    #labels = ["labels"] + [b for b in bins]
+    datas = []
+    labels = []
+    all_keys = [parse(o) for o in set(itertools.chain(*[json.loads(bins[f]).keys() for f in facets]))]
+    all_keys.sort()
+
+    labels = ["x"] + [k.strftime("%Y-%m-%d") for k in all_keys]
+    facets = []
+    facets[0]
+    view = views.get_big_viz(params, datas, labels, facets)
 
     return view
 
