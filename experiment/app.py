@@ -274,9 +274,24 @@ def bigviz():
     all_keys = [parse(o) for o in set(itertools.chain(*[json.loads(bins[f]).keys() for f in facets]))]
     all_keys.sort()
 
+    items = [json.loads(p) for p in [bins[k] for k in bins]]
+
     labels = ["x"] + [k.strftime("%Y-%m-%d") for k in all_keys]
+    
+    all_keys = [o.strftime("%Y") for o in all_keys]
+    
     facets = []
-    facets[0]
+    for key in bins.keys():
+        facet_data = []
+        bin_json = json.loads(bins[key])
+        for date_key in all_keys:
+            try:
+                facet_data.append(bin_json[date_key]['1'])
+            except KeyError:
+                pass
+        facet_data = [str(key)] + facet_data
+        facets.append(facet_data)
+
     view = views.get_big_viz(params, datas, labels, facets)
 
     return view

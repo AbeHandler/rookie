@@ -46,7 +46,6 @@
     <div id="q_chart">
     </div>
   </div>
-
 </div>
 
   <script type="text/javascript">
@@ -60,18 +59,16 @@
         columns: [
            {{labels | safe }},
             {{data | safe }},
-            ['data2', 200, 130, 90, 240, 130, 3],
-            ['data3', 300, 200, 160, 400, 250, 3],
-            ['data4', 200, 130, 90, 240, 130, 3],
-            ['data5', 130, 120, 150, 140, 160, 3],
-            ['data6', 90, 70, 20, 50, 60, 3],
+            {{facets[0] | safe}},
+            {{facets[1] | safe}},
+            {{facets[2] | safe}}
         ],
         type: 'timeseries',
         types: {
             count: 'spline',
-            data3: 'spline',
-            data4: 'line',
-            data6: 'area',
+            '{{facets[0][0]}}': 'spline',
+            '{{facets[1][0]}}': 'spline',
+            '{{facets[2][0]}}': 'spline',
         }
     },
      bindto: '#q_chart',
