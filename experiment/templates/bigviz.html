@@ -61,6 +61,7 @@
             {{data | safe }},
             {{facets[0] | safe}},
             {{facets[1] | safe}},
+            {{facets[2] | safe}},
             {{facets[2] | safe}}
         ],
         type: 'timeseries',
@@ -68,6 +69,7 @@
             count: 'spline',
             '{{facets[0][0]}}': 'spline',
             '{{facets[1][0]}}': 'spline',
+            '{{facets[2][0]}}': 'spline',
             '{{facets[2][0]}}': 'spline',
         }
     },

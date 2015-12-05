@@ -30,7 +30,7 @@ class Views(object):
         return response
 
 
-    def get_big_viz(self, params, datas, labels, facets):
+    def get_big_viz(self, params, labels, facets):
         response = render_template(
             'bigviz.html',
             query=params.q,
@@ -38,7 +38,6 @@ class Views(object):
             lens_css=self.lens_css,
             keys=labels,
             labels=labels,
-            data=datas,
             IP = self.ip,
             facets=facets,
             ROOKIE_JS = self.js,

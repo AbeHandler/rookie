@@ -83,21 +83,6 @@ def make_dataframe(p, facets, results, q_pubdates, aliases):
     return df
 
 
-def get_breakdown(df, facet):
-    '''
-    Gets a per-year breakdown of facet
-    :param facet: the facet that needs to be broken down by date
-    :type facet: unicode?
-    :param df: dataframe, facet cols get 1 if facet appears
-    :type: panadas df
-    :returns: json holding count per date bin for facet
-    '''
-    tmp = df
-    tmp = tmp.groupby([tmp['pd'].map(lambda x: x.year), tmp[facet]]).sum()
-    tmp = tmp[tmp[facet] != 0][facet].unstack(0).fillna(0)
-    return tmp.to_json()
-
-
 def passes_one_word_heuristic(on_deck):
     '''
     Short check for meaningless 1-grams like "commission"

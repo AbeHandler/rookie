@@ -8,7 +8,6 @@ import datetime as dt
 import itertools
 from dateutil.parser import parse
 from experiment.models import make_dataframe
-from experiment.models import get_breakdown
 from flask import Flask
 from rookie.rookie import Rookie
 from flask import request
@@ -261,38 +260,17 @@ def bigviz():
     # df = make_dataframe(params, facets, results, q_pubdates, aliases)
 
     bins = {}
+    df = make_dataframe(params, facets, results, q_pubdates, aliases)
+    df = df.groupby([df['pd'].map(lambda x: x.year)]).sum().unstack(0).fillna(0)
+    
+    facet_datas = []
     for f in facets:
-        print "making df"
-        df = make_dataframe(params, facets, results, q_pubdates, aliases)
-        print "processing df"
-        bins[f] = get_breakdown(df, f)
+        print facet_datas.append([f] + list(df[f]))
+    facet_datas.append([params.q] + list(df[params.q]))
 
-    #datas = ["count"] + [len(bins[b]) for b in bins]
-    #labels = ["labels"] + [b for b in bins]
-    datas = []
-    labels = []
-    all_keys = [parse(o) for o in set(itertools.chain(*[json.loads(bins[f]).keys() for f in facets]))]
-    all_keys.sort()
+    labels = [i for i in df[p.q].axes[0]]
 
-    items = [json.loads(p) for p in [bins[k] for k in bins]]
-
-    labels = ["x"] + [k.strftime("%Y-%m-%d") for k in all_keys]
-    
-    all_keys = [o.strftime("%Y") for o in all_keys]
-    
-    facets = []
-    for key in bins.keys():
-        facet_data = []
-        bin_json = json.loads(bins[key])
-        for date_key in all_keys:
-            try:
-                facet_data.append(bin_json[date_key]['1'])
-            except KeyError:
-                pass
-        facet_data = [str(key)] + facet_data
-        facets.append(facet_data)
-
-    view = views.get_big_viz(params, datas, labels, facets)
+    view = views.get_big_viz(params, labels, facet_datas)
 
     return view
 
