@@ -59,18 +59,16 @@
         columns: [
            {{labels | safe }},
             {{data | safe }},
-            {{facets[0] | safe}},
-            {{facets[1] | safe}},
-            {{facets[2] | safe}},
-            {{facets[2] | safe}}
+            {{facets[0] | safe }},
+            {{facets[1] | safe }},
+            {{facets[2] | safe }}
         ],
         type: 'timeseries',
         types: {
-            count: 'spline',
-            '{{facets[0][0]}}': 'spline',
-            '{{facets[1][0]}}': 'spline',
-            '{{facets[2][0]}}': 'spline',
-            '{{facets[2][0]}}': 'spline',
+            '{{data[0] | safe }}': 'area-spline',
+            '{{facets[0][0] | safe }}': 'spline',
+            '{{facets[1][0] | safe }}': 'spline',
+            '{{facets[2][0] | safe }}': 'spline',
         }
     },
      bindto: '#q_chart',
@@ -83,50 +81,6 @@
         }
     }
 });
-     /* function make_chart(term, show_axis){
-        var width = $(".charts").first();
-        c3.generate({
-         bindto: '#q-chart',
-         size: {
-            height: 50,
-            width: 200
-         },
-         bindto: '#q-chart',
-        data: {
-            x: 'x',
-            columns: [
-               ['x' {{data | safe }}],
-               window["v" + term]
-            ],
-            type: 'area-spline',
-            colors: {
-                  x: '#ff0000',
-                  count: '#B33125'
-            },
-            color: function (color, d) {
-                  // d will be 'id' when called for legends
-                  return d.id && d.id === 'data3' ? d3.rgb(color).darker(d.value / 150) : color;
-            },
-        },
-        tooltip: {
-            show: true
-        },
-        legend: {
-            show: false
-        },
-        axis: {
-            x: {
-                type: 'timeseries',
-                tick: {
-                    format: '%Y'
-                },
-                show: show_axis
-            },
-            y: {
-              show:false
-            }
-        }
-       }); */
       
       var facet_count = $(".facet").length;
 

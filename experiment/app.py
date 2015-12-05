@@ -259,18 +259,17 @@ def bigviz():
     print "parsed dates"
     # df = make_dataframe(params, facets, results, q_pubdates, aliases)
 
-    bins = {}
     df = make_dataframe(params, facets, results, q_pubdates, aliases)
     df = df.groupby([df['pd'].map(lambda x: x.year)]).sum().unstack(0).fillna(0)
     
     facet_datas = []
     for f in facets:
-        print facet_datas.append([f] + list(df[f]))
-    facet_datas.append([params.q] + list(df[params.q]))
+        print facet_datas.append([str(f)] + list(df[f]))
 
-    labels = [i for i in df[p.q].axes[0]]
+    datas = [str(params.q)] + list(df[params.q])
+    labels = ["x"] + [str(i) + "-1-1" for i in df[params.q].axes[0]]
 
-    view = views.get_big_viz(params, labels, facet_datas)
+    view = views.get_big_viz(params, labels, facet_datas, datas)
 
     return view
 
