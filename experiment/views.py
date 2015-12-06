@@ -13,6 +13,7 @@ class Views(object):
         self.ip = IP
         self.js = ROOKIE_JS
         self.rookie_css = ROOKIE_CSS
+        self.banner_css = banner_css
 
 
     def get_start_page(self):
@@ -42,7 +43,8 @@ class Views(object):
             IP = self.ip,
             facets=facets,
             ROOKIE_JS = self.js,
-            ROOKIE_CSS = self.rookie_css
+            ROOKIE_CSS = self.rookie_css,
+            BANNER_CSS = self.banner_css
         )
 
         return response
