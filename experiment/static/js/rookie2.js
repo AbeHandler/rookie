@@ -52,6 +52,16 @@ function bold_q(){
  $('#search_button').on('click', function(){
     get_results(1);
  });
+
+  function reload_big_viz(){
+    var term = $("#search_bar").val();
+    var url = "/bigviz?q=" + term;
+    window.location.href = url;
+  }
+
+  $('#search_button_big_viz').on('click', function(){
+    reload_big_viz();
+ });
   
  //https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript 
  (function($) {
@@ -70,8 +80,14 @@ function bold_q(){
 
 
  $('body').bind('keypress', function(e){
-   if ( e.keyCode == 13 ) {
-     get_results(1);
+   if (window.location.pathname.includes("bigviz")){
+      if ( e.keyCode == 13 ) {
+       reload_big_viz();
+     }
+   }else{
+      if ( e.keyCode == 13 ) {
+       get_results(1);
+      }
    }
  });
 
