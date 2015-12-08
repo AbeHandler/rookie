@@ -1,4 +1,3 @@
-import ipdb
 import datetime
 import threading
 import pylru
@@ -28,6 +27,7 @@ app = Flask(__name__)
 cache = pylru.lrucache(100)
 
 views = Views(LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS)
+
 
 '''
 
@@ -215,6 +215,7 @@ def testing():
     params = Models.get_parameters(request)
 
     #TODO pagination
+
     results = Models.get_results(params)
 
     log.debug('got results')
@@ -244,10 +245,14 @@ def bigviz():
 
     params = Models.get_parameters(request)
 
+    start_time = time.time()
     results = Models.get_results(params)
+    print "getting results took {}".format(start_time - time.time())
     print "got results"
 
+    start_time = time.time()
     facets, aliases = Models.get_facets(params, results, 3)
+    print "getting facets took {}".format(start_time - time.time())
     print "got facets"
 
     mt = get_metadata_file()

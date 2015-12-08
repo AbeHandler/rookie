@@ -4,8 +4,10 @@ import socket
 LENS_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/lens.css'
 BANNER_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/banner.css'
 ROOKIE_CSS = "https://s3-us-west-2.amazonaws.com/rookie2/css/rookie2.css"
-ROOKIE_JS = "static/js/rookie2.js"
+ROOKIE_JS = "https://s3-us-west-2.amazonaws.com/rookie2/js/rookie2.js"
 LOG_PATH = "experiment.log"
+
+# http://stackoverflow.com/questions/166506/finding-local-ip-addresses-using-pythons-stdlib
 if socket.gethostname() == "dewey":
     CORPUS_LOC = "data/lens_processed/"
     IP = "localhost"

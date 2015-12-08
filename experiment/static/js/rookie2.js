@@ -30,7 +30,7 @@ function get_results(start){
     $("#results").html("");
     $("#search_status").html("");
     var term = $("#search_bar").val();
-    var url = "/facets?q=" + term + "&page=" + start;
+    var url = "/bigviz?q=" + term;
     window.location.href = url;
 }
 

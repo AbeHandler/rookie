@@ -8,7 +8,7 @@ import collections
 import pdb
 import math
 import os
-
+import time
 from pylru import lrudecorator
 from utils import get_jaccard
 from whoosh.index import open_dir
@@ -155,20 +155,16 @@ class Rookie:
         return scores[0][0]
 
 
-
-    def index(self):
-        print "[*] Indexing documents"
-        return 'hello world'
-
-
     def query(self, qry_string):
+        start_time = time.time()
         index = open_dir(self.path)
         query_parser = QueryParser("content", schema=index.schema)
         query = query_parser.parse(qry_string)
         with index.searcher() as srch:
             results_a = srch.search(query, limit=None)
-            return [a.get("path").replace("/", "") for a in results_a]
-
+            out = [a.get("path").replace("/", "") for a in results_a]
+        print "querying took {}".format(start_time - time.time())
+        return out
 
     def tfidf(self, word, tf, field):
         if field == "ngram":

@@ -1,6 +1,6 @@
 import pdb
+import time
 import json
-import ipdb
 import pandas as pd
 import itertools
 from pylru import lrudecorator
@@ -9,6 +9,8 @@ from dateutil.parser import parse
 from rookie.classes import IncomingFile
 from rookie.rookie import Rookie
 from experiment import log, CORPUS_LOC
+
+ROOKIE = Rookie("rookieindex")
 
 @lrudecorator(100)
 def get_pubdate_index():
@@ -164,10 +166,7 @@ class Models(object):
         Just query whoosh
         '''
 
-        rookie = Rookie("rookieindex")
-
-        results = rookie.query(params.q)
-
+        results = ROOKIE.query(params.q)
         return results
 
     @staticmethod
@@ -219,8 +218,6 @@ class Models(object):
         counter % 3 loops over facet types in cycle.
         facet_counters progresses lineararly down each facet list
         '''
-        
-        rookie = Rookie("rookieindex")
 
         all_facets = {}
 
@@ -239,7 +236,7 @@ class Models(object):
 
         # Get each of the facets
         for f_type in facet_types:
-            tmpfacets, newaliases = rookie.facets(results, f_type)
+            tmpfacets, newaliases = ROOKIE.facets(results, f_type)
             all_facets[counter] = tmpfacets
             all_aliases.update(newaliases)
             facet_counters[counter] = 0
