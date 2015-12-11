@@ -11,3 +11,4 @@ data/lens
 .coverage
 devenv-key.pem
 test.dot
+.ipynb_checkpoints/
