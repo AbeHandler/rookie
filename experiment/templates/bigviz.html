@@ -71,6 +71,13 @@
             {{facets[1] | safe }},
             {{facets[2] | safe }}
         ],
+        onclick: function (d, element) {
+            var term = $("#search_bar").val();
+            var detail = d.x;
+            $.post("/get_doc_list?q=" + term + "&detail=" + encodeURIComponent(d.name) + "&date_detail=" + encodeURIComponent(d.x), function(data){
+               console.log(data);
+            });
+        },
         type: 'timeseries',
         types: {
             '{{data[0] | safe }}': 'area-spline',

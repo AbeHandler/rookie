@@ -207,6 +207,18 @@ def testing():
     return view
 '''
 
+@app.route("/get_doc_list", methods=['POST'])
+def get_doc_list():
+
+    params = Models.get_parameters(request)
+
+    print params.q
+    print params.detail
+    dt = parse(params.date_detail)
+
+    return "hooray"
+
+
 @app.route('/facets', methods=['GET'])
 def testing():
 

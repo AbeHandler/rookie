@@ -157,6 +157,17 @@ class Models(object):
         except:
             output.docid = None
 
+        try:
+            output.detail = request.args.get('detail')
+        except:
+            output.detail = None
+    
+        try:
+            output.date_detail = request.args.get('date_detail')
+        except:
+            output.date_detail = None
+
+
         return output
 
     @staticmethod
