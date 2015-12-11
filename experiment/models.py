@@ -1,4 +1,4 @@
-import pdb
+import ipdb
 import time
 import json
 import pandas as pd
@@ -28,6 +28,8 @@ def get_metadata_file():
     with open("rookieindex/meta_data.json") as inf:
         metadata = json.load(inf)
     return metadata
+
+MT = get_metadata_file()
 
 
 class Parameters(object):
@@ -141,14 +143,10 @@ class Models(object):
 
         try:
             output.startdate = parse(request.args.get('startdate'))
-            if len(output.startdate) == 0:
-                output.startdate = None
         except:
             output.startdate = None
         try:
             output.enddate = parse(request.args.get('enddate'))
-            if len(output.enddate) == 0:
-                output.enddate = None
         except:
             output.enddate = None
 
@@ -179,6 +177,14 @@ class Models(object):
 
         results = ROOKIE.query(params.q)
         return results
+
+    @staticmethod
+    def date_filter(results, params):
+        '''
+        Filter results by date
+        '''
+        ipdb.set_trace()
+        return [r for r in results if parse(MT[r]["pubdate"]) > params.startdate and parse(MT[r]["pubdate"]) < params.enddate]
 
     @staticmethod
     def get_doclist(results, params, PAGE_LENGTH):
