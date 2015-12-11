@@ -46,10 +46,10 @@
     {% for term in terms%}
      <div class="row">
         <div class="small-5 columns class='left'">
-          <span id="{{term.replace(' ', '_').replace('.', '')}}-label" class="term facet" data-termtype="{{term}}">{{term}}</span>
+          <span id="{{term[0].replace(' ', '_')}}-label" class="term facet" data-termtype="{{term[0]}}">{{term[0].replace('_', ' ')}}</span>
         </div>
         <div class="small-7 columns class='right'">
-          <span id="v{{term.replace(' ', '_').replace('.', '')}}-chart"></span>
+          <span id="v{{term[0]}}-chart"></span>
         </div>
      </div>
      <br>
@@ -78,40 +78,12 @@
 </div>
 
   <script type="text/javascript">
-      
-      dummy =  ['count', 0, 0, 0, 0, 0, 0];
-
       {% for term in terms%}
-         {{"v" + term.replace(" ", "_").replace('.', '')}} =  {{data[term] | safe}};
-      {% endfor %}
 
-     
-      function make_chart(term, show_axis){
-
-       c3.generate({
-        bindto: "#v" + term + '-chart',
+      var chart2 = c3.generate({
         size: {
-            height: 50,
-            width: 200
-        },
-        data: {
-            x: 'x',
-            columns: [
-               ['x' {% for key in keys%} ,'{{key}}-01-01' {% endfor %}],
-               window["v" + term]
-            ],
-            type: 'area-spline',
-            colors: {
-                  x: '#ff0000',
-                  count: '#B33125'
-            },
-            color: function (color, d) {
-                  // d will be 'id' when called for legends
-                  return d.id && d.id === 'data3' ? d3.rgb(color).darker(d.value / 150) : color;
-            },
-        },
-        tooltip: {
-            show: true
+            height: 100,
+            width: 300
         },
         legend: {
             show: false
@@ -122,15 +94,31 @@
                 tick: {
                     format: '%Y'
                 },
-                show: show_axis
+                show: true
             },
             y: {
               show:false
             }
-        }
-       });
-      }
-      
+        },
+        data: {
+          x: 'x',
+          columns: [
+              {{keys | safe}},
+              {{term | safe}},
+              {{datas | safe}},
+          ],
+          type: 'timeseries',
+          types: {
+              '{{datas[0]}}': 'area-spline',
+              '{{term[0]}}': 'line',
+          }
+        },
+        bindto: "#v{{term[0] | safe}}-chart",
+      });
+
+      {% endfor %}
+
+
       var facet_count = $(".facet").length;
 
       $(".facet").each(function(i, id){
@@ -139,7 +127,7 @@
         if (id.id.replace("-label", "") == "dummy"){
           axis = false;
         }
-        make_chart(facet, axis);
+        // make_chart(facet, axis);
       });
 
       $('.page').on("click", function(e){

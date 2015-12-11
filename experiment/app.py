@@ -214,13 +214,11 @@ def testing():
 
     params = Models.get_parameters(request)
 
-    #TODO pagination
-
     results = Models.get_results(params)
 
     log.debug('got results')
 
-    dates_bins, facets = Models.get_facets(params, results, 3)
+    facets, aliases = Models.get_facets(params, results, 9)
 
     log.debug('got bins and facets')
 
@@ -228,13 +226,25 @@ def testing():
 
     status = Models.get_message(len(results), params, len(doc_list), PAGE_LENGTH)
 
-    keys = dates_bins[dates_bins.keys()[0]].keys()
+    mt = get_metadata_file()
 
-    datas = {}
+    print "got metadata"
+    metadata = [mt[r] for r in results]
+
+    q_pubdates = [parse(h["pubdate"]) for h in metadata]
+    print "parsed dates"
+
+    df = make_dataframe(params, facets, results, q_pubdates, aliases)
+    df = df.groupby([df['pd'].map(lambda x: x.year)]).sum().unstack(0).fillna(0)
+    
+    facet_datas = []
     for f in facets:
-        datas[f] = ["count"] + [dates_bins[f][o] for o in dates_bins[f].keys()]
+        print facet_datas.append([str(f)] + list(df[f]))
 
-    view = views.get_q_response(params, doc_list, facets, keys, datas, status, len(results))
+    datas = [str(params.q)] + list(df[params.q])
+    keys = ["x"] + [str(i) + "-01-01" for i in df[params.q].axes[0]]
+
+    view = views.get_q_response(params, doc_list, facet_datas, keys, datas, status, len(results))
 
     return view
 
@@ -272,7 +282,7 @@ def bigviz():
         print facet_datas.append([str(f)] + list(df[f]))
 
     datas = [str(params.q)] + list(df[params.q])
-    labels = ["x"] + [str(i) + "-1-1" for i in df[params.q].axes[0]]
+    labels = ["x"] + [str(i) + "-01-01" for i in df[params.q].axes[0]]
 
     view = views.get_big_viz(params, labels, facet_datas, datas)
 

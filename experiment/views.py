@@ -49,10 +49,10 @@ class Views(object):
 
         return response
 
-    def get_q_response(self, params, results, q_and_t, keys, data, status, len_results):
+    def get_q_response(self, params, results, q_and_t, keys, datas, status, len_results):
         '''
         '''
-
+        q_and_t = [[i[0].replace(" ", "_")] + i[1:] for i in q_and_t]
         response = render_template(
             'results5.html',
             query=params.q,
@@ -60,7 +60,7 @@ class Views(object):
             terms=q_and_t,
             lens_css=self.lens_css,
             keys=keys,
-            data=data,
+            datas=datas,
             doc_list=results,
             banner_css=self.banner_css,
             status=status,
