@@ -3,8 +3,10 @@ import threading
 import pylru
 import json
 import time
+import redis
+import ujson
 import datetime as dt
-import itertools
+import ipdb
 from dateutil.parser import parse
 from experiment.models import make_dataframe
 from flask import Flask
@@ -28,6 +30,11 @@ cache = pylru.lrucache(100)
 
 views = Views(LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS)
 
+MT = get_metadata_file()
+
+PI = get_pubdate_index()
+
+alias_table = defaultdict(lambda : defaultdict(list))
 
 '''
 
@@ -207,10 +214,31 @@ def testing():
     return view
 '''
 
+@app.route("/get_doc_list", methods=['POST'])
+def get_doc_list():
+
+    params = Models.get_parameters(request)
+
+    results = Models.get_results(params)
+
+    if params.detail == params.q:
+        # the user wants date detail for Q
+        results = Models.date_filter(results, params)
+        status = "Documents containing {} from {} to {}".format(params.q, params.startdate.year, params.enddate.year)
+    else:
+        results = Models.date_filter(results, params)
+        results = Models.f_occurs_filter(results, params, alias_table[params.q][params.detail])
+        status = "Documents containing {} and {} from {} to {}".format(params.q, params.detail, params.startdate.year, params.enddate.year)
+    doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
+    return views.get_doc_list(doc_list, params, status)
+
+
 @app.route('/facets', methods=['GET'])
 def testing():
 
     log.debug('facets')
+
+    global alias_table
 
     params = Models.get_parameters(request)
 
@@ -220,16 +248,16 @@ def testing():
 
     facets, aliases = Models.get_facets(params, results, 9)
 
+    for f in facets:
+        alias_table[params.q][f] = aliases[f]
+
     log.debug('got bins and facets')
 
     doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
 
     status = Models.get_message(len(results), params, len(doc_list), PAGE_LENGTH)
 
-    mt = get_metadata_file()
-
-    print "got metadata"
-    metadata = [mt[r] for r in results]
+    metadata = [MT[r] for r in results]
 
     q_pubdates = [parse(h["pubdate"]) for h in metadata]
     print "parsed dates"
@@ -239,7 +267,7 @@ def testing():
     
     facet_datas = []
     for f in facets:
-        print facet_datas.append([str(f)] + list(df[f]))
+        facet_datas.append([str(f).replace("_", " ")] + list(df[f]))
 
     datas = [str(params.q)] + list(df[params.q])
     keys = ["x"] + [str(i) + "-01-01" for i in df[params.q].axes[0]]
@@ -253,6 +281,8 @@ def bigviz():
 
     log.debug('facets')
 
+    global alias_table
+
     params = Models.get_parameters(request)
 
     start_time = time.time()
@@ -265,10 +295,11 @@ def bigviz():
     print "getting facets took {}".format(start_time - time.time())
     print "got facets"
 
-    mt = get_metadata_file()
+    for f in facets:
+        alias_table[params.q][f] = aliases[f]
 
     print "got metadata"
-    metadata = [mt[r] for r in results]
+    metadata = [MT[r] for r in results]
 
     q_pubdates = [parse(h["pubdate"]) for h in metadata]
     print "parsed dates"
@@ -279,7 +310,7 @@ def bigviz():
     
     facet_datas = []
     for f in facets:
-        print facet_datas.append([str(f)] + list(df[f]))
+        facet_datas.append([str(f)] + list(df[f]))
 
     datas = [str(params.q)] + list(df[params.q])
     labels = ["x"] + [str(i) + "-01-01" for i in df[params.q].axes[0]]

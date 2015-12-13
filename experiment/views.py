@@ -31,6 +31,20 @@ class Views(object):
         return response
 
 
+    def get_doc_list(self, results, params, status):
+        '''
+        Returns the first view of the application
+        '''
+        response = render_template(
+            'doclist.html',
+             results=results,
+             page=params.page,
+             status=status
+        )
+
+        return response
+
+
     def get_big_viz(self, params, labels, facets, datas):
         response = render_template(
             'bigviz.html',

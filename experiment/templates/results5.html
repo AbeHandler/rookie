@@ -41,14 +41,14 @@
 -->
 
 <div class="main-content">
-  <div class="small-4 columns">
+  <div id="facets_list" class="small-4 columns">
     <div class="row">Common subjects in articles matching {{query}}</div>
     {% for term in terms%}
      <div class="row">
-        <div class="small-5 columns class='left'">
+        <div class="small-5 columns class=left">
           <span id="{{term[0].replace(' ', '_')}}-label" class="term facet" data-termtype="{{term[0]}}">{{term[0].replace('_', ' ')}}</span>
         </div>
-        <div class="small-7 columns class='right'">
+        <div class="small-7 columns class=right sparkline">
           <span id="v{{term[0]}}-chart"></span>
         </div>
      </div>
@@ -82,8 +82,8 @@
 
       var chart2 = c3.generate({
         size: {
-            height: 100,
-            width: 300
+            height: 90,
+            width: $(".sparkline").first().width()
         },
         legend: {
             show: false
@@ -111,6 +111,31 @@
           types: {
               '{{datas[0]}}': 'area-spline',
               '{{term[0]}}': 'line',
+          }
+          ,
+          colors: {
+              '{{datas[0]| safe}}': '#B33125'
+          },
+          onclick: function (d, element) {
+            var term = $("#search_bar").val();
+            var start = d.x.toDateString();
+            var end_date = new Date (Date.parse(start));
+            var new_year = end_date.getFullYear() + 1;
+            end_date.setFullYear(new_year);
+            var end = end_date.toDateString();
+            $.post("/get_doc_list?q=" + term + "&detail=" + encodeURIComponent(d.name) + "&startdate=" + encodeURIComponent(start) + "&enddate=" + encodeURIComponent(end), function(data){
+               $("#doclist").html(data);
+            });
+          },
+        },
+        tooltip: {
+          grouped: false, // Default true
+          format: {
+              value: function (value, ratio, id, index) { return value + " articles"; },
+              name: function (name, ratio, id, index) { 
+                var re = new RegExp("_", 'g');
+                return name.replace(re, " "); 
+              }
           }
         },
         bindto: "#v{{term[0] | safe}}-chart",
