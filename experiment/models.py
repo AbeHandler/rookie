@@ -130,8 +130,8 @@ class Models(object):
     def get_message(l_results, params, len_doc_list, PAGE_LENGTH):
         if params.page < 1:
             params.page == 1
-        start = params.page * PAGE_LENGTH
-        end = params.page * PAGE_LENGTH + PAGE_LENGTH
+        start = ((params.page - 1) * PAGE_LENGTH) + 1
+        end = start + PAGE_LENGTH + 1
         output = "{} total results for {}. Showing {} thru {}".format(l_results, params.q, start, end)
         return output
 

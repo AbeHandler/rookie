@@ -268,7 +268,6 @@ def testing():
     facet_datas = []
     for f in facets:
         facet_datas.append([str(f).replace("_", " ")] + list(df[f]))
-        print facet_datas
 
     datas = [str(params.q)] + list(df[params.q])
     keys = ["x"] + [str(i) + "-01-01" for i in df[params.q].axes[0]]
@@ -311,7 +310,7 @@ def bigviz():
     
     facet_datas = []
     for f in facets:
-        print facet_datas.append([str(f)] + list(df[f]))
+        facet_datas.append([str(f)] + list(df[f]))
 
     datas = [str(params.q)] + list(df[params.q])
     labels = ["x"] + [str(i) + "-01-01" for i in df[params.q].axes[0]]

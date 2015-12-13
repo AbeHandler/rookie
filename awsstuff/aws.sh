@@ -1,5 +1,9 @@
 # Deployment:
-# change the IP in index.html
+# install docker
+# clone rookie
+# cd to Docker
+# run $docker build .
+# run awsstuff/send_to_server.sh
 
 ssh -i "awsstuff/two" ubuntu@54.191.10.239
 

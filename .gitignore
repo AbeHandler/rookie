@@ -12,3 +12,4 @@ data/lens
 devenv-key.pem
 test.dot
 .ipynb_checkpoints/
+awsstuff/medrookie.pem

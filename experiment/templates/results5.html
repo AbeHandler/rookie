@@ -82,7 +82,7 @@
 
       var chart2 = c3.generate({
         size: {
-            height: 100,
+            height: 90,
             width: $(".sparkline").first().width()
         },
         legend: {
@@ -111,6 +111,10 @@
           types: {
               '{{datas[0]}}': 'area-spline',
               '{{term[0]}}': 'line',
+          }
+          ,
+          colors: {
+              '{{datas[0]| safe}}': '#B33125'
           },
           onclick: function (d, element) {
             var term = $("#search_bar").val();
@@ -120,7 +124,7 @@
             end_date.setFullYear(new_year);
             var end = end_date.toDateString();
             $.post("/get_doc_list?q=" + term + "&detail=" + encodeURIComponent(d.name) + "&startdate=" + encodeURIComponent(start) + "&enddate=" + encodeURIComponent(end), function(data){
-               $("#docs").html(data);
+               $("#doclist").html(data);
             });
           },
         },
