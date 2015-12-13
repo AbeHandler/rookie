@@ -40,7 +40,7 @@ PI = get_pubdate_index()
 @lrudecorator(100)
 def get_metadata_file():
     with open("rookieindex/meta_data.json") as inf:
-        metadata = json.load(inf)
+        metadata = ujson.load(inf)
     return metadata
 
 MT = get_metadata_file()
@@ -140,7 +140,7 @@ class Models(object):
         '''get parameters'''
         output = Parameters()
 
-        output.q = request.args.get('q')
+        output.q = request.args.get('q').replace("_", " ")
 
         output.term = request.args.get('term')
 
@@ -168,7 +168,7 @@ class Models(object):
             output.docid = None
 
         try:
-            output.detail = request.args.get('detail')
+            output.detail = request.args.get('detail').replace("_", " ")
         except:
             output.detail = None
     

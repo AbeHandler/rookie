@@ -249,8 +249,7 @@ def testing():
     facets, aliases = Models.get_facets(params, results, 9)
 
     for f in facets:
-        alias_table[q][f] = aliases[f]
-        print alias_table[q][f]
+        alias_table[params.q][f] = aliases[f]
 
     log.debug('got bins and facets')
 
@@ -268,7 +267,8 @@ def testing():
     
     facet_datas = []
     for f in facets:
-        print facet_datas.append([str(f)] + list(df[f]))
+        facet_datas.append([str(f).replace("_", " ")] + list(df[f]))
+        print facet_datas
 
     datas = [str(params.q)] + list(df[params.q])
     keys = ["x"] + [str(i) + "-01-01" for i in df[params.q].axes[0]]
