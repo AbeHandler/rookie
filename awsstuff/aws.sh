@@ -4,6 +4,7 @@
 # cd to Docker
 # run $docker build .
 # run awsstuff/send_to_server.sh
+# set up ufw to allow ssh and port 80
 
 ssh -i "awsstuff/two" ubuntu@54.191.10.239
 
