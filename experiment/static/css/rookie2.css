@@ -17,11 +17,11 @@
   display: none;
 }
     
-span.dateline {
+.dateline {
   color: #606060;
 }
 
-span.urlpreview {
+.urlpreview {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;

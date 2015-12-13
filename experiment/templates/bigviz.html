@@ -71,6 +71,20 @@
             {{facets[1] | safe }},
             {{facets[2] | safe }}
         ],
+        colors: {
+            '{{data[0] | safe}}': '#B33125'
+        },
+        onclick: function (d, element) {
+            var term = $("#search_bar").val();
+            var start = d.x.toDateString();
+            var end_date = new Date (Date.parse(start));
+            var new_year = end_date.getFullYear() + 1;
+            end_date.setFullYear(new_year);
+            var end = end_date.toDateString();
+            $.post("/get_doc_list?q=" + term + "&detail=" + encodeURIComponent(d.name) + "&startdate=" + encodeURIComponent(start) + "&enddate=" + encodeURIComponent(end), function(data){
+               $("#docs").html(data);
+            });
+        },
         type: 'timeseries',
         types: {
             '{{data[0] | safe }}': 'area-spline',
@@ -110,8 +124,6 @@
         }
     }
 });
-
-
       
       var facet_count = $(".facet").length;
 
@@ -147,5 +159,10 @@
   background-color: #B33125;
 }
 </style>
+<div id="docs">
+
+
+</div>
+
 </body>
 </html>
