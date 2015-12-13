@@ -30,7 +30,8 @@ class Views(object):
 
         return response
 
-    def get_doc_list(self, results, params):
+
+    def get_doc_list(self, results, params, status):
         '''
         Returns the first view of the application
         '''
@@ -38,6 +39,7 @@ class Views(object):
             'doclist.html',
              results=results,
              page=params.page,
+             status=status
         )
 
         return response

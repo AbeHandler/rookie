@@ -3,6 +3,8 @@ import time
 import json
 import pandas as pd
 import itertools
+import ujson
+import cPickle as pickle
 from pylru import lrudecorator
 from collections import defaultdict
 from dateutil.parser import parse
@@ -12,16 +14,28 @@ from experiment import log, CORPUS_LOC
 
 ROOKIE = Rookie("rookieindex")
 
+
 @lrudecorator(100)
 def get_pubdate_index():
-    print "loading pubdate index"
-    with open("rookieindex/string_to_pubdate.json") as inf:
-        metadata = json.load(inf)
-    output = {}
-    for key in metadata:
-        output[key] = set([parse(p) for p in metadata[key]])
-    print "built index"
+
+    try:
+        output = pickle.load(open( "PI.p", "rb" ))
+        print '[*] found a pickled PI. Using that'
+    except:
+        print "[*] can't find pickled PI. Builing index from scratch"
+        start_time = time.time()
+        with open("rookieindex/string_to_pubdate.json") as inf:
+            metadata = ujson.load(inf)
+        print "[*] loading json took {}".format(start_time - time.time())
+        output = {}
+        for key in metadata:
+            output[key] = set([parse(p) for p in metadata[key]])
+        print "[*] building index took {}".format(start_time - time.time())
+        pickle.dump(output, open("PI.p", "wb" ))
+    
     return output
+
+PI = get_pubdate_index()
 
 @lrudecorator(100)
 def get_metadata_file():
@@ -30,7 +44,6 @@ def get_metadata_file():
     return metadata
 
 MT = get_metadata_file()
-
 
 class Parameters(object):
 
@@ -78,10 +91,9 @@ def make_dataframe(p, facets, results, q_pubdates, aliases):
     df['id'] = results
     df['pd'] = q_pubdates
     df[p.q] = [1 for i in q_pubdates]
-    pub_index = get_pubdate_index()
     for facet in facets:
-        alias = [pub_index[a] for a in aliases[facet]]
-        facet_dates = set([i for i in set([i for i in itertools.chain(*alias)]).union(pub_index[facet])])
+        alias = [PI[a] for a in aliases[facet]]
+        facet_dates = set([i for i in set([i for i in itertools.chain(*alias)]).union(PI[facet])])
         gus = [int(p) for p in [p in facet_dates for p in q_pubdates]]
         df[facet] = gus
     return df
@@ -185,6 +197,18 @@ class Models(object):
         '''
         return [r for r in results if parse(MT[r]["pubdate"]) > params.startdate and parse(MT[r]["pubdate"]) < params.enddate]
 
+
+    @staticmethod
+    def f_occurs_filter(results, params, aliases):
+        '''
+        filter results for when f or one of its aliases occurs
+        '''
+        f_dates = [i for i in PI[params.detail]]
+        f_alias_dates = [i for i in itertools.chain(*[PI[a] for a in aliases])]
+        q_f_pubdates = [r for r in results if parse(MT[r]["pubdate"]) in f_dates + f_alias_dates]
+        return q_f_pubdates
+
+
     @staticmethod
     def get_doclist(results, params, PAGE_LENGTH):
         mt = get_metadata_file()
@@ -192,7 +216,9 @@ class Models(object):
         if params.page < 1:
             params.page == 1
         # chop off to only relevant results
-        results = results[params.page * PAGE_LENGTH:(params.page * PAGE_LENGTH + PAGE_LENGTH)]
+        start = ((params.page - 1) * PAGE_LENGTH)
+        end = start + PAGE_LENGTH
+        results = results[start:end]
         for r in results:
             output.append((mt[r]['pubdate'], mt[r]['headline'], mt[r]['url'], Models.get_snippet(r, params.q, 200)))
         return output

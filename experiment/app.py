@@ -3,6 +3,8 @@ import threading
 import pylru
 import json
 import time
+import redis
+import ujson
 import datetime as dt
 import ipdb
 from dateutil.parser import parse
@@ -28,9 +30,11 @@ cache = pylru.lrucache(100)
 
 views = Views(LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS)
 
-get_pubdate_index() # start loading the index
-
 MT = get_metadata_file()
+
+PI = get_pubdate_index()
+
+alias_table = defaultdict(lambda : defaultdict(list))
 
 '''
 
@@ -217,28 +221,24 @@ def get_doc_list():
 
     results = Models.get_results(params)
 
-    metadata = [MT[r] for r in results]
-
-    q_pubdates = [parse(h["pubdate"]) for h in metadata]
-
     if params.detail == params.q:
-        results = Models.date_filter(results, params)
-        doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
-        status = Models.get_message(len(results), params, len(doc_list), PAGE_LENGTH)
-        print "doc list"
-        return views.get_doc_list(doc_list, params)
         # the user wants date detail for Q
+        results = Models.date_filter(results, params)
+        status = "Documents containing {} from {} to {}".format(params.q, params.startdate.year, params.enddate.year)
     else:
-        # the user wants date detail for Q and F
-        pass
-
-    return "hooray"
+        results = Models.date_filter(results, params)
+        results = Models.f_occurs_filter(results, params, alias_table[params.q][params.detail])
+        status = "Documents containing {} and {} from {} to {}".format(params.q, params.detail, params.startdate.year, params.enddate.year)
+    doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
+    return views.get_doc_list(doc_list, params, status)
 
 
 @app.route('/facets', methods=['GET'])
 def testing():
 
     log.debug('facets')
+
+    global alias_table
 
     params = Models.get_parameters(request)
 
@@ -247,6 +247,10 @@ def testing():
     log.debug('got results')
 
     facets, aliases = Models.get_facets(params, results, 9)
+
+    for f in facets:
+        alias_table[q][f] = aliases[f]
+        print alias_table[q][f]
 
     log.debug('got bins and facets')
 
@@ -278,6 +282,8 @@ def bigviz():
 
     log.debug('facets')
 
+    global alias_table
+
     params = Models.get_parameters(request)
 
     start_time = time.time()
@@ -289,6 +295,9 @@ def bigviz():
     facets, aliases = Models.get_facets(params, results, 3)
     print "getting facets took {}".format(start_time - time.time())
     print "got facets"
+
+    for f in facets:
+        alias_table[params.q][f] = aliases[f]
 
     print "got metadata"
     metadata = [MT[r] for r in results]
