@@ -224,7 +224,9 @@ def get_doc_list():
     if params.detail == params.q:
         results = Models.date_filter(results, params)
         doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
-        return doc_list
+        status = Models.get_message(len(results), params, len(doc_list), PAGE_LENGTH)
+        print "doc list"
+        return views.get_doc_list(doc_list, params)
         # the user wants date detail for Q
     else:
         # the user wants date detail for Q and F
@@ -252,7 +254,6 @@ def testing():
 
     status = Models.get_message(len(results), params, len(doc_list), PAGE_LENGTH)
 
-    print "got metadata"
     metadata = [MT[r] for r in results]
 
     q_pubdates = [parse(h["pubdate"]) for h in metadata]

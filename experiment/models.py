@@ -183,7 +183,6 @@ class Models(object):
         '''
         Filter results by date
         '''
-        ipdb.set_trace()
         return [r for r in results if parse(MT[r]["pubdate"]) > params.startdate and parse(MT[r]["pubdate"]) < params.enddate]
 
     @staticmethod
