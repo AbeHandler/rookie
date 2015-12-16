@@ -77,6 +77,13 @@
   </div>
 </div>
 
+  <style type="text/css">
+   {% for term in terms%}
+      #v{{term[0] | safe}}-chart .c3-circles-{{datas[0].replace("_", "-")}} {
+        display: none;
+      }
+   {% endfor %}
+  </style>
   <script type="text/javascript">
       {% for term in terms%}
 
@@ -129,14 +136,21 @@
           },
         },
         tooltip: {
-          grouped: false, // Default true
+          grouped: true, // Default true
           format: {
               value: function (value, ratio, id, index) { return value + " articles"; },
               name: function (name, ratio, id, index) { 
                 var re = new RegExp("_", 'g');
                 return name.replace(re, " "); 
               }
-          }
+          },
+          contents: function (d, defaultTitleFormat, defaultValueFormat, color) {
+              var re = new RegExp("_", 'g');
+              return d[0].name.replace(re, " ") + " " + d[0].value + " " + "articles";
+          },
+          position: function (data, width, height, element) {
+             return {top: 0, left: 0}
+          },
         },
         bindto: "#v{{term[0] | safe}}-chart",
       });

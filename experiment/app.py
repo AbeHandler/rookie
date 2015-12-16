@@ -269,7 +269,7 @@ def testing():
     for f in facets:
         facet_datas.append([str(f).replace("_", " ")] + list(df[f]))
 
-    datas = [str(params.q)] + list(df[params.q])
+    datas = [str(params.q).replace(" ", "_")] + list(df[params.q])
     keys = ["x"] + [str(i) + "-01-01" for i in df[params.q].axes[0]]
 
     view = views.get_q_response(params, doc_list, facet_datas, keys, datas, status, len(results))
