@@ -330,7 +330,7 @@ def medviz():
 
     #df["NORA"][2010][11]
     if binsize == "year":
-        keys = ["x"] + [str(i) for i in df[params.q].axes[0]]
+        keys = [str(i) for i in df[params.q].axes[0]]
     if binsize == "month":
         keys = itertools.product(*[[p for p in df[params.q].axes[0]], [p for p in df[params.q].axes[1]]])
         keys = [pad(str(i[0])) + "-" + str(i[1]) for i in keys]
@@ -341,6 +341,8 @@ def medviz():
     facet_datas = []
     for f in facets:
         facet_datas.append([str(f).replace(" ", "_")] + [df[f][int(key.split("-")[1])][int(key.split("-")[0])] for key in keys])
+
+    keys = ["x"] + [str(int(i.split("-")[1])) + "-" + str(int(i.split("-")[0])) + "-1" for i in keys]
 
     view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results))
 
