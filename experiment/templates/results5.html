@@ -76,6 +76,9 @@
       </div>
   </div>
 </div>
+<div id="chart">
+</div>
+
 
   <style type="text/css">
    {% for term in terms%}
@@ -83,13 +86,17 @@
         display: none;
       }
    {% endfor %}
+
+   .term{
+    font-size: small;
+   }
   </style>
   <script type="text/javascript">
       {% for term in terms%}
 
       var chart2 = c3.generate({
         size: {
-            height: 90,
+            height: 60,
             width: $(".sparkline").first().width()
         },
         legend: {
@@ -146,13 +153,15 @@
           },
           contents: function (d, defaultTitleFormat, defaultValueFormat, color) {
               var re = new RegExp("_", 'g');
-              return d[0].name.replace(re, " ") + " " + d[0].value + " " + "articles";
+              return "<div style='font-size:x-small; color:gray'>" + Math.floor(Math.exp(d[0].value)) + " " + "articles" + "</div>";
           },
           position: function (data, width, height, element) {
-             return {top: 0, left: 0}
+             console.log(element);
+             // console.log(data);
+             return {top: 0, left: element.x}
           },
         },
-        bindto: "#v{{term[0] | safe}}-chart",
+        bindto: "#labels",
       });
 
       {% endfor %}

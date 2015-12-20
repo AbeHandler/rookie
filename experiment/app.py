@@ -4,6 +4,7 @@ import pylru
 import json
 import time
 import redis
+import math
 import ujson
 import datetime as dt
 import ipdb
@@ -233,6 +234,12 @@ def get_doc_list():
     return views.get_doc_list(doc_list, params, status)
 
 
+def log_scale(p):
+    return math.log(p + 1)
+
+
+
+
 @app.route('/facets', methods=['GET'])
 def testing():
 
@@ -267,14 +274,61 @@ def testing():
     
     facet_datas = []
     for f in facets:
-        facet_datas.append([str(f).replace("_", " ")] + list(df[f]))
+        facet_datas.append([str(f).replace("_", " ")] + [log_scale(p) for p in list(df[f])])
 
-    datas = [str(params.q).replace(" ", "_")] + list(df[params.q])
+    datas = [str(params.q).replace(" ", "_")] + [log_scale(p) for p in list(df[params.q])]
     keys = ["x"] + [str(i) + "-01-01" for i in df[params.q].axes[0]]
 
     view = views.get_q_response(params, doc_list, facet_datas, keys, datas, status, len(results))
 
     return view
+
+
+@app.route('/medviz', methods=['GET'])
+def medviz():
+
+    log.debug('facets')
+
+    global alias_table
+
+    params = Models.get_parameters(request)
+
+    results = Models.get_results(params)
+
+    log.debug('got results')
+
+    facets, aliases = Models.get_facets(params, results, 9)
+
+    for f in facets:
+        alias_table[params.q][f] = aliases[f]
+
+    log.debug('got bins and facets')
+
+    doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
+
+    status = Models.get_message(len(results), params, len(doc_list), PAGE_LENGTH)
+
+    metadata = [MT[r] for r in results]
+
+    q_pubdates = [parse(h["pubdate"]) for h in metadata]
+    print "parsed dates"
+
+    df = make_dataframe(params, facets, results, q_pubdates, aliases)
+    df = df.groupby([df['pd'].map(lambda x: x.year)]).sum().unstack(0).fillna(0)
+    
+    facet_datas = []
+    for f in facets:
+        facet_datas.append([str(f).replace("_", " ")] + [log_scale(p) for p in list(df[f])])
+
+    datas = [str(params.q).replace(" ", "_")] + [log_scale(p) for p in list(df[params.q])]
+    keys = ["x"] + [str(i) + "-01-01" for i in df[params.q].axes[0]]
+
+    labels = ["x"] + [str(i) + "-01-01" for i in df[params.q].axes[0]]
+
+    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results), labels)
+
+    return view
+
 
 @app.route('/bigviz', methods=['GET'])
 def bigviz():

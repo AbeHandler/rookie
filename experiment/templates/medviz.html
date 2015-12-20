@@ -6,9 +6,16 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.css">
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.4.1/js/foundation.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script>
+<script type="text/javascript" src="{{ROOKIE_JS}}"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.7/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.js"></script>
+<link rel="stylesheet" href="{{ROOKIE_CSS}}"></link>
 <title>Rookie</title>
 {% include 'head.html' %}
 </head>
@@ -23,41 +30,89 @@
       <input id="search_bar" type="text" class="small-12 columns" placeholder="{{query}}"></input>
     </div>
     <div class="small-2 columns">
-      <a href="#" class="button postfix" id="search_button_big_viz">Search</a>
+      <a href="#" class="button postfix" id="search_button">Search</a>
     </div>
   </div>
 
 </div>
 
-<!--
-<div class="toggler row">
-    <div class="columns small-3 right" id="datepickers">
-      <div class="columns"><p>Start date: <input type="text" id="datepicker1"></p></div>
-      <div class="columns"><p>End date: <input type="text" id="datepicker2"></p></div>
-    </div>
+
+<div id="content"></div>
+
+<script type="text/babel">
+
+
+var Name = React.createClass({
+    handleClick: function(e) {
+        this.props.onMouseOver(e);
+        this.forceUpdate();
+    },
+    render: function() {
+         let tmp = this.props.color;
+         var divStyle = {
+            color: tmp
+         }
+         return (<div style={divStyle} name={this.props.name} onMouseOver={this.handleClick.bind(this, this.props.name)}>
+            {this.props.name}
+        </div>);
+    }
+});
+
+var SparkList = React.createClass({
+  getInitialState(){
+    return {active: -1};
+  },
+  handleClick: function(item) {
+    this.setState({active: item});
+    var mysrt = String(item).replace(/_/g, '-');
+    console.log(mysrt);
+    var css = "#chart .c3-line-" + mysrt;
+    $("#chart .c3-line*").css("stroke-width", "1px");
+    $(css).css("stroke-width", "10px");
+  },
+  render: function() {
+    return (
+      <div>
+        {this.props.items.map(function(item, i) {
+          let csolor;
+          if (this.state.active===this.props.items[i].key){
+              csolor="blue";
+          }else{
+              csolor="red";
+          }
+          return (
+            <Name data={item.data} name={item.key} color={csolor} onMouseOver={this.handleClick} key={i}/>
+          );
+        }, this)}
+      </div>
+    );
+  }
+});
+
+
+var datas = [
+{% for term in terms %}
+  {% if loop.index < terms|length %}
+   {"key": "{{term[0] | safe}}", "data": [1111, 100, 25, 6]},
+  {% else %}
+    {"key": "{{term[0] | safe}}", "data": [1111, 100, 25, 6]}
+  {% endif %}
+{% endfor %}
+]
+
+ReactDOM.render(
+  <SparkList items={datas} />,
+  document.getElementById('content')
+);
+
+     
+</script>
+
+<div id="chart">
+
 </div>
--->
 
-<div class="main-content">
-  <div class="small-12 columns">
-    <div class="row">Common subjects in articles matching {{query}}</div>
-    <div id="q_chart">
-    </div>
-  </div>
-</div>
-
-<style type="text/css">
-
-.legend span {
-    width: 33.333333%;
-    display: inline-block;
-    text-align: center;
-    cursor: pointer;
-    color: white;
-}
-</style>
-  <script type="text/javascript">
-      
+<script type="text/javascript">
       dummy =  ['count', 0, 0, 0, 0, 0, 0];
       q_data = {{data | safe }};
       q_labels = {{labels | safe }}
@@ -67,9 +122,14 @@
         columns: [
            {{labels | safe }},
             {{data | safe }},
-            {{facets[0] | safe }},
-            {{facets[1] | safe }},
-            {{facets[2] | safe }}
+            {% for term in terms %}
+              
+            {% if loop.index < terms|length %}
+              {{term | safe }},
+              {% else %}
+              {{term | safe }}
+             {% endif %}
+            {% endfor %}
         ],
         colors: {
             '{{data[0] | safe}}': '#B33125'
@@ -85,14 +145,13 @@
                $("#docs").html(data);
             });
         },
-        type: 'timeseries',
+        type: 'line',
         types: {
             '{{data[0] | safe }}': 'area-spline',
-            '{{facets[0][0] | safe }}': 'spline',
-            '{{facets[1][0] | safe }}': 'spline',
-            '{{facets[2][0] | safe }}': 'spline',
-        },
-       hide: ['{{facets[0][0] | safe }}', '{{facets[1][0] | safe }}', '{{facets[2][0] | safe }}'],
+            '{{terms[0][0] | safe }}': 'line',
+            '{{terms[1][0] | safe }}': 'line',
+            '{{terms[2][0] | safe }}': 'line',
+        }
     },
      bindto: '#chart',
     axis: {
@@ -146,23 +205,8 @@
         get_results(page);
       });
 
-  </script>
-<script type="text/javascript" src="{{ROOKIE_JS}}"></script>
-<script type="text/javascript">
-      var qs = $.QueryString["q"];
-      $("#search_bar").val(qs);
+
 </script>
-<link rel="stylesheet" href="{{ROOKIE_CSS}}"></link>
-<link rel="stylesheet" type="text/css" href="{{BANNER_CSS}}">
-<style type="text/css">
-#search_button_big_viz {
-  background-color: #B33125;
-}
-</style>
-<div id="docs">
-
-
-</div>
 
 </body>
 </html>
