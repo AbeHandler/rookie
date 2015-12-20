@@ -37,7 +37,42 @@
 </div>
 
 
-<div id="content"></div>
+<div id="content" class="main-content">
+  <div class="row">
+    <div>Common subjects related to {{data[0] | safe}}</div>
+  </div>
+<div>
+    <div class="small-2 columns" id="facets">
+      
+
+    </div>
+    <div class="small-5 columns" id="chart">
+
+    </div>
+    <div class="small-5 columns" id="doclist">
+
+          <div>{{status}}</div>
+          {% for doc in doc_list%}
+         <div><a href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span> | <span class="dateline">{{doc[0]}}</span></a>
+          <div>
+            <span class="urlpreview">{{doc[2]}}</span>
+          </div>
+          <div class="snippet">
+            {{doc[3]}}
+          </div>
+         </div>
+         {% endfor %}
+         <div>
+          {% if page > 1 %}
+          <a data-page="{{page}}" id="back" class="page">back</a> |
+          {% endif %}
+          <a data-page="{{page}}" id="next" class="page">next page</a>
+          </div>
+
+    </div>
+</div>
+
+</div>
 
 <script type="text/babel">
 
@@ -103,15 +138,11 @@ var datas = [
 
 ReactDOM.render(
   <SparkList items={datas} />,
-  document.getElementById('content')
+  document.getElementById('facets')
 );
 
-     
 </script>
 
-<div id="chart">
-
-</div>
 
 <script type="text/javascript">
       q_data = {{data | safe }};
@@ -179,7 +210,8 @@ ReactDOM.render(
         x: {
             type: 'timeseries',
             tick: {
-                format: '%Y-%m-%d'
+                format: '%Y',
+                fit: true
             }
         }
     },
