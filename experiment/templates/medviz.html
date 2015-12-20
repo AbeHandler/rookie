@@ -63,12 +63,13 @@ var SparkList = React.createClass({
     return {active: -1};
   },
   handleClick: function(item) {
+    chart.hide(this.state.active);
     this.setState({active: item});
     var mysrt = String(item).replace(/_/g, '-');
     console.log(mysrt);
-    var css = "#chart .c3-line-" + mysrt;
-    $("#chart .c3-line*").css("stroke-width", "1px");
-    $(css).css("stroke-width", "10px");
+    chart.show(item);
+    //$("#chart .c3-line*").css("stroke-width", "1px");
+    //$(css).css("stroke-width", "10px");
   },
   render: function() {
     return (
@@ -131,8 +132,24 @@ ReactDOM.render(
              {% endif %}
             {% endfor %}
         ],
+        hide: [
+          {% for term in terms %}
+            {% if loop.index < terms|length %}
+              '{{term[0]}}',
+            {% else %}
+              '{{term[0]}}'
+            {% endif %}
+          {% endfor %}
+        ],
         colors: {
-            '{{data[0] | safe}}': '#B33125'
+            '{{data[0] | safe}}': '#B33125',
+            {% for term in terms %}
+            {% if loop.index < terms|length %}
+               "{{term[0] | safe}}" : "grey",
+              {% else %}
+                "{{term[0] | safe}}" : "grey"
+              {% endif %}
+             {% endfor %}
         },
         onclick: function (d, element) {
             var term = $("#search_bar").val();
@@ -145,12 +162,19 @@ ReactDOM.render(
                $("#docs").html(data);
             });
         },
+        bar: {
+         width: 4
+        },
         type: 'line',
         types: {
             '{{data[0] | safe }}': 'area-spline',
-            '{{terms[0][0] | safe }}': 'line',
-            '{{terms[1][0] | safe }}': 'line',
-            '{{terms[2][0] | safe }}': 'line',
+            {% for term in terms %}
+            {% if loop.index < terms|length %}
+               "{{term[0] | safe}}" : "bar",
+              {% else %}
+                "{{term[0] | safe}}" : "bar"
+              {% endif %}
+             {% endfor %}
         }
     },
      bindto: '#chart',
@@ -163,7 +187,7 @@ ReactDOM.render(
         }
     },
     legend: {
-        show: true,
+        show: false,
         position: 'inset',
         inset: 
           {
