@@ -38,39 +38,35 @@
 
 
 <div id="content" class="main-content">
+  <div class="row small-12 small-centered columns" id="chart">
+  </div> 
   <div class="row">
     <div>Common subjects related to {{data[0] | safe}}</div>
   </div>
-<div>
-    <div class="small-2 columns" id="facets">
-      
+  <div class="small-10 small-centered columns" id="facets">
+  </div>
+  
+  <div class="small-12 small-centered columns" id="doclist">
 
-    </div>
-    <div class="small-5 columns" id="chart">
+            <div>{{status}}</div>
+            {% for doc in doc_list%}
+           <div><a href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span> | <span class="dateline">{{doc[0]}}</span></a>
+            <div>
+              <span class="urlpreview">{{doc[2]}}</span>
+            </div>
+            <div class="snippet">
+              {{doc[3]}}
+            </div>
+           </div>
+           {% endfor %}
+           <div>
+            {% if page > 1 %}
+            <a data-page="{{page}}" id="back" class="page">back</a> |
+            {% endif %}
+            <a data-page="{{page}}" id="next" class="page">next page</a>
+            </div>
 
-    </div>
-    <div class="small-5 columns" id="doclist">
-
-          <div>{{status}}</div>
-          {% for doc in doc_list%}
-         <div><a href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span> | <span class="dateline">{{doc[0]}}</span></a>
-          <div>
-            <span class="urlpreview">{{doc[2]}}</span>
-          </div>
-          <div class="snippet">
-            {{doc[3]}}
-          </div>
-         </div>
-         {% endfor %}
-         <div>
-          {% if page > 1 %}
-          <a data-page="{{page}}" id="back" class="page">back</a> |
-          {% endif %}
-          <a data-page="{{page}}" id="next" class="page">next page</a>
-          </div>
-
-    </div>
-</div>
+  </div>
 
 </div>
 
@@ -85,10 +81,15 @@ var Name = React.createClass({
     render: function() {
          let tmp = this.props.color;
          var divStyle = {
-            color: tmp
-         }
-         return (<div style={divStyle} name={this.props.name} onMouseOver={this.handleClick.bind(this, this.props.name)}>
-            {this.props.name}
+            color: tmp,
+            "padding-right": "5px",
+            "padding-left": "5px",
+            "margin-left": "3px",
+            "margin-right": "3px"
+         };
+         var display = this.props.name.replace(/_/g, ' ');
+         return (<div className="button tiny secondary" style={divStyle} name={this.props.name} onMouseOver={this.handleClick.bind(this, this.props.name)}>
+            {display}
         </div>);
     }
 });
@@ -112,9 +113,9 @@ var SparkList = React.createClass({
         {this.props.items.map(function(item, i) {
           let csolor;
           if (this.state.active===this.props.items[i].key){
-              csolor="blue";
+              csolor="black";
           }else{
-              csolor="red";
+              csolor="grey";
           }
           return (
             <Name data={item.data} name={item.key} color={csolor} onMouseOver={this.handleClick} key={i}/>
@@ -129,15 +130,16 @@ var SparkList = React.createClass({
 var datas = [
 {% for term in terms %}
   {% if loop.index < terms|length %}
-   {"key": "{{term[0] | safe}}", "data": [1111, 100, 25, 6]},
+   {"key": "{{term[0] | safe}}"},
   {% else %}
-    {"key": "{{term[0] | safe}}", "data": [1111, 100, 25, 6]}
+    {"key": "{{term[0] | safe}}"}
   {% endif %}
 {% endfor %}
 ]
 
 ReactDOM.render(
-  <SparkList items={datas} />,
+  <div>
+  <SparkList className="button-group even-3" items={datas} /></div>,
   document.getElementById('facets')
 );
 
@@ -145,8 +147,11 @@ ReactDOM.render(
 
 
 <script type="text/javascript">
-      q_data = {{data | safe }};
-      var chart = c3.generate({
+    q_data = {{data | safe }};
+    var chart = c3.generate({
+    size: {
+        height: 150
+    },
     data: {
         x: 'x',
         columns: [
@@ -216,18 +221,7 @@ ReactDOM.render(
         }
     },
     legend: {
-        show: false,
-        position: 'inset',
-        inset: 
-          {
-            anchor: 'top-left',
-            x: 10,
-            y: 0,
-            step: undefined
-          },
-        item: {
-          onmouseout: function (id) {}
-        }
+        show: false
     },
     tooltip: {
         grouped: false, // Default true
@@ -236,27 +230,6 @@ ReactDOM.render(
         }
     }
 });
-      
-      var facet_count = $(".facet").length;
-
-      $(".facet").each(function(i, id){
-        var facet = id.id.replace("-label", "");
-        var axis = false;
-        if (id.id.replace("-label", "") == "dummy"){
-          axis = false;
-        }
-        make_chart(facet, axis);
-      });
-
-      $('.page').on("click", function(e){
-        var page = parseInt(this.dataset.page);
-        if (this.id == "next"){
-          page += 1;
-        }else{
-          page -= 1;
-        }
-        get_results(page);
-      });
 
 
 </script>
