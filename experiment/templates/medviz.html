@@ -114,7 +114,6 @@ ReactDOM.render(
 </div>
 
 <script type="text/javascript">
-      dummy =  ['count', 0, 0, 0, 0, 0, 0];
       q_data = {{data | safe }};
       var chart = c3.generate({
     data: {
@@ -229,6 +228,11 @@ ReactDOM.render(
 
 
 </script>
+  <style type="text/css">
+      #chart .c3-circles-{{data[0].replace(" ", "-")}} {
+        display: none;
+      }
+  </style>
 
 </body>
 </html>
