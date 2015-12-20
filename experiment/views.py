@@ -87,10 +87,9 @@ class Views(object):
         return response
 
 
-    def get_q_response_med(self, params, results, q_and_t, keys, datas, status, len_results, labels):
+    def get_q_response_med(self, params, results, q_and_t, keys, datas, status, len_results):
         '''
         '''
-        q_and_t = [[i[0].replace(" ", "_")] + i[1:] for i in q_and_t]
         response = render_template(
             'medviz.html',
             query=params.q,
@@ -102,7 +101,6 @@ class Views(object):
             doc_list=results,
             banner_css=self.banner_css,
             status=status,
-            labels=labels,
             len_results=len_results,
             IP = self.ip,
             ROOKIE_JS = self.js,

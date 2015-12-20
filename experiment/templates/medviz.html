@@ -116,12 +116,9 @@ ReactDOM.render(
 <script type="text/javascript">
       dummy =  ['count', 0, 0, 0, 0, 0, 0];
       q_data = {{data | safe }};
-      q_labels = {{labels | safe }}
       var chart = c3.generate({
     data: {
-        x: 'x',
         columns: [
-           {{labels | safe }},
             {{data | safe }},
             {% for term in terms %}
               
@@ -178,14 +175,14 @@ ReactDOM.render(
         }
     },
      bindto: '#chart',
-    axis: {
+    /* axis: {
         x: {
             type: 'timeseries',
             tick: {
                 format: '%Y'
             }
         }
-    },
+    }, */
     legend: {
         show: false,
         position: 'inset',

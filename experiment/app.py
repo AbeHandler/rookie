@@ -1,5 +1,6 @@
 import datetime
 import threading
+import itertools
 import pylru
 import json
 import time
@@ -283,6 +284,10 @@ def testing():
 
     return view
 
+def pad(i):
+    if len(i) == 1:
+        return "0" + str(i)
+    return i
 
 @app.route('/medviz', methods=['GET'])
 def medviz():
@@ -313,19 +318,31 @@ def medviz():
     q_pubdates = [parse(h["pubdate"]) for h in metadata]
     print "parsed dates"
 
+    binsize = "month"
     df = make_dataframe(params, facets, results, q_pubdates, aliases)
-    df = df.groupby([df['pd'].map(lambda x: x.year)]).sum().unstack(0).fillna(0)
-    
+    if binsize == "year":
+        df = df.groupby([df['pd'].map(lambda x: x.year)]).sum().unstack(0).fillna(0)
+    elif binsize == "month":
+        df = df.groupby([df['pd'].map(lambda x: x.year), df['pd'].map(lambda x: x.month)]).sum().unstack(0).fillna(0)
+    else:
+        assert binsize == "day"
+        df = df.groupby([df['pd'].map(lambda x: x.year), df['pd'].map(lambda x: x.month), df['pd'].map(lambda x: x.day)]).sum().unstack(0).fillna(0)
+
+    #df["NORA"][2010][11]
+    if binsize == "year":
+        keys = ["x"] + [str(i) for i in df[params.q].axes[0]]
+    if binsize == "month":
+        keys = itertools.product(*[[p for p in df[params.q].axes[0]], [p for p in df[params.q].axes[1]]])
+        keys = [pad(str(i[0])) + "-" + str(i[1]) for i in keys]
+        keys.sort(key=lambda x:(int(x.split("-")[1]), int(x.split("-")[0])))
+
+    datas = [str(params.q).replace("_", " ")] + [df[params.q][int(key.split("-")[1])][int(key.split("-")[0])] for key in keys]
+
     facet_datas = []
     for f in facets:
-        facet_datas.append([str(f).replace("_", " ")] + [log_scale(p) for p in list(df[f])])
+        facet_datas.append([str(f).replace(" ", "_")] + [df[f][int(key.split("-")[1])][int(key.split("-")[0])] for key in keys])
 
-    datas = [str(params.q).replace(" ", "_")] + [log_scale(p) for p in list(df[params.q])]
-    keys = ["x"] + [str(i) + "-01-01" for i in df[params.q].axes[0]]
-
-    labels = ["x"] + [str(i) + "-01-01" for i in df[params.q].axes[0]]
-
-    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results), labels)
+    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results))
 
     return view
 
