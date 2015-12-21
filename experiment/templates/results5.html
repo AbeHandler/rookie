@@ -56,29 +56,33 @@
     {% endfor %}
   </div>
 
-
+  <div class="small-8 columns" id="doclist">
+      <div>{{status}}</div>
+      {% for doc in doc_list%}
+     <div><a href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span> | <span class="dateline">{{doc[0]}}</span></a>
+      <div>
+        <span class="urlpreview">{{doc[2]}}</span>
+      </div>
+      <div class="snippet">
+        {{doc[3]}}
+      </div>
+     </div>
+     {% endfor %}
+     <div>
+      {% if page > 1 %}
+      <a data-page="{{page}}" id="back" class="page">back</a> |
+      {% endif %}
+      <a data-page="{{page}}" id="next" class="page">next page</a>
+      </div>
+  </div>
 </div>
-<div id="chart">
-</div>
 
-
-  <style type="text/css">
-   {% for term in terms%}
-      #v{{term[0] | safe}}-chart .c3-circles-{{datas[0].replace("_", "-")}} {
-        display: none;
-      }
-   {% endfor %}
-
-   .term{
-    font-size: small;
-   }
-  </style>
   <script type="text/javascript">
       {% for term in terms%}
 
       var chart2 = c3.generate({
         size: {
-            height: 60,
+            height: 90,
             width: $(".sparkline").first().width()
         },
         legend: {
@@ -125,25 +129,16 @@
           },
         },
         tooltip: {
-          grouped: true, // Default true
+          grouped: false, // Default true
           format: {
               value: function (value, ratio, id, index) { return value + " articles"; },
               name: function (name, ratio, id, index) { 
                 var re = new RegExp("_", 'g');
                 return name.replace(re, " "); 
               }
-          },
-          contents: function (d, defaultTitleFormat, defaultValueFormat, color) {
-              var re = new RegExp("_", 'g');
-              return "<div style='font-size:x-small; color:gray'>" + Math.floor(Math.exp(d[0].value)) + " " + "articles" + "</div>";
-          },
-          position: function (data, width, height, element) {
-             console.log(element);
-             // console.log(data);
-             return {top: 0, left: element.x}
-          },
+          }
         },
-        bindto: "#labels",
+        bindto: "#v{{term[0] | safe}}-chart",
       });
 
       {% endfor %}
@@ -173,6 +168,17 @@
       $("#search_bar").val($.QueryString["q"]);
 
   </script>
+
+  <style type="text/css">
+   {% for term in terms%}
+      #v{{term[0] | safe}}-chart .c3-circles-{{datas[0].replace("_", "-")}} {
+        display: none;
+      }
+   {% endfor %}
+   .term{
+    font-size: small;
+   }
+  </style>
 
 </body>
 </html>
