@@ -195,7 +195,7 @@ ReactDOM.render(
             end_date.setFullYear(new_year);
             var end = end_date.toDateString();
             $.post("/get_doc_list?q=" + term + "&detail=" + encodeURIComponent(d.name) + "&startdate=" + encodeURIComponent(start) + "&enddate=" + encodeURIComponent(end), function(data){
-               $("#docs").html(data);
+               $("#doclist").html(data);
             });
         },
         bar: {
