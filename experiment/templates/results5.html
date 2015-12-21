@@ -169,5 +169,16 @@
 
   </script>
 
+  <style type="text/css">
+   {% for term in terms%}
+      #v{{term[0] | safe}}-chart .c3-circles-{{datas[0].replace("_", "-")}} {
+        display: none;
+      }
+   {% endfor %}
+   .term{
+    font-size: small;
+   }
+  </style>
+
 </body>
 </html>

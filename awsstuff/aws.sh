@@ -5,6 +5,7 @@
 # run $docker build .
 # run awsstuff/send_to_server.sh
 # set up ufw to allow ssh and port 80
+# add new server to rookie securit group. aws has servers off internet by defualt
 
 ssh -i "awsstuff/two" ubuntu@54.191.10.239
 

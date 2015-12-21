@@ -156,6 +156,7 @@ class Models(object):
         try:
             output.startdate = parse(request.args.get('startdate'))
         except:
+            print "could not parse start date {}".format(request.args.get('startdate'))
             output.startdate = None
         try:
             output.enddate = parse(request.args.get('enddate'))
@@ -195,8 +196,10 @@ class Models(object):
         '''
         Filter results by date
         '''
-        return [r for r in results if parse(MT[r]["pubdate"]) > params.startdate and parse(MT[r]["pubdate"]) < params.enddate]
-
+        if params.startdate is not None and params.enddate is not None:
+            return [r for r in results if parse(MT[r]["pubdate"]) > params.startdate and parse(MT[r]["pubdate"]) < params.enddate]
+        else:
+            return results
 
     @staticmethod
     def f_occurs_filter(results, params, aliases):
