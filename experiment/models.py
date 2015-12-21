@@ -242,7 +242,7 @@ class Models(object):
                 status = "Documents containing {} and {}".format(params.q, params.detail)
         if params.zoom == "month":
             try:
-                status = "Documents containing {} and {} from {} to {}".format(params.q, params.detail, params.startdate.strftime("%d-%m-%Y").lstrip("0").replace(" 0", " "), params.enddate.strftime("%d-%m-%Y").lstrip("0").replace(" 0", " "))
+                status = "Documents containing {} and {} from {}, {}".format(params.q, params.detail, params.startdate.strftime("%B"), params.enddate.strftime("%Y"))
             except AttributeError:
                 status = "Documents containing {} and {}".format(params.q, params.detail)
         if params.zoom == "None":

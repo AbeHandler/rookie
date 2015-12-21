@@ -1,9 +1,10 @@
 
-.headline {
-  color: #B33125;
-  font-size: 18px;
+a:visited {
+    color: #639;
 }
-
+.headline {
+    color: #03c;
+}
 .teaser{
   font-size: .9em;
 }

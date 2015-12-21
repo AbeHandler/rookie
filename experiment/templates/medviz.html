@@ -50,11 +50,8 @@
 
             <div>{{status}}</div>
             {% for doc in doc_list%}
-           <div><a href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span> | <span class="dateline">{{doc[0]}}</span></a>
-            <div>
-              <span class="urlpreview">{{doc[2]}}</span>
-            </div>
-            <div class="snippet">
+           <div><a href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span></a>
+            <div class="snippet"><span class="dateline">{{doc[0]}}</span>&mdash;
               {{doc[3]}}
             </div>
            </div>
@@ -85,7 +82,11 @@ var Name = React.createClass({
             "paddingRight": "5px",
             "paddingLeft": "5px",
             "marginLeft": "3px",
-            "marginRight": "3px"
+            "marginRight": "3px",
+            "fontWeight": this.props.fontweight,
+            "borderBottomColor": this.props.borderBottomColor,
+            "borderStyle":this.props.borderStyle,
+            "border": '1px solid ' + this.props.borderBottomColor
          };
          var display = this.props.name.replace(/_/g, ' ');
          return (<div className="button tiny secondary" style={divStyle} name={this.props.name} onClick={this.handleClick.bind(this, this.props.name)}>
@@ -115,13 +116,25 @@ var SparkList = React.createClass({
       <div>
         {this.props.items.map(function(item, i) {
           let csolor;
+          let fontsize;
+          let borderBottomColor;
+          let borderBottomWidth;
+          let borderStyle;
           if (this.state.active===this.props.items[i].key){
               csolor="black";
+              fontsize="bold";
+              borderBottomColor="black";
+              borderBottomWidth=5;
+              borderStyle="solid";
           }else{
               csolor="grey";
+              fontsize="normal";
+              borderBottomColor="grey";
+              borderBottomWidth=0;
+              borderStyle="none";
           }
           return (
-            <Name data={item.data} name={item.key} color={csolor} onClick={this.handleClick} key={i}/>
+            <Name data={item.data} name={item.key} borderStyle={borderStyle} borderBottomWidth={borderBottomWidth} borderBottomColor={borderBottomColor} fontweight={fontsize} color={csolor} onClick={this.handleClick} key={i}/>
           );
         }, this)}
       </div>
