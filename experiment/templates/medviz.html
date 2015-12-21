@@ -151,6 +151,7 @@ ReactDOM.render(
 
 <script type="text/javascript">
     q_data = {{data | safe }};
+    var last;
     var chart = c3.generate({
     size: {
         height: 150
@@ -201,6 +202,14 @@ ReactDOM.render(
               var new_mo = end_date.getMonth() + 1;
               end_date.setMonth(new_mo);
               var end = end_date.toDateString();              
+            }
+            var path = d3.select(element);
+            if (path.style("fill") === "rgb(0, 0, 0)"){
+              path.style("fill", "grey");
+            }else{
+               path.style("fill", "black");
+               d3.select(last).style("fill", "grey");
+               last = element;
             }
             $.post("/get_doc_list?q=" + term + "&detail=" + encodeURIComponent(d.name) + "&startdate=" + encodeURIComponent(start) + "&enddate=" + encodeURIComponent(end) + "&zoom=" + zoom, function(data){
                $("#doclist").html(data);
