@@ -87,6 +87,28 @@ class Views(object):
         return response
 
 
+    def get_q_response_med(self, params, results, q_and_t, keys, datas, status, len_results):
+        '''
+        '''
+        response = render_template(
+            'medviz.html',
+            query=params.q,
+            page=params.page,
+            terms=q_and_t,
+            lens_css=self.lens_css,
+            keys=keys,
+            data=datas,
+            doc_list=results,
+            banner_css=self.banner_css,
+            status=status,
+            len_results=len_results,
+            IP = self.ip,
+            ROOKIE_JS = self.js,
+            ROOKIE_CSS = self.rookie_css
+        )
+
+        return response
+
     def print_snippet(self, snippet):
         '''
         '''

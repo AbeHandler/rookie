@@ -1,9 +1,11 @@
 import datetime
 import threading
+import itertools
 import pylru
 import json
 import time
 import redis
+import math
 import ujson
 import datetime as dt
 import ipdb
@@ -224,13 +226,25 @@ def get_doc_list():
     if params.detail == params.q:
         # the user wants date detail for Q
         results = Models.date_filter(results, params)
-        status = "Documents containing {} from {} to {}".format(params.q, params.startdate.year, params.enddate.year)
+        try:
+            status = "Documents containing {} from {} to {}".format(params.q, params.startdate.year, params.enddate.year)
+        except AttributeError:
+            status = "Documents containing {} and {}".format(params.q, params.detail)
     else:
         results = Models.date_filter(results, params)
         results = Models.f_occurs_filter(results, params, alias_table[params.q][params.detail])
-        status = "Documents containing {} and {} from {} to {}".format(params.q, params.detail, params.startdate.year, params.enddate.year)
+        try:
+            status = "Documents containing {} and {} from {} to {}".format(params.q, params.detail, params.startdate.year, params.enddate.year)
+        except AttributeError:
+            status = "Documents containing {} and {}".format(params.q, params.detail)
     doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
     return views.get_doc_list(doc_list, params, status)
+
+
+def log_scale(p):
+    return math.log(p + 1)
+
+
 
 
 @app.route('/facets', methods=['GET'])
@@ -267,14 +281,79 @@ def testing():
     
     facet_datas = []
     for f in facets:
-        facet_datas.append([str(f).replace("_", " ")] + list(df[f]))
+        facet_datas.append([str(f).replace("_", " ")] + [log_scale(p) for p in list(df[f])])
 
-    datas = [str(params.q)] + list(df[params.q])
+    datas = [str(params.q).replace(" ", "_")] + [log_scale(p) for p in list(df[params.q])]
     keys = ["x"] + [str(i) + "-01-01" for i in df[params.q].axes[0]]
 
     view = views.get_q_response(params, doc_list, facet_datas, keys, datas, status, len(results))
 
     return view
+
+def pad(i):
+    if len(i) == 1:
+        return "0" + str(i)
+    return i
+
+@app.route('/medviz', methods=['GET'])
+def medviz():
+
+    log.debug('facets')
+
+    global alias_table
+
+    params = Models.get_parameters(request)
+
+    results = Models.get_results(params)
+
+    log.debug('got results')
+
+    facets, aliases = Models.get_facets(params, results, 9)
+
+    for f in facets:
+        alias_table[params.q][f] = aliases[f]
+
+    log.debug('got bins and facets')
+
+    doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
+
+    status = Models.get_message(len(results), params, len(doc_list), PAGE_LENGTH)
+
+    metadata = [MT[r] for r in results]
+
+    q_pubdates = [parse(h["pubdate"]) for h in metadata]
+    print "parsed dates"
+
+    binsize = "month"
+    df = make_dataframe(params, facets, results, q_pubdates, aliases)
+    if binsize == "year":
+        df = df.groupby([df['pd'].map(lambda x: x.year)]).sum().unstack(0).fillna(0)
+    elif binsize == "month":
+        df = df.groupby([df['pd'].map(lambda x: x.year), df['pd'].map(lambda x: x.month)]).sum().unstack(0).fillna(0)
+    else:
+        assert binsize == "day"
+        df = df.groupby([df['pd'].map(lambda x: x.year), df['pd'].map(lambda x: x.month), df['pd'].map(lambda x: x.day)]).sum().unstack(0).fillna(0)
+
+    #df["NORA"][2010][11]
+    if binsize == "year":
+        keys = [str(i) for i in df[params.q].axes[0]]
+    if binsize == "month":
+        keys = itertools.product(*[[p for p in df[params.q].axes[0]], [p for p in df[params.q].axes[1]]])
+        keys = [pad(str(i[0])) + "-" + str(i[1]) for i in keys]
+        keys.sort(key=lambda x:(int(x.split("-")[1]), int(x.split("-")[0])))
+
+    datas = [str(params.q).replace("_", " ")] + [df[params.q][int(key.split("-")[1])][int(key.split("-")[0])] for key in keys]
+
+    facet_datas = []
+    for f in facets:
+        facet_datas.append([str(f).replace(" ", "_")] + [df[f][int(key.split("-")[1])][int(key.split("-")[0])] for key in keys])
+
+    keys = ["x"] + [str(int(i.split("-")[1])) + "-" + str(int(i.split("-")[0])) + "-1" for i in keys]
+
+    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results))
+
+    return view
+
 
 @app.route('/bigviz', methods=['GET'])
 def bigviz():
