@@ -87,7 +87,7 @@ class Views(object):
         return response
 
 
-    def get_q_response_med(self, params, results, q_and_t, keys, datas, status, len_results):
+    def get_q_response_med(self, params, results, q_and_t, keys, datas, status, len_results, binsize):
         '''
         '''
         response = render_template(
@@ -102,6 +102,7 @@ class Views(object):
             banner_css=self.banner_css,
             status=status,
             len_results=len_results,
+            detail=binsize,
             IP = self.ip,
             ROOKIE_JS = self.js,
             ROOKIE_CSS = self.rookie_css
