@@ -43,10 +43,10 @@
   <div class="row">
     <div>Common subjects related to {{data[0] | safe}}</div>
   </div>
-  <div class="small-10 small-centered columns" id="facets">
+  <div class="row small-10 small-centered columns" id="facets">
   </div>
   
-  <div class="small-12 small-centered columns" id="doclist">
+  <div class="small-12 small-centered columns row" id="doclist">
 
             <div>{{status}}</div>
             {% for doc in doc_list%}
@@ -75,20 +75,20 @@
 
 var Name = React.createClass({
     handleClick: function(e) {
-        this.props.onMouseOver(e);
+        this.props.onClick(e);
         this.forceUpdate();
     },
     render: function() {
          let tmp = this.props.color;
          var divStyle = {
             color: tmp,
-            "padding-right": "5px",
-            "padding-left": "5px",
-            "margin-left": "3px",
-            "margin-right": "3px"
+            "paddingRight": "5px",
+            "paddingLeft": "5px",
+            "marginLeft": "3px",
+            "marginRight": "3px"
          };
          var display = this.props.name.replace(/_/g, ' ');
-         return (<div className="button tiny secondary" style={divStyle} name={this.props.name} onMouseOver={this.handleClick.bind(this, this.props.name)}>
+         return (<div className="button tiny secondary" style={divStyle} name={this.props.name} onClick={this.handleClick.bind(this, this.props.name)}>
             {display}
         </div>);
     }
@@ -104,8 +104,11 @@ var SparkList = React.createClass({
     var mysrt = String(item).replace(/_/g, '-');
     console.log(mysrt);
     chart.show(item);
-    //$("#chart .c3-line*").css("stroke-width", "1px");
-    //$(css).css("stroke-width", "10px");
+    var start = "NA";
+    var end = "NA";
+    $.post("/get_doc_list?q=" + $.QueryString["q"] + "&detail=" + encodeURIComponent(item) + "&startdate=" + encodeURIComponent(start) + "&enddate=" + encodeURIComponent(end), function(data){
+       $("#doclist").html(data);
+    });
   },
   render: function() {
     return (
@@ -118,7 +121,7 @@ var SparkList = React.createClass({
               csolor="grey";
           }
           return (
-            <Name data={item.data} name={item.key} color={csolor} onMouseOver={this.handleClick} key={i}/>
+            <Name data={item.data} name={item.key} color={csolor} onClick={this.handleClick} key={i}/>
           );
         }, this)}
       </div>
@@ -231,7 +234,7 @@ ReactDOM.render(
     }
 });
 
-
+$("#search_bar").val($.QueryString["q"]);
 </script>
   <style type="text/css">
       #chart .c3-circles-{{data[0].replace(" ", "-")}} {
