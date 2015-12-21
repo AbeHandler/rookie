@@ -223,20 +223,14 @@ def get_doc_list():
 
     results = Models.get_results(params)
 
+    status = Models.get_status(params)
+
     if params.detail == params.q:
         # the user wants date detail for Q
         results = Models.date_filter(results, params)
-        try:
-            status = "Documents containing {} from {} to {}".format(params.q, params.startdate.year, params.enddate.year)
-        except AttributeError:
-            status = "Documents containing {} and {}".format(params.q, params.detail)
     else:
         results = Models.date_filter(results, params)
         results = Models.f_occurs_filter(results, params, alias_table[params.q][params.detail])
-        try:
-            status = "Documents containing {} and {} from {} to {}".format(params.q, params.detail, params.startdate.year, params.enddate.year)
-        except AttributeError:
-            status = "Documents containing {} and {}".format(params.q, params.detail)
     doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
     return views.get_doc_list(doc_list, params, status)
 
@@ -350,7 +344,7 @@ def medviz():
 
     keys = ["x"] + [str(int(i.split("-")[1])) + "-" + str(int(i.split("-")[0])) + "-1" for i in keys]
 
-    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results))
+    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results), binsize)
 
     return view
 
