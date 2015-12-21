@@ -58,6 +58,7 @@ class Parameters(object):
         self.enddate = None
         self.docid = None
         self.page = None
+        self.zoom = None
 
 
 def ovelaps_with_query(facet, query_tokens):
@@ -178,6 +179,11 @@ class Models(object):
         except:
             output.date_detail = None
 
+        try:
+            output.zoom = request.args.get('zoom')
+            print "got zoom {}".format(output.zoom)
+        except:
+            output.zoom = "year" # default zoom to a year
 
         return output
 
@@ -225,6 +231,24 @@ class Models(object):
         for r in results:
             output.append((mt[r]['pubdate'], mt[r]['headline'], mt[r]['url'], Models.get_snippet(r, params.q, 200)))
         return output
+
+
+    @staticmethod
+    def get_status(params):
+        if params.zoom == "year":
+            try:
+                status = "Documents containing {} and {} from {} to {}".format(params.q, params.detail, params.startdate.year, params.enddate.year)
+            except AttributeError:
+                status = "Documents containing {} and {}".format(params.q, params.detail)
+        if params.zoom == "month":
+            try:
+                status = "Documents containing {} and {} from {} to {}".format(params.q, params.detail, params.startdate.strftime("%d-%m-%Y").lstrip("0").replace(" 0", " "), params.enddate.strftime("%d-%m-%Y").lstrip("0").replace(" 0", " "))
+            except AttributeError:
+                status = "Documents containing {} and {}".format(params.q, params.detail)
+        if params.zoom == "None":
+            status = "Documents containing {} and {}".format(params.q, params.detail)
+        return status
+
 
     @staticmethod
     def get_snippet(r, q, nchar):

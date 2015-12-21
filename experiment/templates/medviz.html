@@ -38,7 +38,7 @@
 
 
 <div id="content" class="main-content">
-  <div class="row small-12 small-centered columns" id="chart">
+  <div class="row small-12 small-centered columns" data-detail="{{detail}}" id="chart">
   </div> 
   <div class="row">
     <div>Common subjects related to {{data[0] | safe}}</div>
@@ -106,7 +106,7 @@ var SparkList = React.createClass({
     chart.show(item);
     var start = "NA";
     var end = "NA";
-    $.post("/get_doc_list?q=" + $.QueryString["q"] + "&detail=" + encodeURIComponent(item) + "&startdate=" + encodeURIComponent(start) + "&enddate=" + encodeURIComponent(end), function(data){
+    $.post("/get_doc_list?q=" + $.QueryString["q"] + "&detail=" + encodeURIComponent(item) + "&startdate=" + encodeURIComponent(start) + "&enddate=" + encodeURIComponent(end) + "&zoom=None", function(data){
        $("#doclist").html(data);
     });
   },
@@ -191,11 +191,19 @@ ReactDOM.render(
             var term = $("#search_bar").val();
             var start = d.x.toDateString();
             var end_date = new Date (Date.parse(start));
-            var new_year = end_date.getFullYear() + 1;
-            end_date.setFullYear(new_year);
-            var end = end_date.toDateString();
-            $.post("/get_doc_list?q=" + term + "&detail=" + encodeURIComponent(d.name) + "&startdate=" + encodeURIComponent(start) + "&enddate=" + encodeURIComponent(end), function(data){
-               $("#docs").html(data);
+            var zoom = $("#chart").attr("data-detail");
+            if (zoom == "year"){
+              var new_year = end_date.getFullYear() + 1;
+              end_date.setFullYear(new_year);
+              var end = end_date.toDateString();
+            }
+            if (zoom == "month"){
+              var new_mo = end_date.getMonth() + 1;
+              end_date.setMonth(new_mo);
+              var end = end_date.toDateString();              
+            }
+            $.post("/get_doc_list?q=" + term + "&detail=" + encodeURIComponent(d.name) + "&startdate=" + encodeURIComponent(start) + "&enddate=" + encodeURIComponent(end) + "&zoom=" + zoom, function(data){
+               $("#doclist").html(data);
             });
         },
         bar: {
