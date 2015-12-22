@@ -21,6 +21,7 @@ from snippets.prelim import get_snippet
 from experiment import LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS
 from experiment import log
 from experiment import PAGE_LENGTH
+from experiment import PAGE_LENGTH
 from whooshy.reader import query_whoosh
 from whooshy.reader import query_subset
 from collections import OrderedDict
@@ -297,6 +298,10 @@ def medviz():
     global alias_table
 
     params = Models.get_parameters(request)
+
+    print "params"
+    print params.q
+    print params.detail
 
     results = Models.get_results(params)
 

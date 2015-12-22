@@ -254,7 +254,10 @@ class Models(object):
     @staticmethod
     def get_snippet(docid, q, f, nchar=200):
         #TODO: add aliasing. remove set sorting
-        snippet = get_snippet_pg(q, f, docid)
+        print "getting snip"
+        print q
+        print f
+        snippet = get_snippet_pg(docid, q, f)
         for i in queue:
             if len(output) > nchar:
                 return output

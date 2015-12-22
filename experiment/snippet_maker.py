@@ -1,4 +1,5 @@
 import datetime
+import ipdb
 from experiment.classes import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -35,12 +36,27 @@ def find_sentences_q(docid, q):
     sentences = sentences + get_anything(docid)
     return sentences[0:2]
 
+def find_sentences_q_and_f(docid, q, f):
+    sentences = get_q_and_f(docid, q, f) # try to get 2 sentences containg q
+    if len(sentences) == 2:
+        return sentences
+    sentences.append(get_q_or_f(docid, q, f)) # try to get 2 sentences containg q
+    if len(sentences) == 2:
+        return sentences
+    sentences = sentences + get_anything(docid)
+    return sentences[0:2]
+
 
 def get_snippet_pg(docid, q, f=None):
+    print "q"
+    print q
+    print "f"
+    ipdb.set_trace()
+    print f is None
     if f is not None:
-        sentences = find_sentences_f(docid, q, f)
+        sentences = find_sentences_q_and_f(docid, q, f)
     if f is None:
-        sentences = find_sentences_f(docid, q, f)
+        sentences = find_sentences_q(docid, q, f)
     assert len(sentences) == 2
     # sentences = comress_sentences(sentences)
     return sentences
