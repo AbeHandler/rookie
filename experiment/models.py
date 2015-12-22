@@ -11,6 +11,7 @@ from dateutil.parser import parse
 from rookie.classes import IncomingFile
 from rookie.rookie import Rookie
 from experiment import log, CORPUS_LOC
+from experiment.snippet_maker import get_snippet_pg
 
 ROOKIE = Rookie("rookieindex")
 
@@ -229,7 +230,7 @@ class Models(object):
         end = start + PAGE_LENGTH
         results = results[start:end]
         for r in results:
-            output.append((mt[r]['pubdate'], mt[r]['headline'], mt[r]['url'], Models.get_snippet(r, params.q, 200)))
+            output.append((mt[r]['pubdate'], mt[r]['headline'], mt[r]['url'], Models.get_snippet(r, params.q, params.detail)))
         return output
 
 
@@ -251,19 +252,9 @@ class Models(object):
 
 
     @staticmethod
-    def get_snippet(r, q, nchar):
+    def get_snippet(docid, q, f, nchar=200):
         #TODO: add aliasing. remove set sorting
-        mt = get_metadata_file()
-        try: #TODO not a list
-            queue = list(set(mt[r]['facet_index'][q]))
-        except KeyError:
-            queue = []
-        infile = IncomingFile(CORPUS_LOC + mt[r]['raw'])
-        # build a queue of sentences to include
-        for i in range(len(infile.doc.sentences)):
-            if i not in queue:
-                queue.append(i)
-        output = ""
+        snippet = get_snippet_pg(q, f, docid)
         for i in queue:
             if len(output) > nchar:
                 return output
