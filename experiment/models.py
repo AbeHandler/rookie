@@ -231,7 +231,7 @@ class Models(object):
         end = start + PAGE_LENGTH
         results = results[start:end]
         for r in results:
-            output.append((mt[r]['pubdate'], mt[r]['headline'], mt[r]['url'], word_tokenize(Models.get_snippet(r, params.q, params.detail))))
+            output.append((mt[r]['pubdate'], mt[r]['headline'], mt[r]['url'], Models.get_snippet(r, params.q, params.detail)))
         return output
 
 
