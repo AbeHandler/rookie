@@ -43,18 +43,24 @@
   <div class="row small-12 small-centered columns" data-detail="{{detail}}" id="chart">
   </div> 
   <div class="row">
-    <div>Common subjects related to {{data[0] | safe}}</div>
+    <div>Common subjects related to <span style="font-weight:bold">{{data[0] | safe}}</span></div>
   </div>
   <div class="row small-10 small-centered columns" id="facets">
   </div>
   
   <div class="small-12 small-centered columns row" id="doclist">
 
-            <div>{{status}}</div>
+            <div>{{status | safe }}</div>
             {% for doc in doc_list%}
            <div><a href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span></a>
             <div class="snippet"><span class="dateline">{{doc[0]}}</span>&mdash;
-              {{doc[3]}}
+              {% for word in doc[3]%}
+                  {% if word in query_toks %}
+                    <span style="font-weight: bold">{{word}}</span>
+                  {% else %}
+                    {{word}}
+                  {% endif %}
+              {% endfor %}
             </div>
            </div>
            {% endfor %}
