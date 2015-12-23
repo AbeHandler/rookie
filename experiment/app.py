@@ -240,8 +240,6 @@ def log_scale(p):
     return math.log(p + 1)
 
 
-
-
 @app.route('/facets', methods=['GET'])
 def testing():
 
