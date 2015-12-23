@@ -233,7 +233,7 @@ def get_doc_list():
         results = Models.date_filter(results, params)
         results = Models.f_occurs_filter(results, params, alias_table[params.q][params.detail])
     doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
-    return views.get_doc_list(doc_list, params, status)
+    return views.get_doc_list(doc_list, params, status, [params.detail])
 
 
 def log_scale(p):

@@ -4,13 +4,7 @@
         {% for doc in results%}
            <div><a href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span></a>
             <div class="snippet"><span class="dateline">{{doc[0]}}</span>&mdash;
-              {% for word in doc[3]%}
-                {% if word in query_toks %}
-                      <span style="font-weight: bold">{{word}}</span>
-                    {% else %}
-                      {{word}}
-                {% endif %}
-              {% endfor %}
+              {{doc[3] | safe}}
             </div>
            </div>
         {% endfor %}
