@@ -1,6 +1,7 @@
 import pdb
 from experiment.models import get_metadata_file
 from flask import render_template
+from nltk.tokenize import word_tokenize
 
 class Views(object):
 
@@ -37,6 +38,7 @@ class Views(object):
         '''
         response = render_template(
             'doclist.html',
+             query_toks=word_tokenize(params.q),
              results=results,
              page=params.page,
              status=status
@@ -93,6 +95,7 @@ class Views(object):
         response = render_template(
             'medviz.html',
             query=params.q,
+            query_toks=word_tokenize(params.q),
             page=params.page,
             terms=q_and_t,
             lens_css=self.lens_css,

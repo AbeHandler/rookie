@@ -15,6 +15,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.7/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/history.js/1.8/bundled/html4+html5/jquery.history.min.js"></script>
+<script src="https://s3-us-west-2.amazonaws.com/rookie2/js/nlp.js"></script>
 <link rel="stylesheet" href="{{ROOKIE_CSS}}"></link>
 <title>Rookie</title>
 {% include 'head.html' %}
@@ -41,21 +43,24 @@
   <div class="row small-12 small-centered columns" data-detail="{{detail}}" id="chart">
   </div> 
   <div class="row">
-    <div>Common subjects related to {{data[0] | safe}}</div>
+    <div>Common subjects related to <span style="font-weight:bold">{{data[0] | safe}}</span></div>
   </div>
   <div class="row small-10 small-centered columns" id="facets">
   </div>
   
   <div class="small-12 small-centered columns row" id="doclist">
 
-            <div>{{status}}</div>
+            <div>{{status | safe }}</div>
             {% for doc in doc_list%}
-           <div><a href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span> | <span class="dateline">{{doc[0]}}</span></a>
-            <div>
-              <span class="urlpreview">{{doc[2]}}</span>
-            </div>
-            <div class="snippet">
-              {{doc[3]}}
+           <div><a href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span></a>
+            <div class="snippet"><span class="dateline">{{doc[0]}}</span>&mdash;
+              {% for word in doc[3]%}
+                  {% if word in query_toks %}
+                    <span style="font-weight: bold">{{word}}</span>
+                  {% else %}
+                    {{word}}
+                  {% endif %}
+              {% endfor %}
             </div>
            </div>
            {% endfor %}
@@ -72,6 +77,14 @@
 
 <script type="text/babel">
 
+var History = window.History;
+
+// Bind to StateChange Event
+History.Adapter.bind(window,'statechange',function(){ // Note: We are using statechange instead of popstate
+    var State = History.getState(); // Note: We are using History.getState() instead of event.state
+    History.log(State.data, State.title, State.url);
+});
+
 
 var Name = React.createClass({
     handleClick: function(e) {
@@ -85,7 +98,11 @@ var Name = React.createClass({
             "paddingRight": "5px",
             "paddingLeft": "5px",
             "marginLeft": "3px",
-            "marginRight": "3px"
+            "marginRight": "3px",
+            "fontWeight": this.props.fontweight,
+            "borderBottomColor": this.props.borderBottomColor,
+            "borderStyle":this.props.borderStyle,
+            "border": '1px solid ' + this.props.borderBottomColor
          };
          var display = this.props.name.replace(/_/g, ' ');
          return (<div className="button tiny secondary" style={divStyle} name={this.props.name} onClick={this.handleClick.bind(this, this.props.name)}>
@@ -93,6 +110,7 @@ var Name = React.createClass({
         </div>);
     }
 });
+
 
 var SparkList = React.createClass({
   getInitialState(){
@@ -115,13 +133,25 @@ var SparkList = React.createClass({
       <div>
         {this.props.items.map(function(item, i) {
           let csolor;
+          let fontsize;
+          let borderBottomColor;
+          let borderBottomWidth;
+          let borderStyle;
           if (this.state.active===this.props.items[i].key){
               csolor="black";
+              fontsize="bold";
+              borderBottomColor="black";
+              borderBottomWidth=5;
+              borderStyle="solid";
           }else{
               csolor="grey";
+              fontsize="normal";
+              borderBottomColor="grey";
+              borderBottomWidth=0;
+              borderStyle="none";
           }
           return (
-            <Name data={item.data} name={item.key} color={csolor} onClick={this.handleClick} key={i}/>
+            <Name data={item.data} name={item.key} borderStyle={borderStyle} borderBottomWidth={borderBottomWidth} borderBottomColor={borderBottomColor} fontweight={fontsize} color={csolor} onClick={this.handleClick} key={i}/>
           );
         }, this)}
       </div>
@@ -150,7 +180,22 @@ ReactDOM.render(
 
 
 <script type="text/javascript">
+function get_results2() {
+  var q = $("#search_bar").val();
+  this.location = "/medviz?q=" + encodeURIComponent(q);
+  //History.pushState(data,title,url);
+}
+
+$('body').bind('keypress', function(e){
+  if (e.keyCode == 13) {
+     get_results2();
+  }
+});
+
+$("#search_bar").val($.QueryString["q"]);
+
     q_data = {{data | safe }};
+    var last;
     var chart = c3.generate({
     size: {
         height: 150
@@ -201,6 +246,14 @@ ReactDOM.render(
               var new_mo = end_date.getMonth() + 1;
               end_date.setMonth(new_mo);
               var end = end_date.toDateString();              
+            }
+            var path = d3.select(element);
+            if (path.style("fill") === "rgb(0, 0, 0)"){
+              path.style("fill", "grey");
+            }else{
+               path.style("fill", "black");
+               d3.select(last).style("fill", "grey");
+               last = element;
             }
             $.post("/get_doc_list?q=" + term + "&detail=" + encodeURIComponent(d.name) + "&startdate=" + encodeURIComponent(start) + "&enddate=" + encodeURIComponent(end) + "&zoom=" + zoom, function(data){
                $("#doclist").html(data);
