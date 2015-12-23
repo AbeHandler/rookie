@@ -254,24 +254,8 @@ class Models(object):
     @staticmethod
     def get_snippet(docid, q, f, nchar=200):
         #TODO: add aliasing. remove set sorting
-        print "getting snip"
-        print q
-        print f
         snippet = get_snippet_pg(docid, q, f)
-        for i in queue:
-            if len(output) > nchar:
-                return output
-            sentence = str(infile.doc.sentences[i])
-            try:
-                l = max(sentence.index(q)-25, 0)
-                r = max(sentence.index(q)+25, len(sentence))
-            except ValueError:
-                l = 0
-                r = 50
-            if output == "": # Google always starts snippet with a sentence
-                l = 0
-            output += sentence[l:r] + "..."
-        return output
+        return snippet[0].text + " ... " + snippet[1].text
 
     @staticmethod
     def get_facets(params, results, n_facets=9):

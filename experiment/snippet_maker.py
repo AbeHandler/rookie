@@ -1,5 +1,6 @@
 import datetime
 import ipdb
+import itertools
 from experiment.classes import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -16,7 +17,7 @@ def get_q_and_f(docid, q, f):
 
 
 def get_q_or_f(docid, q, f):
-    return session.query(Sentence).filter_by(articleid=docid).filter(Sentence.text.ilike("%" + q + "%") or Sentence.text.ilike("%" + f + "%")).order_by(Sentence.sentence_no.desc()).limit(1).all()
+    return session.query(Sentence).filter_by(articleid=docid).filter(Sentence.text.ilike("%" + q + "%") | Sentence.text.ilike("%" + f + "%")).order_by(Sentence.sentence_no.desc()).limit(1).all()
 
 
 def get_q(docid, q):
@@ -28,7 +29,8 @@ def get_anything(docid):
     
 
 def find_sentences_q(docid, q):
-    sentences = get_q(docid, q) # try to get 2 sentences containg q
+    sentences = []
+    sentences = sentences + get_q(docid, q) # try to get 2 sentences containg q
     if len(sentences) == 2:
         return sentences
     if len(sentences) == 2:
@@ -37,10 +39,11 @@ def find_sentences_q(docid, q):
     return sentences[0:2]
 
 def find_sentences_q_and_f(docid, q, f):
-    sentences = get_q_and_f(docid, q, f) # try to get 2 sentences containg q
+    sentences = []
+    sentences = sentences + get_q_and_f(docid, q, f) # try to get 2 sentences containg q
     if len(sentences) == 2:
         return sentences
-    sentences.append(get_q_or_f(docid, q, f)) # try to get 2 sentences containg q
+    sentences = sentences + get_q_or_f(docid, q, f) # try to get 2 sentences containg q
     if len(sentences) == 2:
         return sentences
     sentences = sentences + get_anything(docid)
@@ -48,15 +51,12 @@ def find_sentences_q_and_f(docid, q, f):
 
 
 def get_snippet_pg(docid, q, f=None):
-    print "q"
-    print q
-    print "f"
-    ipdb.set_trace()
-    print f is None
     if f is not None:
         sentences = find_sentences_q_and_f(docid, q, f)
     if f is None:
-        sentences = find_sentences_q(docid, q, f)
+        sentences = find_sentences_q(docid, q)
     assert len(sentences) == 2
     # sentences = comress_sentences(sentences)
+    # sentences.sort(key=lambda x:x.sentence_no)
+    sentences.sort(key=lambda x:x.sentence_no)
     return sentences

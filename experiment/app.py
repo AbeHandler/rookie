@@ -321,7 +321,6 @@ def medviz():
     metadata = [MT[r] for r in results]
 
     q_pubdates = [parse(h["pubdate"]) for h in metadata]
-    print "parsed dates"
 
     binsize = "month"
     df = make_dataframe(params, facets, results, q_pubdates, aliases)
