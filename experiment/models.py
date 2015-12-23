@@ -11,6 +11,8 @@ from dateutil.parser import parse
 from rookie.classes import IncomingFile
 from rookie.rookie import Rookie
 from experiment import log, CORPUS_LOC
+from experiment.snippet_maker import get_snippet_pg
+from nltk.tokenize import word_tokenize
 
 ROOKIE = Rookie("rookieindex")
 
@@ -229,7 +231,7 @@ class Models(object):
         end = start + PAGE_LENGTH
         results = results[start:end]
         for r in results:
-            output.append((mt[r]['pubdate'], mt[r]['headline'], mt[r]['url'], Models.get_snippet(r, params.q, 200)))
+            output.append((mt[r]['pubdate'], mt[r]['headline'], mt[r]['url'], word_tokenize(Models.get_snippet(r, params.q, params.detail))))
         return output
 
 
@@ -237,47 +239,24 @@ class Models(object):
     def get_status(params):
         if params.zoom == "year":
             try:
-                status = "Documents containing {} and {} from {} to {}".format(params.q, params.detail, params.startdate.year, params.enddate.year)
+                status = "Documents containing <span style='font-weight: bold'>{}</span> and {} from {} to {}".format(params.q, params.detail, params.startdate.year, params.enddate.year)
             except AttributeError:
-                status = "Documents containing {} and {}".format(params.q, params.detail)
+                status = "Documents containing <span style='font-weight: bold'>{}<span> and {}".format(params.q, params.detail)
         if params.zoom == "month":
             try:
-                status = "Documents containing {} and {} from {}, {}".format(params.q, params.detail, params.startdate.strftime("%B"), params.enddate.strftime("%Y"))
+                status = "Documents containing <span style='font-weight: bold'>{}</span> and {} from {}, {}".format(params.q, params.detail, params.startdate.strftime("%B"), params.enddate.strftime("%Y"))
             except AttributeError:
-                status = "Documents containing {} and {}".format(params.q, params.detail)
+                status = "Documents containing <span style='font-weight: bold'>{}</span> and {}".format(params.q, params.detail)
         if params.zoom == "None":
-            status = "Documents containing {} and {}".format(params.q, params.detail)
+            status = "Documents containing <span style='font-weight: bold'>{}</span> and {}".format(params.q, params.detail)
         return status
 
 
     @staticmethod
-    def get_snippet(r, q, nchar):
+    def get_snippet(docid, q, f, nchar=200):
         #TODO: add aliasing. remove set sorting
-        mt = get_metadata_file()
-        try: #TODO not a list
-            queue = list(set(mt[r]['facet_index'][q]))
-        except KeyError:
-            queue = []
-        infile = IncomingFile(CORPUS_LOC + mt[r]['raw'])
-        # build a queue of sentences to include
-        for i in range(len(infile.doc.sentences)):
-            if i not in queue:
-                queue.append(i)
-        output = ""
-        for i in queue:
-            if len(output) > nchar:
-                return output
-            sentence = str(infile.doc.sentences[i])
-            try:
-                l = max(sentence.index(q)-25, 0)
-                r = max(sentence.index(q)+25, len(sentence))
-            except ValueError:
-                l = 0
-                r = 50
-            if output == "": # Google always starts snippet with a sentence
-                l = 0
-            output += sentence[l:r] + "..."
-        return output
+        snippet = get_snippet_pg(docid, q, f)
+        return snippet[0].text + " ... " + snippet[1].text
 
     @staticmethod
     def get_facets(params, results, n_facets=9):

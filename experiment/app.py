@@ -21,6 +21,7 @@ from snippets.prelim import get_snippet
 from experiment import LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS
 from experiment import log
 from experiment import PAGE_LENGTH
+from experiment import PAGE_LENGTH
 from whooshy.reader import query_whoosh
 from whooshy.reader import query_subset
 from collections import OrderedDict
@@ -239,8 +240,6 @@ def log_scale(p):
     return math.log(p + 1)
 
 
-
-
 @app.route('/facets', methods=['GET'])
 def testing():
 
@@ -298,6 +297,10 @@ def medviz():
 
     params = Models.get_parameters(request)
 
+    print "params"
+    print params.q
+    print params.detail
+
     results = Models.get_results(params)
 
     log.debug('got results')
@@ -316,7 +319,6 @@ def medviz():
     metadata = [MT[r] for r in results]
 
     q_pubdates = [parse(h["pubdate"]) for h in metadata]
-    print "parsed dates"
 
     binsize = "month"
     df = make_dataframe(params, facets, results, q_pubdates, aliases)

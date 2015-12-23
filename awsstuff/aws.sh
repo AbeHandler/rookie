@@ -9,6 +9,14 @@
 
 ssh -i "awsstuff/two" ubuntu@54.191.10.239
 
+#$ createuser -s rookie -P
+#Enter password for new role: 
+#Enter it again: 
+#createdb -O rookie rookie
+
+# createuser -s rookie
+# news=# CREATE DATABASE rookie OWNER rookie;
+
 # sudo docker run -i -t -v /home/ubuntu/data/lens_processed/:/home/ubuntu/data/lens_processed/  -p 80:80 d328fc0d4cbe /bin/bash
 
 # http://stackoverflow.com/questions/19688314/how-do-you-attach-and-detach-from-dockers-process

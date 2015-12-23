@@ -1,10 +1,16 @@
 <div id="doclist">
-      <div>{{status}}</div>
+      <div>{{status | safe}}</div>
         
         {% for doc in results%}
            <div><a href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span></a>
             <div class="snippet"><span class="dateline">{{doc[0]}}</span>&mdash;
-              {{doc[3]}}
+              {% for word in doc[3]%}
+                {% if word in query_toks %}
+                      <span style="font-weight: bold">{{word}}</span>
+                    {% else %}
+                      {{word}}
+                {% endif %}
+              {% endfor %}
             </div>
            </div>
         {% endfor %}
