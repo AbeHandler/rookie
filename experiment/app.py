@@ -4,7 +4,6 @@ import itertools
 import pylru
 import json
 import time
-import redis
 import math
 import ujson
 import datetime as dt
