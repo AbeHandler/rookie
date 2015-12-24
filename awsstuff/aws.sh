@@ -5,19 +5,20 @@
 # run $docker build .
 # run awsstuff/send_to_server.sh
 # set up ufw to allow ssh and port 80
-# add new server to rookie securit group. aws has servers off internet by defualt
+# add new server to rookie security group in aws. aws has servers off internet by default
 
 ssh -i "awsstuff/two" ubuntu@54.191.10.239
 
-#$ createuser -s rookie -P
-#Enter password for new role: 
-#Enter it again: 
-#createdb -O rookie rookie
-
-# createuser -s rookie
-# news=# CREATE DATABASE rookie OWNER rookie;
-
 # sudo docker run -i -t -v /home/ubuntu/data/lens_processed/:/home/ubuntu/data/lens_processed/  -p 80:80 d328fc0d4cbe /bin/bash
+
+# sudo docker run --rm -P --name pg_test eg_postgresql -i -t -v /home/ubuntu/data/lens_processed/:/home/ubuntu/data/lens_processed/  -p 80:80 67bfd02752f1 /bin/bash
+# sudo docker run -v /home/app/rookie/sql/:/sql --rm -t -i --link pg_test:pg eg_postgresql bash
+# CREATE DATABASE rookie with owner rookie;
+# create user rookie with superuser;   
+# CREATE ROLE
+# docker=# alter role rookie with password 'rookie';
+# ALTER ROLE
+
 
 # http://stackoverflow.com/questions/19688314/how-do-you-attach-and-detach-from-dockers-process
 

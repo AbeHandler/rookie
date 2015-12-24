@@ -1,0 +1,7 @@
+# running this indexing op in postgres speeds up snippet making 10X
+# create extension pg_trgm;
+CREATE EXTENSION
+# create index test_trgm_gin on sentences using gin (text gin_trgm_ops);
+
+
+## http://www.depesz.com/2011/02/19/waiting-for-9-1-faster-likeilike/

@@ -296,10 +296,6 @@ def medviz():
 
     params = Models.get_parameters(request)
 
-    print "params"
-    print params.q
-    print params.detail
-
     results = Models.get_results(params)
 
     log.debug('got results')
@@ -311,7 +307,9 @@ def medviz():
 
     log.debug('got bins and facets')
 
+    start_time = time.time()
     doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
+    print "[*] building the doc list took {}".format(start_time - time.time())
 
     status = Models.get_message(len(results), params, len(doc_list), PAGE_LENGTH)
 
@@ -320,6 +318,7 @@ def medviz():
     q_pubdates = [parse(h["pubdate"]) for h in metadata]
 
     binsize = "month"
+    start_time = time.time()
     df = make_dataframe(params, facets, results, q_pubdates, aliases)
     if binsize == "year":
         df = df.groupby([df['pd'].map(lambda x: x.year)]).sum().unstack(0).fillna(0)
@@ -328,14 +327,17 @@ def medviz():
     else:
         assert binsize == "day"
         df = df.groupby([df['pd'].map(lambda x: x.year), df['pd'].map(lambda x: x.month), df['pd'].map(lambda x: x.day)]).sum().unstack(0).fillna(0)
+    print "[*] building the data frames took {}".format(start_time - time.time())
 
     #df["NORA"][2010][11]
+    start_time = time.time()
     if binsize == "year":
         keys = [str(i) for i in df[params.q].axes[0]]
     if binsize == "month":
         keys = itertools.product(*[[p for p in df[params.q].axes[0]], [p for p in df[params.q].axes[1]]])
         keys = [pad(str(i[0])) + "-" + str(i[1]) for i in keys]
         keys.sort(key=lambda x:(int(x.split("-")[1]), int(x.split("-")[0])))
+    print "[*] getting the keys took {}".format(start_time - time.time())
 
     datas = [str(params.q).replace("_", " ")] + [df[params.q][int(key.split("-")[1])][int(key.split("-")[0])] for key in keys]
 

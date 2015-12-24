@@ -163,7 +163,7 @@ class Rookie:
         with index.searcher() as srch:
             results_a = srch.search(query, limit=None)
             out = [a.get("path").replace("/", "") for a in results_a]
-        print "querying took {}".format(start_time - time.time())
+        print "[*] querying took {}".format(start_time - time.time())
         return out
 
     def tfidf(self, word, tf, field):

@@ -239,23 +239,26 @@ class Models(object):
     def get_status(params):
         if params.zoom == "year":
             try:
-                status = "Documents containing <span style='font-weight: bold'>{}</span> and {} from {} to {}".format(params.q, params.detail, params.startdate.year, params.enddate.year)
+                status = "Documents containing <span style='font-weight: bold'>{}</span> and <span style='font-weight:bold; color:rgb(179, 49, 37)'>{}</span> from {} to {}".format(params.q, params.detail, params.startdate.year, params.enddate.year)
             except AttributeError:
-                status = "Documents containing <span style='font-weight: bold'>{}<span> and {}".format(params.q, params.detail)
+                status = "Documents containing <span style='font-weight: bold'>{}<span> and <span style='font-weight:bold; color:rgb(179, 49, 37)'>{}</span>".format(params.q, params.detail)
         if params.zoom == "month":
             try:
-                status = "Documents containing <span style='font-weight: bold'>{}</span> and {} from {}, {}".format(params.q, params.detail, params.startdate.strftime("%B"), params.enddate.strftime("%Y"))
+                status = "Documents containing <span style='font-weight: bold'>{}</span> and <span style='font-weight:bold; color:rgb(179, 49, 37)'>{}</span> from {}, {}".format(params.q, params.detail, params.startdate.strftime("%B"), params.enddate.strftime("%Y"))
             except AttributeError:
-                status = "Documents containing <span style='font-weight: bold'>{}</span> and {}".format(params.q, params.detail)
+                status = "Documents containing <span style='font-weight: bold'>{}</span> and <span style='font-weight:bold; color:rgb(179, 49, 37)'>{}</span>".format(params.q, params.detail)
         if params.zoom == "None":
-            status = "Documents containing <span style='font-weight: bold'>{}</span> and {}".format(params.q, params.detail)
+            status = "Documents containing <span style='font-weight: bold'>{}</span> and <span style='font-weight:bold; color:rgb(179, 49, 37)'>{}</span>".format(params.q, params.detail)
         return status
 
 
     @staticmethod
     def get_snippet(docid, q, f, nchar=200):
         #TODO: add aliasing. remove set sorting
+        start_time = time.time()
         snippet = get_snippet_pg(docid, q, f)
+        print "[*] building snippet took {}".format(start_time - time.time())
+
         return snippet[0].text + " ... " + snippet[1].text
 
     @staticmethod
