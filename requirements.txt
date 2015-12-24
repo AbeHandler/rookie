@@ -33,7 +33,6 @@ path.py==8.1.2
 pbr==1.7.0
 pexpect==4.0.1
 pickleshare==0.5
-Pillow==3.0.0
 psycopg2==2.6.1
 ptyprocess==0.5
 py==1.4.30
