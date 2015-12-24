@@ -1,5 +1,6 @@
 import logging
 import socket
+import os
 
 LENS_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/lens.css'
 BANNER_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/banner.css'
@@ -11,9 +12,11 @@ LOG_PATH = "experiment.log"
 if socket.gethostname() == "dewey":
     CORPUS_LOC = "data/lens_processed/"
     IP = "localhost"
+    PG_HOST = "localhost"
 else:
     CORPUS_LOC = "/home/ubuntu/data/lens_processed/"
-    IP = "52.33.98.51"
+    IP = "54.213.128.229"
+    PG_HOST = os.environ['PG_PORT_5432_TCP_ADDR']
 PAGE_LENGTH = 10
 
 

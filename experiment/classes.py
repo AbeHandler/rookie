@@ -2,7 +2,7 @@
 Classes used in the webapp
 '''
 import datetime
-
+from experiment import PG_HOST
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 CONNECTION_STRING = 'postgresql://%s:%s@%s:5432/%s' % (
     'rookie', # user
     'rookie', # pw
-    'localhost',
+    PG_HOST,
     'rookie', # db
 )
 

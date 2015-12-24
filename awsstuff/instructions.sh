@@ -14,3 +14,13 @@ $postgres@68ef5446cc49:/$ createuser -U docker -h $PG_PORT_5432_TCP_ADDR -p $PG_
 # then make a db, rookie
 $postgres@68ef5446cc49:/$ createdb -O rookie rookie -U rookie -h $PG_PORT_5432_TCP_ADDR -p $PG_PORT_5432_TCP_PORT 
 
+# then add indexing to speed up snippet making 10X
+# you run this stuff from a pg prompt --> 
+
+# create extension pg_trgm;
+# CREATE EXTENSION
+# create index test_trgm_gin on sentences using gin (text gin_trgm_ops);
+## http://www.depesz.com/2011/02/19/waiting-for-9-1-faster-likeilike/
+
+# to test it is working
+#$ psql -d rookie -U rookie -h $PG_PORT_5432_TCP_ADDR -p $PG_PORT_5432_TCP_PORT
