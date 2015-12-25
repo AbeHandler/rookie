@@ -239,16 +239,16 @@ class Models(object):
     def get_status(params):
         if params.zoom == "year":
             try:
-                status = "Documents containing <span style='font-weight: bold'>{}</span> and <span style='font-weight:bold; color:rgb(179, 49, 37)'>{}</span> from {} to {}".format(params.q, params.detail, params.startdate.year, params.enddate.year)
+                status = "Documents containing <span style='font-weight: bold;'>{}</span> and <span style='font-weight:bold;'>{}</span> from {} to {}".format(params.q, params.detail, params.startdate.year, params.enddate.year)
             except AttributeError:
-                status = "Documents containing <span style='font-weight: bold'>{}<span> and <span style='font-weight:bold; color:rgb(179, 49, 37)'>{}</span>".format(params.q, params.detail)
+                status = "Documents containing <span style='font-weight: bold; '>{}<span> and <span style='font-weight:bold;'>{}</span>".format(params.q, params.detail)
         if params.zoom == "month":
             try:
-                status = "Documents containing <span style='font-weight: bold'>{}</span> and <span style='font-weight:bold; color:rgb(179, 49, 37)'>{}</span> from {}, {}".format(params.q, params.detail, params.startdate.strftime("%B"), params.enddate.strftime("%Y"))
+                status = "Documents containing <span style='font-weight: bold ; '>{}</span> and <span style='font-weight:bold;'>{}</span> from {}, {}".format(params.q, params.detail, params.startdate.strftime("%B"), params.enddate.strftime("%Y"))
             except AttributeError:
-                status = "Documents containing <span style='font-weight: bold'>{}</span> and <span style='font-weight:bold; color:rgb(179, 49, 37)'>{}</span>".format(params.q, params.detail)
+                status = "Documents containing <span style='font-weight: bold ; '>{}</span> and <span style='font-weight:bold;'>{}</span>".format(params.q, params.detail)
         if params.zoom == "None":
-            status = "Documents containing <span style='font-weight: bold'>{}</span> and <span style='font-weight:bold; color:rgb(179, 49, 37)'>{}</span>".format(params.q, params.detail)
+            status = "Documents containing <span style='font-weight: bold ; '>{}</span> and <span style='font-weight:bold;'>{}</span>".format(params.q, params.detail)
         return status
 
 

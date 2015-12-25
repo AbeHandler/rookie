@@ -1,5 +1,5 @@
 # on host run postgres as a container. 
-$sudo docker run -v /home/app/rookie/sql/:/sql --rm -t -i --link pg_test:pg eg_postgresql bash
+$docker run -d -P --name pg_test eg_postgresql
 
 # then "link" to this container
 $sudo docker run -v /home/app/rookie/sql/:/sql --rm -t -i --link pg_test:pg eg_postgresql bash
