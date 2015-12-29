@@ -52,7 +52,7 @@
 
             <div>{{status | safe }}</div>
             {% for doc in doc_list%}
-           <div><a href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span></a>
+           <div><a target="_blank" href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span></a>
             <div class="snippet"><span class="dateline">{{doc[0]}}</span>&mdash;
               {{doc[3] | safe}}
             </div>
@@ -287,6 +287,10 @@ $("#search_bar").val($.QueryString["q"]);
             value: function (value, ratio, id, index) { return value + " articles"; }
         }
     }
+});
+
+$(".c3-chart").click(function(i,e){
+  alert("D");
 });
 
 $("#search_bar").val($.QueryString["q"]);
