@@ -2,7 +2,7 @@
 This module loads documents into whoosh and creates a sentence index
 '''
 from whoosh.index import create_in
-from whoosh.fields import *
+from whoosh.fields import Schema, TEXT, ID
 from whoosh import writing
 from rookie.classes import IncomingFile
 from collections import defaultdict
