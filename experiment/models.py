@@ -1,4 +1,5 @@
-import ipdb
+# import ipdb
+import sys
 import time
 import json
 import pandas as pd
@@ -13,9 +14,15 @@ from rookie.rookie import Rookie
 from experiment import log, CORPUS_LOC
 from experiment.snippet_maker import get_snippet_pg
 from nltk.tokenize import word_tokenize
+from experiment.classes import CONNECTION_STRING
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 ROOKIE = Rookie("rookieindex")
 
+engine = create_engine(CONNECTION_STRING)
+Session = sessionmaker(bind=engine)
+session = Session()
 
 @lrudecorator(100)
 def get_pubdate_index():
@@ -28,11 +35,11 @@ def get_pubdate_index():
         start_time = time.time()
         with open("rookieindex/string_to_pubdate.json") as inf:
             metadata = ujson.load(inf)
-        print "[*] loading json took {}".format(start_time - time.time())
+        print "[*] loading json took {}".format(time.time() - start_time)
         output = {}
         for key in metadata:
             output[key] = set([parse(p) for p in metadata[key]])
-        print "[*] building index took {}".format(start_time - time.time())
+        print "[*] building index took {}".format(time.time() - start_time)
         pickle.dump(output, open("PI.p", "wb" ))
     
     return output
@@ -41,11 +48,16 @@ PI = get_pubdate_index()
 
 @lrudecorator(100)
 def get_metadata_file():
+    print "Loading metadata file"
+    t0=time.time()
     with open("rookieindex/meta_data.json") as inf:
         metadata = ujson.load(inf)
+    print "Loaded metadata file in secs:", time.time()-t0
     return metadata
 
-MT = get_metadata_file()
+def get_doc_metadata(docid):
+    row = session.connection().execute("select data from doc_metadata where docid=%s", docid).fetchone()
+    return row[0]
 
 class Parameters(object):
 
@@ -121,13 +133,11 @@ class Models(object):
 
     @staticmethod
     def get_headline(docid):
-        dt = get_metadata_file()
-        return dt[docid]['headline']
+        return get_doc_metadata(docid)['headline']
 
     @staticmethod
     def get_pub_date(docid):
-        dt = get_metadata_file()
-        return dt[docid]['pubdate']
+        return get_doc_metadata(docid)['pubdate']
 
     @staticmethod
     def get_message(l_results, params, len_doc_list, PAGE_LENGTH):
@@ -205,7 +215,8 @@ class Models(object):
         Filter results by date
         '''
         if params.startdate is not None and params.enddate is not None:
-            return [r for r in results if parse(MT[r]["pubdate"]) > params.startdate and parse(MT[r]["pubdate"]) < params.enddate]
+            md = lambda r: get_doc_metadata(r)
+            return [r for r in results if parse(md(r)["pubdate"]) > params.startdate and parse(md(r)["pubdate"]) < params.enddate]
         else:
             return results
 
@@ -216,13 +227,12 @@ class Models(object):
         '''
         f_dates = [i for i in PI[params.detail]]
         f_alias_dates = [i for i in itertools.chain(*[PI[a] for a in aliases])]
-        q_f_pubdates = [r for r in results if parse(MT[r]["pubdate"]) in f_dates + f_alias_dates]
+        q_f_pubdates = [r for r in results if parse(get_doc_metadata(r)["pubdate"]) in f_dates + f_alias_dates]
         return q_f_pubdates
 
 
     @staticmethod
     def get_doclist(results, params, PAGE_LENGTH):
-        mt = get_metadata_file()
         output = []
         if params.page < 1:
             params.page == 1
@@ -231,7 +241,8 @@ class Models(object):
         end = start + PAGE_LENGTH
         results = results[start:end]
         for r in results:
-            output.append((mt[r]['pubdate'], mt[r]['headline'], mt[r]['url'], Models.get_snippet(r, params.q, params.detail)))
+            d = get_doc_metadata(r)
+            output.append((d['pubdate'], d['headline'], d['url'], Models.get_snippet(r, params.q, params.detail)))
         return output
 
 

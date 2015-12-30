@@ -24,15 +24,13 @@ from experiment import PAGE_LENGTH
 from whooshy.reader import query_whoosh
 from whooshy.reader import query_subset
 from collections import OrderedDict
-from experiment.models import get_metadata_file, get_pubdate_index
+from experiment.models import get_pubdate_index, get_doc_metadata
 
 app = Flask(__name__)
 
 cache = pylru.lrucache(100)
 
 views = Views(LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS)
-
-MT = get_metadata_file()
 
 PI = get_pubdate_index()
 
@@ -90,7 +88,7 @@ def testing():
 
     status = Models.get_message(len(results), params, len(doc_list), PAGE_LENGTH)
 
-    metadata = [MT[r] for r in results]
+    metadata = [get_doc_metadata(r) for r in results]
 
     q_pubdates = [parse(h["pubdate"]) for h in metadata]
     print "parsed dates"
@@ -151,7 +149,7 @@ def medviz():
 
     status = Models.get_message(len(results), params, len(doc_list), PAGE_LENGTH)
 
-    metadata = [MT[r] for r in results]
+    metadata = [get_doc_metadata(r) for r in results]
 
     q_pubdates = [parse(h["pubdate"]) for h in metadata]
 
@@ -213,7 +211,7 @@ def bigviz():
         alias_table[params.q][f] = aliases[f]
 
     print "got metadata"
-    metadata = [MT[r] for r in results]
+    metadata = [get_doc_metadata(r) for r in results]
 
     q_pubdates = [parse(h["pubdate"]) for h in metadata]
     print "parsed dates"
