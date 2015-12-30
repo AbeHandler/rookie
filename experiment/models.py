@@ -6,9 +6,9 @@ import pandas as pd
 import itertools
 import ujson
 import cPickle as pickle
+from dateutil.parser import parse as dateparse
 from pylru import lrudecorator
 from collections import defaultdict
-from dateutil.parser import parse
 from rookie.classes import IncomingFile
 from rookie.rookie import Rookie
 from experiment import log, CORPUS_LOC
@@ -26,6 +26,7 @@ session = Session()
 
 @lrudecorator(100)
 def get_pubdate_index():
+    t0=time.time()
 
     try:
         output = pickle.load(open( "PI.p", "rb" ))
@@ -38,13 +39,21 @@ def get_pubdate_index():
         print "[*] loading json took {}".format(time.time() - start_time)
         output = {}
         for key in metadata:
-            output[key] = set([parse(p) for p in metadata[key]])
+            output[key] = set([dateparse(p) for p in metadata[key]])
         print "[*] building index took {}".format(time.time() - start_time)
         pickle.dump(output, open("PI.p", "wb" ))
     
+    print "pubdate index load took", time.time()-t0
     return output
 
-PI = get_pubdate_index()
+def get_pubdates_for_ngram(ngram_str):
+    """used to be PI[ngram_str]"""
+    res = session.connection().execute(
+            u"SELECT pubdates FROM ngram_pubdates WHERE ngram=%s",
+            ngram_str)
+    row = res.fetchone()
+    dates = row[0]
+    return set(dates)
 
 @lrudecorator(100)
 def get_metadata_file():
@@ -107,8 +116,8 @@ def make_dataframe(p, facets, results, q_pubdates, aliases):
     df['pd'] = q_pubdates
     df[p.q] = [1 for i in q_pubdates]
     for facet in facets:
-        alias = [PI[a] for a in aliases[facet]]
-        facet_dates = set([i for i in set([i for i in itertools.chain(*alias)]).union(PI[facet])])
+        alias = [get_pubdates_for_ngram(a) for a in aliases[facet]]
+        facet_dates = set([i for i in set([i for i in itertools.chain(*alias)]).union(get_pubdates_for_ngram(facet))])
         gus = [int(p) for p in [p in facet_dates for p in q_pubdates]]
         df[facet] = gus
     return df
@@ -167,12 +176,12 @@ class Models(object):
             output.page = 1
 
         try:
-            output.startdate = parse(request.args.get('startdate'))
+            output.startdate = dateparse(request.args.get('startdate'))
         except:
             print "could not parse start date {}".format(request.args.get('startdate'))
             output.startdate = None
         try:
-            output.enddate = parse(request.args.get('enddate'))
+            output.enddate = dateparse(request.args.get('enddate'))
         except:
             output.enddate = None
 
@@ -216,7 +225,7 @@ class Models(object):
         '''
         if params.startdate is not None and params.enddate is not None:
             md = lambda r: get_doc_metadata(r)
-            return [r for r in results if parse(md(r)["pubdate"]) > params.startdate and parse(md(r)["pubdate"]) < params.enddate]
+            return [r for r in results if dateparse(md(r)["pubdate"]) > params.startdate and dateparse(md(r)["pubdate"]) < params.enddate]
         else:
             return results
 

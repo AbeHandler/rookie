@@ -24,15 +24,13 @@ from experiment import PAGE_LENGTH
 from whooshy.reader import query_whoosh
 from whooshy.reader import query_subset
 from collections import OrderedDict
-from experiment.models import get_pubdate_index, get_doc_metadata
+from experiment.models import get_doc_metadata
 
 app = Flask(__name__)
 
 cache = pylru.lrucache(100)
 
 views = Views(LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS)
-
-PI = get_pubdate_index()
 
 alias_table = defaultdict(lambda : defaultdict(list))
 
@@ -123,20 +121,21 @@ def medviz():
 
     results = Models.get_results(params)
 
-    with open(params.q.replace(" ", "_") + ".query", "w") as outf:
-        for r in results:
-            outf.write(r  + "\n")
+    # with open(params.q.replace(" ", "_") + ".query", "w") as outf:
+    #     for r in results:
+    #         outf.write(r  + "\n")
 
     log.debug('got results')
 
+
     facets, aliases = Models.get_facets(params, results, 9)
 
-    with open(params.q.replace(" ", "_") + "_aliases.json", "w") as outf:
-        json.dump(aliases, outf)
+    # with open(params.q.replace(" ", "_") + "_aliases.json", "w") as outf:
+    #     json.dump(aliases, outf)
 
-    with open(params.q.replace(" ", "_") + ".facets", "w") as outf:
-        for f in facets:
-            outf.write(f  + "\n")
+    # with open(params.q.replace(" ", "_") + ".facets", "w") as outf:
+    #     for f in facets:
+    #         outf.write(f  + "\n")
 
     for f in facets:
         alias_table[params.q][f] = aliases[f]
