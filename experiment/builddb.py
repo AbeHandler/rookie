@@ -52,9 +52,30 @@ def build(processed_location):
         except AttributeError:
             print "error"
 
+def doc_metadata_to_db():
+    import ujson
+
+    go = lambda *args: session.connection().execute(*args)
+    go("drop table if exists doc_metadata")
+    go("create table doc_metadata (docid integer not null primary key, data jsonb)")
+
+    mt = ujson.load(open("rookieindex/meta_data.json"))
+    print len(mt), "docs in metadata json"
+    docids = mt.keys()
+    docids = [int(i) for i in docids]
+    docids.sort()
+    for docid in docids:
+        go("""INSERT INTO doc_metadata (docid, data) VALUES (%s, %s)""", 
+            docid, ujson.dumps(mt[str(docid)]))
+    print "Num docs in metadata table:", go("select count(1) from doc_metadata").fetchone()[0]
+
+
 if __name__ == '__main__':
     engine = create_engine(CONNECTION_STRING)
     Session = sessionmaker(bind=engine)
     session = Session()
+
     build(processed_location)
+    doc_metadata_to_db()
+
     session.commit()
