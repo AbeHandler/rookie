@@ -16,7 +16,7 @@ if socket.gethostname() == "dewey":
 else:
     CORPUS_LOC = "/home/ubuntu/data/lens_processed/"
     IP = "54.213.128.229"
-    PG_HOST = os.environ['PG_PORT_5432_TCP_ADDR']
+    PG_HOST = os.environ.get('PG_PORT_5432_TCP_ADDR','localhost')
 PAGE_LENGTH = 10
 
 
