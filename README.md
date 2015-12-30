@@ -24,8 +24,11 @@ This project began at [The Lens](http://www.thelensnola.org "The Lens") with [su
 `docker` The docker file and other docker stuff
 
 `experiment` The main rookie app
+
 `experiment/classes.py` SQL alchemy classes that wrap db tables
+
 `experiment/builddb.py` loops over output from StanfordCoreNLP wrapper and adds to a postgres db
+
 `experiment/snippet_maker.py` simple snippet maker that finds sentences that contain a query or facet as substring
 
 `rookie` Mostly legacy code slowly moving over to /experiment.
