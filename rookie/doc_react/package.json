@@ -1,0 +1,24 @@
+{
+  "name": "reactlines",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babelify": "^7.2.0",
+    "browser-sync": "^2.10.0",
+    "gulp": "^3.9.0"
+  },
+  "dependencies": {
+    "babel-preset-react": "^6.3.13",
+    "babelify": "^7.2.0",
+    "lodash": "^3.10.1",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3",
+    "react-sparklines": "^1.4.2"
+  }
+}
