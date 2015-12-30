@@ -43,22 +43,27 @@ var DocList = React.createClass({
     }else{
       var story_budget = this.props.height / (this.props.fontpx);
     }
-    var display = _.slice(sorted, 0, story_budget);
-    display = _.map(display, 'key');
+    var divStyle = {
+      border: '1px solid green'
+    }
     return (
-      <div>
-        {this.props.items.map(function(item, i) {
-          let csolor;
-          if (_.contains(display,item.key)){
-            if (this.state.active===this.props.items[i].key){
-                csolor="blue";
-            }else{
-                csolor="red";
+      <div style={divStyle}>
+        {this.props.items.map(function(bin, i) {
+          return (<div>
+          {bin.docs.map(function(item, i) {
+            let csolor;
+            if (item.rank < story_budget){
+              if (this.state.active===this.props.items[i].key){
+                  csolor="blue";
+              }else{
+                  csolor="red";
+              }
+              return (
+                <Doc name={item.key} pubdate={item.pubdate} headline={item.headline} color={csolor} onMouseOver={this.handleClick} key={i}/>
+              );
             }
-            return (
-              <Doc name={item.key} pubdate={item.pubdate} headline={item.headline} color={csolor} onMouseOver={this.handleClick} key={i}/>
-            );
-          }
+          }, this)}
+          </div>)
         }, this)}
       </div>
     );
@@ -66,17 +71,17 @@ var DocList = React.createClass({
 });
 
 var datas = [
-  {"key": "mitch", "rank":"9", "pubdate": "1/10/2015", "headline": "the police are bad"},
-  {"key": "dave", "rank":"2", "pubdate": "3/4/2012", "headline": "the mayor is great"},
-  {"key": "bll", "rank":"8", "pubdate": "5/14/2010", "headline": "the dog park is a mess"},
-  {"key": "sam", "rank":"4", "pubdate": "1/9/2010", "headline": "the levees are broken"},
-  {"key": "as", "rank":"5", "pubdate": "2/2/2013", "headline": "the firefighters need money"},
-  {"key": "bob", "rank":"6", "pubdate": "2/14/2013", "headline": "the city hall is broken"},
-  {"key": "joe", "rank":"1", "pubdate": "2/15/2013", "headline": "the teachers are mad"},
-  {"key": "jeremy", "rank":"3", "pubdate": "1/9/2014", "headline": "the state lost money"},
-  {"key": "kevin", "rank":"7", "pubdate": "1/2/2014", "headline": "blah bla the restaurants in the marigny"},
-]
-
+  {"bin":"2010", "docs":[ 
+      {"key": "mitch", "rank":"9", "pubdate": "1/10/2010", "headline": "the police are bad"},
+      {"key": "dave", "rank":"2", "pubdate": "3/4/2010", "headline": "the mayor is great"}]},
+  {"bin":"2011", "docs":[ 
+      {"key": "bll", "rank":"8", "pubdate": "5/14/2011", "headline": "the dog park is a mess"},
+      {"key": "sam", "rank":"4", "pubdate": "1/9/2011", "headline": "the levees are broken"},
+      {"key": "as", "rank":"5", "pubdate": "2/2/2011", "headline": "the firefighters need money"}]},
+  {"bin":"2012", "docs":[
+      {"key": "bob", "rank":"6", "pubdate": "2/14/2012", "headline": "the city hall is broken"},
+      {"key": "joe", "rank":"1", "pubdate": "2/15/2012", "headline": "the teachers are mad"}]}
+  ];
 
 ReactDOM.render(
   <DocList items={datas} fontpx={12} height={50}/>,
