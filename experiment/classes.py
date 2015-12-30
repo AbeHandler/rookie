@@ -14,6 +14,10 @@ CONNECTION_STRING = 'postgresql://%s:%s@%s:5432/%s' % (
     'rookie', # db
 )
 
+import socket
+if 'btop2' in socket.gethostname():
+    CONNECTION_STRING = "postgresql://rookie:rookie@192.168.99.100:32770/rookie"
+
 
 Base = declarative_base()
 
