@@ -24,15 +24,13 @@ from experiment import PAGE_LENGTH
 from whooshy.reader import query_whoosh
 from whooshy.reader import query_subset
 from collections import OrderedDict
-from experiment.models import get_pubdate_index, get_doc_metadata
+from experiment.models import get_doc_metadata
 
 app = Flask(__name__)
 
 cache = pylru.lrucache(100)
 
 views = Views(LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS)
-
-PI = get_pubdate_index()
 
 alias_table = defaultdict(lambda : defaultdict(list))
 

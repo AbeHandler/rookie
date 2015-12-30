@@ -1,9 +1,11 @@
 '''
 This module loads documents into whoosh and creates a sentence index
 '''
-import glob
-import ipdb
+import glob,time,sys
+import ujson
+# import ipdb
 import datetime
+import dateutil.parser
 from rookie import processed_location
 from experiment.classes import Document, Facet, Sentence, DocumentFacet
 from rookie.classes import IncomingFile
@@ -53,8 +55,7 @@ def build(processed_location):
             print "error"
 
 def doc_metadata_to_db():
-    import ujson
-
+    print "building per-doc metadata table"
     go = lambda *args: session.connection().execute(*args)
     go("drop table if exists doc_metadata")
     go("create table doc_metadata (docid integer not null primary key, data jsonb)")
@@ -69,6 +70,25 @@ def doc_metadata_to_db():
             docid, ujson.dumps(mt[str(docid)]))
     print "Num docs in metadata table:", go("select count(1) from doc_metadata").fetchone()[0]
 
+def create_pubdate_index():
+    go = lambda *args: session.connection().execute(*args)
+
+    print "building pubdate index"
+    go("drop table if exists ngram_pubdates")
+    go("create table ngram_pubdates (ngram text, pubdates jsonb)")
+    with open("rookieindex/string_to_pubdate.json") as inf:
+        metadata = ujson.load(inf)
+    for i,ngram in enumerate(metadata):
+        if i % 1000==0:
+            sys.stdout.write("...%s" % i); sys.stdout.flush()
+        dates = metadata[ngram]
+        dates = sorted(set(dates))
+        go(u"""INSERT INTO ngram_pubdates (ngram, pubdates) VALUES (%s, %s)""",
+                ngram, ujson.dumps(dates))
+        
+    print "\nindexing"
+    go("create index on ngram_pubdates (ngram)")
+    print "pubdate index built over %s terms" % (go("select count(1) from ngram_pubdates").fetchone()[0])
 
 if __name__ == '__main__':
     engine = create_engine(CONNECTION_STRING)
@@ -77,5 +97,6 @@ if __name__ == '__main__':
 
     build(processed_location)
     doc_metadata_to_db()
+    create_pubdate_index()
 
     session.commit()
