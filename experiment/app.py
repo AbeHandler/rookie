@@ -123,20 +123,21 @@ def medviz():
 
     results = Models.get_results(params)
 
-    with open(params.q.replace(" ", "_") + ".query", "w") as outf:
-        for r in results:
-            outf.write(r  + "\n")
+    # with open(params.q.replace(" ", "_") + ".query", "w") as outf:
+    #     for r in results:
+    #         outf.write(r  + "\n")
 
     log.debug('got results')
 
+
     facets, aliases = Models.get_facets(params, results, 9)
 
-    with open(params.q.replace(" ", "_") + "_aliases.json", "w") as outf:
-        json.dump(aliases, outf)
+    # with open(params.q.replace(" ", "_") + "_aliases.json", "w") as outf:
+    #     json.dump(aliases, outf)
 
-    with open(params.q.replace(" ", "_") + ".facets", "w") as outf:
-        for f in facets:
-            outf.write(f  + "\n")
+    # with open(params.q.replace(" ", "_") + ".facets", "w") as outf:
+    #     for f in facets:
+    #         outf.write(f  + "\n")
 
     for f in facets:
         alias_table[params.q][f] = aliases[f]
