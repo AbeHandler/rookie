@@ -37,19 +37,28 @@ var DocList = React.createClass({
     var sorted = _.sortBy(this.props.items, function(n) {
       return n.rank;
     });
-    console.log(sorted);
+    var snippets = false;
+    if (snippets === true){
+      var story_budget = this.props.height / (this.props.fontpx * 3);
+    }else{
+      var story_budget = this.props.height / (this.props.fontpx);
+    }
+    var display = _.slice(sorted, 0, story_budget);
+    display = _.map(display, 'key');
     return (
       <div>
         {this.props.items.map(function(item, i) {
           let csolor;
-          if (this.state.active===this.props.items[i].key){
-              csolor="blue";
-          }else{
-              csolor="red";
+          if (_.contains(display,item.key)){
+            if (this.state.active===this.props.items[i].key){
+                csolor="blue";
+            }else{
+                csolor="red";
+            }
+            return (
+              <Doc name={item.key} pubdate={item.pubdate} headline={item.headline} color={csolor} onMouseOver={this.handleClick} key={i}/>
+            );
           }
-          return (
-            <Doc name={item.key} pubdate={item.pubdate} headline={item.headline} color={csolor} onMouseOver={this.handleClick} key={i}/>
-          );
         }, this)}
       </div>
     );
@@ -62,14 +71,14 @@ var datas = [
   {"key": "bll", "rank":"8", "pubdate": "5/14/2010", "headline": "the dog park is a mess"},
   {"key": "sam", "rank":"4", "pubdate": "1/9/2010", "headline": "the levees are broken"},
   {"key": "as", "rank":"5", "pubdate": "2/2/2013", "headline": "the firefighters need money"},
-  {"key": "3", "rank":"6", "pubdate": "2/14/2013", "headline": "the city hall is broken"},
-  {"key": "4", "rank":"1", "pubdate": "2/15/2013", "headline": "the teachers are mad"},
-  {"key": "5", "rank":"3", "pubdate": "1/9/2014", "headline": "the state lost money"},
-  {"key": "43", "rank":"7", "pubdate": "1/2/2014", "headline": "bla bla the restaurants in the marigny"},
+  {"key": "bob", "rank":"6", "pubdate": "2/14/2013", "headline": "the city hall is broken"},
+  {"key": "joe", "rank":"1", "pubdate": "2/15/2013", "headline": "the teachers are mad"},
+  {"key": "jeremy", "rank":"3", "pubdate": "1/9/2014", "headline": "the state lost money"},
+  {"key": "kevin", "rank":"7", "pubdate": "1/2/2014", "headline": "blah bla the restaurants in the marigny"},
 ]
 
 
 ReactDOM.render(
-  <DocList items={datas} height={50}/>,
+  <DocList items={datas} fontpx={12} height={50}/>,
   document.getElementById('example')
 );
