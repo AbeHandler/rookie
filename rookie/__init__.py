@@ -56,6 +56,14 @@ elif getpass.getuser() == "abramhandler":
     window_length = 30
     server_port = 8000
     corpus_loc = "/Users/abramhandler/research/rookie/data/lens_processed/"
+elif 'btop2' in socket.gethostname():
+    server_port=8000
+    core_nlp_location = None
+    corpus_loc = None
+    files_location = None
+    processed_location = None
+    tagger_base = None
+    window_length = 30
 else:
     files_location = "/home/app/rookie/"
     processed_location = "/Users/abramhandler/research/rookie/data/lens_processed"
