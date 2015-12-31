@@ -13,7 +13,7 @@ from collections import defaultdict
 from rookie.classes import IncomingFile
 from rookie.rookie import Rookie
 from experiment import log, CORPUS_LOC
-from experiment.snippet_maker import get_snippet_pg
+from experiment.snippet_maker import get_snippet_pg, get_snippet2
 from nltk.tokenize import word_tokenize
 from experiment.classes import CONNECTION_STRING
 from sqlalchemy import create_engine
@@ -246,8 +246,8 @@ class Models(object):
         return good_docs
 
     @staticmethod
-    def get_doclist(results, params, PAGE_LENGTH):
-        output = []
+    def get_doclist(results, params, PAGE_LENGTH, aliases=None):
+        doc_results = []
         if params.page < 1:
             params.page == 1
         # chop off to only relevant results
@@ -256,8 +256,14 @@ class Models(object):
         results = results[start:end]
         for r in results:
             d = get_doc_metadata(r)
-            output.append((d['pubdate'], d['headline'], d['url'], Models.get_snippet(r, params.q, params.detail)))
-        return output
+
+            doc_results.append({
+                'pubdate': d['pubdate'],
+                'headline': d['headline'],
+                'url': d['url'],
+                'snippet': Models.get_snippet(r, params.q, f=params.detail, aliases=aliases)
+            })
+        return doc_results
 
 
     @staticmethod
@@ -278,13 +284,29 @@ class Models(object):
 
 
     @staticmethod
-    def get_snippet(docid, q, f, nchar=200):
-        #TODO: add aliasing. remove set sorting
-        start_time = time.time()
-        snippet = get_snippet_pg(docid, q, f)
-        print "[*] building snippet took {}".format(start_time - time.time())
+    def get_snippet(docid, q, f=None, aliases=None, nchar=200):
 
-        return snippet[0].text + " ... " + snippet[1].text
+        f_aliases = set() if aliases is None else set(aliases)
+        if f is not None:
+            f_aliases.add(f)
+        hsents = get_snippet2(docid, q, f_aliases, 
+                taginfo=dict(
+                    q_ltag='<span style="font-weight:bold;color:black">',
+                    q_rtag='</span>',
+                    f_ltag='<span style="font-weight:bold;color:#b33125">',
+                    f_rtag='</span>',)
+                )
+
+        if len(hsents)==0:
+            return ""
+
+        if len(hsents)==1:
+            return hsents[0]['htext']
+
+        assert len(hsents) <= 2
+        dist = hsents[1]['sentnum'] - hsents[0]['sentnum']
+        sep = " " if dist == 1 else " ... "
+        return hsents[0]['htext'] + sep + hsents[1]['htext']
 
     @staticmethod
     def get_facets(params, results, n_facets=9):

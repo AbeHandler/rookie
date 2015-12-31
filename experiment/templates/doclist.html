@@ -1,10 +1,10 @@
 <div id="doclist">
       <div>{{status | safe}}</div>
         
-        {% for doc in results%}
-           <div><a target="_blank" href='{{doc[2]}}'><span class="headline">{{doc[1]}}</span></a>
-            <div class="snippet"><span class="dateline">{{doc[0]}}</span>&mdash;
-              {{doc[3] | safe}}
+        {% for doc in results %}
+           <div><a target="_blank" href='{{doc["url"]}}'><span class="headline">{{doc["headline"]}}</span></a>
+            <div class="snippet"><span class="dateline">{{doc["pubdate"]}}</span>&mdash;
+              {{doc["snippet"] | safe}}
             </div>
            </div>
         {% endfor %}

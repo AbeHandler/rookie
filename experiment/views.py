@@ -32,14 +32,11 @@ class Views(object):
         return response
 
 
-    def get_doc_list(self, results, params, status, aliases):
+    def get_doc_list(self, results, params, status):
         '''
         Returns the first view of the application
         '''
 
-        results = [(r[0], r[1], r[2], r[3].replace(params.q, "<span style='font-weight: bold; '>" + params.q + "</span>")) for r in results]
-        for a in aliases:
-            results = [(r[0], r[1], r[2], r[3].replace(a, "<span style='font-weight: bold; '>" + a+ "</span>")) for r in results]
         response = render_template(
             'doclist.html',
              query_toks=word_tokenize(params.q),
@@ -96,7 +93,6 @@ class Views(object):
     def get_q_response_med(self, params, results, q_and_t, keys, datas, status, len_results, binsize):
         '''
         '''
-        results = [(r[0], r[1], r[2], r[3].replace(params.q, "<span style='font-weight: bold; color:#B33125'>" + params.q + "</span>")) for r in results]
         response = render_template(
             'medviz.html',
             query=params.q,
@@ -120,6 +116,7 @@ class Views(object):
 
     def print_snippet(self, snippet):
         '''
+        BTO: this appears to be dead code?
         '''
         response = render_template(
                 'snippet.html',

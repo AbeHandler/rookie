@@ -32,6 +32,10 @@ cache = pylru.lrucache(100)
 
 views = Views(LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS)
 
+# BTO: this is problematic. assumes shared memory for all request processes.
+# flask individual file reloading breaks this assumption. so does certain types of python parallelism.
+# better to use cache in outside storage. e.g. redis/memcached. but psql might be more convenient for us.
+# or, could lrucache decorator be used instead?
 alias_table = defaultdict(lambda : defaultdict(list))
 
 @app.route('/', methods=['GET'])
@@ -43,19 +47,18 @@ def index():
 def get_doc_list():
 
     params = Models.get_parameters(request)
-
     results = Models.get_results(params)
-
     status = Models.get_status(params)
+    aliases = alias_table[params.q][params.detail]
 
     if params.detail == params.q:
         # the user wants date detail for Q
         results = Models.date_filter(results, params)
     else:
         results = Models.date_filter(results, params)
-        results = Models.f_occurs_filter(results, facet=params.detail, aliases=alias_table[params.q][params.detail])
-    doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
-    return views.get_doc_list(doc_list, params, status, [params.detail])
+        results = Models.f_occurs_filter(results, facet=params.detail, aliases=aliases)
+    doc_list = Models.get_doclist(results, params, PAGE_LENGTH, aliases=aliases)
+    return views.get_doc_list(doc_list, params, status)
 
 
 def log_scale(p):
