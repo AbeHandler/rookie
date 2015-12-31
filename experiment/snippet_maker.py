@@ -58,6 +58,7 @@ def find_sentences_q_and_f(docid, q, f):
 
 
 def get_snippet_pg(docid, q, f=None):
+    """the old api"""
     if f is not None:
         sentences = find_sentences_q_and_f(docid, q, f)
     if f is None:
@@ -68,13 +69,66 @@ def get_snippet_pg(docid, q, f=None):
     sentences.sort(key=lambda x:x.sentence_no)
     return sentences
 
+def get_snippet1(docid, q, f_aliases=None):
+    """wrap get_snippet_bg to conform to the new api"""
+    assert f_aliases is None or len(f_aliases) <= 1, "singleton for f_aliases please"
+    f = list(f_aliases)[0] if f_aliases else None
+    snippet_sentobjs = get_snippet_pg(docid, q=q, f=f)
+    hsents = [hilite(sent.text, q=q, f_aliases=f_aliases) for sent in snippet_sentobjs]
+    for sentobj,h in zip(snippet_sentobjs,hsents):
+        h['sentnum'] = sentobj.sentence_no
+    return hsents
+
 ############################
 
-def get_snippet2(docid, q, f_aliases=None):
+def get_snippet2(docid, q, f_aliases=None, taginfo=None):
+    """
+    returns list of "highlighted sentence" dictionaries.
+    supply taginfo in accordance with docs in hilite()
+
+    algorithm
+    where "F-containing" means any alias of the facet (including the facet itself),
+
+    if there is a sentence with both Q and an F: return just it as the snippet.
+    else
+    select the first Q-containing sentence (if any)
+    select the first F-containing sentence (if any)
+    sort those (at most two) sentences.
+    return them as the snippet.
+    """
+
     from experiment.models import get_doc_metadata
     d = get_doc_metadata(docid)
-    print d['sentences']
-    pass
+    hsents = {'has_q':[], 'has_f':[]}
+    for sentnum,toktext in enumerate(d['sentences']):
+        hsent = hilite(toktext, q, f_aliases, taginfo=taginfo)
+        hsent['sentnum'] = sentnum
+
+        if hsent['has_q'] and hsent['has_f']:
+            return [hsent]
+
+        if hsent['has_q']:
+            hsents['has_q'].append(hsent)
+        if hsent['has_f']:
+            hsents['has_f'].append(hsent)
+
+    selection = []
+
+    if hsents['has_q']:
+        selection.append(hsents['has_q'][0])
+    if hsents['has_f']:
+        cand = hsents['has_f'][0]
+        # this condition shouldnt be possible assuming the shortcut break in the first Q&F
+        if not any(x['sentnum']==cand['sentnum'] for x in selection):
+            selection.append(cand)
+
+    if len(selection)==0:
+        # hm tricky.
+        # i guess an empty selection is ok
+        return selection
+
+    selection.sort(key=lambda x: x['sentnum'])
+    return selection
 
 # regex matching system: always have groups
 # (thing being matched)(right)
@@ -90,17 +144,30 @@ def q_regex(q):
     qregex = r"\b(" + re.escape(q) + r")(\S{0,4})\b"
     return qregex
 
-def hilite_hack(text, q, f_aliases=None):
-    REDSTART = '\x1b[1m\x1b[31m'
-    BLUESTART= '\x1b[1m\x1b[34m'
-    END = '\x1b[0m'
-    qsub = r'%s|Q> \1 <Q|%s\2' % (BLUESTART, END)
-    fsub = r'%s|F> \1 <F|%s\2' % (REDSTART, END)
+def hilite(text, q, f_aliases=None, taginfo=None):
+    """e.g. 
+    taginfo=dict(
+        q_ltag = "<span style='color:blue'>, q_rtag = "</span>",
+        f_ltag = "<span style='color:red'>, f_rtag = "</span>")
+    """
+    if not taginfo:
+        # console-mode defaults
+        REDSTART = '\x1b[1m\x1b[31m'
+        BLUESTART= '\x1b[1m\x1b[34m'
+        END = '\x1b[0m'
+        qsub = r'%s|Q> \1 <Q|%s\2' % (BLUESTART, END)
+        fsub = r'%s|F> \1 <F|%s\2' % (REDSTART, END)
+    else:
+        qsub = r'%s\1%s\2' % (taginfo['q_ltag'], taginfo['q_rtag'])
+        fsub = r'%s\1%s\2' % (taginfo['f_ltag'], taginfo['f_rtag'])
 
     text1 = text
 
-    fregex = f_regex(f_aliases)
-    text2 = re.sub(fregex, fsub, text1, flags=re.I)
+    if f_aliases:
+        fregex = f_regex(f_aliases)
+        text2 = re.sub(fregex, fsub, text1, flags=re.I)
+    else:
+        text2 = text1
     has_f = text2 != text1
 
     qregex = q_regex(q)
@@ -150,12 +217,15 @@ def runf(q,f,q_docids,aliases):
         print
         print "== doc%s\t%s\t%s" % (docid, d['pubdate'], d.get('headline',""))
         print "   DOC&FA: ", sorted(set(d['ngram']) & set(aliases))
-        snippet = get_snippet_pg(docid, q=q, f=f)
-        hsents = [hilite_hack(sent.text, q=q, f_aliases=aliases) for sent in snippet]
-        for sent,h in zip(snippet,hsents):
-            print "  s%s\tq=%d f=%d\t%s" % (sent.sentence_no, h['has_q'], h['has_f'], h['htext'])
-    # doc_list = mm.Models.get_doclist(results, params, 10)
 
-# if __name__=='__main__':
-#     import sys
-#     analyze(sys.argv[1])
+
+        t0 = time.time()
+
+        # hsents = get_snippet1(docid, q=q, f_aliases=[f])
+        # hsents = get_snippet2(docid, q=q, f_aliases=[f])
+        hsents = get_snippet2(docid, q=q, f_aliases=aliases)
+
+        # print "  snippet time", time.time()-t0
+        for h in hsents:
+            print "  s%s\tq=%d f=%d\t%s" % (h['sentnum'], h['has_q'], h['has_f'], h['htext'])
+
