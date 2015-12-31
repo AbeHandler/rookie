@@ -1,5 +1,6 @@
 # import ipdb
 import sys
+import datetime
 import time
 import json
 import pandas as pd
@@ -53,7 +54,7 @@ def get_pubdates_for_ngram(ngram_str):
             ngram_str)
     row = res.fetchone()
     dates = row[0]
-    return set(dates)
+    return set(datetime.datetime.strptime(date, "%Y-%m-%d") for date in dates)
 
 @lrudecorator(100)
 def get_metadata_file():
