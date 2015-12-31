@@ -1,9 +1,12 @@
-import itertools
+'''
+The main web app for rookie
+'''
 import pylru
+import ipdb
 import time
 import math
 from dateutil.parser import parse
-from experiment.models import make_dataframe, results_to_json_hierarchy
+from experiment.models import make_dataframe, results_to_json_hierarchy, get_keys
 from flask import Flask
 from rookie.rookie import Rookie
 from flask import request
@@ -104,6 +107,12 @@ def pad(i):
         return "0" + str(i)
     return i
 
+def get_val_from_df(val_key, dt_key, df, binsize="month"):
+    try:
+        return df[val_key][int(dt_key.split("-")[0])][int(dt_key.split("-")[1])]
+    except KeyError:
+        return 0
+
 @app.route('/medviz', methods=['GET'])
 def medviz():
 
@@ -159,22 +168,31 @@ def medviz():
     print "[*] building the data frames took {}".format(start_time - time.time())
 
     #df["NORA"][2010][11]
-    start_time = time.time()
-    if binsize == "year":
-        keys = [str(i) for i in df[params.q].axes[0]]
-    if binsize == "month":
-        keys = itertools.product(*[[p for p in df[params.q].axes[0]], [p for p in df[params.q].axes[1]]])
-        keys = [pad(str(i[0])) + "-" + str(i[1]) for i in keys]
-        keys.sort(key=lambda x:(int(x.split("-")[1]), int(x.split("-")[0])))
+    #start_time = time.time()
+    #if binsize == "year":
+    #    keys = [str(i) for i in df[params.q].axes[0]]
+    #if binsize == "month":
+    #    keys = itertools.product(*[[p for p in df[params.q].axes[0]], [p for p in df[params.q].axes[1]]])
+    #    keys = [pad(str(i[0])) + "-" + str(i[1]) for i in keys]
+    #    keys.sort(key=lambda x:(int(x.split("-")[1]), int(x.split("-")[0])))
+
     print "[*] getting the keys took {}".format(start_time - time.time())
 
-    datas = [str(params.q).replace("_", " ")] + [df[params.q][int(key.split("-")[1])][int(key.split("-")[0])] for key in keys]
+
+    start = min(q_pubdates)
+    stop = max(q_pubdates)
+    keys = get_keys(start, stop, binsize)
+
+    print keys
+
+    if binsize == "month":
+        datas = [str(params.q).replace("_", " ")] + [get_val_from_df(params.q, key, df, binsize) for key in keys]
 
     facet_datas = []
     for f in facets:
-        facet_datas.append([str(f).replace(" ", "_")] + [df[f][int(key.split("-")[1])][int(key.split("-")[0])] for key in keys])
+        facet_datas.append([str(f).replace(" ", "_")] + [get_val_from_df(f, key, df, binsize) for key in keys])
 
-    keys = ["x"] + [str(int(i.split("-")[1])) + "-" + str(int(i.split("-")[0])) + "-1" for i in keys]
+    keys = ["x"] + [k + "-1" for k in keys] # hacky addition of date to keys
 
     view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results), binsize, results_to_json_hierarchy(results))
 

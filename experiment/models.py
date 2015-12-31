@@ -9,6 +9,7 @@ import ujson
 import cPickle as pickle
 from dateutil.parser import parse as dateparse
 from pylru import lrudecorator
+from dateutil.relativedelta import relativedelta
 from dateutil.parser import parse
 from collections import defaultdict
 from rookie.classes import IncomingFile
@@ -70,6 +71,24 @@ def get_doc_metadata(docid):
     row = session.connection().execute("select data from doc_metadata where docid=%s", docid).fetchone()
     return row[0]
 
+def get_keys(start, stop, bin):
+    '''
+    Returns a set of date keys between a start and stop date. bin = size of step
+    '''
+    output = []
+    counter = start
+    assert bin in ["year", "month", "day"]
+    if bin == "month": # TODO
+        delta = relativedelta(months=+1)
+    elif bin == "year":
+        delta = relativedelta(years=+1)
+    elif bin == "day":
+        delta = relativedelta(days=+1)
+    while counter <= stop:
+        if bin == "month":
+            output.append(str(counter.year) + "-" + str(counter.month))
+            counter = counter + delta
+    return output
 
 # http://stackoverflow.com/questions/26496831/how-to-convert-defaultdict-of-defaultdicts-of-defaultdicts-to-dict-of-dicts-o
 def default_to_regular(d):
@@ -269,7 +288,6 @@ class Models(object):
             ngrams = ngrams + get_doc_metadata(r)['people']
             ngrams = ngrams + get_doc_metadata(r)['org']
             ngrams = set(ngrams)
-            print ngrams
             if alias_set & ngrams:
                 good_docs.append(r)
         return good_docs

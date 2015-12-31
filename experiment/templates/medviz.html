@@ -273,7 +273,7 @@ $("#search_bar").val($.QueryString["q"]);
         },
         type: 'line',
         types: {
-            '{{data[0] | safe }}': 'area',
+            '{{data[0] | safe }}': 'area-spline',
             {% for term in terms %}
             {% if loop.index < terms|length %}
                "{{term[0] | safe}}" : "bar",
@@ -289,7 +289,8 @@ $("#search_bar").val($.QueryString["q"]);
             type: 'timeseries',
             tick: {
                 format: function (x) { return month[x.getMonth()] + " " + x.getFullYear(); },
-                count:50
+                count:60,
+                culling:true
             }
         }
     },
