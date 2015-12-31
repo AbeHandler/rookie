@@ -68,24 +68,42 @@ def get_snippet_pg(docid, q, f=None):
     sentences.sort(key=lambda x:x.sentence_no)
     return sentences
 
-def get_snippet2(docid, q, f=None):
+############################
+
+def get_snippet2(docid, q, f_aliases=None):
+    from experiment.models import get_doc_metadata
+    d = get_doc_metadata(docid)
+    print d['sentences']
     pass
 
+# regex matching system: always have groups
+# (thing being matched)(right)
+
+def f_regex(f_aliases):
+    # longest first to ensure longest matches get selected
+    # if we had NFAs we wouldnt need hacks like this. long live the DFA
+    fa = sorted(f_aliases, key=lambda f: (-len(f), f))
+    fa = r"\b(" + "|".join(re.escape(f) for f in fa) + r")(\S{0,4})\b"
+    return fa
+
+def q_regex(q):
+    qregex = r"\b(" + re.escape(q) + r")(\S{0,4})\b"
+    return qregex
+
 def hilite_hack(text, q, f_aliases=None):
-    import termcolor
-    qsub = r'|Q> \1 <Q|'
-    qsub = termcolor.colored(qsub, 'blue',attrs=['bold'])
-    fsub = r'|F> \1 <F|'
-    fsub = termcolor.colored(fsub, 'red', attrs=['bold'])
+    REDSTART = '\x1b[1m\x1b[31m'
+    BLUESTART= '\x1b[1m\x1b[34m'
+    END = '\x1b[0m'
+    qsub = r'%s|Q> \1 <Q|%s\2' % (BLUESTART, END)
+    fsub = r'%s|F> \1 <F|%s\2' % (REDSTART, END)
 
     text1 = text
 
-    f_aliases = sorted(f_aliases, key=lambda f: (-len(f), f))
-    fregex = "(" + "|".join(re.escape(f) for f in f_aliases) + ")"
+    fregex = f_regex(f_aliases)
     text2 = re.sub(fregex, fsub, text1, flags=re.I)
     has_f = text2 != text1
 
-    qregex = "(" + re.escape(q) + ")"
+    qregex = q_regex(q)
     text3 = re.sub(qregex, qsub, text2, flags=re.I)
     has_q = text3 != text2
 
@@ -108,7 +126,9 @@ def runq(q):
     q_docids = Models.get_results(params)
     facets,aliases = Models.get_facets(params, q_docids)
     print "QUERY",q
-    print "FACETS",facets
+    print "FACETS", facets
+    for f in facets:
+        print f, sorted(aliases[f])
     print "%s q docs" % len(q_docids)
 
     for f in facets:
