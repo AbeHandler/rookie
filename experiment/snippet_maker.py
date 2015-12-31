@@ -1,8 +1,9 @@
+import re,os,json
 import datetime
 import ipdb
 import itertools
 import time
-from experiment.classes import *
+from experiment.classes import Sentence, Document
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import desc
@@ -66,3 +67,94 @@ def get_snippet_pg(docid, q, f=None):
     # sentences.sort(key=lambda x:x.sentence_no)
     sentences.sort(key=lambda x:x.sentence_no)
     return sentences
+
+def get_snippet2(docid, q, f=None):
+    pass
+
+def hilite_hack(text, q, f_aliases=None):
+    import termcolor
+    qsub = r'|Q> \1 <Q|'
+    qsub = termcolor.colored(qsub, 'blue',attrs=['bold'])
+    fsub = r'|F> \1 <F|'
+    fsub = termcolor.colored(fsub, 'red', attrs=['bold'])
+
+    text1 = text
+
+    f_aliases = sorted(f_aliases, key=lambda f: (-len(f), f))
+    fregex = "(" + "|".join(re.escape(f) for f in f_aliases) + ")"
+    text2 = re.sub(fregex, fsub, text1, flags=re.I)
+    has_f = text2 != text1
+
+    qregex = "(" + re.escape(q) + ")"
+    text3 = re.sub(qregex, qsub, text2, flags=re.I)
+    has_q = text3 != text2
+
+    return dict(has_q=has_q, has_f=has_f, htext=text3)
+
+def analyze(fileprefix):
+    query = os.path.basename(fileprefix)
+    docids = open(fileprefix + ".query").read().split()
+    facets = [L.strip() for L in open(fileprefix + ".facets")]
+    aliases = json.loads(open(fileprefix + "_aliases.json").read())
+    for f in aliases.keys():
+        if f not in aliases[f]:
+            aliases[f].append(f)
+
+    for docid in docids:
+        print
+        doc = session.query(Document).filter_by(id=docid).limit(1).all()[0]
+        print "\t".join([str(x) for x in [doc.id,doc.pubdate,doc.headline]])
+        for f in facets:
+            snippet = get_snippet_pg(docid, q=query)
+            hsents = [hilite_hack(sent.text, q=query, f_aliases=aliases[f]) for sent in snippet]
+            if sum(h['has_f'] for h in hsents)==0:
+                continue
+
+            print "FACET", f
+            for sent,h in zip(snippet,hsents):
+                # h = hilite_hack(sent.text, q=query, f_aliases=aliases[f])
+                print "  %s\tq=%d f=%d\t%s" % (sent.sentence_no, h['has_q'], h['has_f'], h['htext'])
+
+## below is only for offline development
+
+class FakeParams(dict):
+    def __getattr__(self, name):
+        return self[name]
+
+def runq(q):
+    # adapted from app.py:medviz() and get_doc_list()
+    # need the Q query to populate the alias tables
+    # in app.py this is done with a global state object. this is why i had the
+    # bug when trying to work with get_doc_list directly.
+    from experiment.models import Models
+    params = FakeParams(q=q)
+    q_docids = Models.get_results(params)
+    facets,aliases = Models.get_facets(params, q_docids)
+    print "QUERY",q
+    print "FACETS",facets
+    print "%s q docs" % len(q_docids)
+
+    for f in facets:
+        runf(q,f,q_docids,aliases[f])
+
+def runf(q,f,q_docids,aliases):
+    from experiment.models import get_doc_metadata, Models
+    aliases = set([f] + list(aliases))
+
+    f_docids = Models.f_occurs_filter(q_docids, aliases=aliases)
+    print
+    print "-----------------------------------------"
+    print "Q = %-15s\tF = %-30s has %d docids" % (q,f, len(f_docids))
+    for docid in f_docids[:5]:
+        d = get_doc_metadata(docid)
+        print
+        print "== doc%s\t%s\t%s" % (docid, d['pubdate'], d.get('headline',""))
+        snippet = get_snippet_pg(docid, q=q, f=f)
+        hsents = [hilite_hack(sent.text, q=q, f_aliases=aliases) for sent in snippet]
+        for sent,h in zip(snippet,hsents):
+            print "  s%s\tq=%d f=%d\t%s" % (sent.sentence_no, h['has_q'], h['has_f'], h['htext'])
+    # doc_list = mm.Models.get_doclist(results, params, 10)
+
+# if __name__=='__main__':
+#     import sys
+#     analyze(sys.argv[1])
