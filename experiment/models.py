@@ -260,11 +260,16 @@ class Models(object):
         filter results for when f or one of its aliases occurs
         '''
         # BTO: it appears that aliases never includes the original facet label.
-        alias_set = set( [facet] + list(aliases) )
+        # AH: yeah that is correct. in the alias grouping code the facet label is the key and the aliases are value
+        alias_set = set([facet] + list(aliases))
         good_docs = []
         for r in results:
             ngrams = get_doc_metadata(r)['ngram']
+            # AH --> added these two below. otherwise the timeseries graph is not correct
+            ngrams = ngrams + get_doc_metadata(r)['people']
+            ngrams = ngrams + get_doc_metadata(r)['org']
             ngrams = set(ngrams)
+            print ngrams
             if alias_set & ngrams:
                 good_docs.append(r)
         return good_docs

@@ -63,10 +63,6 @@ var all_results = {{results_json | safe}};
            </div>
            {% endfor %}
            <div>
-            {% if page > 1 %}
-            <a data-page="{{page}}" id="back" class="page">back</a> |
-            {% endif %}
-            <a data-page="{{page}}" id="next" class="page">next page</a>
             </div>
 
   </div>
@@ -286,7 +282,7 @@ $("#search_bar").val($.QueryString["q"]);
         show: false
     },
     tooltip: {
-        grouped: false, // Default true
+        grouped: true, // Default true
         format: {
             value: function (value, ratio, id, index) { return value + " articles"; }
         }
