@@ -1,13 +1,7 @@
-import datetime
-import threading
 import itertools
 import pylru
-import json
 import time
 import math
-import ujson
-import datetime as dt
-import ipdb
 from dateutil.parser import parse
 from experiment.models import make_dataframe
 from flask import Flask
@@ -20,10 +14,7 @@ from snippets.prelim import get_snippet
 from experiment import LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS
 from experiment import log
 from experiment import PAGE_LENGTH
-from experiment import PAGE_LENGTH
-from whooshy.reader import query_whoosh
 from whooshy.reader import query_subset
-from collections import OrderedDict
 from experiment.models import get_doc_metadata
 
 app = Flask(__name__)
