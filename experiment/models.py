@@ -231,15 +231,19 @@ class Models(object):
             return results
 
     @staticmethod
-    def f_occurs_filter(results, params, aliases):
+    def f_occurs_filter(results, facet, aliases):
         '''
         filter results for when f or one of its aliases occurs
         '''
-        f_dates = [i for i in PI[params.detail]]
-        f_alias_dates = [i for i in itertools.chain(*[PI[a] for a in aliases])]
-        q_f_pubdates = [r for r in results if parse(get_doc_metadata(r)["pubdate"]) in f_dates + f_alias_dates]
-        return q_f_pubdates
-
+        # BTO: it appears that aliases never includes the original facet label.
+        alias_set = set( [facet] + list(aliases) )
+        good_docs = []
+        for r in results:
+            ngrams = get_doc_metadata(r)['ngram']
+            ngrams = set(ngrams)
+            if alias_set & ngrams:
+                good_docs.append(r)
+        return good_docs
 
     @staticmethod
     def get_doclist(results, params, PAGE_LENGTH):
