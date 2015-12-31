@@ -1,6 +1,6 @@
 import re,os,json
 import datetime
-import ipdb
+# import ipdb
 import itertools
 import time
 from experiment.classes import Sentence, Document
@@ -91,29 +91,6 @@ def hilite_hack(text, q, f_aliases=None):
 
     return dict(has_q=has_q, has_f=has_f, htext=text3)
 
-def analyze(fileprefix):
-    query = os.path.basename(fileprefix)
-    docids = open(fileprefix + ".query").read().split()
-    facets = [L.strip() for L in open(fileprefix + ".facets")]
-    aliases = json.loads(open(fileprefix + "_aliases.json").read())
-    for f in aliases.keys():
-        if f not in aliases[f]:
-            aliases[f].append(f)
-
-    for docid in docids:
-        print
-        doc = session.query(Document).filter_by(id=docid).limit(1).all()[0]
-        print "\t".join([str(x) for x in [doc.id,doc.pubdate,doc.headline]])
-        for f in facets:
-            snippet = get_snippet_pg(docid, q=query)
-            hsents = [hilite_hack(sent.text, q=query, f_aliases=aliases[f]) for sent in snippet]
-            if sum(h['has_f'] for h in hsents)==0:
-                continue
-
-            print "FACET", f
-            for sent,h in zip(snippet,hsents):
-                # h = hilite_hack(sent.text, q=query, f_aliases=aliases[f])
-                print "  %s\tq=%d f=%d\t%s" % (sent.sentence_no, h['has_q'], h['has_f'], h['htext'])
 
 ## below is only for offline development
 
@@ -141,14 +118,18 @@ def runf(q,f,q_docids,aliases):
     from experiment.models import get_doc_metadata, Models
     aliases = set([f] + list(aliases))
 
-    f_docids = Models.f_occurs_filter(q_docids, aliases=aliases)
+    print 
+    f_docids = Models.f_occurs_filter(q_docids, facet=f, aliases=aliases)
     print
     print "-----------------------------------------"
     print "Q = %-15s\tF = %-30s has %d docids" % (q,f, len(f_docids))
+    print "ALIASES", aliases
+
     for docid in f_docids[:5]:
         d = get_doc_metadata(docid)
         print
         print "== doc%s\t%s\t%s" % (docid, d['pubdate'], d.get('headline',""))
+        print "   DOC&FA: ", sorted(set(d['ngram']) & set(aliases))
         snippet = get_snippet_pg(docid, q=q, f=f)
         hsents = [hilite_hack(sent.text, q=q, f_aliases=aliases) for sent in snippet]
         for sent,h in zip(snippet,hsents):
