@@ -114,7 +114,6 @@ var SparkList = React.createClass({
     chart.hide(this.state.active);
     this.setState({active: item});
     var mysrt = String(item).replace(/_/g, '-');
-    console.log(mysrt);
     chart.show(item);
     var start = "NA";
     var end = "NA";
@@ -288,9 +287,7 @@ $("#search_bar").val($.QueryString["q"]);
         x: {
             type: 'timeseries',
             tick: {
-                format: function (x) { return month[x.getMonth()] + " " + x.getFullYear(); },
-                count:60,
-                culling:true
+                format: function (x) { return month[x.getMonth()] + " " + x.getFullYear(); }
             }
         }
     },

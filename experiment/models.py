@@ -106,7 +106,7 @@ def results_to_json_hierarchy(results):
     for r in results:
         metadata = get_doc_metadata(r)
         pubdate = parse(metadata["pubdate"])
-        binner[pubdate.year][pubdate.month][pubdate.day].append([metadata["headline"], metadata["pubdate"], metadata["url"]])
+        binner[pubdate.year][pubdate.month][pubdate.day].append([str(metadata["headline"].encode('ascii','ignore')), str(metadata["pubdate"].encode('ascii','ignore')), str(metadata["url"].encode('ascii','ignore'))])
     output = default_to_regular(binner)
     print "[*] binning results to json took {}".format(start_time - time.time())
     return output
@@ -133,7 +133,6 @@ def ovelaps_with_query(facet, query_tokens):
         return False
     else:
         return True
-
 
 
 def overlaps_with_output(facet, output):
@@ -198,7 +197,7 @@ class Models(object):
             params.page == 1
         start = ((params.page - 1) * PAGE_LENGTH) + 1
         end = start + PAGE_LENGTH + 1
-        output = "{} total results for {}. Showing {} thru {}".format(l_results, params.q, start, end)
+        output = "{} total results for {}.".format(l_results, params.q)
         return output
 
     @staticmethod

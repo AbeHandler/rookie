@@ -108,6 +108,7 @@ class Views(object):
             len_results=len_results,
             detail=binsize,
             results_json=results_json,
+            len_keys=len(keys),
             IP = self.ip,
             ROOKIE_JS = self.js,
             ROOKIE_CSS = self.rookie_css

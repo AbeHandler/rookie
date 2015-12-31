@@ -179,18 +179,21 @@ def medviz():
     print "[*] getting the keys took {}".format(start_time - time.time())
 
 
-    start = min(q_pubdates)
-    stop = max(q_pubdates)
-    keys = get_keys(start, stop, binsize)
+    try:
+        start = min(q_pubdates)
+        stop = max(q_pubdates)
+        keys = get_keys(start, stop, binsize)
+    except ValueError:
+        keys = []
 
     print keys
 
     if binsize == "month":
-        datas = [str(params.q).replace("_", " ")] + [get_val_from_df(params.q, key, df, binsize) for key in keys]
+        datas = [str(params.q)] + [get_val_from_df(params.q, key, df, binsize) for key in keys]
 
     facet_datas = []
     for f in facets:
-        facet_datas.append([str(f).replace(" ", "_")] + [get_val_from_df(f, key, df, binsize) for key in keys])
+        facet_datas.append([str(f)] + [get_val_from_df(f, key, df, binsize) for key in keys])
 
     keys = ["x"] + [k + "-1" for k in keys] # hacky addition of date to keys
 
