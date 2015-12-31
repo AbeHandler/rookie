@@ -9,6 +9,7 @@ import ujson
 import cPickle as pickle
 from dateutil.parser import parse as dateparse
 from pylru import lrudecorator
+from dateutil.parser import parse
 from collections import defaultdict
 from rookie.classes import IncomingFile
 from rookie.rookie import Rookie
@@ -68,6 +69,29 @@ def get_metadata_file():
 def get_doc_metadata(docid):
     row = session.connection().execute("select data from doc_metadata where docid=%s", docid).fetchone()
     return row[0]
+
+
+# http://stackoverflow.com/questions/26496831/how-to-convert-defaultdict-of-defaultdicts-of-defaultdicts-to-dict-of-dicts-o
+def default_to_regular(d):
+    if isinstance(d, defaultdict):
+        d = {k: default_to_regular(v) for k, v in d.iteritems()}
+    return d
+
+
+def results_to_json_hierarchy(results):
+    '''
+    Returns a json object with results hierarchically binned by year, month, day
+    '''
+    start_time = time.time()
+    binner = defaultdict(lambda : defaultdict(lambda : defaultdict(list)))
+    for r in results:
+        metadata = get_doc_metadata(r)
+        pubdate = parse(metadata["pubdate"])
+        binner[pubdate.year][pubdate.month][pubdate.day].append([metadata["headline"], metadata["pubdate"], metadata["url"]])
+    output = default_to_regular(binner)
+    print "[*] binning results to json took {}".format(start_time - time.time())
+    return output
+ 
 
 class Parameters(object):
 

@@ -3,7 +3,7 @@ import pylru
 import time
 import math
 from dateutil.parser import parse
-from experiment.models import make_dataframe
+from experiment.models import make_dataframe, results_to_json_hierarchy
 from flask import Flask
 from rookie.rookie import Rookie
 from flask import request
@@ -176,7 +176,7 @@ def medviz():
 
     keys = ["x"] + [str(int(i.split("-")[1])) + "-" + str(int(i.split("-")[0])) + "-1" for i in keys]
 
-    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results), binsize)
+    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results), binsize, results_to_json_hierarchy(results))
 
     return view
 

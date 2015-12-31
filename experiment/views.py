@@ -90,7 +90,7 @@ class Views(object):
         return response
 
 
-    def get_q_response_med(self, params, results, q_and_t, keys, datas, status, len_results, binsize):
+    def get_q_response_med(self, params, results, q_and_t, keys, datas, status, len_results, binsize, results_json):
         '''
         '''
         response = render_template(
@@ -107,6 +107,7 @@ class Views(object):
             status=status,
             len_results=len_results,
             detail=binsize,
+            results_json=results_json,
             IP = self.ip,
             ROOKIE_JS = self.js,
             ROOKIE_CSS = self.rookie_css
