@@ -1,4 +1,6 @@
-# import ipdb
+'''
+Application logic for webapp should be in here
+'''
 import sys
 import datetime
 import time
@@ -7,16 +9,13 @@ import pandas as pd
 import itertools
 import ujson
 import cPickle as pickle
-from dateutil.parser import parse as dateparse
+from dateutil.parser import parse
 from pylru import lrudecorator
 from dateutil.relativedelta import relativedelta
-from dateutil.parser import parse
 from collections import defaultdict
-from rookie.classes import IncomingFile
 from rookie.rookie import Rookie
 from experiment import log, CORPUS_LOC
 from experiment.snippet_maker import get_snippet_pg, get_snippet2
-from nltk.tokenize import word_tokenize
 from experiment.classes import CONNECTION_STRING
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -42,7 +41,7 @@ def get_pubdate_index():
         print "[*] loading json took {}".format(time.time() - start_time)
         output = {}
         for key in metadata:
-            output[key] = set([dateparse(p) for p in metadata[key]])
+            output[key] = set([parse(p) for p in metadata[key]])
         print "[*] building index took {}".format(time.time() - start_time)
         pickle.dump(output, open("PI.p", "wb" ))
     
@@ -219,12 +218,12 @@ class Models(object):
             output.page = 1
 
         try:
-            output.startdate = dateparse(request.args.get('startdate'))
+            output.startdate = parse(request.args.get('startdate'))
         except:
             print "could not parse start date {}".format(request.args.get('startdate'))
             output.startdate = None
         try:
-            output.enddate = dateparse(request.args.get('enddate'))
+            output.enddate = parse(request.args.get('enddate'))
         except:
             output.enddate = None
 
@@ -268,7 +267,7 @@ class Models(object):
         '''
         if params.startdate is not None and params.enddate is not None:
             md = lambda r: get_doc_metadata(r)
-            return [r for r in results if dateparse(md(r)["pubdate"]) > params.startdate and dateparse(md(r)["pubdate"]) < params.enddate]
+            return [r for r in results if parse(md(r)["pubdate"]) > params.startdate and parse(md(r)["pubdate"]) < params.enddate]
         else:
             return results
 

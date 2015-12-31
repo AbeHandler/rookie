@@ -1,7 +1,6 @@
 '''
 The main web app for rookie
 '''
-import pylru
 import ipdb
 import time
 import math
@@ -21,8 +20,6 @@ from whooshy.reader import query_subset
 from experiment.models import get_doc_metadata
 
 app = Flask(__name__)
-
-cache = pylru.lrucache(100)
 
 views = Views(LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS)
 
@@ -167,26 +164,12 @@ def medviz():
         df = df.groupby([df['pd'].map(lambda x: x.year), df['pd'].map(lambda x: x.month), df['pd'].map(lambda x: x.day)]).sum().unstack(0).fillna(0)
     print "[*] building the data frames took {}".format(start_time - time.time())
 
-    #df["NORA"][2010][11]
-    #start_time = time.time()
-    #if binsize == "year":
-    #    keys = [str(i) for i in df[params.q].axes[0]]
-    #if binsize == "month":
-    #    keys = itertools.product(*[[p for p in df[params.q].axes[0]], [p for p in df[params.q].axes[1]]])
-    #    keys = [pad(str(i[0])) + "-" + str(i[1]) for i in keys]
-    #    keys.sort(key=lambda x:(int(x.split("-")[1]), int(x.split("-")[0])))
-
-    print "[*] getting the keys took {}".format(start_time - time.time())
-
-
     try:
         start = min(q_pubdates)
         stop = max(q_pubdates)
         keys = get_keys(start, stop, binsize)
     except ValueError:
         keys = []
-
-    print keys
 
     if binsize == "month":
         datas = [str(params.q)] + [get_val_from_df(params.q, key, df, binsize) for key in keys]
