@@ -49,7 +49,7 @@ var all_results = {{results_json | safe}};
   <div class="row">
     <div>Common subjects related to <span style="font-weight:bold">{{data[0] | safe}}</span></div>
   </div>
-  <div class="row small-10 small-centered columns" id="facets">
+  <div class="small-10 small-centered columns" id="facets">
   </div>
   
   <div class="small-12 small-centered columns row" id="doclist">
@@ -137,8 +137,8 @@ var SparkList = React.createClass({
               borderBottomWidth=5;
               borderStyle="solid";
           }else{
-              csolor="grey";
-              fontsize="normal";
+              csolor="black";
+              fontsize="bold";
               borderBottomColor="grey";
               borderBottomWidth=0;
               borderStyle="none";
@@ -312,6 +312,9 @@ $("#search_bar").val($.QueryString["q"]);
   <style type="text/css">
       #chart .c3-circles-{{data[0].replace(" ", "-")}} {
         display: none;
+      }
+      .button.tiny.secondary {
+          margin-bottom: 5px;
       }
   </style>
 
