@@ -297,13 +297,16 @@ class Models(object):
         # AH: assuming the order of results is not changed since coming out from IR system
         for whoosh_index, r in enumerate(results):
             d = get_doc_metadata(r)
-
+            pubdate = parse(d['pubdate'])
             doc_results.append({
                 'search_engine_index': whoosh_index,
-                'pubdate': d['pubdate'],
-                'headline': d['headline'],
-                'url': d['url'],
-                'snippet': Models.get_snippet(r, params.q, f=params.detail, aliases=aliases)
+                'pubdate': d['pubdate'].encode("ascii", "ignore"),
+                'headline': d['headline'].encode("ascii", "ignore"),
+                'url': d['url'].encode("ascii", "ignore"),
+                'year': pubdate.year,
+                'month': pubdate.month,
+                'day': pubdate.day,
+                'snippet': Models.get_snippet(r, params.q, f=params.detail, aliases=aliases).encode("ascii", "ignore")
             })
         return doc_results
 

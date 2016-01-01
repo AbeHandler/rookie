@@ -182,7 +182,7 @@ def medviz():
 
     keys = ["x"] + [k + "-1" for k in keys] # hacky addition of date to keys
 
-    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results), binsize, results_to_json_hierarchy(doc_list))
+    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results), binsize)
 
     return view
 
