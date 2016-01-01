@@ -2,6 +2,7 @@
 The main web app for rookie
 '''
 import ipdb
+import pylru
 import time
 import math
 from dateutil.parser import parse
@@ -23,11 +24,13 @@ app = Flask(__name__)
 
 views = Views(LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS)
 
+cache = pylru.lrucache(1000)
+
 # BTO: this is problematic. assumes shared memory for all request processes.
 # flask individual file reloading breaks this assumption. so does certain types of python parallelism.
 # better to use cache in outside storage. e.g. redis/memcached. but psql might be more convenient for us.
 # or, could lrucache decorator be used instead?
-alias_table = defaultdict(lambda : defaultdict(list))
+# alias_table = defaultdict(lambda : defaultdict(list))
 
 @app.route('/', methods=['GET'])
 def index():
@@ -40,7 +43,8 @@ def get_doc_list():
     params = Models.get_parameters(request)
     results = Models.get_results(params)
     status = Models.get_status(params)
-    aliases = alias_table[params.q][params.detail]
+    # aliases = alias_table[params.q][params.detail]
+    aliases = cache[params.q + "##" + params.detail]
 
     if params.detail == params.q:
         # the user wants date detail for Q
@@ -61,7 +65,7 @@ def testing():
 
     log.debug('facets')
 
-    global alias_table
+    # global alias_table
 
     params = Models.get_parameters(request)
 
@@ -72,7 +76,8 @@ def testing():
     facets, aliases = Models.get_facets(params, results, 9)
 
     for f in facets:
-        alias_table[params.q][f] = aliases[f]
+        # alias_table[params.q][f] = aliases[f]
+        cache[params.q + "##" + f] = aliases[f]
 
     log.debug('got bins and facets')
 
@@ -115,7 +120,7 @@ def medviz():
 
     log.debug('facets')
 
-    global alias_table
+    # global alias_table
 
     params = Models.get_parameters(request)
 
@@ -138,7 +143,8 @@ def medviz():
     #         outf.write(f  + "\n")
 
     for f in facets:
-        alias_table[params.q][f] = aliases[f]
+        cache[params.q + "##" + f] = aliases[f]
+        # alias_table[params.q][f] = aliases[f]
 
     log.debug('got bins and facets')
 
@@ -190,7 +196,7 @@ def bigviz():
 
     log.debug('facets')
 
-    global alias_table
+    # global alias_table
 
     params = Models.get_parameters(request)
 
@@ -205,7 +211,8 @@ def bigviz():
     print "got facets"
 
     for f in facets:
-        alias_table[params.q][f] = aliases[f]
+        # alias_table[params.q][f] = aliases[f]
+        cache[params.q + "##" + f] = aliases[f]
 
     print "got metadata"
     metadata = [get_doc_metadata(r) for r in results]
