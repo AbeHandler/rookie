@@ -177,12 +177,6 @@ def passes_one_word_heuristic(on_deck):
 class Models(object):
 
     @staticmethod
-    def get_tokens(docid):
-        with open('articles/' + docid) as data_file:    
-            data = json.load(data_file)
-        return data
-
-    @staticmethod
     def get_headline(docid):
         return get_doc_metadata(docid)['headline']
 
