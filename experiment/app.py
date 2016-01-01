@@ -13,7 +13,6 @@ from flask import request
 from experiment.views import Views
 from collections import defaultdict
 from experiment.models import Models, Parameters
-from snippets.prelim import get_snippet
 from experiment import LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS
 from experiment import log
 from experiment import PAGE_LENGTH
@@ -62,8 +61,6 @@ def log_scale(p):
 
 @app.route('/facets', methods=['GET'])
 def testing():
-
-    log.debug('facets')
 
     # global alias_table
 
@@ -132,7 +129,6 @@ def medviz():
 
     log.debug('got results')
 
-
     facets, aliases = Models.get_facets(params, results, 9)
 
     # with open(params.q.replace(" ", "_") + "_aliases.json", "w") as outf:
@@ -186,15 +182,13 @@ def medviz():
 
     keys = ["x"] + [k + "-1" for k in keys] # hacky addition of date to keys
 
-    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results), binsize, results_to_json_hierarchy(results))
+    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results), binsize, results_to_json_hierarchy(doc_list))
 
     return view
 
 
 @app.route('/bigviz', methods=['GET'])
 def bigviz():
-
-    log.debug('facets')
 
     # global alias_table
 
@@ -203,22 +197,18 @@ def bigviz():
     start_time = time.time()
     results = Models.get_results(params)
     print "getting results took {}".format(start_time - time.time())
-    print "got results"
 
     start_time = time.time()
     facets, aliases = Models.get_facets(params, results, 3)
     print "getting facets took {}".format(start_time - time.time())
-    print "got facets"
 
     for f in facets:
         # alias_table[params.q][f] = aliases[f]
         cache[params.q + "##" + f] = aliases[f]
 
-    print "got metadata"
     metadata = [get_doc_metadata(r) for r in results]
 
     q_pubdates = [parse(h["pubdate"]) for h in metadata]
-    print "parsed dates"
     # df = make_dataframe(params, facets, results, q_pubdates, aliases)
 
     df = make_dataframe(params, facets, results, q_pubdates, aliases)

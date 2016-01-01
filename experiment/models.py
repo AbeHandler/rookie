@@ -8,13 +8,14 @@ import json
 import pandas as pd
 import itertools
 import ujson
+import ipdb
 import cPickle as pickle
 from dateutil.parser import parse
 from pylru import lrudecorator
 from dateutil.relativedelta import relativedelta
 from collections import defaultdict
 from rookie.rookie import Rookie
-from experiment import log, CORPUS_LOC
+from experiment import log
 from experiment.snippet_maker import get_snippet_pg, get_snippet2
 from experiment.classes import CONNECTION_STRING
 from sqlalchemy import create_engine
@@ -103,9 +104,8 @@ def results_to_json_hierarchy(results):
     start_time = time.time()
     binner = defaultdict(lambda : defaultdict(lambda : defaultdict(list)))
     for r in results:
-        metadata = get_doc_metadata(r)
-        pubdate = parse(metadata["pubdate"])
-        binner[pubdate.year][pubdate.month][pubdate.day].append([str(metadata["headline"].encode('ascii','ignore')), str(metadata["pubdate"].encode('ascii','ignore')), str(metadata["url"].encode('ascii','ignore'))])
+        pubdate = parse(r["pubdate"])
+        binner[pubdate.year][pubdate.month][pubdate.day].append([r["search_engine_index"], str(r["headline"].encode('ascii','ignore')), str(r["pubdate"].encode('ascii','ignore')), str(r["url"].encode('ascii','ignore')), str(r["snippet"].encode('ascii','ignore'))])
     output = default_to_regular(binner)
     print "[*] binning results to json took {}".format(start_time - time.time())
     return output
@@ -292,11 +292,14 @@ class Models(object):
         # chop off to only relevant results
         start = ((params.page - 1) * PAGE_LENGTH)
         end = start + PAGE_LENGTH
-        results = results[start:end]
-        for r in results:
+        # results = results[start:end]
+
+        # AH: assuming the order of results is not changed since coming out from IR system
+        for whoosh_index, r in enumerate(results):
             d = get_doc_metadata(r)
 
             doc_results.append({
+                'search_engine_index': whoosh_index,
                 'pubdate': d['pubdate'],
                 'headline': d['headline'],
                 'url': d['url'],
