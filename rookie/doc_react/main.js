@@ -102,6 +102,43 @@ var BigBin = React.createClass({
   }
 });
 
+var BinDeets = React.createClass({
+  render: function() {
+    let docs = this.props.docs;
+    docs = _.sortBy(docs, function(n) {
+      return n["search_engine_index"];
+    });
+    var story_budget = 2;
+    console.log(story_budget);
+    docs = _.slice(docs, 0, story_budget);
+    // let articleheight = this.props.fontpx + 15;
+    var markup = function(doc) { 
+       return {__html: doc["snippet"]};
+    };
+    var pubStyle = {
+      float: "left",
+      width: "10%"
+    }
+    var docStyle = {
+      float: "left",
+      width: "90%"
+    }
+    return <div>
+      {Object.keys(docs).map(function(key, i) {
+        return <div key={key}>
+                  <div style={pubStyle}>
+                    {docs[key]["pubdate"]}
+                  </div>
+                  <div style={docStyle}>
+                    <div key={key}>{docs[key]["headline"]}</div>
+                    <div dangerouslySetInnerHTML={markup(docs[key])}/>
+                  </div>
+                </div>
+      })}
+    </div>
+  }
+});
+
 var Viewer = React.createClass({
   getInitialState(){
     return {mode: "zoomOut", bin: "None"};
@@ -122,15 +159,37 @@ var Viewer = React.createClass({
       years = _.uniq(years);
       years = _.sortBy(years); 
       _.forEach(years, function(year) {
-        console.log(_.where(data, {'year':year}));
-        output[year] = "S";
+        output[year] = _.where(data, {'year':year});
       });
     }
-    console.log(output);
-    return "stuffsss";
+    return output;
   },
   render: function() {
-    return <div>{this.bin()}</div>
+    let items = this.bin();
+    let componentStyle = {
+        height: this.props.height + "px",
+        border: '1px solid green'
+    };
+    let binHeight = Math.floor(this.props.height / Object.keys(items).length);
+    let binStyle = {
+        height: binHeight,
+        border: '1px solid blue',
+        fontSize: this.props.fontpx + "px"
+    };
+    let rstyle = {
+      float: "left",
+      width: "95%"
+    };
+    let lstyle = {
+      float: "left",
+      width: "5%"
+    }
+    let fontpx = this.props.fontpx;
+    return <div style={componentStyle}>
+      {Object.keys(items).map(function(key, i) {
+        return <div key={i} style={binStyle}><div style={lstyle}>{key}</div><div style={rstyle}><BinDeets binHeight={binHeight} fontpx={fontpx} height={binHeight} docs={items[key]}/></div></div>;
+      })}
+    </div>
   }
 });
 
@@ -138,6 +197,6 @@ var all_results = [{'snippet': '<span style="font-weight:bold;color:black">Mitch
 
 
 ReactDOM.render(
-  <Viewer data={all_results} zoom="year"/>,
+  <Viewer height="500" data={all_results} fontpx="12" zoom="year"/>,
   document.getElementById('example')
 );
