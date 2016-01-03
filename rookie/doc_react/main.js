@@ -3,117 +3,18 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var _ = require('lodash');
 
-var Bin = React.createClass({
-    render: function() {
-        var divStyle = {
-          border: '1px solid yellow',
-          width: '100%'
-        }
-        var lStyle = {
-          float: 'left',
-          width: '80px'
-        }
-        var headlineStyle = {
-          float: 'left'
-        }
-        let articleheight = this.props.fontpx + 15;
-        var articleStyle = {
-          height: articleheight
-        }
-        var snippets = false;
-        if (snippets === true){
-          var story_budget = (this.props.bin_height / (this.props.fontpx * 3)) - 1;
-        }else{
-          var story_budget = this.props.bin_height / articleheight;
-          console.log("no snippets");
-        }
-        return (
-          <div style={divStyle}>
-              {this.props.docs.map(function(item, i) {
-                if (item.rank < story_budget){
-                    return <div key={i} style={articleStyle}><div style={lStyle}>{item.pubdate}</div><div style={headlineStyle}>{item.headline}</div></div>
-                  }
-                }, this)
-              }
-          </div>);
-    }
-});
-
-var DocBins = React.createClass({
-  handleClick: function(e) {
-    this.props.onClick(e);
-  },
-  render: function() {
-    var divStyle = {
-      border: '1px solid green'
-    }
-    var docsStyle = {
-      float: 'right',
-      width: '95%'
-    }
-    var datesStyle = {
-      float: 'left',
-      width: '5%'
-    }
-    var bin_height = this.props.height / this.props.items.length;
-    var binStyle = {
-      height: bin_height,
-      border: '1px solid pink'
-    }
-    return (
-      <div style={divStyle}>
-        {this.props.items.map(function(item, i) {
-            return <div key={i} style={binStyle}><div style={datesStyle} onClick={this.handleClick.bind(this, item.bin)}>{item.bin}</div><div style={docsStyle}><Bin bin_height={bin_height} fontpx={this.props.fontpx} docs={item.docs}/></div></div>
-          }, this)
-        }
-      </div>
-    );
-  }
-});
-
-var BigBin = React.createClass({
-  render: function() {
-    var divStyle = {
-      border: '1px solid green'
-    }
-    var docsStyle = {
-      float: 'right',
-      width: '95%'
-    }
-    var datesStyle = {
-      float: 'left',
-      width: '5%'
-    }
-    var bin_height = this.props.height;
-    var binStyle = {
-      height: bin_height,
-      border: '1px solid pink'
-    }
-    return (
-      <div style={divStyle}>
-        {this.props.items.map(function(item, i) {
-            if (item.bin == this.props.bin){
-              return <div key={i} style={binStyle}><div style={datesStyle} onClick={this.handleClick}>{item.bin}</div><div style={docsStyle}><Bin bin_height={bin_height} fontpx={this.props.fontpx} docs={item.docs}/></div></div>
-            }
-          }, this)
-        }
-      </div>
-    );
-  }
-});
-
 var BinDeets = React.createClass({
   render: function() {
     let docs = this.props.docs;
     docs = _.sortBy(docs, function(n) {
       return n["search_engine_index"];
     });
-    var story_budget = 2;
+    var story_budget = 6;
     console.log(story_budget);
     docs = _.slice(docs, 0, story_budget);
     // let articleheight = this.props.fontpx + 15;
     var markup = function(doc) { 
-       return {__html: doc["snippet"]};
+       return {__html: doc["snippet"] + "..."};
     };
     var pubStyle = {
       float: "left",
@@ -125,15 +26,9 @@ var BinDeets = React.createClass({
     }
     return <div>
       {Object.keys(docs).map(function(key, i) {
-        return <div key={key}>
-                  <div style={pubStyle}>
-                    {docs[key]["pubdate"]}
-                  </div>
-                  <div style={docStyle}>
-                    <div key={key}>{docs[key]["headline"]}</div>
-                    <div dangerouslySetInnerHTML={markup(docs[key])}/>
-                  </div>
-                </div>
+        return <span>
+                  <span dangerouslySetInnerHTML={markup(docs[key])}/>
+               </span>
       })}
     </div>
   }
