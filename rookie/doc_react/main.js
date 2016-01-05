@@ -233,11 +233,19 @@ var Chart = React.createClass({
     vars['NORA'] = ['NORA', 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 1.0, 0.0, 0.0, 0.0, 2.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0];
     vars['Ryan Berni'] = ['Ryan Berni', 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 4.0, 2.0, 1.0, 2.0, 2.0, 1.0, 1.0, 2.0, 0.0, 0.0, 0.0, 1.0, 1.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 2.0, 3.0, 0.0, 0.0, 3.0, 3.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
+    let reg;
+    let mo1 = this.props.t_mo;
+    let mo2 = this.props.t_mo + 1;
+    if (this.props.t_yr != -1){
+        reg = [{axis: 'x', start: this.props.t_yr + "-" + mo1 + "-15", end: this.props.t_yr + "-" + mo2 + "-15", class: 'regionX'}];
+    }
+    else{
+        reg = [];
+    }
+
     let color_array;
     let f = this.props.f;
     let tHandler = this.props.tHandler;
-    console.log("t");
-    console.log(tHandler);
     color_array = {}
     color_array[q] = '#B33125';
     if (this.props.f != -1){
@@ -265,6 +273,7 @@ var Chart = React.createClass({
     size: {
         height: 150
     },
+    regions: reg,
     data: {
         x: 'x',
         columns: cols,
@@ -383,8 +392,6 @@ var UI = React.createClass({
     this.setState({f: e, yr: -1, mo:-1, dy:-1});
   },
   handleT: function(e){
-    console.log("dddd");
-    console.log(e.x);
     let year = e.x.getFullYear();
     let month = e.x.getMonth();
     let day = e.x.getDay();
@@ -406,11 +413,15 @@ var UI = React.createClass({
     }else{
         t = -1; 
     }
+    let bin_size = "month";
+    if (bin_size == "month"){
+
+    }
     
     return(
     <div>
       <SparkList onClick={this.handleF} className="button-group even-3" items={datas}/>
-      <Chart q={q} tHandler={this.handleT} f={this.state.f}/>
+      <Chart q={q} t_yr={y} t_mo={this.state.mo} t_dy={this.state.dy}  tHandler={this.handleT} f={this.state.f}/>
       <div>F-16 Global Zone: q={q} f={f} t={t}</div>
     </div>);
   }
