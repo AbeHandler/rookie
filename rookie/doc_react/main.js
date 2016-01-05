@@ -220,6 +220,7 @@ var Chart = React.createClass({
     month[10]="Nov.";
     month[11]="Dec.";
 
+    let q = this.props.q;
     let q_data = ['Mitch Landrieu', 5.0, 4.0, 6.0, 6.0, 4.0, 2.0, 4.0, 7.0, 8.0, 11.0, 16.0, 11.0, 8.0, 5.0, 3.0, 3.0, 3.0, 5.0, 1.0, 6.0, 6.0, 8.0, 3.0, 7.0, 3.0, 4.0, 1.0, 0.0, 3.0, 1.0, 3.0, 2.0, 1.0, 1.0, 4.0, 3.0, 1.0, 0.0, 4.0, 12.0, 5.0, 5.0, 4.0, 8.0, 3.0, 10.0, 9.0, 1.0, 9.0, 3.0, 0.0, 9.0, 9.0, 9.0, 4.0, 8.0, 4.0, 3.0, 4.0, 3.0, 0.0, 2.0, 2.0, 2.0, 4.0, 3.0];
     let vars = {};
     vars['Department of Justice'] = ['Department of Justice', 0.0, 1.0, 2.0, 4.0, 3.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 3.0, 1.0, 1.0, 0.0, 2.0, 7.0, 1.0, 2.0, 2.0, 2.0, 0.0, 1.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 2.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
@@ -234,12 +235,13 @@ var Chart = React.createClass({
 
     let color_array;
     let f = this.props.f;
-    console.log("f is" + f);
+    let tHandler = this.props.tHandler;
+    console.log("t");
+    console.log(tHandler);
     color_array = {}
-    if (this.props.f == -1){
-      color_array['Mitch Landrieu'] = '#B33125';
-    }else{
-      color_array = {'Mitch Landrieu': '#B33125', f: 'gray'}
+    color_array[q] = '#B33125';
+    if (this.props.f != -1){
+        color_array[f] = '#0028a3'
     }
     let cols;
     if (this.props.f == -1){
@@ -254,13 +256,11 @@ var Chart = React.createClass({
             vars[f]
         ];
     }
-    let types;
-    if (this.props.f == -1){
-      types = {'Mitch Landrieu': 'area-spline'}
-    }else{
-      types = {'Mitch Landrieu': 'area-spline', f : "bar"}
+    let types = {};
+    types[q] = 'area-spline';
+    if (this.props.f != -1){
+      types[f] = 'bar';
     }
-    console.log(types);
     let chart = c3.generate({
     size: {
         height: 150
@@ -269,10 +269,9 @@ var Chart = React.createClass({
         x: 'x',
         columns: cols,
         colors: color_array,
-        onclick: function (d, element) {
-            console.log("ddd");
-            console.log(element);
-            console.log(d);
+        onclick: function (d, e) {
+            tHandler(d, e);
+            //this.props.tHandler(d, e);
         },
         bar: {
          width: 1
@@ -292,7 +291,6 @@ var Chart = React.createClass({
         show: false
     },
     tooltip: {
-        grouped: true, // Default true
         format: {
             value: function (value, ratio, id, index) {
               return value + " articles"; 
@@ -309,7 +307,6 @@ var Chart = React.createClass({
 var Name = React.createClass({
     handleClick: function(e) {
         this.props.onClick(e);
-        this.forceUpdate();
     },
     render: function() {
          let tmp = this.props.color;
@@ -382,21 +379,38 @@ var SparkList = React.createClass({
 
 var UI = React.createClass({
   
-  handleClick: function(e){
-    this.setState({f: e});
+  handleF: function(e){
+    this.setState({f: e, yr: -1, mo:-1, dy:-1});
+  },
+  handleT: function(e){
+    console.log("dddd");
+    console.log(e.x);
+    let year = e.x.getFullYear();
+    let month = e.x.getMonth();
+    let day = e.x.getDay();
+    this.setState({yr: year, mo:month, dy:day});
   },
   getInitialState(){
     //convention: -1 == null
-    return {f: -1, t:-1};
+    return {f: -1, yr:-1, mo:-1, dy:-1};
   },
   render: function() {
     let f = this.state.f;
-    let q = "mitch landrieu";
-    let t = this.state.t;
+    let q = "Mitch Landrieu";
+    let y = this.state.yr;
+    let m = this.state.mo;
+    let d = this.state.dy;
+    let t;
+    if (y != -1){
+        t = y + "-" + m + "-" + d; 
+    }else{
+        t = -1; 
+    }
+    
     return(
     <div>
-      <SparkList onClick={this.handleClick} className="button-group even-3" items={datas}/>
-      <Chart q = {this.state.q} f={this.state.f}/>
+      <SparkList onClick={this.handleF} className="button-group even-3" items={datas}/>
+      <Chart q={q} tHandler={this.handleT} f={this.state.f}/>
       <div>F-16 Global Zone: q={q} f={f} t={t}</div>
     </div>);
   }
