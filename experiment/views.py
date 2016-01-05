@@ -90,10 +90,10 @@ class Views(object):
         return response
 
 
-    def get_q_response_med(self, params, results, q_and_t, keys, datas, status, len_results, binsize):
+    def get_q_response_med(self, params, results, q_and_t, keys, datas, status, len_results, binsize, binned_facets):
         '''
+        return medviz view
         '''
-        print results
         response = render_template(
             'medviz.html',
             query=params.q,
@@ -109,6 +109,7 @@ class Views(object):
             len_results=len_results,
             detail=binsize,
             len_keys=len(keys),
+            binned_facets=binned_facets,
             IP = self.ip,
             ROOKIE_JS = self.js,
             ROOKIE_CSS = self.rookie_css

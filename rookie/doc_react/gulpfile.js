@@ -14,7 +14,7 @@ var paths = {
 };
 
 
-gulp.task('browserify', function() {
+gulp.task('b', function() {
     return browserify('main.js')
         .transform("babelify", {presets: ["react"]})
         .bundle()
@@ -22,6 +22,7 @@ gulp.task('browserify', function() {
         .pipe(source('bundle.js'))
         // Start piping stream to tasks!
         .pipe(gulp.dest('app/js'))
+        .pipe(gulp.dest('../../experiment/static/js'))
         // Reloading the stream
         .pipe(browserSync.reload({
            stream: true
@@ -38,5 +39,5 @@ gulp.task('browserSync', function() {
 })
 
 gulp.task('watch', ['browserSync'], function() {
-  gulp.watch(paths.scripts, ['browserify']);
+  gulp.watch(paths.scripts, ['b']);
 });

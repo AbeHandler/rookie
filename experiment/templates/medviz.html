@@ -14,11 +14,15 @@
 <script type="text/javascript" src="{{ROOKIE_JS}}"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.7/d3.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.js"></script>
+<script src="static/js/c3.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/history.js/1.8/bundled/html4+html5/jquery.history.min.js"></script>
+<div id="example"></div>
+<script src="static/js/bundle.js"></script>
+<link rel="stylesheet" href="static/css/react-datepicker.min.css"></link>
 
 <script type="text/javascript">
 var all_results = {{doc_list | safe}};
+var binned_facets = {{binned_facets | safe}};
 </script>
 
 <script src="https://s3-us-west-2.amazonaws.com/rookie2/js/nlp.js"></script>
@@ -204,7 +208,7 @@ $("#search_bar").val($.QueryString["q"]);
 
     q_data = {{data | safe }};
     var last;
-    var chart = c3.generate({
+    chart = c3.generate({
     size: {
         height: 150
     },
@@ -297,7 +301,9 @@ $("#search_bar").val($.QueryString["q"]);
     tooltip: {
         grouped: true, // Default true
         format: {
-            value: function (value, ratio, id, index) { return value + " articles"; }
+            value: function (value, ratio, id, index) {
+              return value + " articles"; 
+            }
         }
     }
 });
@@ -317,6 +323,8 @@ $("#search_bar").val($.QueryString["q"]);
           margin-bottom: 5px;
       }
   </style>
+
+
 
 </body>
 </html>

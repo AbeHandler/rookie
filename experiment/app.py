@@ -112,6 +112,16 @@ def get_val_from_df(val_key, dt_key, df, binsize="month"):
     except KeyError:
         return 0
 
+def date_filter(results, start, end):
+    '''
+    TODO delete 
+    '''
+    if start is not None and end is not None:
+        md = lambda r: get_doc_metadata(r)
+        return [r for r in results if parse(md(r)["pubdate"]) > start and parse(md(r)["pubdate"]) < end]
+    else:
+        return results
+
 @app.route('/medviz', methods=['GET'])
 def medviz():
 
@@ -128,6 +138,16 @@ def medviz():
     #         outf.write(r  + "\n")
 
     log.debug('got results')
+
+    #import datetime
+    binned_facets = {}
+    #for i in range(2010, 2016):
+    #    dt_start = datetime.datetime(year=i, month=1, day=1)
+    #    dt_end = datetime.datetime(year=i, month=12, day=31)
+    #    tmp = date_filter(results, dt_start, dt_end)
+    #    binfacets, binaliases = Models.get_facets(params, tmp, 9)
+    #    print str(i) + "\t" + ",".join([str(bf) for bf in binfacets])
+    #    binned_facets[str(i)] = [str(bf) for bf in binfacets]
 
     facets, aliases = Models.get_facets(params, results, 9)
 
@@ -182,7 +202,7 @@ def medviz():
 
     keys = ["x"] + [k + "-1" for k in keys] # hacky addition of date to keys
 
-    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results), binsize)
+    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results), binsize, binned_facets)
 
     return view
 

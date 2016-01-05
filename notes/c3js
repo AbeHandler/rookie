@@ -1,0 +1,10 @@
+here are the d3 scales -->
+https://github.com/masayuki0812/c3/blob/931109f8269688b8d623b4523335670dd813b4dc/src/scale.js#L4
+
+here is the internal function I think needs to be exposed --> 
+https://github.com/masayuki0812/c3/blob/f56e853237ca84c372fd5dcb795491a8ebc6468d/c3.js#L1327
+
+Dynamic regions: 
+regions are part of config. can modify the load function
+https://github.com/masayuki0812/c3/blob/f56e853237ca84c372fd5dcb795491a8ebc6468d/c3.js#L6677
+https://github.com/masayuki0812/c3/blob/f56e853237ca84c372fd5dcb795491a8ebc6468d/c3.js#L6214

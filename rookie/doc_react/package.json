@@ -1,8 +1,8 @@
 {
-  "name": "reactlines",
+  "name": "rookie",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,7 +17,10 @@
     "babel-preset-react": "^6.3.13",
     "babelify": "^7.2.0",
     "lodash": "^3.10.1",
+    "moment": "^2.11.0",
     "react": "^0.14.3",
+    "react-datepicker": "^0.17.0",
+    "react-day-picker": "^1.2.0",
     "react-dom": "^0.14.3",
     "react-sparklines": "^1.4.2"
   }
