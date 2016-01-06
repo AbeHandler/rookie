@@ -336,7 +336,7 @@ var FacetPreviewList = React.createClass({
     let fw = this.props.fontweight;
     console.log(this.props.active);
     return (
-      <div>
+      <span>
         {this.props.items.map(function(item, i) {
           let csolor;
           let fontsize;
@@ -360,7 +360,7 @@ var FacetPreviewList = React.createClass({
             <FacetPreview name={item} borderStyle={borderStyle} borderBottomWidth={borderBottomWidth} borderBottomColor={borderBottomColor} fontweight={fontsize} color={csolor} onClick={this.handleClick} key={i}/>
           );
         }, this)}
-      </div>
+      </span>
     );
   }
 });
@@ -436,7 +436,7 @@ var FacetDetailsBox = React.createClass({
                         <div style={lcol}>{x.key}</div>
                         <div style={mcol}>{rando()} docs</div>
                         <div style={rcol}>
-                            <FacetPreviewList active={this.props.f} items={x.facets} onClick={this.props.handleF}/>
+                            About: <FacetPreviewList active={this.props.f} items={x.facets} onClick={this.props.handleF}/>
                         </div>
                     </div>
                 )}
@@ -500,22 +500,15 @@ var UI = React.createClass({
     });
     return(
         <div>
+           <div style={row}>
+                Topics related to {q}
+           </div>
            <ButtonList onClick={this.handleF} items={datas}/>
            <div style={row}>
             <Chart q={q} t_yr={y} t_mo={this.state.mo} t_dy={this.state.dy}  tHandler={this.handleT} f={this.state.f}/>
-            <div>F-16 Global Zone: q={q} f={f} t={t}</div>
+            {/*<div>F-16 Global Zone: q={q} f={f} t={t}</div>*/}
            </div>
-           <div style={row}>
-                <div style={lcol}>
-                    &nbsp;
-                </div>
-                <div style={mcol}>
-                    &nbsp;
-                </div>
-                <div style={rcol}>
-                    Topics related to {q}
-                </div>
-           </div>
+           <div>Rookie found 124 docs about Mitch Landrieu:</div>
            <FacetDetailsBox f={f} handleF={this.handleF} bins={binned_facets}/>
        </div>);
   }
