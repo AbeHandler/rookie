@@ -13,3 +13,5 @@ devenv-key.pem
 test.dot
 .ipynb_checkpoints/
 awsstuff/medrookie.pem
+rookie/doc_react/node_modules/*
+rookie/doc_react/app/*

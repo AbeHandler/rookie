@@ -147,7 +147,7 @@ var ButtonList = React.createClass({
           let borderBottomWidth;
           let borderStyle;
           if (this.state.active===this.props.items[i].key){
-              csolor="#B33125";
+              csolor="#0028a3";
               fontsize="bold";
               borderBottomColor="black";
               borderStyle="1px solid black";
@@ -375,7 +375,6 @@ var SparkList = React.createClass({
   },
   render: function() {
     let fw = this.props.fontweight;
-    console.log(this.props.active);
     return (
       <div>
         {this.props.items.map(function(item, i) {
@@ -410,33 +409,38 @@ var SparkList = React.createClass({
 var FacetDetailsBox = React.createClass({
     render: function(){
         let row = {
-          width:"100%"
+          width:"100%",
+          overflow:"hidden"
         };
         let lcol = {
-          width:"10%",
+          width:"5%",
           float:'left',
           textAlign:'right'
         };
         let mcol = {
           width:"10%",
           float:'left',
+          textAlign:'center',
           paddingLeft:"10px"
         };
         let rcol = {
-          width:"80%",
+          width:"85%",
           float:'left'
         };
-        let rando = function(){
-            return Math.floor((Math.random() * 10) + 1);
+        let get_n_docs_in_bin = function(bin_key, bin_size){
+            if (bin_size == "year"){
+                return _.where(all_results, {'year':parseInt(bin_key)}).length;
+            }
+            return "TODO";
         }
         return(
            <div>
                 {this.props.bins.map((x, i) =>
                     <div key={i} style={row}>
                         <div style={lcol}>{x.key}</div>
-                        <div style={mcol}>{rando()} docs</div>
+                        <div style={mcol}>{get_n_docs_in_bin(x.key, "year")} docs</div>
                         <div style={rcol}>
-                            About: <FacetPreviewList active={this.props.f} items={x.facets} onClick={this.props.handleF}/>
+                            <FacetPreviewList active={this.props.f} items={x.facets} onClick={this.props.handleF}/>
                         </div>
                     </div>
                 )}
@@ -448,7 +452,7 @@ var FacetDetailsBox = React.createClass({
 var UI = React.createClass({
   
   handleF: function(e){
-    this.setState({f: e, yr: -1, mo:-1, dy:-1});
+    this.setState({f: e});
   },
   handleT: function(e){
     let year = e.x.getFullYear();
@@ -492,23 +496,35 @@ var UI = React.createClass({
       width:"80%",
       float:'left'
     };
-    binned_facets = _.sortBy(binned_facets, function(item) {
+    let binned_facets = _.sortBy(this.props.binned_facets, function(item) {
         if (item.key.indexOf("-") > -1){
             return -1000000; //gets keys with a - in them
         };
         return -parseInt(item.key);
     });
+    let get_min = function(results){
+        let momentresults = _.map(results, function(n){
+            return moment(n);
+        });
+        return _.min(momentresults).format("MMMM YYYY");
+    }
+    let get_max = function(results){
+        let momentresults = _.map(results, function(n){
+            return moment(n);
+        });
+        return _.max(momentresults).format("MMMM YYYY");
+    }
     return(
         <div>
            <div style={row}>
-                Topics related to {q}
+                Subjects related to {q} from {get_min(this.props.results)} to {get_max(this.props.results)}
            </div>
            <ButtonList onClick={this.handleF} items={datas}/>
            <div style={row}>
             <Chart q={q} t_yr={y} t_mo={this.state.mo} t_dy={this.state.dy}  tHandler={this.handleT} f={this.state.f}/>
             {/*<div>F-16 Global Zone: q={q} f={f} t={t}</div>*/}
            </div>
-           <div>Rookie found 124 docs about Mitch Landrieu:</div>
+           <div>Found {this.props.results.length} results for {this.props.q} related to: </div>
            <FacetDetailsBox f={f} handleF={this.handleF} bins={binned_facets}/>
        </div>);
   }
@@ -516,7 +532,7 @@ var UI = React.createClass({
 
 
 ReactDOM.render(
-  <UI/>,
+  <UI q="Mitch Landrieu" binned_facets={binned_facets} results={all_results}/>,
   document.getElementById('example')
 );
 
