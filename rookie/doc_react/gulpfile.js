@@ -38,6 +38,6 @@ gulp.task('browserSync', function() {
   })
 })
 
-gulp.task('watch', ['browserSync'], function() {
+gulp.task('w', ['browserSync'], function() {
   gulp.watch(paths.scripts, ['b']);
 });
