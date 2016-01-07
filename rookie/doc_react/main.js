@@ -81,6 +81,8 @@ var Chart = React.createClass({
     vars['NORA'] = ['NORA', 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 1.0, 0.0, 0.0, 0.0, 2.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0];
     vars['Ryan Berni'] = ['Ryan Berni', 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 4.0, 2.0, 1.0, 2.0, 2.0, 1.0, 1.0, 2.0, 0.0, 0.0, 0.0, 1.0, 1.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 2.0, 3.0, 0.0, 0.0, 3.0, 3.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
+    console.log(this.props);
+
     let reg;
     if (this.props.yr_start != -1){
         reg = [{axis: 'x', start: this.props.yr_start + "-" + this.props.mo_start + "-" + this.props.dy_start, end: this.props.yr_end + "-" + this.props.mo_end + "-" + this.props.dy_end, class: 'regionX'}];
@@ -377,11 +379,23 @@ var TFacetedDocViewer = React.createClass({
           borderLeft: "1px solid #809fff"
         };
         let binsize = this.props.bin_size;
+        let docs = _.sortBy(this.props.docs, function(d){
+            return moment(d.pubdate);
+        });
         let get_n_docs_in_bin = function(bin_key){
             if (binsize == "year"){
-                return _.where(all_results, {'year':parseInt(bin_key)}).length;
+                return _.where(docs, {'year':parseInt(bin_key)}).length;
             }
-            return "TODO";
+            if (binsize == "month"){
+                let dt_array = bin_key.split(" ");
+                let mo = dt_array[0];
+                let yr = dt_array[1];
+                return _.where(docs, {'year':parseInt(yr), 'month':parseInt(mo)}).length;
+            }
+            if (binsize == "day"){
+                return "TODO";
+            }
+            return "SHOULD NOT FIRE";
         };
         let link = {textDecoration: "underline"};
         let bin_key = {textDecoration: "underline", color: "black", fontWeight: "bold"};
@@ -392,9 +406,6 @@ var TFacetedDocViewer = React.createClass({
         var isSelected = function(key) {
            return key === selected;
         };
-        let docs = _.sortBy(this.props.docs, function(d){
-            return moment(d.pubdate);
-        });
         return(
             <div>
                <div style={lcol}>
@@ -441,6 +452,7 @@ var UI = React.createClass({
     this.setState({yr_start: year, mo_start:month, dy_start:15});
     this.setState({yr_end: year, mo_end:month+1, dy_end:15});
   },
+
   handleBinDocsZoom: function(e, zoom_level){
     if (zoom_level == "year"){
         this.setState({yr_start: e, mo_start:"01", dy_start:"1"});
@@ -448,16 +460,18 @@ var UI = React.createClass({
         this.setState({mode: "docs"});
     }
   },
+
   getInitialState(){
     //Notes.
     //1) convention: -1 == null
     //2) keeping track of y/mo/dy is annoying but react won't allow object as prop
     return {f: -1, yr_start:-1, mo_start:-1, dy_start:-1, yr_end:-1, mo_end:-1, dy_end:-1, mode:"overview",  f_results:f_list};
   },
+
   render: function() {
     let f = this.state.f;
-    let q = "Mitch Landrieu";
-    let bin_size = "year";
+    let q = this.props.q;
+    let bin_size = "year"; //default binsize
     let row = {
       width:"100%"
     };
@@ -493,22 +507,31 @@ var UI = React.createClass({
         return _.max(momentresults).format("MMMM YYYY");
     }
     let main_panel;
-    let status;
+    let status; 
     if (this.state.mode != "overview") {
       //i.e. show docs, not per-time bin facets
       let docs;
+      let t_status = ""
       if (this.state.f === -1){
-        docs = _.where(this.props.all_results, {'year':parseInt(this.state.yr_start)});
+        docs = all_results;
+        if (bin_size == "year" & this.state.yr_start != -1){
+           t_status = " in " + this.state.yr_start;
+           status = "Showing " + docs.length + " results for " + this.props.q + t_status;
+        }
       } else{
         docs = this.state.f_results;
+        if (this.state.yr_start != -1){
+            let m = moment(this.state.yr_end + '-' + this.state.mo_end + "-" + this.state_dy_end);
+            status = "Showing " + docs.length + " results for " + this.props.q + " and " + f + " in " + m.format("MMM YYYY");
+            binned_facets = [{"key": m.format("MM YYYY"), "facets": []}];
+            bin_size = "month";
+            docs = _.where(this.state.f_results, {'year': this.state.yr_end, 'month': this.state.mo_end});
+        }else{
+            status = "Showing " + docs.length + " results for " + this.props.q + " and " + f;
+        }
       } 
-      let t_status = ""
-      if (bin_size == "year"){
-        t_status = " in " + this.state.yr_start;
-      }
-      status = "Showing " + docs.length + " results for " + this.props.q + t_status;
-
-      main_panel = <TFacetedDocViewer handleBinClick={this.handleBinClick} selected={this.state.yr_start} height={320} docs={docs} bin_size="year" bins={binned_facets}/>;
+      
+      main_panel = <TFacetedDocViewer handleBinClick={this.handleBinClick} selected={this.state.yr_start} height={320} docs={docs} bin_size={bin_size} bins={binned_facets}/>;
 
     } else {
       status = "Found " + this.props.all_results.length + " results for " + this.props.q + " related to:"
