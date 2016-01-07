@@ -38,24 +38,12 @@ var ButtonList = React.createClass({
     return (
       <div>
         {this.props.items.map(function(item, i) {
-          let csolor;
-          let fontsize;
-          let borderBottomColor;
-          let borderBottomWidth;
-          let borderStyle;
+          let color = "black";
           if (this.state.active===this.props.items[i].key){
-              csolor="#0028a3";
-              fontsize="bold";
-              borderBottomColor="black";
-              borderStyle="1px solid black";
-              borderStyle="solid";
-          }else{
-              csolor="black";
-              fontsize="bold";
-              borderBottomColor="grey";
+              color="#0028a3";
           }
           return (
-            <Name data={item.data} name={item.key} borderStyle={borderStyle} borderBottomWidth={borderBottomWidth} borderBottomColor={borderBottomColor} fontweight={fontsize} color={csolor} onClick={this.handleClick} key={i}/>
+            <Name color={color} data={item.data} name={item.key} onClick={this.handleClick} key={i}/>
           );
         }, this)}
       </div>
@@ -167,20 +155,17 @@ var Name = React.createClass({
         this.props.onClick(e);
     },
     render: function() {
-         let tmp = this.props.color;
          var divStyle = {
-            color: tmp,
+            color: this.props.color,
             "paddingRight": "5px",
             "paddingLeft": "5px",
             "marginLeft": "3px",
             "marginRight": "3px",
-            "fontWeight": this.props.fontweight,
-            "borderStyle":this.props.borderStyle,
-            "border": '1px solid ' + this.props.borderBottomColor
+            "fontWeight": "bold"
          };
-         var display = this.props.name.replace(/_/g, ' ');
+         
          return (<div className="button tiny secondary" style={divStyle} name={this.props.name} onClick={this.handleClick.bind(this, this.props.name)}>
-            {display}
+            {this.props.name}
         </div>);
     }
 });
@@ -219,11 +204,6 @@ var FacetPreviewList = React.createClass({
     return (
       <span>
         {this.props.items.map(function(item, i) {
-          let csolor;
-          let fontsize;
-          let borderBottomColor;
-          let borderBottomWidth;
-          let borderStyle;
           let divStyle = {
               csolor: "black",
               fontsize: {fw},
@@ -441,6 +421,7 @@ var UI = React.createClass({
     //});
   },
   handleBinClick: function(e){
+    this.setState({f: -1}); // f is unselected
     this.setState({yr_start: e, mo_start:"01", dy_start:"01"});
     this.setState({yr_end: e, mo_end:"12", dy_end:"31"});
   },
