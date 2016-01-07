@@ -1,0 +1,15 @@
+search http://localhost:5000/medviz?q=levee. drilling down to Jay Lapere is GREAT. So showing the original text is great when possible.
+
+if you are in browse mode.... just Q... no F or T.... too many docs... you can show facets...
+
+1/5/15 -- There are essentially two facet lists: F and T(binned). It makes sense for one to be a vertical list and one to be horizontal list. Why is the time a vertical -- but the x axis of the time graph is a vertical? Also: do you need the chart? You could bin the chart and click region for navigation.
+
+So one issue w/ a horizontal list of timebin buttons under chart is that they are headings for subfacets. English is read L to R, not top to bottom. But traditional japanese...
+
+Time is ordinal. Space is ordinal? Maybe the Rookie argument is ordinal + facets > IR.
+
+Implementation: if just Q seleted (no F or T) then bin the chart into invisible regions. Clicking region will limit to the date range. Hover will show the region. Because you should just be able to click on zoom. 
+
+Analogy w/ color pickers? Chunking time is better than giving 10 zillion options. But there should be an advanced color picker. 
+
+Buttons should be check marks? and should be on L side. Time bins on top.

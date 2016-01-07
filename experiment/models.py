@@ -226,10 +226,16 @@ class Models(object):
         except:
             output.docid = None
 
+        # TODO: remove. replaced w/ F
         try:
             output.detail = request.args.get('detail').replace("_", " ")
         except:
             output.detail = None
+
+        try:
+            output.f = request.args.get('f')
+        except:
+            output.f = None
     
         try:
             output.date_detail = request.args.get('date_detail')
@@ -313,19 +319,7 @@ class Models(object):
 
     @staticmethod
     def get_status(params):
-        if params.zoom == "year":
-            try:
-                status = "Documents containing <span style='font-weight: bold;'>{}</span> and <span style='font-weight:bold;'>{}</span> from {} to {}".format(params.q, params.detail, params.startdate.year, params.enddate.year)
-            except AttributeError:
-                status = "Documents containing <span style='font-weight: bold; '>{}<span> and <span style='font-weight:bold;'>{}</span>".format(params.q, params.detail)
-        if params.zoom == "month":
-            try:
-                status = "Documents containing <span style='font-weight: bold ; '>{}</span> and <span style='font-weight:bold;'>{}</span> from {}, {}".format(params.q, params.detail, params.startdate.strftime("%B"), params.enddate.strftime("%Y"))
-            except AttributeError:
-                status = "Documents containing <span style='font-weight: bold ; '>{}</span> and <span style='font-weight:bold;'>{}</span>".format(params.q, params.detail)
-        if params.zoom == "None":
-            status = "Documents containing <span style='font-weight: bold ; '>{}</span> and <span style='font-weight:bold;'>{}</span>".format(params.q, params.detail)
-        return status
+        return ""
 
 
     @staticmethod

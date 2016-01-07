@@ -4,6 +4,7 @@ The main web app for rookie
 import ipdb
 import pylru
 import time
+import json
 import math
 from dateutil.parser import parse
 from experiment.models import make_dataframe, results_to_json_hierarchy, get_keys
@@ -36,6 +37,7 @@ def index():
     log.info("index routing")
     return views.get_start_page()
 
+'''
 @app.route("/get_doc_list", methods=['POST'])
 def get_doc_list():
 
@@ -53,6 +55,27 @@ def get_doc_list():
         results = Models.f_occurs_filter(results, facet=params.detail, aliases=aliases)
     doc_list = Models.get_doclist(results, params, PAGE_LENGTH, aliases=aliases)
     return views.get_doc_list(doc_list, params, status)
+'''
+
+@app.route("/post_for_docs", methods=['GET'])
+def get_doc_list():
+
+    params = Models.get_parameters(request)
+    results = Models.get_results(params)
+    status = ""
+    print params.q
+    print params.detail
+    aliases = cache[params.q + "##" + params.detail]
+
+    results = Models.date_filter(results, params)
+    
+    results = Models.f_occurs_filter(results, facet=params.detail, aliases=aliases)
+    
+    doc_list = Models.get_doclist(results, params, PAGE_LENGTH, aliases=aliases)
+
+    print doc_list
+
+    return json.dumps(doc_list)
 
 
 def log_scale(p):
@@ -139,15 +162,15 @@ def medviz():
 
     log.debug('got results')
 
-    #import datetime
+    import datetime
     binned_facets = {}
-    #for i in range(2010, 2016):
-    #    dt_start = datetime.datetime(year=i, month=1, day=1)
-    #    dt_end = datetime.datetime(year=i, month=12, day=31)
-    #    tmp = date_filter(results, dt_start, dt_end)
-    #    binfacets, binaliases = Models.get_facets(params, tmp, 9)
-    #    print str(i) + "\t" + ",".join([str(bf) for bf in binfacets])
-    #    binned_facets[str(i)] = [str(bf) for bf in binfacets]
+    for i in range(2010, 2016):
+        dt_start = datetime.datetime(year=i, month=1, day=1)
+        dt_end = datetime.datetime(year=i, month=12, day=31)
+        tmp = date_filter(results, dt_start, dt_end)
+        binfacets, binaliases = Models.get_facets(params, tmp, 9)
+        print str(i) + "\t" + ",".join([str(bf) for bf in binfacets])
+        binned_facets[str(i)] = [str(bf) for bf in binfacets]
 
     facets, aliases = Models.get_facets(params, results, 9)
 
