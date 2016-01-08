@@ -243,7 +243,10 @@ var BinCaption = React.createClass({
 var FacetDetailsBox = React.createClass({
     
     handleBinDocsZoom: function(e){
+        console.log(e);
+        console.log(this.props);
         this.props.handleBinDocsZoom(e, this.props.bin_size);
+        console.log("ok");
     },
 
     render: function(){
@@ -271,6 +274,7 @@ var FacetDetailsBox = React.createClass({
         };
         return(
            <div>
+                FACET DETAILS BOX
                 {this.props.bins.map((x, i) =>
                     <div onClick={this.handleBinDocsZoom.bind(this, x.key)} key={i} style={row}>
                         <div style={lcol}><BinCaption handleBinClick={this.props.handleBinClick} selected="false" text={x.key} ndocs={get_n_docs_in_bin(x.key)}/></div>
@@ -356,7 +360,11 @@ var TFacetedDocViewer = React.createClass({
             if (item != "x"){
                 let m = moment(item);
                 if (m >= start & m < end){
-                    sum += vars[f][key];
+                    if (f != -1){
+                        sum += vars[f][key];
+                    }else{
+                        sum += q_data[key];
+                    }
                 }
             }
         });
@@ -384,26 +392,8 @@ var TFacetedDocViewer = React.createClass({
     },
 
     get_n_docs_in_bin: function(bin_key){
-            if (this.props.f != -1){
-                let start_end = this.bin_key_to_range(bin_key);
-                console.log(start_end);
-                return this.count_in_range(this.props.f, start_end["start"], start_end["end"]);
-            }else{
-                //TODO: refactor to match cleaner logic of if stmt
-                if (binsize == "year"){
-                    return _.where(all_results, {'year':parseInt(bin_key)}).length;
-                }
-                if (binsize == "month"){
-                    let dt_array = bin_key.split(" ");
-                    let mo = dt_array[0];
-                    let yr = dt_array[1];
-                    return _.where(docs, {'year':parseInt(yr), 'month':parseInt(mo)}).length;
-                }
-                if (binsize == "day"){
-                    return "TODO";
-                }
-                return "SHOULD NOT FIRE";
-            }
+        let start_end = this.bin_key_to_range(bin_key);
+        return this.count_in_range(this.props.f, start_end["start"], start_end["end"]);
     },
 
     render: function(){
@@ -435,16 +425,25 @@ var TFacetedDocViewer = React.createClass({
         var markup = function(doc) { 
            return {__html: doc["snippet"]};
         };
-        let selected = this.props.selected; 
-        var isSelected = function(key) {
-           return key === selected;
+        let props = this.props;
+        var isSelected = function(key, binsize) {
+            console.log(props);
+            console.log(props.yr_start == props.yr_end);
+            console.log(key);
+           if (binsize == "year" & props.yr_start.toString() == props.yr_end.toString()){
+                if (props.yr_start.toString() == key){
+                    return true;
+                }
+           }
+           return false;
         };
         return(
             <div>
+                TFACETEDDOCVIEWER
                <div style={lcol}>
                     {this.props.bins.map((x, i) =>
                         <div key={i} style={row}>
-                            <BinCaption handleBinClick={this.props.handleBinClick} selected={isSelected(x.key)} text={x.key} ndocs={this.get_n_docs_in_bin(x.key)}/>
+                            <BinCaption handleBinClick={this.props.handleBinClick} selected={isSelected(x.key, binsize)} text={x.key} ndocs={this.get_n_docs_in_bin(x.key)}/>
                         </div>
                     )}
                </div>
@@ -464,9 +463,9 @@ var UI = React.createClass({
     //user just clicked an F button in ButtonList
   
     this.setState({f: e});
-    let min = this.get_min(this.props.all_results);
-    let max = this.get_max(this.props.all_results);
-    this.setState({yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD")});
+    //let min = this.get_min(this.props.all_results);
+    //let max = this.get_max(this.props.all_results);
+    //this.setState({yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD")});
     this.setState({mode: "docs"});
     //Mock call to server
     //Maybe push all F to client to avoid complexity of post?
@@ -475,7 +474,6 @@ var UI = React.createClass({
     //});
   },
   handleBinClick: function(e){
-    this.setState({f: -1}); // f is unselected
     this.setState({yr_start: e, mo_start:"01", dy_start:"01"});
     this.setState({yr_end: e, mo_end:"12", dy_end:"31"});
   },
@@ -485,7 +483,6 @@ var UI = React.createClass({
     let year = e.x.getFullYear();
     let month = e.x.getMonth();
     let day = e.x.getDay();
-    console.log(year);
     this.setState({yr_start: year, mo_start:month, dy_start:15});
     this.setState({yr_end: year, mo_end:month+1, dy_end:15});
   },
@@ -526,19 +523,18 @@ var UI = React.createClass({
     if (this.state.mode == "overview"){
         status = status + " related to:"
     }else if (this.state.mode == "docs") {
-        if (parseInt(this.state.dy_start) === 1 & parseInt(this.state.mo_start) === 1 & this.state.dy_end == "31" & this.state.mo_end == "12"){
-            status = status + " in " + this.state.yr_start;
-        }
         let start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
         let end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
         var duration = moment.duration(end.diff(start));
         if (this.state.f != -1){
             status = status + " and " + this.state.f; 
         }
-        if (Math.floor(duration.asDays()) < 32 & Math.floor(duration.asDays()) > 28){
-            status = status + " in " + start.format("MMM YYYY");
+        if (parseInt(this.state.dy_start) === 1 & parseInt(this.state.mo_start) === 1 & this.state.dy_end == "31" & this.state.mo_end == "12"){
+            status = status + " in " + this.state.yr_start;
         }
-        if (Math.floor(duration.asDays()) > 364 & Math.floor(duration.asDays()) < 366){
+        else if (Math.floor(duration.asDays()) < 32 & Math.floor(duration.asDays()) > 28){
+            status = status + " in " + start.format("MMM YYYY");
+        }else if (Math.floor(duration.asDays()) > 364 & Math.floor(duration.asDays()) < 366){
             status = status + " in " + start.format("YYYY");
         }
     }
@@ -559,8 +555,6 @@ var UI = React.createClass({
     });
     let start = moment(this.state.mo_start + "-" + this.state.dy_start + "-" +  this.state.yr_start);
     let end = moment(this.state.mo_end + "-" + this.state.dy_end + "-" +  this.state.yr_end);
-    console.log(start);
-    console.log(end);
     return _.filter(results, function(value, key) {
         return moment(value.pubdate) >= start && moment(value.pubdate) <= end;
     });
@@ -596,9 +590,8 @@ var UI = React.createClass({
         return parseInt(item.key);
     });
     let main_panel;
-    console.log(this.state);
     if (this.state.mode != "overview") {      
-      main_panel = <TFacetedDocViewer f={this.state.f} handleBinClick={this.handleBinClick} selected={this.state.yr_start} height={320} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>;
+      main_panel = <TFacetedDocViewer f={this.state.f} handleBinClick={this.handleBinClick} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} height={320} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>;
     } else {
       //status = "Found " + this.props.all_results.length + " results for " + this.props.q + " related to:"
       main_panel = <FacetDetailsBox bin_size="year" handleBinDocsZoom={this.handleBinDocsZoom} f={f} handleF={this.handleF} bins={binned_facets}/>;
