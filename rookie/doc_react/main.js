@@ -29,6 +29,7 @@ vars['Ryan Berni'] = ['Ryan Berni', 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 4.0,
 
 var chart_bins = ['x', '2010-1-1', '2010-2-1', '2010-3-1', '2010-4-1', '2010-5-1', '2010-6-1', '2010-7-1', '2010-8-1', '2010-9-1', '2010-10-1', '2010-11-1', '2010-12-1', '2011-1-1', '2011-2-1', '2011-3-1', '2011-4-1', '2011-5-1', '2011-6-1', '2011-7-1', '2011-8-1', '2011-9-1', '2011-10-1', '2011-11-1', '2011-12-1', '2012-1-1', '2012-2-1', '2012-3-1', '2012-4-1', '2012-5-1', '2012-6-1', '2012-7-1', '2012-8-1', '2012-9-1', '2012-10-1', '2012-11-1', '2012-12-1', '2013-1-1', '2013-2-1', '2013-3-1', '2013-4-1', '2013-5-1', '2013-6-1', '2013-7-1', '2013-8-1', '2013-9-1', '2013-10-1', '2013-11-1', '2013-12-1', '2014-1-1', '2014-2-1', '2014-3-1', '2014-4-1', '2014-5-1', '2014-6-1', '2014-7-1', '2014-8-1', '2014-9-1', '2014-10-1', '2014-11-1', '2014-12-1', '2015-1-1', '2015-2-1', '2015-3-1', '2015-4-1', '2015-5-1', '2015-6-1'];
 
+
 //TODO: tigher linking w/ F
 var datas = [
    {"key": "Department of Justice"},  
@@ -342,6 +343,69 @@ var TFacetedDocViewer = React.createClass({
         this.props.handleBinDocsZoom(e, this.props.bin_size);
     },
 
+    /**
+     * Counts occurace of a facet in a timespan
+     * @param {f} facet - string. Key of vars.
+     * @param {moment} start - start of span
+     * @param {moment} end - end of span
+     * @returns {int} sum
+     */
+    count_in_range: function(f, start, end){
+        let sum = 0
+        _.each(chart_bins, function(item, key){
+            if (item != "x"){
+                let m = moment(item);
+                if (m >= start & m < end){
+                    sum += vars[f][key];
+                }
+            }
+        });
+        return sum;
+    },
+
+    /**
+     * Take a bin key (string) and return a pair of moment objects
+     * @param {string} key - ex: "2011" or "Mar 2011"
+     * @returns {[moment, moment]} start and end of range
+     */
+    bin_key_to_range: function(key){
+        let output = {}
+        if (/^(19|20)\d{2}$/.test(key)){
+            output["start"] = moment(key + "-01-01");
+            output["end"] = moment(key + "-12-31");
+            return output
+        }
+        //untested... -->
+        if (/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (19|20)\d{2}$/.test(key)){
+            //output["start"] = moment(key + "-01-01");
+            //output["end"] = moment(key + "-12-31");
+            return output
+        }
+    },
+
+    get_n_docs_in_bin: function(bin_key){
+            if (this.props.f != -1){
+                let start_end = this.bin_key_to_range(bin_key);
+                console.log(start_end);
+                return this.count_in_range(this.props.f, start_end["start"], start_end["end"]);
+            }else{
+                //TODO: refactor to match cleaner logic of if stmt
+                if (binsize == "year"){
+                    return _.where(all_results, {'year':parseInt(bin_key)}).length;
+                }
+                if (binsize == "month"){
+                    let dt_array = bin_key.split(" ");
+                    let mo = dt_array[0];
+                    let yr = dt_array[1];
+                    return _.where(docs, {'year':parseInt(yr), 'month':parseInt(mo)}).length;
+                }
+                if (binsize == "day"){
+                    return "TODO";
+                }
+                return "SHOULD NOT FIRE";
+            }
+    },
+
     render: function(){
         let row = {
           width:"100%",
@@ -365,21 +429,7 @@ var TFacetedDocViewer = React.createClass({
         let docs = _.sortBy(this.props.docs, function(d){
             return moment(d.pubdate);
         });
-        let get_n_docs_in_bin = function(bin_key){
-            if (binsize == "year"){
-                return _.where(all_results, {'year':parseInt(bin_key)}).length;
-            }
-            if (binsize == "month"){
-                let dt_array = bin_key.split(" ");
-                let mo = dt_array[0];
-                let yr = dt_array[1];
-                return _.where(docs, {'year':parseInt(yr), 'month':parseInt(mo)}).length;
-            }
-            if (binsize == "day"){
-                return "TODO";
-            }
-            return "SHOULD NOT FIRE";
-        };
+        let f = this.props.f;
         let link = {textDecoration: "underline"};
         let bin_key = {textDecoration: "underline", color: "black", fontWeight: "bold"};
         var markup = function(doc) { 
@@ -394,7 +444,7 @@ var TFacetedDocViewer = React.createClass({
                <div style={lcol}>
                     {this.props.bins.map((x, i) =>
                         <div key={i} style={row}>
-                            <BinCaption handleBinClick={this.props.handleBinClick} selected={isSelected(x.key)} text={x.key} ndocs={get_n_docs_in_bin(x.key)}/>
+                            <BinCaption handleBinClick={this.props.handleBinClick} selected={isSelected(x.key)} text={x.key} ndocs={this.get_n_docs_in_bin(x.key)}/>
                         </div>
                     )}
                </div>
@@ -546,8 +596,9 @@ var UI = React.createClass({
         return parseInt(item.key);
     });
     let main_panel;
+    console.log(this.state);
     if (this.state.mode != "overview") {      
-      main_panel = <TFacetedDocViewer handleBinClick={this.handleBinClick} selected={this.state.yr_start} height={320} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>;
+      main_panel = <TFacetedDocViewer f={this.state.f} handleBinClick={this.handleBinClick} selected={this.state.yr_start} height={320} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>;
     } else {
       //status = "Found " + this.props.all_results.length + " results for " + this.props.q + " related to:"
       main_panel = <FacetDetailsBox bin_size="year" handleBinDocsZoom={this.handleBinDocsZoom} f={f} handleF={this.handleF} bins={binned_facets}/>;
