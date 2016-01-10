@@ -1,3 +1,4 @@
+/* jshint node: true */
 "use strict";
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -132,7 +133,7 @@ var Chart = React.createClass({
         x: {
             type: 'timeseries',
             tick: {
-                format: function (x) {return moment(x.toString()).format("MMM YYYY")}
+                format: function (x) {return moment(x.toString()).format("MMM YYYY");}
             }
         }
     },
@@ -187,7 +188,7 @@ var FacetPreview = React.createClass({
          };
          var spanStyle = {
             "marginRight": "3px"
-         }
+         };
          let display = this.props.name;
          return (<span style={spanStyle} name={this.props.name} onClick={this.handleClick.bind(this, this.props.name)}><a style={aStyle}>{display}</a>,</span>);
     }
@@ -211,7 +212,7 @@ var FacetPreviewList = React.createClass({
               csolor: "black",
               fontsize: {fw},
               borderBottomColor: "grey"
-          }
+          };
           return (
             <FacetPreview name={item} style={divStyle} onClick={this.handleClick} key={i}/>
           );
@@ -229,14 +230,14 @@ var BinCaption = React.createClass({
     render: function(){
         console.log(this.props);
         let bigStyle = {};
-        bigStyle["cursor"] = "pointer";
-        bigStyle["height"] = this.props.rw_height;
+        bigStyle.cursor = "pointer";
+        bigStyle.height = this.props.rw_height;
         if (this.props.selected === true){
-            bigStyle["backgroundColor"] = "rgba(102,126,199,.1)"; //same as region color
+            bigStyle.backgroundColor = "rgba(102,126,199,.1)"; //same as region color
         }
         let bin_key = {textDecoration: "underline", color: "black", fontWeight: "bold"};
         let link = {fontSize: "small", color: "rgb(0, 40, 163)"};
-        return <div onClick={this.handleClick.bind(this, this.props.text)} style={bigStyle}><div style={bin_key}>{this.props.text}</div><div style={link}>{this.props.ndocs} stories</div></div>
+        return <div onClick={this.handleClick.bind(this, this.props.text)} style={bigStyle}><div style={bin_key}>{this.props.text}</div><div style={link}>{this.props.ndocs} stories</div></div>;
     }
 });
 
@@ -306,7 +307,7 @@ var Story = React.createClass({
             color: "black",
             fontSize: "13",
             paddingLeft: "10"
-        }
+        };
         let mom = moment(this.props.story.pubdate);
         let yr = mom.format("YYYY");
         let mo_dy = mom.format("MMM DD");
@@ -338,7 +339,7 @@ var DocViewer = React.createClass({
         });
         let f = this.props.f;
         var markup = function(doc) { 
-           return {__html: doc["snippet"]};
+           return {__html: doc.snippet};
         };
         let props = this.props;
         var isSelected = function(key, binsize) {
@@ -383,7 +384,7 @@ var TFacets = React.createClass({
             });
             return years;
         }
-        return "TODO"
+        return "TODO";
     },
 
     /**
@@ -394,7 +395,7 @@ var TFacets = React.createClass({
      * @returns {int} sum
      */
     count_in_range: function(f, start, end){
-        let sum = 0
+        let sum = 0;
         _.each(chart_bins, function(item, key){
             if (item != "x"){
                 let m = moment(item);
@@ -416,23 +417,23 @@ var TFacets = React.createClass({
      * @returns {[moment, moment]} start and end of range
      */
     bin_key_to_range: function(key){
-        let output = {}
+        let output = {};
         if (/^(19|20)\d{2}$/.test(key)){
-            output["start"] = moment(key + "-01-01");
-            output["end"] = moment(key + "-12-31");
-            return output
+            output.start = moment(key + "-01-01");
+            output.end = moment(key + "-12-31");
+            return output;
         }
         //untested... -->
         if (/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (19|20)\d{2}$/.test(key)){
             //output["start"] = moment(key + "-01-01");
             //output["end"] = moment(key + "-12-31");
-            return output
+            return output;
         }
     },
 
     get_n_docs_in_bin: function(bin_key){
         let start_end = this.bin_key_to_range(bin_key);
-        return this.count_in_range(this.props.f, start_end["start"], start_end["end"]);
+        return this.count_in_range(this.props.f, start_end.start, start_end.end);
     },
 
     isSelected: function(key, binsize) {
@@ -605,25 +606,24 @@ var UI = React.createClass({
       //status = "Found " + this.props.all_results.length + " results for " + this.props.q + " related to:"
       main_panel = <FacetDetailsBox rw_height={row_height} bin_size="year" handleBinDocsZoom={this.handleBinDocsZoom} f={f} handleF={this.handleF} bins={binned_facets}/>;
     }
-
     let rw = {
         width: "100%",
         height: this.props.height,
         border: "1px solid green"
-    }
+    };
     let lc = {
         width: "10%",
         border: "1px solid red",
         float: "left",
         height: this.props.height,
         textAlign: "center"
-    }
+    };
     let rc = {
         width: "90%",
         border: "1px solid blue",
         float: "left",
         height: this.props.height
-    }
+    };
     return(
         <div>
             <div style={row}>
