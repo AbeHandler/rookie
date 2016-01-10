@@ -44,7 +44,9 @@ var datas = [
    {"key": "Ryan Berni"}
 ];
 
-
+/*
+A list of linguistic facets
+*/
 var ButtonList = React.createClass({
   handleClick: function(item) {
     this.props.onClick(item);
@@ -64,7 +66,9 @@ var ButtonList = React.createClass({
   }
 });
 
-
+/*
+c3 chart
+*/
 var Chart = React.createClass({
 
   render: function() {
@@ -185,10 +189,34 @@ var FacetPreview = React.createClass({
             "marginRight": "3px"
          };
          let display = this.props.name;
-         return (<span style={spanStyle} name={this.props.name} onClick={this.handleClick.bind(this, this.props.name)}><a style={aStyle}>{display}</a>,</span>);
+         if (this.props.position + 1 == this.props.len_items){
+            return (<span style={spanStyle} name={this.props.name} onClick={this.handleClick.bind(this, this.props.name)}><a style={aStyle}>{display}</a></span>);
+         }else{
+            return (<span style={spanStyle} name={this.props.name} onClick={this.handleClick.bind(this, this.props.name)}><a style={aStyle}>{display}</a>, </span>);
+         }
+         
     }
 });
 
+var MonthFacets = React.createClass({
+
+  render: function() {
+    let months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    let rw_height = this.props.height / 12;
+    let dStyle = {
+        "height":rw_height
+    }
+    return (
+      <div>
+        {months.map(function(item, i) {
+          return (
+            <div style={dStyle} key={i}>{item}</div>
+          );
+        })}
+      </div>
+    );
+  }
+});
 
 var FacetPreviewList = React.createClass({
   getInitialState(){
@@ -200,6 +228,7 @@ var FacetPreviewList = React.createClass({
   },
   render: function() {
     let fw = this.props.fontweight;
+    let len_items = this.props.items.length;
     return (
       <span>
         {this.props.items.map(function(item, i) {
@@ -209,7 +238,7 @@ var FacetPreviewList = React.createClass({
               borderBottomColor: "grey"
           };
           return (
-            <FacetPreview name={item} style={divStyle} onClick={this.handleClick} key={i}/>
+            <FacetPreview position={i} len_items={len_items} name={item} style={divStyle} onClick={this.handleClick} key={i}/>
           );
         }, this)}
       </span>
@@ -270,15 +299,14 @@ var Story = React.createClass({
             fontSize: "small"
         };
         let dateStyle = {
-            width: "7%",
+            width: "9%",
             float: "left",
             color: "#778899",
-            textAlign: "center",
             overflow: "hidden",
             fontSize: "large"
         };
         let storyStyle = {
-            width: "93%",
+            width: "91%",
             float: "left"
         };
         let rowStyle = {
@@ -287,8 +315,7 @@ var Story = React.createClass({
         };
         let yrStyle = {
             color: "black",
-            fontSize: "13",
-            paddingLeft: "10"
+            fontSize: "13"
         };
         let mom = moment(this.props.story.pubdate);
         return (
@@ -344,6 +371,9 @@ var DocViewer = React.createClass({
        }
 });
 
+/**
+A list of temporal facets (ex. [2010, 2011 ... 2015])
+*/
 var TFacets = React.createClass({
     
     /**
@@ -432,11 +462,30 @@ var TFacets = React.createClass({
         let bin_size = this.props.bin_size;
         let sel = this.isSelected;
         let rw_height = this.props.rw_height;
-        return (<div>
+        let mo_bins;
+        if (this.props.show_months){
+           let right = {
+            "width":"50%",
+            "float":"left"
+           };  
+           return <div>
+                    <div style={right}>
+                        <div>
+                        {_.map(bins, function(n){
+                            return <div key={n[0]}><BinCaption rw_height={rw_height} selected={sel(n[0], bin_size)} handleBinClick={binclick} text={n[0]} ndocs={n[1]}/></div>;
+                        })}
+                        </div>
+                    </div>
+                    <div style={right}><MonthFacets height={this.props.height}/></div>
+                  </div>
+        }else{
+            return (<div>
                 {_.map(bins, function(n){
                     return <div key={n[0]}><BinCaption rw_height={rw_height} selected={sel(n[0], bin_size)} handleBinClick={binclick} text={n[0]} ndocs={n[1]}/></div>;
                 })}
-                </div>);
+                </div>); 
+        }
+
     }
 });
 
@@ -601,16 +650,25 @@ var UI = React.createClass({
     let rw = {
         width: "100%",
     };
+
+    let start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
+    let end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
+    let show_months = false;
+    let left_col_width = 10;
+    if (end.diff(start, 'days') < 32){
+        show_months = true;
+        left_col_width = 15;
+    }
     let lc = {
-        width: "10%",
-        border: "1px solid red",
+        width: left_col_width.toString() + "%",
+        borderRight: "1px solid gray",
+        marginRight:"1%",
         float: "left",
         height: this.props.height,
         textAlign: "center"
     };
     let rc = {
-        width: "90%",
-        border: "1px solid blue",
+        width: (100 - left_col_width - 1).toString() + "%",
         float: "left",
         height: this.props.height
     };
@@ -622,7 +680,7 @@ var UI = React.createClass({
             <ButtonList active={f} onClick={this.handleF} items={datas}/>
             <div>{status}</div>
             <div style={rw} >
-                <div style={lc}><TFacets rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={all_results} f={f} bin_size={bin_size}/></div>
+                <div style={lc}><TFacets height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={all_results} f={f} bin_size={bin_size}/></div>
                 <div style={rc}>{main_panel}</div>
             </div>
             <div style={rw}>
