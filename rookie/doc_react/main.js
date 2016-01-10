@@ -74,7 +74,6 @@ var Chart = React.createClass({
     let reg;
     if (this.props.yr_start != -1){
         reg = [{axis: 'x', start: this.props.yr_start + "-" + this.props.mo_start + "-" + this.props.dy_start, end: this.props.yr_end + "-" + this.props.mo_end + "-" + this.props.dy_end, class: 'regionX'}];
-        //reg = [{axis: 'x', start: "2010-01-1", end: "2013-01-1", class: 'regionX'}];
     }
     else{
         reg = [];
@@ -92,7 +91,7 @@ var Chart = React.createClass({
     if (this.props.f == -1){
       cols = [
             q_data,
-            ['x', '2010-1-1', '2010-2-1', '2010-3-1', '2010-4-1', '2010-5-1', '2010-6-1', '2010-7-1', '2010-8-1', '2010-9-1', '2010-10-1', '2010-11-1', '2010-12-1', '2011-1-1', '2011-2-1', '2011-3-1', '2011-4-1', '2011-5-1', '2011-6-1', '2011-7-1', '2011-8-1', '2011-9-1', '2011-10-1', '2011-11-1', '2011-12-1', '2012-1-1', '2012-2-1', '2012-3-1', '2012-4-1', '2012-5-1', '2012-6-1', '2012-7-1', '2012-8-1', '2012-9-1', '2012-10-1', '2012-11-1', '2012-12-1', '2013-1-1', '2013-2-1', '2013-3-1', '2013-4-1', '2013-5-1', '2013-6-1', '2013-7-1', '2013-8-1', '2013-9-1', '2013-10-1', '2013-11-1', '2013-12-1', '2014-1-1', '2014-2-1', '2014-3-1', '2014-4-1', '2014-5-1', '2014-6-1', '2014-7-1', '2014-8-1', '2014-9-1', '2014-10-1', '2014-11-1', '2014-12-1', '2015-1-1', '2015-2-1', '2015-3-1', '2015-4-1', '2015-5-1', '2015-6-1']
+            chart_bins
         ];
     }else{
       cols = [
@@ -237,10 +236,6 @@ var BinCaption = React.createClass({
 });
 
 var FacetDetailsBox = React.createClass({
-    
-    handleBinDocsZoom: function(e){
-        this.props.handleBinDocsZoom(e, this.props.bin_size);
-    },
 
     render: function(){
         let row = {
@@ -249,16 +244,10 @@ var FacetDetailsBox = React.createClass({
           height:this.props.rw_height
         };
         let binsize = this.props.bin_size;
-        let get_n_docs_in_bin = function(bin_key){
-            if (binsize == "year"){
-                return _.where(all_results, {'year':parseInt(bin_key)}).length;
-            }
-            return "TODO";
-        };
         return(
            <div>
                 {this.props.bins.map((x, i) =>
-                    <div onClick={this.handleBinDocsZoom.bind(this, x.key)} key={i} style={row}>
+                    <div key={i} style={row}>
                         <FacetPreviewList active={this.props.f} items={x.facets} onClick={this.props.handleF}/>
                     </div>
                 )}
@@ -454,11 +443,17 @@ var TFacets = React.createClass({
 var UI = React.createClass({
 
   check_mode: function(){
-    if (this.t_not_selected() & this.state.f != -1) {
-        this.setState({mode: "overview"});
-    }
-    else{
+    console.log(this.state.f);
+    console.log(this.t_not_selected());
+    if (this.state.f != -1){
         this.setState({mode: "docs"});
+    }else{
+        //f is not selected
+        if (this.t_not_selected()){
+            this.setState({mode: "overview"});
+        }else{
+            this.setState({mode: "docs"});
+        }
     }
   },
   
@@ -475,11 +470,10 @@ var UI = React.createClass({
   handleF: function(e){
     //user just clicked an F button in ButtonList
     if (this.state.f === e){
-        this.setState({f: -1});
+        this.setState({f: -1}, this.check_mode);
     }else{
-        this.setState({f: e}); //TODO, what if T is selected?
+        this.setState({f: e}, this.check_mode); //TODO, what if T is selected?
     }
-    this.check_mode();
     //Mock call to server
     //Maybe push all F to client to avoid complexity of post?
     //$.getJSON("/post_for_docs?q=Mitch Landrieu&detail=Marlin Gusman", function(d){
@@ -489,12 +483,12 @@ var UI = React.createClass({
   handleBinClick: function(e){
     //user just clicked a TFacet
     //TODO: assuming bin year here.
-    if (this.state.yr_start == e & this.state.yr_end == e & this.state.mo_start == "01" & this.state.mo_end == "12" & this.state.dy_start == "01" & this.state.dy_end == "31"){
+    if (this.state.yr_start == parseInt(e) & this.state.yr_end == parseInt(e)){
         let min = this.get_min(this.props.all_results);
         let max = this.get_max(this.props.all_results);
+        this.setState({yr_start: min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end: max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD")}, this.check_mode);
     }else{
-        this.setState({yr_start: e, mo_start:"01", dy_start:"01"});
-        this.setState({yr_end: e, mo_end:"12", dy_end:"31"});
+        this.setState({yr_start: e, mo_start:"01", dy_start:"01", yr_end: e, mo_end:"12", dy_end:"31"}, this.check_mode);
     }
     this.check_mode();
   },
@@ -504,17 +498,13 @@ var UI = React.createClass({
     let year = e.x.getFullYear();
     let month = e.x.getMonth();
     let day = e.x.getDay();
-    this.setState({yr_start: year, mo_start:month, dy_start:15});
-    this.setState({yr_end: year, mo_end:month+1, dy_end:15});
-    this.check_mode();
+    this.setState({yr_start: year, mo_start:month, dy_start:15, yr_end: year, mo_end:month+1, dy_end:15}, this.check_mode);
   },
 
   handleBinDocsZoom: function(e, zoom_level){
     if (zoom_level == "year"){
-        this.setState({yr_start: e, mo_start:"01", dy_start:"1"});
-        this.setState({yr_end: e, mo_end:"12", dy_end:"31"});
+        this.setState({yr_start: e, mo_start:"01", dy_start:"1", yr_end: e, mo_end:"12", dy_end:"31"}, this.check_mode);
     }
-    this.check_mode();
   },
 
   get_min: function(results){
