@@ -46,18 +46,14 @@ var datas = [
 
 
 var ButtonList = React.createClass({
-  getInitialState(){
-    return {active: -1};
-  },
   handleClick: function(item) {
-    this.setState({active: item});
     this.props.onClick(item);
   },
   render: function() {
     return (<div>
         {this.props.items.map(function(item, i) {
           let color = "black";
-          if (this.state.active===this.props.items[i].key){
+          if (this.props.active===this.props.items[i].key){
               color="#0028a3";
           }
           return (
@@ -228,7 +224,6 @@ var BinCaption = React.createClass({
         this.props.handleBinClick(n);
     },
     render: function(){
-        console.log(this.props);
         let bigStyle = {};
         bigStyle.cursor = "pointer";
         bigStyle.height = this.props.rw_height;
@@ -244,8 +239,6 @@ var BinCaption = React.createClass({
 var FacetDetailsBox = React.createClass({
     
     handleBinDocsZoom: function(e){
-        console.log(e);
-        console.log(this.props);
         this.props.handleBinDocsZoom(e, this.props.bin_size);
     },
 
@@ -309,13 +302,11 @@ var Story = React.createClass({
             paddingLeft: "10"
         };
         let mom = moment(this.props.story.pubdate);
-        let yr = mom.format("YYYY");
-        let mo_dy = mom.format("MMM DD");
         return (
             <div style={rowStyle}>
                 <div style={dateStyle}>
-                    <div>{mo_dy}</div>
-                    <div style={yrStyle}>{yr}</div>
+                    <div>{mom.format("MMM DD")}</div>
+                    <div style={yrStyle}>{mom.format("YYYY")}</div>
                 </div>
                 <div style={storyStyle}>
                     <a style={headlineStyle}> <div>{this.props.story.headline}</div> </a>
@@ -343,9 +334,6 @@ var DocViewer = React.createClass({
         };
         let props = this.props;
         var isSelected = function(key, binsize) {
-            console.log(props);
-            console.log(props.yr_start == props.yr_end);
-            console.log(key);
            if (binsize == "year" & props.yr_start.toString() == props.yr_end.toString()){
                 if (props.yr_start.toString() == key){
                     return true;
@@ -464,15 +452,34 @@ var TFacets = React.createClass({
 });
 
 var UI = React.createClass({
+
+  check_mode: function(){
+    if (this.t_not_selected() & this.state.f != -1) {
+        this.setState({mode: "overview"});
+    }
+    else{
+        this.setState({mode: "docs"});
+    }
+  },
   
+  t_not_selected: function(){
+    let min = this.get_min(this.props.all_results);
+    let max = this.get_max(this.props.all_results);
+    let t_start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
+    let t_end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
+    if (min.format("MM-DD-YYY") == t_start.format("MM-DD-YYY") & max.format("MM-DD-YYY") == t_end.format("MM-DD-YYY")){
+        return true;
+    }
+    return false;
+  },
   handleF: function(e){
     //user just clicked an F button in ButtonList
-  
-    this.setState({f: e});
-    //let min = this.get_min(this.props.all_results);
-    //let max = this.get_max(this.props.all_results);
-    //this.setState({yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD")});
-    this.setState({mode: "docs"});
+    if (this.state.f === e){
+        this.setState({f: -1});
+    }else{
+        this.setState({f: e}); //TODO, what if T is selected?
+    }
+    this.check_mode();
     //Mock call to server
     //Maybe push all F to client to avoid complexity of post?
     //$.getJSON("/post_for_docs?q=Mitch Landrieu&detail=Marlin Gusman", function(d){
@@ -481,9 +488,15 @@ var UI = React.createClass({
   },
   handleBinClick: function(e){
     //user just clicked a TFacet
-    this.setState({yr_start: e, mo_start:"01", dy_start:"01"});
-    this.setState({yr_end: e, mo_end:"12", dy_end:"31"});
-    this.setState({mode: "docs"});
+    //TODO: assuming bin year here.
+    if (this.state.yr_start == e & this.state.yr_end == e & this.state.mo_start == "01" & this.state.mo_end == "12" & this.state.dy_start == "01" & this.state.dy_end == "31"){
+        let min = this.get_min(this.props.all_results);
+        let max = this.get_max(this.props.all_results);
+    }else{
+        this.setState({yr_start: e, mo_start:"01", dy_start:"01"});
+        this.setState({yr_end: e, mo_end:"12", dy_end:"31"});
+    }
+    this.check_mode();
   },
 
   handleT: function(e){
@@ -493,15 +506,15 @@ var UI = React.createClass({
     let day = e.x.getDay();
     this.setState({yr_start: year, mo_start:month, dy_start:15});
     this.setState({yr_end: year, mo_end:month+1, dy_end:15});
-    this.setState({mode: "docs"});
+    this.check_mode();
   },
 
   handleBinDocsZoom: function(e, zoom_level){
     if (zoom_level == "year"){
         this.setState({yr_start: e, mo_start:"01", dy_start:"1"});
         this.setState({yr_end: e, mo_end:"12", dy_end:"31"});
-        this.setState({mode: "docs"});
     }
+    this.check_mode();
   },
 
   get_min: function(results){
@@ -576,18 +589,7 @@ var UI = React.createClass({
     // docs = those that match q, f & t. all_results = what comes from browser.
     let docs = this.resultsToDocs(this.props.all_results);
     let status = this.getStatus(docs.length);
-    let row = {
-      width:"100%"
-    };
-    let lcol = {
-      width:"10%",
-      float:'left',
-      textAlign:'right',
-    };
-    let rcol = {
-      width:"80%",
-      float:'left'
-    };
+
     let y_scroll = {
         overflowY: "scroll",
         height:this.props.height
@@ -608,8 +610,6 @@ var UI = React.createClass({
     }
     let rw = {
         width: "100%",
-        height: this.props.height,
-        border: "1px solid green"
     };
     let lc = {
         width: "10%",
@@ -626,16 +626,16 @@ var UI = React.createClass({
     };
     return(
         <div>
-            <div style={row}>
+            <div style={rw}>
                 Subjects related to {q}:
             </div>
-            <ButtonList onClick={this.handleF} items={datas}/>
+            <ButtonList active={f} onClick={this.handleF} items={datas}/>
             <div>{status}</div>
             <div style={rw} >
                 <div style={lc}><TFacets rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={all_results} f={f} bin_size={bin_size}/></div>
                 <div style={rc}>{main_panel}</div>
             </div>
-            <div style={row}>
+            <div style={rw}>
             <Chart q={q} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} tHandler={this.handleT} f={this.state.f}/>
             </div>
        </div>);
