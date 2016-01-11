@@ -70,6 +70,19 @@ def count_facets():
 
     return people_count, org_count, ngram_count
 
+
+def df_vec(counter, decoder, noccurs):
+    '''
+    counter tracks how many times an F occurs in all docs
+    decoder translates from an F to a row in a F X D matrix
+    noccurs = how may total F of a given type
+    '''
+    df_out = np.zeros(noccurs)
+    for c in counter:
+        # i.e. in the row corresponding to c (ex. landrieu) set val to df
+        df_out[decoder[c]] = counter[c]
+    return df_out
+
 def build_matrix(docids, ok_people, ok_org, ok_ngrams):
     '''
     This function builds three facet X doc matrixes: one for people, one for org, one for ngrams
@@ -89,23 +102,31 @@ def build_matrix(docids, ok_people, ok_org, ok_ngrams):
     org_matrix = np.zeros((len(ok_org), len(docids)))
     ngram_matrix = np.zeros((len(ok_ngrams), len(docids)))
 
+    people_counter = defaultdict(int)
+    ngram_counter = defaultdict(int)
+    org_counter = defaultdict(int)
+
     for dinex, docid in enumerate(docids):
-        people = [str(i) for i in MT[unicode(docid)]["people"] if str(i) in ok_people]
-        org = [str(i) for i in MT[unicode(docid)]["org"]  if str(i) in ok_org]
-        ngram = [str(j) for j in MT[unicode(docid)]["ngram"] if j in ok_ngrams]
+        people = set([str(i) for i in MT[unicode(docid)]["people"] if str(i) in ok_people])
+        org = set([str(i) for i in MT[unicode(docid)]["org"]  if str(i) in ok_org])
+        ngram = set([str(j) for j in MT[unicode(docid)]["ngram"] if j in ok_ngrams])
         docid = int(docid)
-        if docid % 1000 == 0:
-            print docid
         for p in people:
             people_matrix[person_to_slot[p]][docid] = 1
+            people_counter[p] += 1
         for o in org:
             org_matrix[org_to_slot[o]][docid] = 1
+            org_counter[o] += 1
         for n in ngram:
             ngram_matrix[ngram_to_slot[n]][docid] = 1
-        #if docid == 19:
-        #    ipdb.set_trace()
+            ngram_counter[n] += 1
 
-    return people_matrix, org_matrix, ngram_matrix
+    pickle.dump(df_vec(people_counter, person_to_slot, len(ok_people)), open("rookieindex/people_df.p", "wb" ))
+    pickle.dump(df_vec(org_counter, org_to_slot, len(ok_org)), open("rookieindex/org_df.p", "wb" ))
+    pickle.dump(df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams)), open("rookieindex/ngram_df.p", "wb" ))
+    pickle.dump(people_matrix, open("rookieindex/people_matrix.p", "wb" ))
+    pickle.dump(org_matrix, open("rookieindex/org_matrix.p", "wb" ))
+    pickle.dump(ngram_matrix, open("rookieindex/ngram_matrix.p", "wb" ))
 
 
 def filter(input, n):
@@ -114,13 +135,12 @@ def filter(input, n):
     '''
     return set([str(k) for k, v in input.iteritems() if v >= n])
 
+
 if __name__ == '__main__':
     people, org, ngram = count_facets()
-    N = 1
+    N = 5
     people = filter(people, N)
     org = filter(org, N)
     ngram = filter(ngram, N)
-    people_matrix, org_matrix, ngram_matrix = build_matrix(ALLDOCIDS, people, org, ngram)
-    pickle.dump(people_matrix, open("rookieindex/people_matrix.p", "wb" ))
-    pickle.dump(org_matrix, open("rookieindex/org_matrix.p", "wb" ))
-    pickle.dump(ngram_matrix, open("rookieindex/ngram_matrix.p", "wb" ))
+    build_matrix(ALLDOCIDS, people, org, ngram)
+

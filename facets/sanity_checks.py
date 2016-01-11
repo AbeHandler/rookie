@@ -31,5 +31,5 @@ for r in results:
     matrixed_ppl = [people_key_r[i] for i,j in enumerate(people_matrix[:,r]) if j > 0]
     ppl.sort()
     matrixed_ppl.sort()
-    print ppl
-    print matrixed_ppl
+    for i in matrixed_ppl:
+        assert i in ppl # all matrixed ppl should be in MT ppl. but not = b/c matrixed ppl is filtered
