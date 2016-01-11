@@ -3,6 +3,8 @@ Queries whoosh and builds facets for query
 '''
 from experiment.models import ROOKIE
 from pylru import lrudecorator
+from whoosh import query
+from whoosh.index import open_dir
 import ujson
 import numpy as np
 import ipdb
@@ -11,11 +13,7 @@ import itertools
 import cPickle as pickle
 import redis
 
-results = ROOKIE.query("Mitch Landrieu")
-
-people_key = pickle.load(open("rookieindex/people_key.p", "rb"))
-people_key_r = {v: k for k, v in people_key.items()}
-
+NDOCS = 3488  # how many docs are indexed in whoosh?
 
 def add_to_redis(key, value):
     '''
@@ -39,15 +37,40 @@ def get_from_redis(key, row, col):
     rebuilt = deserialized.reshape((row, col))
     return rebuilt
 
-def load_matrix(name):
-    print name
-    add_to_redis(name, pickle.load(open("rookieindex/{}.p".format(name), "rb")))
+def load_matrix(key, row, col):
+    '''
+    loads a F x D matrix (via redis)
+    '''
+    r = redis.StrictRedis(host='localhost', port=6379, db=0)
+    if r.get(key) is None:
+        print "[*] Hang on. Adding {} to redis".format(name)
+        add_to_redis(key, pickle.load(open("rookieindex/{}.p".format(name), "rb")))
+    return get_from_redis(key, row, col)
 
-for n in ["people_matrix", "org_matrix", "ngram_matrix"]:
-    load_matrix(n)
+def load_all_data_structures():
+    '''
+    Load everything indexed in build_matrix.py
+    '''
+    decoders = {}
+    reverse_decoders = {}
+    matrixes = {}
+    for n in ["people", "org", "ngram"]:
+        decoder = pickle.load(open("rookieindex/{}_key.p".format(n), "rb"))
+        decoder_r = {v: k for k, v in decoder.items()}
+        decoders[n] = decoder
+        reverse_decoders[n] = decoder_r
+        matrixes[n] = load_matrix(n + "_matrix", len(decoder.keys()), NDOCS)
+    return {"decoders": decoders, "reverse_decoders": reverse_decoders, "matrixes": matrixes}
 
-add_to_redis("p", people_matrix)
-# newww = get_from_redis("p", people_matrix.shape[0], people_matrix.shape[1])
+def get_facets(results, structures, facet_type):
+    t0=time.time()
+    cols = structures["matrixes"][facet_type][ np.ix_([i for i in range(structures["matrixes"][facet_type].shape[0])],[int(i) for i in results])]
+    perfacet = [(structures["reverse_decoders"][facet_type][i],v) for i,v in enumerate(np.sum(cols, axis=1))]
+    perfacet.sort(key=lambda x:x[1])
+    print "Got facets in {} secs".format(time.time()-t0)
+    return perfacet
 
-# print np.array_equal(people_matrix, newww)
-# print people_matrix[ np.ix_([i for i in range(people_matrix.shape[0])],[int(i) for i in results])]
+structures = load_all_data_structures()
+results = ROOKIE.query("Mitch Landrieu")
+get_facets(results, structures, "ngram")
+
