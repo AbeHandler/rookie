@@ -1,27 +1,104 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Rookie facets}
+\author{}
+\date{January 2016}
+
+
 \usepackage{flexisym}
 
-When a user enters a query, Q, into the Rookie UI, Rookie executes a traditional document search using an information retrieval system\footnote {the current implmentation uses Whoosh} in order to find a set of query-responsive documents, D which fall within a specified timespan, T. Rookie then runs a facet-finding algorithm to select a set of facets that help make sense of the document set. 
+\begin{document}
 
-Rookie's facet-finding algorithm makes use of a binary matrix, M, constructed at index time. The rows of M represent each part of part-of-speech filtered ngram type that occurs at least 5 times across the entire corpus. The columns of M represent all documents in the corpus. A 1 or 0 at position M_{i,j} indicates if the i-th ngram type occurs in the j-th document.
+\maketitle
 
-At query time, Rookie selects those columns of M which respresent documents responsive to Q to create a submatrix. It them sums the rows of the submatrix to generate a vector of ``term frequencies'', $\vec{T}$. This vector represents how many times each ngram type is present in responsive documents. 
+\section{Rookie facet engine}
 
-This vector of term frequencies is then multiplied elementwise by a vector of ``inverse document frequencies'' for each ngram type, which are precomputed at index time for each ngram. The inverse document for a given ngram type is defined as: 
+When a user enters a query, Q, into the Rookie UI, Rookie executes a traditional document search using an information retrieval system\footnote {the current implmentation uses Whoosh} to find a set of query-responsive documents, D. In some cases, Rookie may filter D into a subset of documents which fall within a specified timespan, T. Regardless, Rookie passes either the set of documents or the set of time-filtered documents to its facet engine.
 
-idf = $ln(\vec{N}/\vec{O})$
+\subsection{Index time}
 
-where N is the number of documents in the corpus and O is the number of documents that contain a given ngram. If there are ten documents in the corpus and two contain a given ngram, the inverse document frequency for the ngram would be $ln(10/2)$.
+The Rookie facet engine makes use of a binary matrix, M, constructed at index time. The rows of M represent each part of part-of-speech filtered ngram type \footnote{Earlier versions of Rookie selected people, organizations and ngrams to ensure facet diversity. But this proved unnecessary} that occurs at least 5 times across the entire corpus. The columns of M represent all documents in the corpus. A value of 1 at position $M_{i,j}$ indicates that the i\textsuperscript{th} ngram type occurs in the j\textsuperscript{th} document. (Similarly, a value of 0 indicates that the ngram does not occur in the document).
 
-Thus, the elementwise multiplication produces a tfidf score for each ngram type.
+Rookie also creates a vector of ``inverse document frequencies'', $\vec{idf}$, for each ngram type at index time. Each component of the vector, $idf_{i}$, represents the inverse document frequency for a particular ngram, which is computed as follows:
 
-$ tf \bigodot idf $
+\begin{equation}
+idf_{i} = ln(N/df_i)
+\end{equation}
 
-\subsection{From tfidf scores to facets}
+\noindent where N is the number of documents in the corpus and $df_{i}$ is the number of documents in the corpus that contain the ngram type. For example, if there are 10 documents in the corpus and 2 contain the i\textsuperscript{th} ngram, the inverse document frequency for that ngram would be $ln(10/2)$.
 
-Rookie selects ngrams with the highest tfidf score until it reaches a character budget for facets, passed as a parameter in the call to the facet algorithm. However, top-scoring facets often use slightly different string tokens to refer to the same person, organization or concept. For instance, the highest ranking facet for a given query might be ``Marlin Gusman" (the sheriff of Orleans parish) while the second-highest ranking facet might be ``Marlin Gusman's" (adding a possessive affix). Other common patterns of facet overlap include \textit{nested} facets in which one facet is a substring of another facet (Orleans Police vs. New Orleans Police) and \textit{split} facets in which several facets contain different combinations of suitable tokens (Mayor Mitch vs. Mitch Landrieu vs. Mayor Landrieu). Thus, as Rookie picks the higest scoring facets, it runs several heuristic checks to avoid duplicates and guess at the best string representation. Several facets (ex. New Orleans) are also disregarded as stop words. \footnote{Earlier versions of Rookie selected people, organizations and ngrams to ensure facet diversity. But this is not necessary}. Heuristic checks include: deleting facets that are identical except for an ending s and, in cases when token-level Jaccard similarity is greater than 50\%, simply picking the longer facet.
+\subsection{Query time}
 
-Combining facets in this way could be said to be an extremely lightweight form of coreference resolution. Truly understing which words refer to which entities or concepts is a large topic within natural language processing, philosophy and linguistics.\footnote{Does Obamacare refer to the same thing as the Affordable Care Act?}. Rookie's goal is more modest: simply finding some string which represents some facet of underlying documents, without confusing the user with duplicates. 
+At query time, Rookie creates a submatrix from M, picking those columns which respresent the documents in D. It then sums the rows of the submatrix to generate a summary vector of ``term frequencies'', $\vec{tf}$. The i\textsuperscript{th} component of this vector, $tf_{i}$ represents how many times a given ngram type occurs within the documents in D. 
 
-The motivation for this approach is twofold. First, this form of coreference resolution has proven suitable for this particular application. Second, coreference resolution methods are not currently fast enough to run run at query time, when users expect search results very quickly.
+Element-wise multiplication of $\vec{tf}$ and $\vec{idf}$ produces a vector of tfidf scores, $\vec{S}$  for each ngram type.
 
-Rookie is implemented in Python and so can make use of rapid matrix operations in Numpy to return facets for a given query and time span in approximately 60 milliseconds (informal benchmarking). 
+\begin{equation}
+\vec{S} = \vec{tf} \odot \vec{idf}
+\end{equation}
+
+Rookie selects highest-scoring ngrams greedily from $\vec{S}$ until it reaches a fixed number of facets \footnote{TODO: character budget}, passed as a parameter in the call to the facet algorithm. However, because top-scoring facets often use slightly different string tokens to refer to the same person, organization or concept (shown in table \ref{t1:one}) \footnote{TODO: Don't understand why exactly this is happening. POS tagging errors? Linguistic variation in language in articles? Refer to different things?}
+Rookie uses heuristics to clean up facets for presentation during its greedy search.
+
+Table \ref{t1:one} shows the 15 highest ranking facets for Q=``Mitch Landrieu'', with and without heuristic cleanup. The top three raw facets are all short phrases which contain substrings of ``Mitch Landrieu''. Meanwhile, fully one fifth of the facets are slight varations of the string ``Sheriff Marlin Gusman". Such overlap clutters the UI with repetitive information and requires time and energy from users.
+
+\begin{table}[h!]
+\begin{center}
+\begin{tabular}{ c c }
+ Raw & Heuristic cleanup  \\ 
+ \hline
+ Mayor Mitch & City Council  \\ 
+ Mitch Landrieu & consent decree \\  
+ Mayor Mitch Landrieu & Sheriff Marlin Gusman \\
+ City Council & Department of Justice \\
+ Mitch Landrieus & Police Department \\   
+ New Orleans & Chief Administrative \\   
+ Andy Kopplin & Mayor Mitch Landrieus \\
+ consent decree & Ryan Berni \\    
+ staff writer & Orleans Parish Prison \\   
+ Sheriff Marlin & Andy Kopplin \\   
+ Orleans Parish & District Court \\
+ Landrieu administration & Landrieu spokesman \\  
+ Sheriff Marlin Gusman & City Hall \\  
+ Marlin Gusman & Landrieu Administration \\   
+
+\end{tabular}
+\caption{Top 15 facets for Q=Mitch Landrieu, in raw form and with heuristic cleanup}
+\end{center}
+\label{t1:one}
+\end{table}
+
+Thus, as Rookie picks the higest scoring facets using tfidf scores, it runs several heuristic checks to avoid duplicates and guess at the best string representation. Heuristic checks include: deleting facets that are identical except for those ending s and replacing a shorter facet (by string length) with a longer facet when the token-level Jaccard similarity between the facets is greater than 50\%.
+
+
+\begin{table}[h!]
+\begin{center}
+\begin{tabular}{ l l }
+ Facet problem & Example \\ 
+ \hline
+ Nested facets & Orleans Police \& New Orleans Police  \\ 
+ Split facets & Mayor Mitch \& Mitch Landrieu \& Mayor Landrieu \\  
+ Query-facet overlap & Q=Mitch Landrieu, F=Mayor Mitch \\
+ Common term & Orleans Parish
+
+\end{tabular}
+\caption{Common facet problems}
+\end{center}
+\label{t2:two}
+\end{table}
+
+\subsection{Coreference}
+
+Combining facets in this way could be said to be an extremely lightweight form of coreference resolution, a large topic within natural language processing, philosophy \footnote{Do ``Obamacare'' and the ``Affordable Care Act'' refer to the same thing?} and linguistics. Rookie's goal is more modest: simply finding some string which represents some facet of underlying documents, without confusing the user with duplicates. 
+
+The motivation for this approach is twofold. First, this form of coreference resolution has proven suitable for this particular application. Second, coreference resolution methods are not currently fast enough to run run at query time in a user-facing application.
+
+
+\subsection{Performance, implementation \& benchmarking}
+
+Rookie's facet algorithm is implemented in Python. It makes use of rapid matrix operations in Numpy. The speed of the facet algorithm varies with the size of D. When the size of D is around 300 (ex. Q=Mitch Landrieu) the algorithm runs in 60 milliseconds (ordinary clock speed) on a new laptop. When the size of D is 100 (ex. Q=levee) the algorithm runs in 30 milliseconds. 
+
+A speedy facet algorithm is crucial for Rookie as single query from the UI might require five or ten calls to the facet engine, one for each date bin. \footnote{not discussed here}.
+
+\end{document}
