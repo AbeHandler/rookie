@@ -1,6 +1,7 @@
 '''
 Queries whoosh and builds facets for query
 '''
+from __future__ import division
 from experiment.models import ROOKIE
 from pylru import lrudecorator
 from whoosh import query
@@ -14,20 +15,22 @@ import math
 import itertools
 import cPickle as pickle
 import redis
+import sys
 from Levenshtein import distance
-import argparse
 
-parser = argparse.ArgumentParser()
-
-parser.add_argument("--fast", action="store_true", default=False, help="trade completeness for speed")
-
-args = parser.parse_args()
-
-stops = ["the lens", "new orleans", "staff writer"]
+stops = ["the lens", "new orleans", "staff writer", "orleans parish"]
 
 NDOCS = 3488  # how many docs are indexed in whoosh?
 
+STOPTOKENS = ["new", "orleans"]
 
+DEBUG = False
+
+Q = sys.argv[1]
+
+def debug_print(msg):
+    if DEBUG:
+        print msg
 
 def add_to_redis(key, value):
     '''
@@ -61,6 +64,13 @@ def load_matrix(key, row, col):
         add_to_redis(key, pickle.load(open("rookieindex/{}.p".format(name), "rb")))
     return get_from_redis(key, row, col)
 
+@lrudecorator(100)
+def get_metadata_file():
+    t0=time.time()
+    with open("rookieindex/meta_data.json") as inf:
+        metadata = ujson.load(inf)
+    return metadata
+
 def load_all_data_structures():
     '''
     Load everything indexed in build_matrix.py
@@ -69,6 +79,8 @@ def load_all_data_structures():
     reverse_decoders = {}
     matrixes = {}
     df = {}
+    idf = {}
+    mt = get_metadata_file()
     for n in ["people", "org", "ngram"]:
         decoder = pickle.load(open("rookieindex/{}_key.p".format(n), "rb"))
         decoder_r = {v: k for k, v in decoder.items()}
@@ -76,18 +88,28 @@ def load_all_data_structures():
         reverse_decoders[n] = decoder_r
         matrixes[n] = load_matrix(n + "_matrix", len(decoder.keys()), NDOCS)
         df[n] = pickle.load(open("rookieindex/{}_df.p".format(n), "rb"))
-    return {"decoders": decoders, "reverse_decoders": reverse_decoders, "matrixes": matrixes, "df": df}
+        idf[n] = pickle.load(open("rookieindex/{}_idf.p".format(n), "rb"))
+    return {"decoders": decoders, "reverse_decoders": reverse_decoders, "matrixes": matrixes, "df": df, "idf": idf}
 
 
 def s_check(facet, proposed_new_facet, distance):
     '''
-    For cases like "Mitch Landrieu vs. Mitch Landrieus"
+    Checks possessive affix. 
+
+    If proposed new facet is just facet + "s", return True
     '''
     if distance != 1:
         return False
     if proposed_new_facet[-1:] == "s" and facet[-1:] != "s":
         return True
     return False
+
+
+def get_jaccard(one, two):
+    one = set([i.lower() for i in one.split(" ") if i.lower() not in STOPTOKENS])
+    two = set([i.lower() for i in two.split(" ") if i.lower() not in STOPTOKENS])
+    jacard = float(len(one & two)) / len(one | two)
+    return jacard
 
 
 def heuristic_cleanup(output, proposed_new_facet):
@@ -106,24 +128,43 @@ def heuristic_cleanup(output, proposed_new_facet):
 
     Returns output again, possibly improved/lengthened
     '''
+    debug_print("processing {}".format(proposed_new_facet))
+    debug_print("thus far have:")
+    debug_print(output)
     if proposed_new_facet.lower() in stops:
         return output # dont and the new facet
-    insert = True # insert the facet after the check. assume true
+    if proposed_new_facet in output:
+        return output # dont add duplicates
+    if get_jaccard(proposed_new_facet, Q) > .5:
+        return output # proposed new facet overlaps w/ query
+    append = True # insert the facet after the check. assume true
     for index, facet in enumerate(output): # loop over facets thus far
         dist = distance(facet, proposed_new_facet) # get lev distance
         if dist > 0 and dist < 3: # if lev. distance is less than 2
             # if the proposed facet is longer than the good one
             # the [-1:] below prevents replacing "Mitch Landrieu" w/ "Mitch Landrieus"
             if s_check(facet, proposed_new_facet, dist):
-                insert = False
+                append = False
             elif (len(proposed_new_facet) > len(facet)):
-                print "replacing {} with {}".format(output[index], proposed_new_facet)
+                debug_print("replacing {} with {}".format(output[index], proposed_new_facet))
                 output[index] = proposed_new_facet
-                insert = False
+                append = False
+        if get_jaccard(proposed_new_facet, facet) > .5:
+            if len(proposed_new_facet) > len(facet):
+                debug_print("replacing {} with {}".format(output[index], proposed_new_facet))
+                output[index] = proposed_new_facet
+            else:
+                debug_print("{} overlaps w/ {} but is shorter. don't append".format(proposed_new_facet, output[index]))
 
-    if insert:
+            # don't append even if new facet does not replace a given facet (in lines above). 
+            # this is because new facet is too similar to some existing facet
+            append = False
+
+
+    if append:
+        debug_print("appending {}".format(proposed_new_facet))
         output.append(proposed_new_facet)
-    return output
+    return [i for i in set(output)] #sometimes more than 1 facet will be replaced by propsed_new_facet
 
 def get_facets(results, structures, facet_type, num_facets):
     '''
@@ -131,14 +172,14 @@ def get_facets(results, structures, facet_type, num_facets):
     '''
     start = time.time()
     tfidf = get_facet_tfidf(results, structures, facet_type)
-    print "tfidf took {}".format(time.time() - start)
     output = []
     for ii in np.argsort(tfidf)[::-1]:
         possible_f = structures["reverse_decoders"][facet_type][ii]
         output = heuristic_cleanup(output, possible_f)
+        #output = output + [possible_f]
         if len(output) == num_facets:
             break
-
+    debug_print("getting facets took {}".format(time.time() - start))
     return output
 
 
@@ -149,14 +190,16 @@ def get_facet_tfidf(results, structures, facet_type):
     "df" = how many total documents contain f (i.e. boolean: facet occurs or no)
     "tfidf" = np.multiply(tf, np.log(1./df))
     '''
+    # get the cols for results
+    start = time.time()
+    # this is the bottle neck --> 
     cols = structures["matrixes"][facet_type][ np.ix_([i for i in range(structures["matrixes"][facet_type].shape[0])],[int(i) for i in results])]
+    debug_print("getting cols index took {}".format(time.time() - start))
     tf = np.sum(cols, axis=1) # occurance in queried docs, by F
-    df = structures["df"][facet_type]
-    idf = np.log(NDOCS / df)
+    idf = structures["idf"][facet_type]
     tfidf = np.multiply(tf, idf)
     return tfidf
 
 structures = load_all_data_structures()
-results = ROOKIE.query("Mitch Landrieu")
-print get_facets(results, structures, "ngram", 9)
-
+results = set(ROOKIE.query(Q))
+print get_facets(results, structures, "ngram", 15)

@@ -107,6 +107,7 @@ def build_matrix(docids, ok_people, ok_org, ok_ngrams):
     org_counter = defaultdict(int)
 
     for dinex, docid in enumerate(docids):
+        print dinex
         people = set([str(i) for i in MT[unicode(docid)]["people"] if str(i) in ok_people])
         org = set([str(i) for i in MT[unicode(docid)]["org"]  if str(i) in ok_org])
         ngram = set([str(j) for j in MT[unicode(docid)]["ngram"] if j in ok_ngrams])
@@ -124,6 +125,13 @@ def build_matrix(docids, ok_people, ok_org, ok_ngrams):
     pickle.dump(df_vec(people_counter, person_to_slot, len(ok_people)), open("rookieindex/people_df.p", "wb" ))
     pickle.dump(df_vec(org_counter, org_to_slot, len(ok_org)), open("rookieindex/org_df.p", "wb" ))
     pickle.dump(df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams)), open("rookieindex/ngram_df.p", "wb" ))
+    
+    NDOCS = len(docids)
+    #np.log(NDOCS / df)
+    pickle.dump(np.log(NDOCS / df_vec(people_counter, person_to_slot, len(ok_people))), open("rookieindex/people_idf.p", "wb" ))
+    pickle.dump(np.log(NDOCS / df_vec(org_counter, org_to_slot, len(ok_org))), open("rookieindex/org_idf.p", "wb" ))
+    pickle.dump(np.log(NDOCS / df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams))), open("rookieindex/ngram_idf.p", "wb" ))
+    
     pickle.dump(people_matrix, open("rookieindex/people_matrix.p", "wb" ))
     pickle.dump(org_matrix, open("rookieindex/org_matrix.p", "wb" ))
     pickle.dump(ngram_matrix, open("rookieindex/ngram_matrix.p", "wb" ))
