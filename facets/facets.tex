@@ -1,0 +1,27 @@
+\usepackage{flexisym}
+
+When a user enters a query, Q, into the Rookie UI, Rookie executes a traditional document search using an information retrieval system\footnote {the current implmentation uses Whoosh} in order to find a set of query-responsive documents, D which fall within a specified timespan, T. Rookie then runs a facet-finding algorithm to select a set of facets that help make sense of the document set. 
+
+Rookie's facet-finding algorithm makes use of a binary matrix, M, constructed at index time. The rows of M represent each part of part-of-speech filtered ngram type that occurs at least 5 times across the entire corpus. The columns of M represent all documents in the corpus. A 1 or 0 at position M_{i,j} indicates if the i-th ngram type occurs in the j-th document.
+
+At query time, Rookie selects those columns of M which respresent documents responsive to Q to create a submatrix. It them sums the rows of the submatrix to generate a vector of ``term frequencies'', $\vec{T}$. This vector represents how many times each ngram type is present in responsive documents. 
+
+This vector of term frequencies is then multiplied elementwise by a vector of ``inverse document frequencies'' for each ngram type, which are precomputed at index time for each ngram. The inverse document for a given ngram type is defined as: 
+
+idf = $ln(\vec{N}/\vec{O})$
+
+where N is the number of documents in the corpus and O is the number of documents that contain a given ngram. If there are ten documents in the corpus and two contain a given ngram, the inverse document frequency for the ngram would be $ln(10/2)$.
+
+Thus, the elementwise multiplication produces a tfidf score for each ngram type.
+
+$ tf \bigodot idf $
+
+\subsection{From tfidf scores to facets}
+
+Rookie selects ngrams with the highest tfidf score until it reaches a character budget for facets, passed as a parameter in the call to the facet algorithm. However, top-scoring facets often use slightly different string tokens to refer to the same person, organization or concept. For instance, the highest ranking facet for a given query might be ``Marlin Gusman" (the sheriff of Orleans parish) while the second-highest ranking facet might be ``Marlin Gusman's" (adding a possessive affix). Other common patterns of facet overlap include \textit{nested} facets in which one facet is a substring of another facet (Orleans Police vs. New Orleans Police) and \textit{split} facets in which several facets contain different combinations of suitable tokens (Mayor Mitch vs. Mitch Landrieu vs. Mayor Landrieu). Thus, as Rookie picks the higest scoring facets, it runs several heuristic checks to avoid duplicates and guess at the best string representation. Several facets (ex. New Orleans) are also disregarded as stop words. \footnote{Earlier versions of Rookie selected people, organizations and ngrams to ensure facet diversity. But this is not necessary}. Heuristic checks include: deleting facets that are identical except for an ending s and, in cases when token-level Jaccard similarity is greater than 50\%, simply picking the longer facet.
+
+Combining facets in this way could be said to be an extremely lightweight form of coreference resolution. Truly understing which words refer to which entities or concepts is a large topic within natural language processing, philosophy and linguistics.\footnote{Does Obamacare refer to the same thing as the Affordable Care Act?}. Rookie's goal is more modest: simply finding some string which represents some facet of underlying documents, without confusing the user with duplicates. 
+
+The motivation for this approach is twofold. First, this form of coreference resolution has proven suitable for this particular application. Second, coreference resolution methods are not currently fast enough to run run at query time, when users expect search results very quickly.
+
+Rookie is implemented in Python and so can make use of rapid matrix operations in Numpy to return facets for a given query and time span in approximately 60 milliseconds (informal benchmarking). 
