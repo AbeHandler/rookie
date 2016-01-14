@@ -68,6 +68,9 @@ var ButtonList = React.createClass({
 
 /*
 c3 chart
+
+//TODO: no flicker of red. load/unload
+
 */
 var Chart = React.createClass({
 
@@ -198,19 +201,34 @@ var FacetPreview = React.createClass({
     }
 });
 
-var MonthFacets = React.createClass({
+var MonthBinList = React.createClass({
 
   render: function() {
     let months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     let rw_height = this.props.height / 12;
     let dStyle = {
-        "height":rw_height
+        "height":rw_height,
+        "cursor":"pointer",
+        "borderBottom": "black",
+        "borderBottomStyle": "solid",
+        "borderBottomWidth": "1px",
+        "marginBottom":"0"
+    };
+
+    if (this.props.selected === true){
+        dStyle.backgroundColor = "rgba(102,126,199,.1)"; //same as region color
+        dStyle.opacity = 1;
+    }else{
+        dStyle.opacity = .8;
     }
+
+    let clicker = this.props.handleMo;
+
     return (
       <div>
         {months.map(function(item, i) {
           return (
-            <div style={dStyle} key={i}>{item}</div>
+            <MonthBin monthNo={i} monthClick={clicker} style={dStyle} month={item} key={i}/>
           );
         })}
       </div>
@@ -246,7 +264,7 @@ var FacetPreviewList = React.createClass({
   }
 });
 
-var BinCaption = React.createClass({
+var YearBin = React.createClass({
     
     handleClick: function(n){
         this.props.handleBinClick(n);
@@ -255,12 +273,29 @@ var BinCaption = React.createClass({
         let bigStyle = {};
         bigStyle.cursor = "pointer";
         bigStyle.height = this.props.rw_height;
-        if (this.props.selected === true){
-            bigStyle.backgroundColor = "rgba(102,126,199,.1)"; //same as region color
-        }
         let bin_key = {textDecoration: "underline", color: "black", fontWeight: "bold"};
         let link = {fontSize: "small", color: "rgb(0, 40, 163)"};
+        if (this.props.selected === true){
+            bigStyle.backgroundColor = "rgba(102,126,199,.1)"; //same as region color
+            bigStyle.opacity = 1;
+            link.opacity = 1;
+        }else{
+            link.opacity = .6;
+            bigStyle.opacity = .8;
+        }
         return <div onClick={this.handleClick.bind(this, this.props.text)} style={bigStyle}><div style={bin_key}>{this.props.text}</div><div style={link}>{this.props.ndocs} stories</div></div>;
+    }
+});
+
+
+var MonthBin = React.createClass({
+    
+    handleClick: function(n){
+        this.props.monthClick(n);
+    },
+
+    render: function(){
+        return <div onClick={this.handleClick.bind(this, this.props.monthNo)}>{this.props.month}</div>;
     }
 });
 
@@ -452,6 +487,10 @@ var TFacets = React.createClass({
         return false;
     },
 
+    handleMo: function(e){
+        this.props.handleMo(e);
+    },
+
     render: function(){
         let binkeys = this.get_bin_keys();
         let ndocs = this.get_n_docs_in_bin;
@@ -472,28 +511,25 @@ var TFacets = React.createClass({
                     <div style={right}>
                         <div>
                         {_.map(bins, function(n){
-                            return <div key={n[0]}><BinCaption rw_height={rw_height} selected={sel(n[0], bin_size)} handleBinClick={binclick} text={n[0]} ndocs={n[1]}/></div>;
+                            return <div key={n[0]}><YearBin rw_height={rw_height} selected={sel(n[0], bin_size)} handleBinClick={binclick} text={n[0]} ndocs={n[1]}/></div>;
                         })}
                         </div>
                     </div>
-                    <div style={right}><MonthFacets height={this.props.height}/></div>
+                    <div style={right}><MonthBinList handleMo={this.handleMo} height={this.props.height}/></div>
                   </div>
         }else{
             return (<div>
                 {_.map(bins, function(n){
-                    return <div key={n[0]}><BinCaption rw_height={rw_height} selected={sel(n[0], bin_size)} handleBinClick={binclick} text={n[0]} ndocs={n[1]}/></div>;
+                    return <div key={n[0]}><YearBin rw_height={rw_height} selected={sel(n[0], bin_size)} handleBinClick={binclick} text={n[0]} ndocs={n[1]}/></div>;
                 })}
                 </div>); 
         }
-
     }
 });
 
 var UI = React.createClass({
 
   check_mode: function(){
-    console.log(this.state.f);
-    console.log(this.t_not_selected());
     if (this.state.f != -1){
         this.setState({mode: "docs"});
     }else{
@@ -516,6 +552,7 @@ var UI = React.createClass({
     }
     return false;
   },
+
   handleF: function(e){
     //user just clicked an F button in ButtonList
     if (this.state.f === e){
@@ -529,6 +566,22 @@ var UI = React.createClass({
     //    this.setState(f_list: d);
     //});
   },
+
+  handleMo:function (e){
+    //the user just clicked a month facet, e
+    this.state.mo_start = e;
+    this.state.mo_end = e;
+    this.state.dy_start = 1;
+    //30 days have sep, apr, may, nov...
+    if (_.includes([9, 4, 5, 11], e)){
+        this.setState({dy_end: 30});
+    } else if (_.includes([2], e)){
+        this.setState({dy_end: 28});
+    } else {
+        this.setState({dy_end: 31});
+    }
+  },
+
   handleBinClick: function(e){
     //user just clicked a TFacet
     //TODO: assuming bin year here.
@@ -568,6 +621,16 @@ var UI = React.createClass({
       return moment(n.pubdate);
     });
     return _.max(momentresults);
+  },
+
+  show_month_bins: function(docs){
+    let min = this.get_min(docs);
+    let max = this.get_max(docs);
+    if (max.diff(min, 'days') < 366){
+        return true;
+    }else{
+        return false;
+    }
   },
 
   getInitialState(){
@@ -641,11 +704,13 @@ var UI = React.createClass({
 
     let main_panel;
 
+    let uiMonthHandler = this.handleMo;
+
     if (this.state.mode != "overview") {      
       main_panel = <div style={y_scroll}><DocViewer f={this.state.f} handleBinClick={this.handleBinClick} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/></div>;
     } else {
       //status = "Found " + this.props.all_results.length + " results for " + this.props.q + " related to:"
-      main_panel = <FacetDetailsBox rw_height={row_height} bin_size="year" handleBinDocsZoom={this.handleBinDocsZoom} f={f} handleF={this.handleF} bins={binned_facets}/>;
+      main_panel = <FacetDetailsBox rw_height={row_height} bin_size="year" handleMo={uiMonthHandler} handleBinDocsZoom={this.handleBinDocsZoom} f={f} handleF={this.handleF} bins={binned_facets}/>;
     }
     let rw = {
         width: "100%",
@@ -653,12 +718,8 @@ var UI = React.createClass({
 
     let start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
     let end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
-    let show_months = false;
+    let show_months = this.show_month_bins(docs);
     let left_col_width = 10;
-    if (end.diff(start, 'days') < 32){
-        show_months = true;
-        left_col_width = 15;
-    }
     let lc = {
         width: left_col_width.toString() + "%",
         borderRight: "1px solid gray",
@@ -672,6 +733,7 @@ var UI = React.createClass({
         float: "left",
         height: this.props.height
     };
+    let handleMoUI = this.handleMo;
     return(
         <div>
             <div style={rw}>
@@ -680,7 +742,7 @@ var UI = React.createClass({
             <ButtonList active={f} onClick={this.handleF} items={datas}/>
             <div>{status}</div>
             <div style={rw} >
-                <div style={lc}><TFacets height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={all_results} f={f} bin_size={bin_size}/></div>
+                <div style={lc}><TFacets handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={all_results} f={f} bin_size={bin_size}/></div>
                 <div style={rc}>{main_panel}</div>
             </div>
             <div style={rw}>
