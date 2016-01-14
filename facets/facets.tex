@@ -12,6 +12,19 @@
 
 \maketitle
 
+\section{Binning}
+
+Traditional search engines help users find particular information. Exploratory search engines help users get an overall broad sense of data. This poses a design challenge. If Rookie's goal is to help reporters, researchers and readers better understand broad stories in current events, while still allowing users to drill down to particlar documents: how should Rookie present document lists?
+
+organize results by relevance. Rookie organizes results temporally. \footnote{what is case for why?} This poses as design challenge. If a query query returns more results than a user can read quickly, how should rookie 
+
+Scrolling?
+
+
+\subsection{Index time}
+
+
+
 \section{Rookie facet engine}
 
 When a user enters a query, Q, into the Rookie UI, Rookie executes a traditional document search using an information retrieval system\footnote {the current implmentation uses Whoosh} to find a set of query-responsive documents, D. In some cases, Rookie may filter D into a subset of documents which fall within a specified timespan, T. Regardless, Rookie passes either the set of documents or the set of time-filtered documents to its facet engine.

@@ -15,3 +15,4 @@ test.dot
 awsstuff/medrookie.pem
 rookie/doc_react/node_modules/*
 rookie/doc_react/app/*
+experiment/static/js/bundle.js

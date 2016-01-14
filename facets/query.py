@@ -5,13 +5,12 @@ from __future__ import division
 from experiment.models import ROOKIE
 from pylru import lrudecorator
 from whoosh import query
+from dateutil.parser import parse
 from whoosh.index import open_dir
-import bottleneck as bn
 import ujson
 import numpy as np
 import ipdb
 import time
-import math
 import itertools
 import cPickle as pickle
 import redis
@@ -24,7 +23,7 @@ NDOCS = 3488  # how many docs are indexed in whoosh?
 
 STOPTOKENS = ["new", "orleans"]
 
-DEBUG = False
+DEBUG = True
 
 Q = sys.argv[1]
 
@@ -89,7 +88,7 @@ def load_all_data_structures():
         matrixes[n] = load_matrix(n + "_matrix", len(decoder.keys()), NDOCS)
         df[n] = pickle.load(open("rookieindex/{}_df.p".format(n), "rb"))
         idf[n] = pickle.load(open("rookieindex/{}_idf.p".format(n), "rb"))
-    return {"decoders": decoders, "reverse_decoders": reverse_decoders, "matrixes": matrixes, "df": df, "idf": idf}
+    return {"decoders": decoders, "reverse_decoders": reverse_decoders, "matrixes": matrixes, "df": df, "idf": idf, "metadata": mt}
 
 
 def s_check(facet, proposed_new_facet, distance):
@@ -190,7 +189,6 @@ def get_facet_tfidf(results, structures, facet_type):
     "df" = how many total documents contain f (i.e. boolean: facet occurs or no)
     "tfidf" = np.multiply(tf, np.log(1./df))
     '''
-    # get the cols for results
     start = time.time()
     # this is the bottle neck --> 
     cols = structures["matrixes"][facet_type][ np.ix_([i for i in range(structures["matrixes"][facet_type].shape[0])],[int(i) for i in results])]
@@ -200,6 +198,15 @@ def get_facet_tfidf(results, structures, facet_type):
     tfidf = np.multiply(tf, idf)
     return tfidf
 
+def filter_t(results, start, end):
+    '''
+    Take a set of results and return those that fall in [start, end]
+    '''
+    return [i for i in results if parse(structures["metadata"][i]["pubdate"]) >= start and parse(structures["metadata"][i]["pubdate"]) <= end]
+
 structures = load_all_data_structures()
 results = set(ROOKIE.query(Q))
+start = time.time()
+results = filter_t(results, parse("2012-01-01"), parse("2013-01-01"))
+debug_print("filter t took {}".format(time.time() - start))
 print get_facets(results, structures, "ngram", 15)

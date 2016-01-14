@@ -10,6 +10,11 @@ Time is ordinal. Space is ordinal? Maybe the Rookie argument is ordinal + facets
 
 Implementation: if just Q seleted (no F or T) then bin the chart into invisible regions. Clicking region will limit to the date range. Hover will show the region. Because you should just be able to click on zoom. 
 
-Analogy w/ color pickers? Chunking time is better than giving 10 zillion options. But there should be an advanced color picker. 
+1/7/15 - Don't give options to set own T. Use yr/mo/dy. Analogy w/ color pickers? Chunking time is better than giving 10 zillion options. But there should be an advanced color picker. 
 
 Buttons should be check marks? and should be on L side. Time bins on top.
+
+1/8/15 - See detail.png. I think need another layer of facets to R of year to make this coherent.
+
+1/9/15 - not all snippets need to be the same size. If something is REALLY important can get more airtime. Worrying about faceted drill down. https://www.nngroup.com/articles/flat-vs-deep-hierarchy/
+If you do away with an IR system, then you will have TONS of docs to read. so really need facets. 
