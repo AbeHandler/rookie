@@ -513,6 +513,17 @@ var TFacets = React.createClass({
         this.props.handleMo(e);
     },
 
+    get_selected_mo: function(){
+        //using this weird day=15 thing to match up w/ c3 binning
+        console.log(this.props);
+        if (this.props.mo_start + 1 == this.props.mo_end){
+            if (this.props.dy_start == 15 && this.props.dy_end == 15 ){
+                return this.props.mo_start;
+            }
+        }
+        return -1;
+    },
+
     render: function(){
         let binkeys = this.get_bin_keys();
         let ndocs = this.get_n_docs_in_bin;
@@ -524,6 +535,7 @@ var TFacets = React.createClass({
         let sel = this.isSelected;
         let rw_height = this.props.rw_height;
         let mo_bins;
+        let selected_fn = this.get_selected_mo;
         if (this.props.show_months){
            let right = {
             "width":"50%",
@@ -537,7 +549,7 @@ var TFacets = React.createClass({
                         })}
                         </div>
                     </div>
-                    <div style={right}><MonthBinList selected_mo={this.props.mo_start} handleMo={this.handleMo} height={this.props.height}/></div>
+                    <div style={right}><MonthBinList selected_mo={this.get_selected_mo()} handleMo={this.handleMo} height={this.props.height}/></div>
                   </div>
         }else{
             return (<div>
