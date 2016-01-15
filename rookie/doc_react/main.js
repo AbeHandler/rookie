@@ -208,6 +208,14 @@ var FacetPreview = React.createClass({
 
 var MonthBinList = React.createClass({
 
+  is_selected: function (selected_mo, other_month){
+    if (selected_mo == other_month){
+        return true;
+    }else{
+        return false;
+    }
+  },
+
   render: function() {
     let months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     let rw_height = this.props.height / 12;
@@ -228,13 +236,15 @@ var MonthBinList = React.createClass({
     }
 
     let clicker = this.props.handleMo;
-
+    let selected_mo = this.props.selected_mo;
+    let is_selected = this.is_selected;
     return (
       <div>
         {months.map(function(item, i) {
           i++;
+
           return (
-            <MonthBin monthNo={i} monthClick={clicker} style={dStyle} month={item} key={i}/>
+            <MonthBin selected_mo={is_selected(selected_mo, i)} monthNo={i} monthClick={clicker} style={dStyle} month={item} key={i}/>
           );
         })}
       </div>
@@ -301,7 +311,13 @@ var MonthBin = React.createClass({
     },
 
     render: function(){
-        return <div onClick={this.handleClick.bind(this, this.props.monthNo)}>{this.props.month}</div>;
+        let dStyle = {
+            "color":"black"
+        };
+        if (this.props.selected_mo){
+            dStyle.color="green";
+        }
+        return <div style={dStyle} onClick={this.handleClick.bind(this, this.props.monthNo)}>{this.props.month}</div>;
     }
 });
 
@@ -521,7 +537,7 @@ var TFacets = React.createClass({
                         })}
                         </div>
                     </div>
-                    <div style={right}><MonthBinList handleMo={this.handleMo} height={this.props.height}/></div>
+                    <div style={right}><MonthBinList selected_mo={this.props.mo_start} handleMo={this.handleMo} height={this.props.height}/></div>
                   </div>
         }else{
             return (<div>
@@ -575,17 +591,11 @@ var UI = React.createClass({
 
   handleMo:function (e){
     //the user just clicked a month facet, e
-    this.state.mo_start = e;
-    this.state.mo_end = e;
-    this.state.dy_start = 1;
-    //30 days have sep, apr, may, nov...
-    if (_.includes([9, 4, 5, 11], e)){
-        this.setState({dy_end: 30});
-    } else if (_.includes([2], e)){
-        this.setState({dy_end: 28});
-    } else {
-        this.setState({dy_end: 31});
-    }
+    let e1 = e + 1;
+    this.setState({mo_start: e});
+    this.setState({mo_end: e1});
+    this.setState({dy_start: 15});
+    this.setState({dy_end: 15});
   },
 
   handleBinClick: function(e){
