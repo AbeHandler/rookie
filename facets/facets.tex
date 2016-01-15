@@ -14,6 +14,8 @@
 
 \section{Binning}
 
+TODO: UPDATE
+
 Traditional search engines help users find particular information. Exploratory search engines help users get an overall broad sense of data. This poses a design challenge. If Rookie's goal is to help reporters, researchers and readers better understand broad stories in current events, while still allowing users to drill down to particlar documents: how should Rookie present document lists?
 
 organize results by relevance. Rookie organizes results temporally. \footnote{what is case for why?} This poses as design challenge. If a query query returns more results than a user can read quickly, how should rookie 
@@ -105,6 +107,12 @@ Thus, Rookie builds a list of facets, L, by iterating through the higest scoring
 Combining facets in this way could be said to be an extremely lightweight form of coreference resolution, a large topic within natural language processing, philosophy \footnote{Do ``Obamacare'' and the ``Affordable Care Act'' refer to the same thing?} and linguistics. Rookie's goal is more modest: simply finding some string which represents some facet of underlying documents, without confusing the user with duplicates. 
 
 The motivation for this approach is twofold. First, this form of coreference resolution has proven suitable for this particular application. Second, coreference resolution methods are not currently fast enough to run run at query time in a user-facing application.
+
+\subsection{Binning}
+
+Some of the per-year facets are low on the global list but important for their year. ex. q=mitch landrieu t=Diana Bajoie, t=2012.
+
+So take the top N facets for each yr by tfidf, merge into a query-wide facet list. then loop over top tfidf facets per bin again, adding facets from global list into the bin's facet list. this allows coherence between bin facets and global facets -- but also allows for important facets in a given bin.
 
 
 \subsection{Performance, implementation \& benchmarking}

@@ -5,6 +5,7 @@ from __future__ import division
 from experiment.models import ROOKIE
 from pylru import lrudecorator
 from whoosh import query
+import bottleneck
 from dateutil.parser import parse
 from whoosh.index import open_dir
 from collections import defaultdict
@@ -28,9 +29,11 @@ DEBUG = True
 
 Q = sys.argv[1]
 
-N_GLOBAL = 10
+N_FACETS = 10
 
 aliases = defaultdict(list)
+
+CUTOFF = 25
 
 def debug_print(msg):
     if DEBUG:
@@ -116,7 +119,7 @@ def get_jaccard(one, two):
     return jacard
 
 
-def heuristic_cleanup(output, proposed_new_facet, dfs, decoder):
+def heuristic_cleanup(output, proposed_new_facet):
     '''
     An ugly heuristic that tries to filter out bad/meaningless facets quickly
 
@@ -135,16 +138,12 @@ def heuristic_cleanup(output, proposed_new_facet, dfs, decoder):
     debug_print("processing {}".format(proposed_new_facet))
     debug_print("thus far have:")
     debug_print(output)
-    new_this_round = None
     if proposed_new_facet.lower() in stops:
-        return new_this_round, output # dont and the new facet
-    #pre processing issue
-    if "writer" in proposed_new_facet:
-        return new_this_round, output
+        return output # dont and the new facet
     if proposed_new_facet in output:
-        return new_this_round, output # dont add duplicates
+        return output # dont add duplicates
     if get_jaccard(proposed_new_facet, Q) > .5:
-        return new_this_round, output # proposed new facet overlaps w/ query
+        return output # proposed new facet overlaps w/ query
     append = True # insert the facet after the check. assume true
     for index, facet in enumerate(output): # loop over facets thus far
         dist = distance(facet, proposed_new_facet) # get lev distance
@@ -155,62 +154,34 @@ def heuristic_cleanup(output, proposed_new_facet, dfs, decoder):
                 append = False
             elif (len(proposed_new_facet) > len(facet)):
                 debug_print("replacing {} with {}".format(output[index], proposed_new_facet))
-                aliases[proposed_new_facet] = aliases[output[index]] + [output[index]]
                 output[index] = proposed_new_facet
-                new_this_round = proposed_new_facet
                 append = False
         if get_jaccard(proposed_new_facet, facet) > .5:
             if len(proposed_new_facet) > len(facet):
                 debug_print("replacing {} with {}".format(output[index], proposed_new_facet))
-                aliases[proposed_new_facet] = aliases[output[index]] + [output[index]]
                 output[index] = proposed_new_facet
-                new_this_round = proposed_new_facet
             else:
                 debug_print("{} overlaps w/ {} but is shorter. don't append".format(proposed_new_facet, output[index]))
 
             # don't append even if new facet does not replace a given facet (in lines above). 
             # this is because new facet is too similar to some existing facet
             append = False
-        if proposed_new_facet.split(" ")[0].lower() == facet.split(" ").pop().lower():
-            joined = " ".join(facet.split(" ")[:-1]) + " " + proposed_new_facet
-            try:
-                count_joined = dfs[decoder[joined]]
-                count_original = dfs[decoder[output[index]]]
-                if count_original > count_joined * 2:
-                    pass
-                else:
-                    debug_print("parse/merge. replacing {} c.{} with {} c.{}".format(output[index], count_original, joined, count_joined))
-                    aliases[joined] = aliases[output[index]] + [output[index]]
-                    output[index] = joined
-                    new_this_round = joined
-                    append = False
-            except KeyError:
-                pass # a key error here means the facet does not occur in the corpus
-
 
     if append:
         debug_print("appending {}".format(proposed_new_facet))
         output.append(proposed_new_facet)
-        new_this_round = proposed_new_facet
-    return new_this_round, [i for i in set(output)] #sometimes more than 1 facet will be replaced by propsed_new_facet. So need set
+    return [i for i in set(output)] #sometimes more than 1 facet will be replaced by propsed_new_facet
 
-def get_facets(results, structures, facet_type, num_facets, output = [], bin=False):
-    '''
-    get the tfidf score for each facet_type
-    '''
+
+def get_facets(indices, structures, facet_type):
+    start = time.time()
     tfidf = get_facet_tfidf(results, structures, facet_type)
-    bin_facets = []
-    for counter, ii in enumerate(np.argsort(tfidf)[::-1]):
+    output = []
+    for ii in indices:
         possible_f = structures["reverse_decoders"][facet_type][ii]
-        bin_facets.append(possible_f)
-        new, output = heuristic_cleanup(output, possible_f, structures["df"]["ngram"], structures["decoders"]["ngram"])
-        #output = output + [possible_f]
-        if len(output) == num_facets:
-            break
-    if bin:
-        return output, bin_facets
-    else:
-        return output
+        output = heuristic_cleanup(output, possible_f)
+    debug_print("getting facets took {}".format(time.time() - start))
+    return output
 
 
 def get_facet_tfidf(results, structures, facet_type):
@@ -229,35 +200,62 @@ def get_facet_tfidf(results, structures, facet_type):
     tfidf = np.multiply(tf, idf)
     return tfidf
 
+def get_facet_tfidf_cutoff(results, structures, facet_type, cutoff):
+    '''
+    get the tfidf score for each facet_type w/ a cutoff
+    "tf" = how many queried documents contain f (i.e. boolean: facet occurs or no)
+    "df" = how many total documents contain f (i.e. boolean: facet occurs or no)
+    "tfidf" = np.multiply(tf, np.log(1./df))
+
+    returns the top CUTOFF indexes in the array
+    '''
+    # this is the bottle neck --> 
+    cols = structures["matrixes"][facet_type][ np.ix_([i for i in range(structures["matrixes"][facet_type].shape[0])],[int(i) for i in results])]
+    tf = np.sum(cols, axis=1) # occurance in queried docs, by F
+    idf = structures["idf"][facet_type]
+    tfidf = np.multiply(tf, idf)
+    start = time.time()
+    top_n_indices = list(bottleneck.argpartsort(tfidf, tfidf.size-cutoff)[-cutoff:])
+    return [(i, tfidf[i]) for i in top_n_indices]
+
+
 def filter_t(results, start, end):
     '''
     Take a set of results and return those that fall in [start, end]
     '''
     return [i for i in results if parse(structures["metadata"][i]["pubdate"]) >= start and parse(structures["metadata"][i]["pubdate"]) <= end]
 
+
 structures = load_all_data_structures()
+start = time.time()
 results = set(ROOKIE.query(Q))
+debug_print("query took {}".format(time.time() - start))
+
+raw_results = {}
 
 start = time.time()
-global_facets = get_facets(results, structures, "ngram", N_GLOBAL)
 
-output_facets = {}
+raw_results["g"] = get_facet_tfidf_cutoff(results, structures, "ngram", CUTOFF)
 
-output_facets["global"] = global_facets
-
-print global_facets
-
-#TODO: Brendan suggested taking top N and counting by year. How many of these
-# binned facets will show up in the top N? I dont think so many of them. check.
-#TODO: PMI version of facet engine
-
-# loop over bins.
 for index, yr in enumerate(xrange(2010, 2016)):
     lresults = filter_t(results, parse("{}-01-01".format(yr)), parse("{}-01-01".format(yr+1)))
-    global_facets, bin_facets = get_facets(lresults, structures, "ngram", N_GLOBAL + index * N_GLOBAL, global_facets, bin=True)
-    output_facets[yr] = bin_facets
+    raw_results[yr] = get_facet_tfidf_cutoff(lresults, structures, "ngram", CUTOFF)
 
-print aliases
-# print output_facets["global"]
-# print output_facets
-debug_print("facets took {}".format(time.time() - start))
+vals = [v[0] for v in itertools.chain(*raw_results.values())]
+
+OK_facets = get_facets(vals, structures, "ngram")
+
+facet_results = {}
+
+for i in raw_results:
+    tfidfs = raw_results[i]
+    tfidfs.sort(key=lambda x:x[1])
+    facet_results[i] = []
+    for j in tfidfs:
+        facet_name = structures["reverse_decoders"]["ngram"][j[0]]
+        if facet_name in OK_facets:
+            facet_results[i].append(facet_name)
+        if len(facet_results[i]) == N_FACETS:
+            break
+
+print facet_results

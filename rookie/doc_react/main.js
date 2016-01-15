@@ -315,7 +315,11 @@ var MonthBin = React.createClass({
             "color":"black"
         };
         if (this.props.selected_mo){
-            dStyle.color="green";
+            dStyle.opacity="1";
+            dStyle.backgroundColor = "rgba(102,126,199,.1)"; //same as region color
+        }else{
+            dStyle.opacity=".4";
+            dStyle.color="grey";
         }
         return <div style={dStyle} onClick={this.handleClick.bind(this, this.props.monthNo)}>{this.props.month}</div>;
     }
