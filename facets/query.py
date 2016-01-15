@@ -138,6 +138,8 @@ def heuristic_cleanup(output, proposed_new_facet):
     debug_print("processing {}".format(proposed_new_facet))
     debug_print("thus far have:")
     debug_print(output)
+    dfs = structures["df"]["ngram"]
+    decoder = structures["decoders"]["ngram"]
     if proposed_new_facet.lower() in stops:
         return output # dont and the new facet
     if proposed_new_facet in output:
@@ -153,10 +155,18 @@ def heuristic_cleanup(output, proposed_new_facet):
             if s_check(facet, proposed_new_facet, dist):
                 append = False
             elif (len(proposed_new_facet) > len(facet)):
+                print "proposed"
+                print dfs[decoder[proposed_new_facet]]
+                print "new"
+                print dfs[decoder[proposed_new_facet]]
                 debug_print("replacing {} with {}".format(output[index], proposed_new_facet))
                 output[index] = proposed_new_facet
                 append = False
         if get_jaccard(proposed_new_facet, facet) > .5:
+            print "proposed"
+            print [decoder[proposed_new_facet]]
+            print "new"
+            print [decoder[proposed_new_facet]]
             if len(proposed_new_facet) > len(facet):
                 debug_print("replacing {} with {}".format(output[index], proposed_new_facet))
                 output[index] = proposed_new_facet
@@ -166,6 +176,21 @@ def heuristic_cleanup(output, proposed_new_facet):
             # don't append even if new facet does not replace a given facet (in lines above). 
             # this is because new facet is too similar to some existing facet
             append = False
+        if proposed_new_facet.split(" ")[0].lower() == facet.split(" ").pop().lower():
+            joined = " ".join(facet.split(" ")[:-1]) + " " + proposed_new_facet
+            try:
+                count_joined = dfs[decoder[joined]]
+                count_original = dfs[decoder[output[index]]]
+                if count_original > count_joined * 2:
+                     pass
+                else:
+                    debug_print("parse/merge. replacing {} c.{} with {} c.{}".format(output[index], count_original, joined, count_joined))
+                    aliases[joined] = aliases[output[index]] + [output[index]]
+                    output[index] = joined
+                    new_this_round = joined
+                    append = False
+            except KeyError:
+                pass # a key error here means the facet does not occur in the corpus
 
     if append:
         debug_print("appending {}".format(proposed_new_facet))
