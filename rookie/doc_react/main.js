@@ -45,21 +45,21 @@ var datas = [
 ];
 
 /*
-A list of linguistic facets
+A list of linguistic facets. i.e. row of facet buttons
 */
-var ButtonList = React.createClass({
+var LinguisticFacets = React.createClass({
   handleClick: function(item) {
     this.props.onClick(item);
   },
   render: function() {
     return (<div>
         {this.props.items.map(function(item, i) {
-          let color = "black";
+          let selected = false;
           if (this.props.active===this.props.items[i].key){
-              color="#0028a3";
+              selected = true;
           }
           return (
-            <Name color={color} data={item.data} name={item.key} onClick={this.handleClick} key={i}/>
+            <Name selected={selected} data={item.data} name={item.key} onClick={this.handleClick} key={i}/>
           );
         }, this)}
       </div>);
@@ -162,13 +162,18 @@ var Name = React.createClass({
     },
     render: function() {
          var divStyle = {
-            color: this.props.color,
             "paddingRight": "5px",
             "paddingLeft": "5px",
             "marginLeft": "3px",
             "marginRight": "3px",
-            "fontWeight": "bold"
+            "fontWeight": "bold",
+            "backgroundColor": "#D3D3D3",
+            "color": "black",
+            "fontSize":12
          };
+         if (this.props.selected){
+            divStyle.color = "rgb(0, 40, 163)";
+         }
          
          return (<div className="button tiny secondary" style={divStyle} name={this.props.name} onClick={this.handleClick.bind(this, this.props.name)}>
             {this.props.name}
@@ -227,6 +232,7 @@ var MonthBinList = React.createClass({
     return (
       <div>
         {months.map(function(item, i) {
+          i++;
           return (
             <MonthBin monthNo={i} monthClick={clicker} style={dStyle} month={item} key={i}/>
           );
@@ -554,7 +560,7 @@ var UI = React.createClass({
   },
 
   handleF: function(e){
-    //user just clicked an F button in ButtonList
+    //user just clicked an F button in LinguisticFacets
     if (this.state.f === e){
         this.setState({f: -1}, this.check_mode);
     }else{
@@ -739,7 +745,7 @@ var UI = React.createClass({
             <div style={rw}>
                 Subjects related to {q}:
             </div>
-            <ButtonList active={f} onClick={this.handleF} items={datas}/>
+            <LinguisticFacets active={f} onClick={this.handleF} items={datas}/>
             <div>{status}</div>
             <div style={rw} >
                 <div style={lc}><TFacets handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={all_results} f={f} bin_size={bin_size}/></div>
