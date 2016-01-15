@@ -51,7 +51,7 @@ Element-wise multiplication of $\vec{tf}$ and $\vec{idf}$ produces a vector of t
 \vec{S} = \vec{tf} \odot \vec{idf}
 \end{equation}
 
-Rookie selects highest-scoring ngrams greedily from $\vec{S}$ until it reaches a fixed number of facets \footnote{TODO: character budget}, passed as a parameter in the call to the facet algorithm. However, because top-scoring facets often use slightly different string tokens to refer to the same person, organization or concept (shown in table \ref{t1:one}) \footnote{TODO: Don't understand why exactly this is happening. POS tagging errors? Linguistic variation in language in articles? Refer to different things?}
+Rookie selects highest-scoring ngrams from $\vec{S}$ until it reaches a fixed number of facets \footnote{TODO: character budget}, passed as a parameter in the call to the facet algorithm. However, because top-scoring facets often use slightly different string tokens to refer to the same person, organization or concept (shown in table \ref{t1:one}) \footnote{TODO: Don't understand why exactly this is happening. POS tagging errors? Linguistic variation in language in articles? Refer to different things?}
 Rookie uses heuristics to clean up facets for presentation during its greedy search.
 
 Table \ref{t1:one} shows the 15 highest ranking facets for Q=``Mitch Landrieu'', with and without heuristic cleanup. The top three raw facets are all short phrases which contain substrings of ``Mitch Landrieu''. Meanwhile, fully one fifth of the facets are slight varations of the string ``Sheriff Marlin Gusman". Such overlap clutters the UI with repetitive information and requires time and energy from users.
@@ -82,8 +82,7 @@ Table \ref{t1:one} shows the 15 highest ranking facets for Q=``Mitch Landrieu'',
 \label{t1:one}
 \end{table}
 
-Thus, as Rookie picks the higest scoring facets using tfidf scores, it runs several heuristic checks to avoid duplicates and guess at the best string representation. Heuristic checks include: deleting facets that are identical except for those ending s and replacing a shorter facet (by string length) with a longer facet when the token-level Jaccard similarity between the facets is greater than 50\%.
-
+Thus, Rookie builds a list of facets, L, by iterating through the higest scoring ngrams one at a time. If an propsed facet, p, seems like a duplicate of $L_n$, Rookie will either replace $L_n$ with p (using heuristics to guide the decision to replace) or else skip over p entirely (without adding it to L). For instance, if p and $L_n$ have a Jaccard similarity that is greater than 50\% and p has more characters than $L_n$, Rookie will replace $L_n$ with p.
 
 \begin{table}[h!]
 \begin{center}
