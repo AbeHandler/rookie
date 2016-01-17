@@ -1,3 +1,5 @@
+*.jshintrc
+*.DS_Store
 lens_downloader/files/*
 *pyc
 *log
@@ -16,3 +18,5 @@ awsstuff/medrookie.pem
 rookie/doc_react/node_modules/*
 rookie/doc_react/app/*
 experiment/static/js/bundle.js
+articles/*
+rookie/doc_react/.sass-cache/
