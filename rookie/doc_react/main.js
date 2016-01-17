@@ -44,34 +44,10 @@ var datas = [
    {"key": "Ryan Berni"}
 ];
 
-/*
-A list of linguistic facets. i.e. row of facet buttons
-*/
-var LinguisticFacets = React.createClass({
-  handleClick: function(item) {
-    this.props.onClick(item);
-  },
-  render: function() {
-    return (<div>
-        {this.props.items.map(function(item, i) {
-          let selected = false;
-          if (this.props.active===this.props.items[i].key){
-              selected = true;
-          }
-          return (
-            <Name selected={selected} data={item.data} name={item.key} onClick={this.handleClick} key={i}/>
-          );
-        }, this)}
-      </div>);
-  }
-});
+var LinguisticFacets = require('./components/LinguisticFacets.jsx');
+var Name = require('./components/LinguisticFacets.jsx');
 
-/*
-c3 chart
 
-//TODO: no flicker of red. load/unload
-
-*/
 var Chart = React.createClass({
 
   render: function() {
@@ -154,33 +130,6 @@ var Chart = React.createClass({
         </div>;
   }
 });
-
-
-var Name = React.createClass({
-    handleClick: function(e) {
-        this.props.onClick(e);
-    },
-    render: function() {
-         var divStyle = {
-            "paddingRight": "5px",
-            "paddingLeft": "5px",
-            "marginLeft": "3px",
-            "marginRight": "3px",
-            "fontWeight": "bold",
-            "backgroundColor": "#D3D3D3",
-            "color": "black",
-            "fontSize":12
-         };
-         if (this.props.selected){
-            divStyle.color = "rgb(0, 40, 163)";
-         }
-         
-         return (<div className="button tiny secondary" style={divStyle} name={this.props.name} onClick={this.handleClick.bind(this, this.props.name)}>
-            {this.props.name}
-        </div>);
-    }
-});
-
 
 var FacetPreview = React.createClass({
     handleClick: function(e) {
