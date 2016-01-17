@@ -46,6 +46,9 @@ var datas = [
 
 var LinguisticFacets = require('./components/LinguisticFacets.jsx');
 var Name = require('./components/LinguisticFacets.jsx');
+var FacetPreview = require('./components/FacetPreview.jsx');
+var TFacets = require('./components/TFacets.jsx');
+var MonthBinList = require('./components/MonthBinList.jsx');
 
 
 var Chart = React.createClass({
@@ -131,75 +134,6 @@ var Chart = React.createClass({
   }
 });
 
-var FacetPreview = React.createClass({
-    handleClick: function(e) {
-        this.props.onClick(e);
-    },
-    render: function() {
-         let tmp = this.props.color;
-         var aStyle = {
-            "color":"grey",
-            "fontSize": "small",
-            "textDecoration": "underline"
-         };
-         var spanStyle = {
-            "marginRight": "3px"
-         };
-         let display = this.props.name;
-         if (this.props.position + 1 == this.props.len_items){
-            return (<span style={spanStyle} name={this.props.name} onClick={this.handleClick.bind(this, this.props.name)}><a style={aStyle}>{display}</a></span>);
-         }else{
-            return (<span style={spanStyle} name={this.props.name} onClick={this.handleClick.bind(this, this.props.name)}><a style={aStyle}>{display}</a>, </span>);
-         }
-         
-    }
-});
-
-var MonthBinList = React.createClass({
-
-  is_selected: function (selected_mo, other_month){
-    if (selected_mo == other_month){
-        return true;
-    }else{
-        return false;
-    }
-  },
-
-  render: function() {
-    let months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    let rw_height = this.props.height / 12;
-    let dStyle = {
-        "height":rw_height,
-        "cursor":"pointer",
-        "borderBottom": "black",
-        "borderBottomStyle": "solid",
-        "borderBottomWidth": "1px",
-        "marginBottom":"0"
-    };
-
-    if (this.props.selected === true){
-        dStyle.backgroundColor = "rgba(102,126,199,.1)"; //same as region color
-        dStyle.opacity = 1;
-    }else{
-        dStyle.opacity = .8;
-    }
-
-    let clicker = this.props.handleMo;
-    let selected_mo = this.props.selected_mo;
-    let is_selected = this.is_selected;
-    return (
-      <div>
-        {months.map(function(item, i) {
-          i++;
-
-          return (
-            <MonthBin selected_mo={is_selected(selected_mo, i)} monthNo={i} monthClick={clicker} style={dStyle} month={item} key={i}/>
-          );
-        })}
-      </div>
-    );
-  }
-});
 
 var FacetPreviewList = React.createClass({
   getInitialState(){
@@ -229,50 +163,6 @@ var FacetPreviewList = React.createClass({
   }
 });
 
-var YearBin = React.createClass({
-    
-    handleClick: function(n){
-        this.props.handleBinClick(n);
-    },
-    render: function(){
-        let bigStyle = {};
-        bigStyle.cursor = "pointer";
-        bigStyle.height = this.props.rw_height;
-        let bin_key = {textDecoration: "underline", color: "black", fontWeight: "bold"};
-        let link = {fontSize: "small", color: "rgb(0, 40, 163)"};
-        if (this.props.selected === true){
-            bigStyle.backgroundColor = "rgba(102,126,199,.1)"; //same as region color
-            bigStyle.opacity = 1;
-            link.opacity = 1;
-        }else{
-            link.opacity = .6;
-            bigStyle.opacity = .8;
-        }
-        return <div onClick={this.handleClick.bind(this, this.props.text)} style={bigStyle}><div style={bin_key}>{this.props.text}</div><div style={link}>{this.props.ndocs} stories</div></div>;
-    }
-});
-
-
-var MonthBin = React.createClass({
-    
-    handleClick: function(n){
-        this.props.monthClick(n);
-    },
-
-    render: function(){
-        let dStyle = {
-            "color":"black"
-        };
-        if (this.props.selected_mo){
-            dStyle.opacity="1";
-            dStyle.backgroundColor = "rgba(102,126,199,.1)"; //same as region color
-        }else{
-            dStyle.opacity=".4";
-            dStyle.color="grey";
-        }
-        return <div style={dStyle} onClick={this.handleClick.bind(this, this.props.monthNo)}>{this.props.month}</div>;
-    }
-});
 
 var FacetDetailsBox = React.createClass({
 
@@ -381,138 +271,6 @@ var DocViewer = React.createClass({
        }
 });
 
-/**
-A list of temporal facets (ex. [2010, 2011 ... 2015])
-*/
-var TFacets = React.createClass({
-    
-    /**
-     * Take docs and bin key size. return bin keys
-     * @returns {[binkey, binkey... binkey]} ex([2010, 2011 ... 2015])
-     */
-    get_bin_keys: function(){
-        if (this.props.bin_size == "year"){
-            let years = _.map(this.props.docs, function(n){
-                return parseInt(n.year);
-            });
-            years = _.uniq(years);
-            years = _.sortBy(years, function(n){
-                return n;
-            });
-            return years;
-        }
-        return "TODO";
-    },
-
-    /**
-     * Counts occurace of a facet in a timespan
-     * @param {f} facet - string. Key of vars.
-     * @param {moment} start - start of span
-     * @param {moment} end - end of span
-     * @returns {int} sum
-     */
-    count_in_range: function(f, start, end){
-        let sum = 0;
-        _.each(chart_bins, function(item, key){
-            if (item != "x"){
-                let m = moment(item);
-                if (m >= start & m < end){
-                    if (f != -1){
-                        sum += vars[f][key];
-                    }else{
-                        sum += q_data[key];
-                    }
-                }
-            }
-        });
-        return sum;
-    },
-
-    /**
-     * Take a bin key (string) and return a pair of moment objects
-     * @param {string} key - ex: "2011" or "Mar 2011"
-     * @returns {[moment, moment]} start and end of range
-     */
-    bin_key_to_range: function(key){
-        let output = {};
-        if (/^(19|20)\d{2}$/.test(key)){
-            output.start = moment(key + "-01-01");
-            output.end = moment(key + "-12-31");
-            return output;
-        }
-        //untested... -->
-        if (/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (19|20)\d{2}$/.test(key)){
-            //output["start"] = moment(key + "-01-01");
-            //output["end"] = moment(key + "-12-31");
-            return output;
-        }
-    },
-
-    get_n_docs_in_bin: function(bin_key){
-        let start_end = this.bin_key_to_range(bin_key);
-        return this.count_in_range(this.props.f, start_end.start, start_end.end);
-    },
-
-    isSelected: function(key, binsize) {
-        if (binsize == "year" & (this.props.yr_start.toString() == this.props.yr_end.toString())){
-            if (this.props.yr_start.toString() == key){
-                return true;
-            }
-        }
-        return false;
-    },
-
-    handleMo: function(e){
-        this.props.handleMo(e);
-    },
-
-    get_selected_mo: function(){
-        //using this weird day=15 thing to match up w/ c3 binning
-        console.log(this.props);
-        if (this.props.mo_start + 1 == this.props.mo_end){
-            if (this.props.dy_start == 15 && this.props.dy_end == 15 ){
-                return this.props.mo_start;
-            }
-        }
-        return -1;
-    },
-
-    render: function(){
-        let binkeys = this.get_bin_keys();
-        let ndocs = this.get_n_docs_in_bin;
-        let bins = _.map(binkeys, function(n){
-                    return [n, ndocs(n)];
-                    });
-        let binclick = this.props.handleBinClick;
-        let bin_size = this.props.bin_size;
-        let sel = this.isSelected;
-        let rw_height = this.props.rw_height;
-        let mo_bins;
-        let selected_fn = this.get_selected_mo;
-        if (this.props.show_months){
-           let right = {
-            "width":"50%",
-            "float":"left"
-           };  
-           return <div>
-                    <div style={right}>
-                        <div>
-                        {_.map(bins, function(n){
-                            return <div key={n[0]}><YearBin rw_height={rw_height} selected={sel(n[0], bin_size)} handleBinClick={binclick} text={n[0]} ndocs={n[1]}/></div>;
-                        })}
-                        </div>
-                    </div>
-                    <div style={right}><MonthBinList selected_mo={this.get_selected_mo()} handleMo={this.handleMo} height={this.props.height}/></div>
-                  </div>
-        }else{
-            return (<div>
-                {_.map(bins, function(n){
-                    return <div key={n[0]}><YearBin rw_height={rw_height} selected={sel(n[0], bin_size)} handleBinClick={binclick} text={n[0]} ndocs={n[1]}/></div>;
-                })}
-                </div>); 
-        }
-    }
-});
 
 var UI = React.createClass({
 
@@ -723,7 +481,7 @@ var UI = React.createClass({
             <LinguisticFacets active={f} onClick={this.handleF} items={datas}/>
             <div>{status}</div>
             <div style={rw} >
-                <div style={lc}><TFacets handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={all_results} f={f} bin_size={bin_size}/></div>
+                <div style={lc}><TFacets vars={vars} q_data={q_data} bins={chart_bins} handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={all_results} f={f} bin_size={bin_size}/></div>
                 <div style={rc}>{main_panel}</div>
             </div>
             <div style={rw}>

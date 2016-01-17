@@ -190,7 +190,14 @@ def heuristic_cleanup(output, proposed_new_facet, structures, q):
     return [i for i in set(output)] #sometimes more than 1 facet will be replaced by propsed_new_facet
 
 
-def get_facets(indices, structures, facet_type, q):
+def get_all_facets(indices, structures, facet_type, q):
+    '''
+    :param indices: ?
+    :param structures: data structures for facets
+    :param facet_type: could be people/ngram/org but will always = ngram basically
+    :param q: query
+    :return:
+    '''
     start = time.time()
     output = []
     for ii in indices:
@@ -229,7 +236,6 @@ def get_raw_facets(results, bins, structures):
     '''
     Returns top_n facets per bin + top_n for global bin
     '''
-
     raw_results = {} # raw best facets by tf idf
 
     raw_results["g"] = get_facet_tfidf_cutoff(results, structures, "ngram", CUTOFF)
@@ -243,6 +249,9 @@ def get_raw_facets(results, bins, structures):
 
 
 def get_facets_for_bin(tfidfs, structures, ok_facets, n_facets):
+    '''
+    Given a list of tfidf scores, a list of ok_facets, n_facets
+    '''
     tfidfs.sort(key=lambda x: x[1]) # sort by score (they are top N in a partsort)
     output = []
     for j in tfidfs:
@@ -255,6 +264,11 @@ def get_facets_for_bin(tfidfs, structures, ok_facets, n_facets):
 
 
 def get_facets_for_q(q, results, n_facets):
+    '''
+    Provide q, set of results and n_facets. 
+
+    Return binned facets. TODO: xrange(2010, 2016) hardcodes bins for now 
+    '''
 
     structures = load_all_data_structures()
 
@@ -267,7 +281,7 @@ def get_facets_for_q(q, results, n_facets):
     raws = [v[0] for v in itertools.chain(*raw_results.values())]
 
     # Get all of the possible facets
-    ok_facets = get_facets(raws, structures, "ngram", q)
+    ok_facets = get_all_facets(raws, structures, "ngram", q)
 
     for t_bin in raw_results: # for each bin
         facet_results[t_bin] = get_facets_for_bin(raw_results[t_bin], structures, ok_facets, n_facets)

@@ -1,6 +1,6 @@
 "use strict";
 /*
-A list of linguistic facets. i.e. row of facet buttons
+Name
 */
 
 var React = require('react');

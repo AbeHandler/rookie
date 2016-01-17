@@ -1,6 +1,6 @@
 "use strict";
 /*
-
+Facet preview
 */
 
 var React = require('react');
