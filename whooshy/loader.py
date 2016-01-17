@@ -7,7 +7,7 @@ from whoosh import writing
 from rookie.classes import IncomingFile
 from collections import defaultdict
 from rookie import processed_location
-import pdb
+import ipdb
 import itertools
 import os
 import json
@@ -16,6 +16,10 @@ import time
 
 
 def load(index_location, processed_location):
+    
+    s_counter = 0 # only increments when doc actually added to whoosh
+    # w/o this kludge, doc ids cause index errors b/c loop counter higher b/c ~15 docs error on load
+
     schema = Schema(title=TEXT(stored=True), path=ID(stored=True), content=TEXT)
     ix = create_in(index_location, schema)
     writer = ix.writer()
@@ -29,12 +33,8 @@ def load(index_location, processed_location):
 
     for counter, infile in enumerate(files_to_check):
         try:
-            
-            if counter % 100 == 0:
-                print counter
             full_text = IncomingFile(infile).doc.full_text
             headline = unicode(IncomingFile(infile).headline)
-            print counter
             meta_data = {}
             meta_data['people'] = [unicode(str(i)) for i in IncomingFile(infile).doc.people]
             meta_data['org'] = [unicode(str(i)) for i in IncomingFile(infile).doc.organizations]
@@ -47,6 +47,7 @@ def load(index_location, processed_location):
             meta_data['facet_index'] = defaultdict(list)
             sentences = [" ".join([j.raw for j in i.tokens]) for i in IncomingFile(infile).doc.sentences]
             start = time.time()
+            '''
             for s_index, sentence in enumerate(IncomingFile(infile).doc.sentences):
                 for ne in sentence.ner:
                     meta_data['facet_index'][str(ne).decode("ascii", "ignore")].append(s_index)
@@ -56,19 +57,16 @@ def load(index_location, processed_location):
                     meta_data['facet_index'][tmp].append(s_index)
                     meta_data['facet_index'][tmp] = list(set(meta_data['facet_index'][tmp]))
                     string_to_pubdate_index[tmp].append(IncomingFile(infile).pubdate)
+            '''
             meta_data['facet_index'] = dict(meta_data['facet_index'])
             meta_data['sentences'] = sentences
             tokens = itertools.chain(*[[j.raw for j in i.tokens] for i in IncomingFile(infile).doc.sentences])
-            with open('articles/{}'.format(counter), 'w') as outfile:
-                tokens = [i.encode("ascii", "ignore") for i in tokens]
-                toks = {}
-                for index, i in enumerate(tokens):
-                    toks[index] = i
-                json.dump(toks, outfile)
             meta_data['pubdate'] = IncomingFile(infile).pubdate
-            people_org_ngram_index[counter] = meta_data
             if len(headline) > 0 and len(full_text) > 0:
-                writer.add_document(title=headline, path=u"/" + str(counter), content=full_text)
+                writer.add_document(title=headline, path=u"/" + str(s_counter), content=full_text)
+                people_org_ngram_index[s_counter] = meta_data
+                s_counter += 1
+                print s_counter
         except AttributeError:
             print "error"
 

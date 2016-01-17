@@ -18,3 +18,5 @@ Buttons should be check marks? and should be on L side. Time bins on top.
 
 1/9/15 - not all snippets need to be the same size. If something is REALLY important can get more airtime. Worrying about faceted drill down. https://www.nngroup.com/articles/flat-vs-deep-hierarchy/
 If you do away with an IR system, then you will have TONS of docs to read. so really need facets. 
+
+1/15/15 -- there might be a way to be less heuristic about the heuristics by using document frequency. more freq == better?

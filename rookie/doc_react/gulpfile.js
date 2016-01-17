@@ -15,7 +15,7 @@ var SparklinesLine = require('react-sparklines').SparklinesLine;
 var SparklinesSpots = require('react-sparklines').SparklinesSpots;
 
 var paths = {
-  scripts: ['main.js']
+  scripts: ['components/*','main.js']
 };
 
 gulp.task('css', function() {

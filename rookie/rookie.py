@@ -117,9 +117,9 @@ class Rookie:
             self.index()
         with open(path + "/meta_data.json") as inf:
             self.metadata = json.load(inf)
-        self.people_df = pickle.load(open(self.path + "/df_people.p", "rb"))
-        self.orgs_df = pickle.load(open(self.path + "/df_orgs.p", "rb"))
-        self.ngrams_df = pickle.load(open(self.path + "/df_ngrams.p", "rb"))
+        self.people_df = pickle.load(open(self.path + "/people_df.p", "rb"))
+        self.orgs_df = pickle.load(open(self.path + "/org_df.p", "rb"))
+        self.ngrams_df = pickle.load(open(self.path + "/ngram_df.p", "rb"))
 
     @staticmethod
     def get_representitive_item(aliases, kind_of_item=None):
@@ -163,7 +163,7 @@ class Rookie:
         with index.searcher() as srch:
             results_a = srch.search(query, limit=None)
             out = [a.get("path").replace("/", "") for a in results_a]
-        print "[*] querying took {}".format(start_time - time.time())
+        #print "[*] querying took {}".format(start_time - time.time())
         return out
 
     def tfidf(self, word, tf, field):
