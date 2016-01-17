@@ -45,21 +45,30 @@ var datas = [
 ];
 
 var LinguisticFacets = require('./components/LinguisticFacets.jsx');
-var Name = require('./components/LinguisticFacets.jsx');
-var FacetPreview = require('./components/FacetPreview.jsx');
-var TFacets = require('./components/TFacets.jsx');
-var MonthBinList = require('./components/MonthBinList.jsx');
-
+var TemporalFacets = require('./components/TemporalFacets.jsx');
+var DocViewer = require('./components/DocViewer.jsx');
+var BinnedLinguisticFacets = require('./components/BinnedLinguisticFacets.jsx');
 
 var Chart = React.createClass({
+
+  convert_to_c3_land: function(dt){
+    //workaround for https://github.com/masayuki0812/c3/issues/65
+    return moment(dt).subtract(5, 'days').format("YYYY-MM-DD");
+  },
+
+  convert_to_c3_land_add: function(dt){
+    //workaround for https://github.com/masayuki0812/c3/issues/65
+    return moment(dt).add(5, 'days').format("YYYY-MM-DD");
+  },
 
   render: function() {
 
     let q = this.props.q;
-
+    let c3_start = this.convert_to_c3_land(this.props.yr_start + "-" + this.props.mo_start + "-" + this.props.dy_start);
+    let c3_end = this.convert_to_c3_land_add(this.props.yr_end + "-" + this.props.mo_end + "-" + this.props.dy_end);
     let reg;
     if (this.props.yr_start != -1){
-        reg = [{axis: 'x', start: this.props.yr_start + "-" + this.props.mo_start + "-" + this.props.dy_start, end: this.props.yr_end + "-" + this.props.mo_end + "-" + this.props.dy_end, class: 'regionX'}];
+        reg = [{axis: 'x', start: c3_start, end: c3_end, class: 'regionX'}];
     }
     else{
         reg = [];
@@ -105,7 +114,9 @@ var Chart = React.createClass({
             //this.props.tHandler(d, e);
         },
         bar: {
-         width: 1
+         width: {
+            ratio: 0.5 // this makes bar width 50% of length between ticks
+          }
         },
         types: types
     },
@@ -132,143 +143,6 @@ var Chart = React.createClass({
     return <div>
         </div>;
   }
-});
-
-
-var FacetPreviewList = React.createClass({
-  getInitialState(){
-    return {active: -1};
-  },
-  handleClick: function(item) {
-    this.setState({active: item});
-    this.props.handleBinClick(item);
-  },
-  render: function() {
-    let fw = this.props.fontweight;
-    let len_items = this.props.items.length;
-    return (
-      <span>
-        {this.props.items.map(function(item, i) {
-          let divStyle = {
-              csolor: "black",
-              fontsize: {fw},
-              borderBottomColor: "grey"
-          };
-          return (
-            <FacetPreview position={i} len_items={len_items} name={item} style={divStyle} onClick={this.handleClick} key={i}/>
-          );
-        }, this)}
-      </span>
-    );
-  }
-});
-
-
-var FacetDetailsBox = React.createClass({
-
-    render: function(){
-        let row = {
-          width:"100%",
-          overflow:"hidden",
-          height:this.props.rw_height
-        };
-        let binsize = this.props.bin_size;
-        return(
-           <div>
-                {this.props.bins.map((x, i) =>
-                    <div key={i} style={row}>
-                        <FacetPreviewList active={this.props.f} items={x.facets} onClick={this.props.handleF}/>
-                    </div>
-                )}
-           </div>
-        );
-       }
-});
-
-var Story = React.createClass({
-
-     render: function(){
-        var markup = function(doc) { 
-            return {__html: doc + "..."};
-        };
-        let headlineStyle = {
-            color: "rgb(0, 40, 163)"
-        };
-        let snippetStyle = {
-            color: "grey",
-            fontSize: "small"
-        };
-        let dateStyle = {
-            width: "9%",
-            float: "left",
-            color: "#778899",
-            overflow: "hidden",
-            fontSize: "large"
-        };
-        let storyStyle = {
-            width: "91%",
-            float: "left"
-        };
-        let rowStyle = {
-            width: "100%",
-            borderStyle: '1px solid black'
-        };
-        let yrStyle = {
-            color: "black",
-            fontSize: "13"
-        };
-        let mom = moment(this.props.story.pubdate);
-        return (
-            <div style={rowStyle}>
-                <div style={dateStyle}>
-                    <div>{mom.format("MMM DD")}</div>
-                    <div style={yrStyle}>{mom.format("YYYY")}</div>
-                </div>
-                <div style={storyStyle}>
-                    <a style={headlineStyle}> <div>{this.props.story.headline}</div> </a>
-                    <div style={snippetStyle} dangerouslySetInnerHTML={markup(this.props.story.snippet)}/>
-                </div>
-            </div>
-        );
-    }
-});
-
-var DocViewer = React.createClass({
-    
-    handleBinDocsZoom: function(e){
-        this.props.handleBinDocsZoom(e, this.props.bin_size);
-    },
-
-    render: function(){
-        let binsize = this.props.bin_size;
-        let docs = _.sortBy(this.props.docs, function(d){
-            return moment(d.pubdate);
-        });
-        let f = this.props.f;
-        var markup = function(doc) { 
-           return {__html: doc.snippet};
-        };
-        let props = this.props;
-        var isSelected = function(key, binsize) {
-           if (binsize == "year" & props.yr_start.toString() == props.yr_end.toString()){
-                if (props.yr_start.toString() == key){
-                    return true;
-                }
-           }
-           return false;
-        };
-        let rowStyle = {
-            width:"100%",
-            overflow:"hidden"
-        };
-        return(
-            <div style={rowStyle}>
-                {docs.map(function(doc, n) {
-                    return <div key={n} style={rowStyle}><Story story={doc}/></div>;
-                })}
-           </div>
-        );
-       }
 });
 
 
@@ -312,14 +186,27 @@ var UI = React.createClass({
     //});
   },
 
+
   handleMo:function (e){
     //the user just clicked a month facet, e
     let e1 = e + 1;
     this.setState({mo_start: e});
-    this.setState({mo_end: e1});
-    this.setState({dy_start: 15});
-    this.setState({dy_end: 15});
+    this.setState({mo_end: e});
+    this.setState({dy_start: 1});
+    
+    //thiry days hath september ... 
+    //https://en.wikipedia.org/wiki/Thirty_days_hath_September#History
+    //Since 1488!
+    if ([9, 11, 4, 5].indexOf(e)){
+        this.setState({dy_end: 30});
+    } else if (e == 2){
+        this.setState({dy_end: 28});
+    } else {
+        this.setState({dy_end: 30});
+    }
+
   },
+
 
   handleBinClick: function(e){
     //user just clicked a TFacet
@@ -362,10 +249,8 @@ var UI = React.createClass({
     return _.max(momentresults);
   },
 
-  show_month_bins: function(docs){
-    let min = this.get_min(docs);
-    let max = this.get_max(docs);
-    if (max.diff(min, 'days') < 366){
+  show_month_bins: function(start, end){
+    if (end.diff(start, 'days') < 366){
         return true;
     }else{
         return false;
@@ -449,7 +334,7 @@ var UI = React.createClass({
       main_panel = <div style={y_scroll}><DocViewer f={this.state.f} handleBinClick={this.handleBinClick} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/></div>;
     } else {
       //status = "Found " + this.props.all_results.length + " results for " + this.props.q + " related to:"
-      main_panel = <FacetDetailsBox rw_height={row_height} bin_size="year" handleMo={uiMonthHandler} handleBinDocsZoom={this.handleBinDocsZoom} f={f} handleF={this.handleF} bins={binned_facets}/>;
+      main_panel = <BinnedLinguisticFacets rw_height={row_height} bin_size="year" handleMo={uiMonthHandler} handleBinDocsZoom={this.handleBinDocsZoom} f={f} handleF={this.handleF} bins={binned_facets}/>;
     }
     let rw = {
         width: "100%",
@@ -457,7 +342,7 @@ var UI = React.createClass({
 
     let start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
     let end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
-    let show_months = this.show_month_bins(docs);
+    let show_months = this.show_month_bins(start, end);
     let left_col_width = 10;
     let lc = {
         width: left_col_width.toString() + "%",
@@ -481,7 +366,7 @@ var UI = React.createClass({
             <LinguisticFacets active={f} onClick={this.handleF} items={datas}/>
             <div>{status}</div>
             <div style={rw} >
-                <div style={lc}><TFacets vars={vars} q_data={q_data} bins={chart_bins} handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={all_results} f={f} bin_size={bin_size}/></div>
+                <div style={lc}><TemporalFacets vars={vars} q_data={q_data} bins={chart_bins} handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={all_results} f={f} bin_size={bin_size}/></div>
                 <div style={rc}>{main_panel}</div>
             </div>
             <div style={rw}>

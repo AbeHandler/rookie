@@ -97,12 +97,9 @@ module.exports = React.createClass({
     },
 
     get_selected_mo: function(){
-        //using this weird day=15 thing to match up w/ c3 binning
         console.log(this.props);
-        if (this.props.mo_start + 1 == this.props.mo_end){
-            if (this.props.dy_start == 15 && this.props.dy_end == 15 ){
-                return this.props.mo_start;
-            }
+        if (this.props.mo_start == this.props.mo_end & this.props.mo_start != -1 & this.props.mo_end != -1){
+            return this.props.mo_start;
         }
         return -1;
     },
