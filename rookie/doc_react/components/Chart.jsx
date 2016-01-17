@@ -1,6 +1,6 @@
 "use strict";
 /*
-A chart
+The chart
 */
 
 var React = require('react');
@@ -10,17 +10,24 @@ var c3 = require('c3');
 
 module.exports = React.createClass({
 
+  convert_to_c3_land: function(dt){
+    //workaround for https://github.com/masayuki0812/c3/issues/65
+    return moment(dt).subtract(5, 'days').format("YYYY-MM-DD");
+  },
+
+  convert_to_c3_land_add: function(dt){
+    //workaround for https://github.com/masayuki0812/c3/issues/65
+    return moment(dt).add(5, 'days').format("YYYY-MM-DD");
+  },
+
   render: function() {
 
     let q = this.props.q;
-    let q_data = this.props.q;
-    let chart_bins = this.props.chart_bins;
-    let vars = this.props.vars;
-    console.log(vars);
-
+    let c3_start = this.convert_to_c3_land(this.props.yr_start + "-" + this.props.mo_start + "-" + this.props.dy_start);
+    let c3_end = this.convert_to_c3_land_add(this.props.yr_end + "-" + this.props.mo_end + "-" + this.props.dy_end);
     let reg;
     if (this.props.yr_start != -1){
-        reg = [{axis: 'x', start: this.props.yr_start + "-" + this.props.mo_start + "-" + this.props.dy_start, end: this.props.yr_end + "-" + this.props.mo_end + "-" + this.props.dy_end, class: 'regionX'}];
+        reg = [{axis: 'x', start: c3_start, end: c3_end, class: 'regionX'}];
     }
     else{
         reg = [];
@@ -35,6 +42,9 @@ module.exports = React.createClass({
         color_array[f] = '#0028a3';
     }
     let cols;
+    let q_data = this.props.q_data;
+    let chart_bins = this.props.chart_bins;
+    let vars = this.props.vars;
     if (this.props.f == -1){
       cols = [
             q_data,
@@ -66,7 +76,9 @@ module.exports = React.createClass({
             //this.props.tHandler(d, e);
         },
         bar: {
-         width: 1
+         width: {
+            ratio: 0.5 // this makes bar width 50% of length between ticks
+          }
         },
         types: types
     },
