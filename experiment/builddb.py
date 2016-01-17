@@ -95,7 +95,7 @@ if __name__ == '__main__':
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    build(processed_location)
+    #build(processed_location)
     doc_metadata_to_db()
     create_pubdate_index()
 

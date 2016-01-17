@@ -158,8 +158,11 @@ def make_dataframe(p, facets, results, q_pubdates, aliases):
     df['pd'] = q_pubdates
     df[p.q] = [1 for i in q_pubdates]
     for facet in facets:
-        alias = [get_pubdates_for_ngram(a) for a in aliases[facet]]
-        facet_dates = set([i for i in set([i for i in itertools.chain(*alias)]).union(get_pubdates_for_ngram(facet))])
+        facet_dates = [i for i in set([i for i in get_pubdates_for_ngram(facet)])]
+        ipdb.set_trace()
+        #TODO
+        #alias = [get_pubdates_for_ngram(a) for a in aliases[facet]]
+        # facet_dates = set([i for i in set([i for i in itertools.chain(*alias)]).union(get_pubdates_for_ngram(facet))])
         gus = [int(p) for p in [p in facet_dates for p in q_pubdates]]
         df[facet] = gus
     return df
@@ -346,50 +349,3 @@ class Models(object):
         dist = hsents[1]['sentnum'] - hsents[0]['sentnum']
         sep = " " if dist == 1 else " ... "
         return hsents[0]['htext'] + sep + hsents[1]['htext']
-
-    @staticmethod
-    def get_facets(params, results, n_facets=9):
-
-        '''
-        Note this method has to kinds of counters.
-        counter % 3 loops over facet types in cycle.
-        facet_counters progresses lineararly down each facet list
-        '''
-
-        all_facets = {}
-
-        facet_types = ["people", "org", "ngram"]
-         
-        # there are 3 facets so counter mod 3 switches
-        counter = 0
-
-        stop_facets = set(["THE LENS", "LENS"])
-
-        query_tokens = set(params.q.split(" "))
-
-        facet_counters = {} # a pointer to which facet to include
-        
-        all_aliases = {}
-
-        # Get each of the facets
-        for f_type in facet_types:
-            tmpfacets, newaliases = ROOKIE.facets(results, f_type)
-            all_facets[counter] = tmpfacets
-            all_aliases.update(newaliases)
-            facet_counters[counter] = 0
-            counter += 1
-
-        output = []
-
-        log.debug('got facets. time to filter')
-        # Figure out which facets to include in the UI
-        while len(output) < n_facets:
-            try:
-                on_deck = all_facets[counter % 3][facet_counters[counter % 3]][0]
-                if not ovelaps_with_query(on_deck, query_tokens) and not overlaps_with_output(on_deck, output) and passes_one_word_heuristic(on_deck):
-                    output.append(all_facets[counter % 3][facet_counters[counter % 3]][0])
-            except IndexError: # facet counter is too high? just end loop early
-                break
-            counter += 1
-            facet_counters[counter % 3] += 1
-        return output, all_aliases

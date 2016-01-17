@@ -90,7 +90,7 @@ class Views(object):
         return response
 
 
-    def get_q_response_med(self, params, results, q_and_t, keys, datas, status, len_results, binsize, binned_facets):
+    def get_q_response_med(self, params, results, q_and_t, keys, datas, len_results, binsize, binned_facets):
         '''
         return medviz view
         '''

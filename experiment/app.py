@@ -11,6 +11,7 @@ from experiment.models import make_dataframe, results_to_json_hierarchy, get_key
 from flask import Flask
 from rookie.rookie import Rookie
 from flask import request
+from facets.query import get_facets_for_q
 from experiment.views import Views
 from collections import defaultdict
 from experiment.models import Models, Parameters
@@ -32,30 +33,7 @@ cache = pylru.lrucache(1000)
 # or, could lrucache decorator be used instead?
 # alias_table = defaultdict(lambda : defaultdict(list))
 
-@app.route('/', methods=['GET'])
-def index():
-    log.info("index routing")
-    return views.get_start_page()
-
-'''
-@app.route("/get_doc_list", methods=['POST'])
-def get_doc_list():
-
-    params = Models.get_parameters(request)
-    results = Models.get_results(params)
-    status = Models.get_status(params)
-    # aliases = alias_table[params.q][params.detail]
-    aliases = cache[params.q + "##" + params.detail]
-
-    if params.detail == params.q:
-        # the user wants date detail for Q
-        results = Models.date_filter(results, params)
-    else:
-        results = Models.date_filter(results, params)
-        results = Models.f_occurs_filter(results, facet=params.detail, aliases=aliases)
-    doc_list = Models.get_doclist(results, params, PAGE_LENGTH, aliases=aliases)
-    return views.get_doc_list(doc_list, params, status)
-'''
+# AH: TODO check w/ brendan.
 
 @app.route("/post_for_docs", methods=['GET'])
 def get_doc_list():
@@ -63,8 +41,6 @@ def get_doc_list():
     params = Models.get_parameters(request)
     results = Models.get_results(params)
     status = ""
-    print params.q
-    print params.detail
     aliases = cache[params.q + "##" + params.detail]
 
     results = Models.date_filter(results, params)
@@ -81,48 +57,6 @@ def get_doc_list():
 def log_scale(p):
     return math.log(p + 1)
 
-
-@app.route('/facets', methods=['GET'])
-def testing():
-
-    # global alias_table
-
-    params = Models.get_parameters(request)
-
-    results = Models.get_results(params)
-
-    log.debug('got results')
-
-    facets, aliases = Models.get_facets(params, results, 9)
-
-    for f in facets:
-        # alias_table[params.q][f] = aliases[f]
-        cache[params.q + "##" + f] = aliases[f]
-
-    log.debug('got bins and facets')
-
-    doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
-
-    status = Models.get_message(len(results), params, len(doc_list), PAGE_LENGTH)
-
-    metadata = [get_doc_metadata(r) for r in results]
-
-    q_pubdates = [parse(h["pubdate"]) for h in metadata]
-    print "parsed dates"
-
-    df = make_dataframe(params, facets, results, q_pubdates, aliases)
-    df = df.groupby([df['pd'].map(lambda x: x.year)]).sum().unstack(0).fillna(0)
-    
-    facet_datas = []
-    for f in facets:
-        facet_datas.append([str(f).replace("_", " ")] + [log_scale(p) for p in list(df[f])])
-
-    datas = [str(params.q).replace(" ", "_")] + [log_scale(p) for p in list(df[params.q])]
-    keys = ["x"] + [str(i) + "-01-01" for i in df[params.q].axes[0]]
-
-    view = views.get_q_response(params, doc_list, facet_datas, keys, datas, status, len(results))
-
-    return view
 
 def pad(i):
     if len(i) == 1:
@@ -148,50 +82,21 @@ def date_filter(results, start, end):
 @app.route('/medviz', methods=['GET'])
 def medviz():
 
-    log.debug('facets')
-
     # global alias_table
 
     params = Models.get_parameters(request)
 
     results = Models.get_results(params)
 
-    # with open(params.q.replace(" ", "_") + ".query", "w") as outf:
-    #     for r in results:
-    #         outf.write(r  + "\n")
+    binned_facets = get_facets_for_q(params.q, results, 9)
 
-    log.debug('got results')
+    #for f in facets:
+    #    cache[params.q + "##" + f] = aliases[f]
+    #    alias_table[params.q][f] = aliases[f]
 
-    import datetime
-    binned_facets = {}
-    for i in range(2010, 2016):
-        dt_start = datetime.datetime(year=i, month=1, day=1)
-        dt_end = datetime.datetime(year=i, month=12, day=31)
-        tmp = date_filter(results, dt_start, dt_end)
-        binfacets, binaliases = Models.get_facets(params, tmp, 9)
-        print str(i) + "\t" + ",".join([str(bf) for bf in binfacets])
-        binned_facets[str(i)] = [str(bf) for bf in binfacets]
+    aliases = defaultdict(list) # TODO
 
-    facets, aliases = Models.get_facets(params, results, 9)
-
-    # with open(params.q.replace(" ", "_") + "_aliases.json", "w") as outf:
-    #     json.dump(aliases, outf)
-
-    # with open(params.q.replace(" ", "_") + ".facets", "w") as outf:
-    #     for f in facets:
-    #         outf.write(f  + "\n")
-
-    for f in facets:
-        cache[params.q + "##" + f] = aliases[f]
-        # alias_table[params.q][f] = aliases[f]
-
-    log.debug('got bins and facets')
-
-    start_time = time.time()
     doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
-    print "[*] building the doc list took {}".format(start_time - time.time())
-
-    status = Models.get_message(len(results), params, len(doc_list), PAGE_LENGTH)
 
     metadata = [get_doc_metadata(r) for r in results]
 
@@ -199,7 +104,7 @@ def medviz():
 
     binsize = "month"
     start_time = time.time()
-    df = make_dataframe(params, facets, results, q_pubdates, aliases)
+    df = make_dataframe(params, binned_facets['g'], results, q_pubdates, aliases)
     if binsize == "year":
         df = df.groupby([df['pd'].map(lambda x: x.year)]).sum().unstack(0).fillna(0)
     elif binsize == "month":
@@ -225,48 +130,11 @@ def medviz():
 
     keys = ["x"] + [k + "-1" for k in keys] # hacky addition of date to keys
 
-    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, status, len(results), binsize, binned_facets)
+    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, len(results), binsize, binned_facets)
 
     return view
 
 
-@app.route('/bigviz', methods=['GET'])
-def bigviz():
-
-    # global alias_table
-
-    params = Models.get_parameters(request)
-
-    start_time = time.time()
-    results = Models.get_results(params)
-    print "getting results took {}".format(start_time - time.time())
-
-    start_time = time.time()
-    facets, aliases = Models.get_facets(params, results, 3)
-    print "getting facets took {}".format(start_time - time.time())
-
-    for f in facets:
-        # alias_table[params.q][f] = aliases[f]
-        cache[params.q + "##" + f] = aliases[f]
-
-    metadata = [get_doc_metadata(r) for r in results]
-
-    q_pubdates = [parse(h["pubdate"]) for h in metadata]
-    # df = make_dataframe(params, facets, results, q_pubdates, aliases)
-
-    df = make_dataframe(params, facets, results, q_pubdates, aliases)
-    df = df.groupby([df['pd'].map(lambda x: x.year)]).sum().unstack(0).fillna(0)
-    
-    facet_datas = []
-    for f in facets:
-        facet_datas.append([str(f)] + list(df[f]))
-
-    datas = [str(params.q)] + list(df[params.q])
-    labels = ["x"] + [str(i) + "-01-01" for i in df[params.q].axes[0]]
-
-    view = views.get_big_viz(params, labels, facet_datas, datas)
-
-    return view
 
 if __name__ == '__main__':
     app.run(debug=True)

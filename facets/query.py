@@ -17,7 +17,9 @@ import itertools
 import cPickle as pickle
 import redis
 import sys
+import argparse
 from Levenshtein import distance
+
 
 stops = ["live blog", "#### live", "matt davis", "ariella cohen", "story report", "####", "#### live blog", "the lens", "new orleans", "staff writer", "orleans parish"]
 
@@ -25,11 +27,12 @@ NDOCS = 3488  # how many docs are indexed in whoosh?
 
 STOPTOKENS = ["new", "orleans"]
 
-DEBUG = True
-
 aliases = defaultdict(list)
 
 CUTOFF = 25
+
+DEBUG = False # by default false. can be set to T w/ arg -v in command line mode
+
 
 def debug_print(msg):
     if DEBUG:
@@ -57,6 +60,8 @@ def get_from_redis(key, row, col):
     rebuilt = deserialized.reshape((row, col))
     return rebuilt
 
+
+@lrudecorator(100)
 def load_matrix(key, row, col):
     '''
     loads a F x D matrix (via redis)
@@ -288,6 +293,18 @@ def get_facets_for_q(q, results, n_facets):
 
     return facet_results
 
-q = sys.argv[1]
-RESULTZ = set(ROOKIE.query(q))
-print get_facets_for_q(q, RESULTZ, 9)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='parser')
+
+    parser.add_argument('--redis', action="store_true", default=False)
+    parser.add_argument("-v", action="store_true", default=False, help="verbose")
+    parser.add_argument('-q', '--query', dest='query')
+    args = parser.parse_args()
+
+    if args.v:
+        DEBUG=True
+    else:
+        DEBUG=False
+
+    RESULTZ = set(ROOKIE.query(args.query))
+    print get_facets_for_q(args.query, RESULTZ, 9)

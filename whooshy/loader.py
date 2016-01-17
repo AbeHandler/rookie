@@ -47,7 +47,6 @@ def load(index_location, processed_location):
             meta_data['facet_index'] = defaultdict(list)
             sentences = [" ".join([j.raw for j in i.tokens]) for i in IncomingFile(infile).doc.sentences]
             start = time.time()
-            '''
             for s_index, sentence in enumerate(IncomingFile(infile).doc.sentences):
                 for ne in sentence.ner:
                     meta_data['facet_index'][str(ne).decode("ascii", "ignore")].append(s_index)
@@ -57,7 +56,6 @@ def load(index_location, processed_location):
                     meta_data['facet_index'][tmp].append(s_index)
                     meta_data['facet_index'][tmp] = list(set(meta_data['facet_index'][tmp]))
                     string_to_pubdate_index[tmp].append(IncomingFile(infile).pubdate)
-            '''
             meta_data['facet_index'] = dict(meta_data['facet_index'])
             meta_data['sentences'] = sentences
             tokens = itertools.chain(*[[j.raw for j in i.tokens] for i in IncomingFile(infile).doc.sentences])
