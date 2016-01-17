@@ -27,10 +27,6 @@ STOPTOKENS = ["new", "orleans"]
 
 DEBUG = True
 
-Q = sys.argv[1]
-
-N_FACETS = 10
-
 aliases = defaultdict(list)
 
 CUTOFF = 25
@@ -71,13 +67,8 @@ def load_matrix(key, row, col):
         add_to_redis(key, pickle.load(open("rookieindex/{}.p".format(name), "rb")))
     return get_from_redis(key, row, col)
 
-@lrudecorator(100)
-def get_metadata_file():
-    t0=time.time()
-    with open("rookieindex/meta_data.json") as inf:
-        metadata = ujson.load(inf)
-    return metadata
 
+@lrudecorator(100)
 def load_all_data_structures():
     '''
     Load everything indexed in build_matrix.py
@@ -87,7 +78,8 @@ def load_all_data_structures():
     matrixes = {}
     df = {}
     idf = {}
-    mt = get_metadata_file()
+    with open("rookieindex/meta_data.json") as inf:
+        mt = ujson.load(inf)
     for n in ["people", "org", "ngram"]:
         decoder = pickle.load(open("rookieindex/{}_key.p".format(n), "rb"))
         decoder_r = {v: k for k, v in decoder.items()}
@@ -119,7 +111,7 @@ def get_jaccard(one, two):
     return jacard
 
 
-def heuristic_cleanup(output, proposed_new_facet):
+def heuristic_cleanup(output, proposed_new_facet, structures, q):
     '''
     An ugly heuristic that tries to filter out bad/meaningless facets quickly
 
@@ -144,7 +136,7 @@ def heuristic_cleanup(output, proposed_new_facet):
         return output # dont and the new facet
     if proposed_new_facet in output:
         return output # dont add duplicates
-    if get_jaccard(proposed_new_facet, Q) > .5:
+    if get_jaccard(proposed_new_facet, q) > .5:
         return output # proposed new facet overlaps w/ query
     append = True # insert the facet after the check. assume true
     for index, facet in enumerate(output): # loop over facets thus far
@@ -155,18 +147,18 @@ def heuristic_cleanup(output, proposed_new_facet):
             if s_check(facet, proposed_new_facet, dist):
                 append = False
             elif (len(proposed_new_facet) > len(facet)):
-                print "proposed"
-                print dfs[decoder[proposed_new_facet]]
-                print "new"
-                print dfs[decoder[proposed_new_facet]]
+                #print "proposed"
+                #print dfs[decoder[proposed_new_facet]]
+                #print "new"
+                #print dfs[decoder[proposed_new_facet]]
                 debug_print("replacing {} with {}".format(output[index], proposed_new_facet))
                 output[index] = proposed_new_facet
                 append = False
         if get_jaccard(proposed_new_facet, facet) > .5:
-            print "proposed"
-            print [decoder[proposed_new_facet]]
-            print "new"
-            print [decoder[proposed_new_facet]]
+            #print "proposed"
+            #print [decoder[proposed_new_facet]]
+            #print "new"
+            #print [decoder[proposed_new_facet]]
             if len(proposed_new_facet) > len(facet):
                 debug_print("replacing {} with {}".format(output[index], proposed_new_facet))
                 output[index] = proposed_new_facet
@@ -198,32 +190,15 @@ def heuristic_cleanup(output, proposed_new_facet):
     return [i for i in set(output)] #sometimes more than 1 facet will be replaced by propsed_new_facet
 
 
-def get_facets(indices, structures, facet_type):
+def get_facets(indices, structures, facet_type, q):
     start = time.time()
-    tfidf = get_facet_tfidf(results, structures, facet_type)
     output = []
     for ii in indices:
         possible_f = structures["reverse_decoders"][facet_type][ii]
-        output = heuristic_cleanup(output, possible_f)
+        output = heuristic_cleanup(output, possible_f, structures, q)
     debug_print("getting facets took {}".format(time.time() - start))
     return output
 
-
-def get_facet_tfidf(results, structures, facet_type):
-    '''
-    get the tfidf score for each facet_type
-    "tf" = how many queried documents contain f (i.e. boolean: facet occurs or no)
-    "df" = how many total documents contain f (i.e. boolean: facet occurs or no)
-    "tfidf" = np.multiply(tf, np.log(1./df))
-    '''
-    start = time.time()
-    # this is the bottle neck --> 
-    cols = structures["matrixes"][facet_type][ np.ix_([i for i in range(structures["matrixes"][facet_type].shape[0])],[int(i) for i in results])]
-    debug_print("getting cols index took {}".format(time.time() - start))
-    tf = np.sum(cols, axis=1) # occurance in queried docs, by F
-    idf = structures["idf"][facet_type]
-    tfidf = np.multiply(tf, idf)
-    return tfidf
 
 def get_facet_tfidf_cutoff(results, structures, facet_type, cutoff):
     '''
@@ -239,48 +214,66 @@ def get_facet_tfidf_cutoff(results, structures, facet_type, cutoff):
     tf = np.sum(cols, axis=1) # occurance in queried docs, by F
     idf = structures["idf"][facet_type]
     tfidf = np.multiply(tf, idf)
-    start = time.time()
     top_n_indices = list(bottleneck.argpartsort(tfidf, tfidf.size-cutoff)[-cutoff:])
     return [(i, tfidf[i]) for i in top_n_indices]
 
 
-def filter_t(results, start, end):
+def filter_t(results, start, end, structures):
     '''
     Take a set of results and return those that fall in [start, end]
     '''
     return [i for i in results if parse(structures["metadata"][i]["pubdate"]) >= start and parse(structures["metadata"][i]["pubdate"]) <= end]
 
 
-structures = load_all_data_structures()
-start = time.time()
-results = set(ROOKIE.query(Q))
-debug_print("query took {}".format(time.time() - start))
+def get_raw_facets(results, bins, structures):
+    '''
+    Returns top_n facets per bin + top_n for global bin
+    '''
 
-raw_results = {}
+    raw_results = {} # raw best facets by tf idf
 
-start = time.time()
+    raw_results["g"] = get_facet_tfidf_cutoff(results, structures, "ngram", CUTOFF)
 
-raw_results["g"] = get_facet_tfidf_cutoff(results, structures, "ngram", CUTOFF)
+    for yr in bins:
+        lresults = filter_t(results, parse("{}-01-01".format(yr)),
+                            parse("{}-01-01".format(yr+1)), structures)
+        raw_results[yr] = get_facet_tfidf_cutoff(lresults, structures, "ngram", CUTOFF)
 
-for index, yr in enumerate(xrange(2010, 2016)):
-    lresults = filter_t(results, parse("{}-01-01".format(yr)), parse("{}-01-01".format(yr+1)))
-    raw_results[yr] = get_facet_tfidf_cutoff(lresults, structures, "ngram", CUTOFF)
+    return raw_results
 
-vals = [v[0] for v in itertools.chain(*raw_results.values())]
 
-OK_facets = get_facets(vals, structures, "ngram")
-
-facet_results = {}
-
-for i in raw_results:
-    tfidfs = raw_results[i]
-    tfidfs.sort(key=lambda x:x[1])
-    facet_results[i] = []
+def get_facets_for_bin(tfidfs, structures, ok_facets, n_facets):
+    tfidfs.sort(key=lambda x: x[1]) # sort by score (they are top N in a partsort)
+    output = []
     for j in tfidfs:
         facet_name = structures["reverse_decoders"]["ngram"][j[0]]
-        if facet_name in OK_facets:
-            facet_results[i].append(facet_name)
-        if len(facet_results[i]) == N_FACETS:
-            break
+        if facet_name in ok_facets:
+            output.append(facet_name)
+        if len(output) == n_facets:
+            return output
+    return output
 
-print facet_results
+
+def get_facets_for_q(q, results, n_facets):
+
+    structures = load_all_data_structures()
+
+    facet_results = defaultdict(list) # results per bin. output.
+
+    # TODO binning
+    # Get raw facets by tfidf score 
+    raw_results = get_raw_facets(results, xrange(2010, 2016), structures)
+
+    raws = [v[0] for v in itertools.chain(*raw_results.values())]
+
+    # Get all of the possible facets
+    ok_facets = get_facets(raws, structures, "ngram", q)
+
+    for t_bin in raw_results: # for each bin
+        facet_results[t_bin] = get_facets_for_bin(raw_results[t_bin], structures, ok_facets, n_facets)
+
+    return facet_results
+
+q = sys.argv[1]
+RESULTZ = set(ROOKIE.query(q))
+print get_facets_for_q(q, RESULTZ, 9)
