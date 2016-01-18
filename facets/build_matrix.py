@@ -89,6 +89,8 @@ def build_matrix(docids, ok_people, ok_org, ok_ngrams):
     '''
     print "[*] Building three facet X doc matrixes"
 
+    string_to_pubdate_index = defaultdict(list)
+
     # dict to look up correct row #s in array
     person_to_slot = {p: i for (i, p) in enumerate(ok_people)}
     org_to_slot = {o: i for (i, o) in enumerate(ok_org)}
@@ -120,6 +122,7 @@ def build_matrix(docids, ok_people, ok_org, ok_ngrams):
             org_counter[o] += 1
         for n in ngram:
             ngram_matrix[ngram_to_slot[n]][docid] = 1
+            string_to_pubdate_index[n].append(MT[unicode(docid)]["pubdate"])
             ngram_counter[n] += 1
 
     pickle.dump(df_vec(people_counter, person_to_slot, len(ok_people)), open("rookieindex/people_df.p", "wb" ))
@@ -135,6 +138,8 @@ def build_matrix(docids, ok_people, ok_org, ok_ngrams):
     pickle.dump(people_matrix, open("rookieindex/people_matrix.p", "wb" ))
     pickle.dump(org_matrix, open("rookieindex/org_matrix.p", "wb" ))
     pickle.dump(ngram_matrix, open("rookieindex/ngram_matrix.p", "wb" ))
+    pickle.dump(ngram_matrix, open("rookieindex/ngram_matrix.p", "wb" ))
+    pickle.dump(dict(string_to_pubdate_index), open("rookieindex/string_to_pubdate_index.p", "wb" ))
 
 
 def filter(input, n):

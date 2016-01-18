@@ -24,17 +24,19 @@ gulp.task('css', function() {
     .pipe(rename({suffix: '.min'}))
     .pipe(cssnano())
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('app/css'));
+    .pipe(gulp.dest('app/css'))
+    .pipe(gulp.dest('../../experiment/static/css'));
 });
 
 gulp.task('sass', function() {
   return sass('sass', { style: 'expanded' })
     .pipe(rename({suffix: '.min'}))
     .pipe(cssnano())
-    .pipe(gulp.dest('app/css'));
+    .pipe(gulp.dest('app/css'))
+    .pipe(gulp.dest('../../experiment/static/css'));
 });
 
-gulp.task('b', function() {
+gulp.task('b', ['css', 'sass'], function() {
     return browserify('main.js')
         .transform("babelify", {presets: ["react"]})
         .bundle()

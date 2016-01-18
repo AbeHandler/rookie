@@ -3,7 +3,8 @@ This module loads documents into whoosh and creates a sentence index
 '''
 import glob,time,sys
 import ujson
-# import ipdb
+import pickle
+import ipdb
 import datetime
 import dateutil.parser
 from rookie import processed_location
@@ -66,6 +67,7 @@ def doc_metadata_to_db():
     docids = [int(i) for i in docids]
     docids.sort()
     for docid in docids:
+        print docid
         go("""INSERT INTO doc_metadata (docid, data) VALUES (%s, %s)""", 
             docid, ujson.dumps(mt[str(docid)]))
     print "Num docs in metadata table:", go("select count(1) from doc_metadata").fetchone()[0]
@@ -76,9 +78,11 @@ def create_pubdate_index():
     print "building pubdate index"
     go("drop table if exists ngram_pubdates")
     go("create table ngram_pubdates (ngram text, pubdates jsonb)")
-    with open("rookieindex/string_to_pubdate.json") as inf:
-        metadata = ujson.load(inf)
+    # string to pubdate matrix created in building matrix
+    with open("rookieindex/string_to_pubdate_index.p") as inf:
+        metadata = pickle.load(inf)
     for i,ngram in enumerate(metadata):
+        print i
         if i % 1000==0:
             sys.stdout.write("...%s" % i); sys.stdout.flush()
         dates = metadata[ngram]

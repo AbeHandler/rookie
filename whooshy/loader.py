@@ -38,27 +38,17 @@ def load(index_location, processed_location):
             meta_data = {}
             meta_data['people'] = [unicode(str(i)) for i in IncomingFile(infile).doc.people]
             meta_data['org'] = [unicode(str(i)) for i in IncomingFile(infile).doc.organizations]
-            meta_data['ngram'] = [unicode(" ".join(i.raw for i in j)) for j in IncomingFile(infile).doc.ngrams]
+            meta_data['ngram'] = [unicode(" ".join(i.raw for i in j)) \
+                                  for j in IncomingFile(infile).doc.ngrams]
             meta_data['headline'] = IncomingFile(infile).headline
             meta_data['url'] = IncomingFile(infile).url
             meta_data['pubdate'] = IncomingFile(infile).pubdate
-            path, fn = os.path.split(infile)
-            meta_data['raw'] = fn
+            meta_data['raw'] = os.path.split(infile)[1]
             meta_data['facet_index'] = defaultdict(list)
-            sentences = [" ".join([j.raw for j in i.tokens]) for i in IncomingFile(infile).doc.sentences]
-            start = time.time()
-            for s_index, sentence in enumerate(IncomingFile(infile).doc.sentences):
-                for ne in sentence.ner:
-                    meta_data['facet_index'][str(ne).decode("ascii", "ignore")].append(s_index)
-                    string_to_pubdate_index[str(ne)].append(IncomingFile(infile).pubdate)
-                for ng in sentence.ngrams:
-                    tmp = " ".join([i.raw.encode("ascii", "ignore") for i in ng])
-                    meta_data['facet_index'][tmp].append(s_index)
-                    meta_data['facet_index'][tmp] = list(set(meta_data['facet_index'][tmp]))
-                    string_to_pubdate_index[tmp].append(IncomingFile(infile).pubdate)
+            sentences = [" ".join([j.raw for j in i.tokens]) \
+                         for i in IncomingFile(infile).doc.sentences]
             meta_data['facet_index'] = dict(meta_data['facet_index'])
             meta_data['sentences'] = sentences
-            tokens = itertools.chain(*[[j.raw for j in i.tokens] for i in IncomingFile(infile).doc.sentences])
             meta_data['pubdate'] = IncomingFile(infile).pubdate
             if len(headline) > 0 and len(full_text) > 0:
                 writer.add_document(title=headline, path=u"/" + str(s_counter), content=full_text)

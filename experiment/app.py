@@ -125,12 +125,12 @@ def medviz():
         datas = [str(params.q)] + [get_val_from_df(params.q, key, df, binsize) for key in keys]
 
     facet_datas = []
-    for f in facets:
+    for f in binned_facets['g']:
         facet_datas.append([str(f)] + [get_val_from_df(f, key, df, binsize) for key in keys])
 
     keys = ["x"] + [k + "-1" for k in keys] # hacky addition of date to keys
 
-    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, len(results), binsize, binned_facets)
+    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, len(results), binsize, dict(binned_facets))
 
     return view
 

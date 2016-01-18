@@ -159,7 +159,6 @@ def make_dataframe(p, facets, results, q_pubdates, aliases):
     df[p.q] = [1 for i in q_pubdates]
     for facet in facets:
         facet_dates = [i for i in set([i for i in get_pubdates_for_ngram(facet)])]
-        ipdb.set_trace()
         #TODO
         #alias = [get_pubdates_for_ngram(a) for a in aliases[facet]]
         # facet_dates = set([i for i in set([i for i in itertools.chain(*alias)]).union(get_pubdates_for_ngram(facet))])
