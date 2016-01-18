@@ -230,6 +230,7 @@ module.exports = React.createClass({
         height: this.props.height
     };
     let handleMoUI = this.handleMo;
+    console.log(q);
     return(
         <div>
             <div style={rw}>

@@ -13,6 +13,7 @@ var all_results = {{doc_list | safe}};
 var g_facets = {{g_facets | safe}};
 var chart_bins = {{chart_bins | safe}};
 var f_counts = {{f_counts | safe}};
+var query = "{{query}}";
 
 </script>
 
@@ -25,6 +26,13 @@ var f_counts = {{f_counts | safe}};
 
 <body>
 
+<!-- this style needs to be here instead of in sass b/c depends on {{query}}-->
+<style type="text/css">
+
+#chart .c3-circles-{{query}} {
+  display: none;
+}
+</style>
 
 
 <div id="controls" class="row">
