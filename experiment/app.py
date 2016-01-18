@@ -49,8 +49,6 @@ def get_doc_list():
     
     doc_list = Models.get_doclist(results, params, PAGE_LENGTH, aliases=aliases)
 
-    print doc_list
-
     return json.dumps(doc_list)
 
 
@@ -82,8 +80,6 @@ def date_filter(results, start, end):
 @app.route('/medviz', methods=['GET'])
 def medviz():
 
-    # global alias_table
-
     params = Models.get_parameters(request)
 
     results = Models.get_results(params)
@@ -103,7 +99,7 @@ def medviz():
     q_pubdates = [parse(h["pubdate"]) for h in metadata]
 
     binsize = "month"
-    start_time = time.time()
+
     df = make_dataframe(params, binned_facets['g'], results, q_pubdates, aliases)
     if binsize == "year":
         df = df.groupby([df['pd'].map(lambda x: x.year)]).sum().unstack(0).fillna(0)
@@ -112,7 +108,6 @@ def medviz():
     else:
         assert binsize == "day"
         df = df.groupby([df['pd'].map(lambda x: x.year), df['pd'].map(lambda x: x.month), df['pd'].map(lambda x: x.day)]).sum().unstack(0).fillna(0)
-    print "[*] building the data frames took {}".format(start_time - time.time())
 
     try:
         start = min(q_pubdates)
@@ -122,18 +117,25 @@ def medviz():
         keys = []
 
     if binsize == "month":
-        datas = [str(params.q)] + [get_val_from_df(params.q, key, df, binsize) for key in keys]
+        q_data = [str(params.q)] + [get_val_from_df(params.q, key, df, binsize) for key in keys]
 
-    facet_datas = []
+    facet_datas = {}
     for f in binned_facets['g']:
-        facet_datas.append([str(f)] + [get_val_from_df(f, key, df, binsize) for key in keys])
+        facet_datas[f] = [str(f)] + [get_val_from_df(f, key, df, binsize) for key in keys]
 
     keys = ["x"] + [k + "-1" for k in keys] # hacky addition of date to keys
 
-    view = views.get_q_response_med(params, doc_list, facet_datas, keys, datas, len(results), binsize, dict(binned_facets))
+    display_bins = []
+    for key in binned_facets:
+        if key != "g":
+            tmp = {}
+            tmp["key"] = key
+            tmp["facets"] = binned_facets[key]
+            display_bins.append(tmp)
+
+    view = views.get_q_response_med(params, doc_list, facet_datas, keys, q_data, len(results), binsize, display_bins, binned_facets['g'])
 
     return view
-
 
 
 if __name__ == '__main__':

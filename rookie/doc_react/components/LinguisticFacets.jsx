@@ -14,11 +14,11 @@ module.exports = React.createClass({
     return (<div>
         {this.props.items.map(function(item, i) {
           let selected = false;
-          if (this.props.active===this.props.items[i].key){
+          if (this.props.active===this.props.items[i]){
               selected = true;
           }
           return (
-            <Name selected={selected} data={item.data} name={item.key} onClick={this.handleClick} key={i}/>
+            <Name selected={selected} data={item.data} name={item} onClick={this.handleClick} key={i}/>
           );
         }, this)}
       </div>);

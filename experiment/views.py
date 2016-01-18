@@ -33,21 +33,18 @@ class Views(object):
         return response
 
 
-    def get_q_response_med(self, params, results, q_and_t, keys, datas, len_results, binsize, binned_facets):
+    def get_q_response_med(self, params, results, q_and_t, keys, q_datas, len_results, binsize, binned_facets, g_facets):
         '''
         return medviz view
         '''
         response = render_template(
             'medviz.html',
             query=params.q,
-            query_toks=word_tokenize(params.q),
-            page=params.page,
-            terms=q_and_t,
-            lens_css=self.lens_css,
-            keys=keys,
-            data=datas,
+            f_counts=q_and_t,
+            chart_bins=keys,
+            q_datas=q_datas,
+            g_facets=g_facets,
             doc_list=results,
-            banner_css=self.banner_css,
             len_results=len_results,
             detail=binsize,
             len_keys=len(keys),

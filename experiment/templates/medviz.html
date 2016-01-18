@@ -5,8 +5,15 @@
 
 
 <script type="text/javascript">
+
 var all_results = {{doc_list | safe}};
 var binned_facets = {{binned_facets | safe}};
+var q_data = {{q_datas | safe}};
+var all_results = {{doc_list | safe}};
+var g_facets = {{g_facets | safe}};
+var chart_bins = {{chart_bins | safe}};
+var f_counts = {{f_counts | safe}};
+
 </script>
 
 <title>Rookie</title>
@@ -17,6 +24,8 @@ var binned_facets = {{binned_facets | safe}};
 </head>
 
 <body>
+
+
 
 <div id="controls" class="row">
 
