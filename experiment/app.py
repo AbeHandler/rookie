@@ -41,7 +41,7 @@ def get_doc_list():
     params = Models.get_parameters(request)
     results = Models.get_results(params)
     status = ""
-    aliases = cache[params.q + "##" + params.detail]
+    aliases = [] # cache[params.q + "##" + params.detail]
 
     results = Models.date_filter(results, params)
     
@@ -121,7 +121,11 @@ def medviz():
 
     facet_datas = {}
     for f in binned_facets['g']:
+        start_time = time.time()
         facet_datas[f] = [str(f)] + [get_val_from_df(f, key, df, binsize) for key in keys]
+        # fresults = Models.f_occurs_filter(results, facet=params.detail, aliases=aliases)
+        # fdoc_list = Models.get_doclist(results, params, PAGE_LENGTH, aliases=aliases)
+        # print "[*] getting facets took {}".format(start_time - time.time())
 
     keys = ["x"] + [k + "-1" for k in keys] # hacky addition of date to keys
 

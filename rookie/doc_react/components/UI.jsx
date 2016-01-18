@@ -16,6 +16,7 @@ var Chart = require('./Chart.jsx');
 module.exports = React.createClass({
 
   check_mode: function(){
+    console.log(this.state.f);
     if (this.state.f != -1){
         this.setState({mode: "docs"});
     }else{
@@ -44,13 +45,20 @@ module.exports = React.createClass({
     if (this.state.f === e){
         this.setState({f: -1}, this.check_mode);
     }else{
-        this.setState({f: e}, this.check_mode); //TODO, what if T is selected?
+        let url = "/post_for_docs?q=" + this.props.q + "&detail=" + e;
+        $.ajax({
+          url: url,
+          dataType: 'json',
+          cache: true,
+          success: function(d) {
+            this.setState({f: e, f_list: d}, this.check_mode);
+          }.bind(this),
+          error: function(xhr, status, err) {
+            console.error(this.props.url, status, err.toString());
+          }.bind(this)
+        });
+        //TODO, what if T is selected?
     }
-    //Mock call to server
-    //Maybe push all F to client to avoid complexity of post?
-    //$.getJSON("/post_for_docs?q=Mitch Landrieu&detail=Marlin Gusman", function(d){
-    //    this.setState(f_list: d);
-    //});
   },
 
 
@@ -157,13 +165,10 @@ module.exports = React.createClass({
   },
 
   resultsToDocs: function(results){
-    //if (this.state.f != -1){
-        //TODO
-    //    let url = "/post_for_docs?q=" + this.props.q + "&detail=" + this.state.f;
-    //   f_list? 
-    //}
     if (this.state.f != -1){
-        results = this.props.f_list; 
+        console.log(this.state);
+        console.log(this.state.f_list);
+        results = this.state.f_list; 
     }
     let momentresults = _.map(results, function(n){
       return moment(n.pubdate);
