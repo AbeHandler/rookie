@@ -16,7 +16,6 @@ var Chart = require('./Chart.jsx');
 module.exports = React.createClass({
 
   check_mode: function(){
-    console.log(this.state.f);
     if (this.state.f != -1){
         this.setState({mode: "docs"});
     }else{
@@ -61,6 +60,15 @@ module.exports = React.createClass({
     }
   },
 
+  thiryDaysHath: function(e){
+    if ([9, 11, 4, 5].indexOf(e)){
+        return 30;
+    } else if (e == 2){
+        return 28;
+    } else {
+        return 30;
+    }
+  },
 
   handleMo:function (e){
     //the user just clicked a month facet, e
@@ -68,17 +76,10 @@ module.exports = React.createClass({
     this.setState({mo_start: e});
     this.setState({mo_end: e});
     this.setState({dy_start: 1});
-    
     //thiry days hath september ... 
     //https://en.wikipedia.org/wiki/Thirty_days_hath_September#History
     //Since 1488!
-    if ([9, 11, 4, 5].indexOf(e)){
-        this.setState({dy_end: 30});
-    } else if (e == 2){
-        this.setState({dy_end: 28});
-    } else {
-        this.setState({dy_end: 30});
-    }
+    this.setState({dy_end: this.thiryDaysHath(e)});
 
   },
 
@@ -97,11 +98,11 @@ module.exports = React.createClass({
   },
 
   handleT: function(e){
-    //user has just clicked a chart bar
     let year = e.x.getFullYear();
-    let month = e.x.getMonth();
+    let month = e.x.getMonth() + 1;
     let day = e.x.getDay();
-    this.setState({yr_start: year, mo_start:month, dy_start:15, yr_end: year, mo_end:month+1, dy_end:15}, this.check_mode);
+    console.log(month);
+    this.setState({yr_start: year, mo_start:month, dy_start:1, yr_end: year, mo_end:month, dy_end:this.thiryDaysHath(month)}, this.check_mode);
   },
 
   handleBinDocsZoom: function(e, zoom_level){
@@ -166,8 +167,6 @@ module.exports = React.createClass({
 
   resultsToDocs: function(results){
     if (this.state.f != -1){
-        console.log(this.state);
-        console.log(this.state.f_list);
         results = this.state.f_list; 
     }
     let momentresults = _.map(results, function(n){
@@ -214,6 +213,9 @@ module.exports = React.createClass({
 
     let start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
     let end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
+    console.log("dddd");
+    console.log(start.format("YYYY MM DD"));
+    console.log(end.format("YYYY MM DD"));
     let show_months = this.show_month_bins(start, end);
     let left_col_width = 10;
     let lc = {
@@ -230,7 +232,6 @@ module.exports = React.createClass({
         height: this.props.height
     };
     let handleMoUI = this.handleMo;
-    console.log(q);
     return(
         <div>
             <div style={rw}>

@@ -10,21 +10,19 @@ var c3 = require('c3');
 
 module.exports = React.createClass({
 
-  convert_to_c3_land: function(dt){
+  convert_to_c3_land_subtract: function(dt){
     //workaround for https://github.com/masayuki0812/c3/issues/65
-    return moment(dt).subtract(5, 'days').format("YYYY-MM-DD");
-  },
-
-  convert_to_c3_land_add: function(dt){
-    //workaround for https://github.com/masayuki0812/c3/issues/65
-    return moment(dt).add(5, 'days').format("YYYY-MM-DD");
+    //return moment(dt).format("YYYY-MM-DD");
+    return moment(dt).subtract(15, 'days').format("YYYY-MM-DD");
   },
 
   render: function() {
 
     let q = this.props.q;
-    let c3_start = this.convert_to_c3_land(this.props.yr_start + "-" + this.props.mo_start + "-" + this.props.dy_start);
-    let c3_end = this.convert_to_c3_land_add(this.props.yr_end + "-" + this.props.mo_end + "-" + this.props.dy_end);
+    let c3_start = this.convert_to_c3_land_subtract(this.props.yr_start + "-" + this.props.mo_start + "-" + this.props.dy_start);
+    let c3_end = this.convert_to_c3_land_subtract(this.props.yr_end + "-" + this.props.mo_end + "-" + this.props.dy_end);
+    console.log(this.props.yr_start + "-" + this.props.mo_start + "-" + this.props.dy_start);
+    console.log(this.props.yr_end + "-" + this.props.mo_end + "-" + this.props.dy_end);
     let reg;
     if (this.props.yr_start != -1){
         reg = [{axis: 'x', start: c3_start, end: c3_end, class: 'regionX'}];
