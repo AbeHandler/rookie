@@ -27,6 +27,17 @@ engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
 
+
+def filter_results_with_binary_dataframe(results, facet, df):
+    '''
+    take a binary dataframe indicating which facets occur
+    '''
+    hits = df.loc[df[facet] == 1]["id"].tolist()
+    for h in hits:
+        assert h in results
+    return hits
+
+
 @lrudecorator(100)
 def get_pubdate_index():
     t0=time.time()
@@ -95,20 +106,6 @@ def default_to_regular(d):
     if isinstance(d, defaultdict):
         d = {k: default_to_regular(v) for k, v in d.iteritems()}
     return d
-
-
-def results_to_json_hierarchy(results):
-    '''
-    Returns a json object with results hierarchically binned by year, month, day
-    '''
-    start_time = time.time()
-    binner = defaultdict(lambda : defaultdict(lambda : defaultdict(list)))
-    for r in results:
-        pubdate = parse(r["pubdate"])
-        binner[pubdate.year][pubdate.month][pubdate.day].append([r["search_engine_index"], str(r["headline"].encode('ascii','ignore')), str(r["pubdate"].encode('ascii','ignore')), str(r["url"].encode('ascii','ignore')), str(r["snippet"].encode('ascii','ignore'))])
-    output = default_to_regular(binner)
-    print "[*] binning results to json took {}".format(start_time - time.time())
-    return output
  
 
 class Parameters(object):
@@ -279,20 +276,6 @@ class Models(object):
         else:
             return results
 
-    @staticmethod
-    def f_occurs_filter(results, facet, aliases):
-        '''
-        filter results for when f or one of its aliases occurs
-        '''
-        # BTO: it appears that aliases never includes the original facet label.
-        # AH: yeah that is correct. in the alias grouping code the facet label is the key and the aliases are value
-        alias_set = set([facet] + list(aliases))
-        good_docs = []
-        for r in results:
-            ngrams = set(get_doc_metadata(r)['ngram'])
-            if alias_set & ngrams:
-                good_docs.append(r)
-        return good_docs
 
     @staticmethod
     def get_doclist(results, params, aliases=None):

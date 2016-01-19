@@ -7,7 +7,7 @@ import time
 import json
 import math
 from dateutil.parser import parse
-from experiment.models import make_dataframe, results_to_json_hierarchy, get_keys, get_val_from_df, bin_dataframe
+from experiment.models import make_dataframe, get_keys, get_val_from_df, bin_dataframe, filter_results_with_binary_dataframe
 from flask import Flask
 from rookie.rookie import Rookie
 from flask import request
@@ -45,11 +45,16 @@ def get_doc_list():
 
     aliases = [] # cache[params.q + "##" + params.detail]
     
-    results = Models.f_occurs_filter(results, facet=params.f, aliases=aliases)
+    metadata = [get_doc_metadata(r) for r in results]
+
+    q_pubdates = [parse(h["pubdate"]) for h in metadata]
+
+    # TODO note no aliases
+    df = make_dataframe(params, [params.f], results, q_pubdates, aliases)
+
+    results = filter_results_with_binary_dataframe(results, params.f, df)
 
     doc_list = Models.get_doclist(results, params, aliases=aliases)
-
-    print [i["pubdate"] for i in doc_list]
 
     return json.dumps(doc_list)
 
