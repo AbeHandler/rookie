@@ -81,7 +81,6 @@ def create_pubdate_index():
     with open("rookieindex/string_to_pubdate_index.p") as inf:
         metadata = pickle.load(inf)
     for i,ngram in enumerate(metadata):
-        print i
         if i % 1000==0:
             sys.stdout.write("...%s" % i); sys.stdout.flush()
         dates = metadata[ngram]

@@ -127,7 +127,26 @@ class Parameters(object):
         self.zoom = None
 
 
+def get_val_from_df(val_key, dt_key, df, binsize="month"):
+    '''
+    :param val_key: a facet
+    :param dt_key: a date string. usually, YYYY-M. formatted 2014-5
+    :param df:  a dataframe
+    :param binsize: ignored for now. needed for dateparsing in try methods
+    :return:
+    '''
+    try:
+        return df[val_key][int(dt_key.split("-")[0])][int(dt_key.split("-")[1])]
+    except KeyError:
+        return 0
+
+
 def ovelaps_with_query(facet, query_tokens):
+    '''
+    :param facet:
+    :param query_tokens:
+    :return:
+    '''
     if len(set(facet.split(" ")).intersection(query_tokens)) == 0:
         return False
     else:
@@ -143,6 +162,20 @@ def overlaps_with_output(facet, output):
             return True
     return False
 
+def bin_dataframe(df, binsize):
+    '''
+    :param df: binary df of what facets show up in what doc_results
+    :param binsize: ex. "month" or "year"
+    :return: df that counts how many times facets show up in a bin
+    '''
+    if binsize == "year":
+        df = df.groupby([df['pd'].map(lambda x: x.year)]).sum().unstack(0).fillna(0)
+    elif binsize == "month":
+        df = df.groupby([df['pd'].map(lambda x: x.year), df['pd'].map(lambda x: x.month)]).sum().unstack(0).fillna(0)
+    else:
+        assert binsize == "day"
+        df = df.groupby([df['pd'].map(lambda x: x.year), df['pd'].map(lambda x: x.month), df['pd'].map(lambda x: x.day)]).sum().unstack(0).fillna(0)
+    return df
 
 def make_dataframe(p, facets, results, q_pubdates, aliases):
     '''

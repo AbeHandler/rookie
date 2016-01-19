@@ -1,7 +1,7 @@
 import unittest
 import os
 import hashlib
-from rookie import corpus_loc
+from experiment import CORPUS_LOC
 from rookie.downloadandprocess.lensdownloader import get_page
 
 

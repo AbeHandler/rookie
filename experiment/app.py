@@ -7,7 +7,7 @@ import time
 import json
 import math
 from dateutil.parser import parse
-from experiment.models import make_dataframe, results_to_json_hierarchy, get_keys
+from experiment.models import make_dataframe, results_to_json_hierarchy, get_keys, get_val_from_df, bin_dataframe
 from flask import Flask
 from rookie.rookie import Rookie
 from flask import request
@@ -57,17 +57,6 @@ def log_scale(p):
     return math.log(p + 1)
 
 
-def pad(i):
-    if len(i) == 1:
-        return "0" + str(i)
-    return i
-
-def get_val_from_df(val_key, dt_key, df, binsize="month"):
-    try:
-        return df[val_key][int(dt_key.split("-")[0])][int(dt_key.split("-")[1])]
-    except KeyError:
-        return 0
-
 def date_filter(results, start, end):
     '''
     TODO delete 
@@ -102,13 +91,8 @@ def medviz():
     binsize = "month"
 
     df = make_dataframe(params, binned_facets['g'], results, q_pubdates, aliases)
-    if binsize == "year":
-        df = df.groupby([df['pd'].map(lambda x: x.year)]).sum().unstack(0).fillna(0)
-    elif binsize == "month":
-        df = df.groupby([df['pd'].map(lambda x: x.year), df['pd'].map(lambda x: x.month)]).sum().unstack(0).fillna(0)
-    else:
-        assert binsize == "day"
-        df = df.groupby([df['pd'].map(lambda x: x.year), df['pd'].map(lambda x: x.month), df['pd'].map(lambda x: x.day)]).sum().unstack(0).fillna(0)
+
+    df = bin_dataframe(df, binsize)
 
     try:
         start = min(q_pubdates)

@@ -5,8 +5,8 @@ import hashlib
 import os
 
 from bs4 import BeautifulSoup
-from rookie import log
-from rookie import corpus_loc
+from experiment import log
+from experiment import CORPUS_LOC as corpus_loc
 
 DOMAINLIMITED = "thelensnola.org"
 

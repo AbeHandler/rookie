@@ -4,13 +4,10 @@ import pdb
 import glob
 import itertools
 
-from rookie.utils import dedupe_people
-from rookie import processed_location
+from experiment import CORPUS_LOC
 from rookie.classes import Document
-from rookie.classes import Coreferences
 from rookie.classes import N_Grammer
-from rookie.classes import propagate_first_mentions
-from rookie.utils import stop_word, get_gramner
+from rookie.utils import stop_word
 
 
 class GenericTestCase(unittest.TestCase):
@@ -53,16 +50,6 @@ class GenericTestCase(unittest.TestCase):
         self.assertTrue(all(bigram[0].is_noun() or
                         bigram[0].is_adjective()) for b in trigrams)
 
-    def test_find_window(self):
-        with open("data/sample_wrapper_output_2.json", "r") as to_read:
-            py_wrapper_output = json.loads(to_read.read())
-        doc = Document(py_wrapper_output)
-        sentence = doc.sentences[0]
-        window = Window()
-        out = window.get_window(sentence.tokens, sentence.ner[3].tokens, 1)
-        out = " ".join([i.raw for i in out])
-        target = "Mayor Mitch Landrieus Great"
-        self.assertEqual(out, target)
 
     def test_strip_stop_words2(self):
         self.assertTrue(stop_word("NEW ORLEANS"))

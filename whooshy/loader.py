@@ -50,6 +50,8 @@ def load(index_location, processed_location):
             meta_data['facet_index'] = dict(meta_data['facet_index'])
             meta_data['sentences'] = sentences
             meta_data['pubdate'] = IncomingFile(infile).pubdate
+            # NOTE: 
+            # pubdate_index is set in facets/build_matrix.py
             if len(headline) > 0 and len(full_text) > 0:
                 writer.add_document(title=headline, path=u"/" + str(s_counter), content=full_text)
                 people_org_ngram_index[s_counter] = meta_data
