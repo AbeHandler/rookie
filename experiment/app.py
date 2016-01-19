@@ -40,21 +40,18 @@ cache = pylru.lrucache(1000)
 def get_doc_list():
 
     params = Models.get_parameters(request)
-    results = Models.get_results(params)
-    status = ""
-    aliases = [] # cache[params.q + "##" + params.detail]
 
-    results = Models.date_filter(results, params)
+    results = Models.get_results(params)
+
+    aliases = [] # cache[params.q + "##" + params.detail]
     
-    results = Models.f_occurs_filter(results, facet=params.detail, aliases=aliases)
-    
+    results = Models.f_occurs_filter(results, facet=params.f, aliases=aliases)
+
     doc_list = Models.get_doclist(results, params, aliases=aliases)
 
+    print [i["pubdate"] for i in doc_list]
+
     return json.dumps(doc_list)
-
-
-def log_scale(p):
-    return math.log(p + 1)
 
 
 def date_filter(results, start, end):

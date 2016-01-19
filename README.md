@@ -1,4 +1,4 @@
-To see a demo of rookie, go [here](http://54.191.10.239/ "here"). This repo just holds the source code.
+To see a demo of rookie, go [here](http://54.213.128.229/medviz?q=Mitch%20Landrieu/ "here"). This repo just holds the source code.
 
 #### Rookie
 
@@ -12,6 +12,11 @@ This project began at [The Lens](http://www.thelensnola.org "The Lens") with [su
 
 [![Build Status](https://travis-ci.org/AbeHandler/rookie.svg?branch=master)](https://travis-ci.org/AbeHandler/rookie) [![Coverage Status](https://coveralls.io/repos/AbeHandler/rookie/badge.svg?branch=master&service=github)](https://coveralls.io/github/AbeHandler/rookie?branch=master)
 
+#### Indexing
+
+Run the downloadandprocess to download from The Lens and run CoreNLP.
+
+Run whooshy/loader.py to put the articles in the search engine.
 
 #### Code
 

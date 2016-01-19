@@ -118,13 +118,14 @@ class Parameters(object):
         An object that holds params from request
         '''
         self.q = None
-        self.term = None
-        self.termtype = None
+        self.f = None
         self.startdate = None
         self.enddate = None
-        self.docid = None
-        self.page = None
         self.zoom = None
+
+    def __repr__(self):
+        return "<Parameters (q={}, detail={}, startdate={}, enddate={}, zoom={})>".format(
+            self.q, self.f, self.startdate, self.enddate, self.zoom)
 
 
 def get_val_from_df(val_key, dt_key, df, binsize="month"):
@@ -235,17 +236,6 @@ class Models(object):
 
         output.q = request.args.get('q').replace("_", " ")
 
-        output.term = request.args.get('term')
-
-        output.termtype = request.args.get('termtype')
-
-        output.page = request.args.get('page')
-
-        try:
-            output.page = int(output.page)
-        except:
-            output.page = 1
-
         try:
             output.startdate = parse(request.args.get('startdate'))
         except:
@@ -257,29 +247,12 @@ class Models(object):
             output.enddate = None
 
         try:
-            output.docid = request.args.get('docid')
-        except:
-            output.docid = None
-
-        # TODO: remove. replaced w/ F
-        try:
-            output.detail = request.args.get('detail').replace("_", " ")
-        except:
-            output.detail = None
-
-        try:
             output.f = request.args.get('f')
         except:
             output.f = None
     
         try:
-            output.date_detail = request.args.get('date_detail')
-        except:
-            output.date_detail = None
-
-        try:
             output.zoom = request.args.get('zoom')
-            print "got zoom {}".format(output.zoom)
         except:
             output.zoom = "year" # default zoom to a year
 
@@ -316,11 +289,7 @@ class Models(object):
         alias_set = set([facet] + list(aliases))
         good_docs = []
         for r in results:
-            ngrams = get_doc_metadata(r)['ngram']
-            # AH --> added these two below. otherwise the timeseries graph is not correct
-            ngrams = ngrams + get_doc_metadata(r)['people']
-            ngrams = ngrams + get_doc_metadata(r)['org']
-            ngrams = set(ngrams)
+            ngrams = set(get_doc_metadata(r)['ngram'])
             if alias_set & ngrams:
                 good_docs.append(r)
         return good_docs
@@ -341,7 +310,7 @@ class Models(object):
                 'year': pubdate.year,
                 'month': pubdate.month,
                 'day': pubdate.day,
-                'snippet': Models.get_snippet(r, params.q, f=params.detail, aliases=aliases).encode("ascii", "ignore")
+                'snippet': Models.get_snippet(r, params.q, f=params.f, aliases=aliases).encode("ascii", "ignore")
             })
         return doc_results
 

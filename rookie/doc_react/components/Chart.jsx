@@ -21,8 +21,6 @@ module.exports = React.createClass({
     let q = this.props.q;
     let c3_start = this.convert_to_c3_land_subtract(this.props.yr_start + "-" + this.props.mo_start + "-" + this.props.dy_start);
     let c3_end = this.convert_to_c3_land_subtract(this.props.yr_end + "-" + this.props.mo_end + "-" + this.props.dy_end);
-    console.log(this.props.yr_start + "-" + this.props.mo_start + "-" + this.props.dy_start);
-    console.log(this.props.yr_end + "-" + this.props.mo_end + "-" + this.props.dy_end);
     let reg;
     if (this.props.yr_start != -1){
         reg = [{axis: 'x', start: c3_start, end: c3_end, class: 'regionX'}];

@@ -44,7 +44,7 @@ module.exports = React.createClass({
     if (this.state.f === e){
         this.setState({f: -1}, this.check_mode);
     }else{
-        let url = "/post_for_docs?q=" + this.props.q + "&detail=" + e;
+        let url = "/post_for_docs?q=" + this.props.q + "&f=" + e;
         $.ajax({
           url: url,
           dataType: 'json',
@@ -61,18 +61,17 @@ module.exports = React.createClass({
   },
 
   thiryDaysHath: function(e){
-    if ([9, 11, 4, 5].indexOf(e)){
+    if (_.includes([9, 11, 4, 5], e)){
         return 30;
     } else if (e == 2){
         return 28;
     } else {
-        return 30;
+        return 31;
     }
   },
 
   handleMo:function (e){
     //the user just clicked a month facet, e
-    let e1 = e + 1;
     this.setState({mo_start: e});
     this.setState({mo_end: e});
     this.setState({dy_start: 1});
@@ -101,7 +100,6 @@ module.exports = React.createClass({
     let year = e.x.getFullYear();
     let month = e.x.getMonth() + 1;
     let day = e.x.getDay();
-    console.log(month);
     this.setState({yr_start: year, mo_start:month, dy_start:1, yr_end: year, mo_end:month, dy_end:this.thiryDaysHath(month)}, this.check_mode);
   },
 
@@ -165,17 +163,33 @@ module.exports = React.createClass({
     return status;
   },
 
+
   resultsToDocs: function(results){
     if (this.state.f != -1){
         results = this.state.f_list; 
     }
-    let momentresults = _.map(results, function(n){
-      return moment(n.pubdate);
-    });
-    let start = moment(this.state.mo_start + "-" + this.state.dy_start + "-" +  this.state.yr_start);
-    let end = moment(this.state.mo_end + "-" + this.state.dy_end + "-" +  this.state.yr_end);
+    let start = moment(this.state.mo_start + "-" + this.state.dy_start + "-" +  this.state.yr_start, "MM-DD-YYYY");
+    let end = moment(this.state.mo_end + "-" + this.state.dy_end + "-" +  this.state.yr_end, "MM-DD-YYYY");
+    let tmp = _.filter(results, function(value, key) {
+          return moment(value.pubdate, "YYYY-MM-DD").format("YYYY") == "2011";
+        }
+      );
+    
+    let tmp2 = _.filter(tmp, function(value, key) {
+          console.log(value);
+          return moment(value.pubdate, "YYYY-MM-DD").format("MM") == "10";
+        }
+      );
+    console.log("tmp2is");
+    console.log(tmp2);
     return _.filter(results, function(value, key) {
-        return moment(value.pubdate) >= start && moment(value.pubdate) <= end;
+        //dates come from server as YYYY-MM-DD
+        if (moment(value.pubdate, "YYYY-MM-DD").isAfter(start) || moment(value.pubdate, "YYYY-MM-DD").isSame(start)){
+          if (moment(value.pubdate, "YYYY-MM-DD").isBefore(end) || moment(value.pubdate, "YYYY-MM-DD").isSame(end)){
+            return true;
+          }
+        }
+        return false;
     });
   },
 
@@ -213,9 +227,6 @@ module.exports = React.createClass({
 
     let start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
     let end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
-    console.log("dddd");
-    console.log(start.format("YYYY MM DD"));
-    console.log(end.format("YYYY MM DD"));
     let show_months = this.show_month_bins(start, end);
     let left_col_width = 10;
     let lc = {
