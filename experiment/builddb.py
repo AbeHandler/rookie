@@ -14,11 +14,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from experiment.classes import CONNECTION_STRING
 
-
+'''
 def build(processed_location):
-    '''
-    Loop thru corpus and build a db
-    '''
+I THINK DEAD CODE
     files_to_check = glob.glob(processed_location + "/*")
 
     facetcounter = 0
@@ -54,6 +52,7 @@ def build(processed_location):
 
         except AttributeError:
             print "error"
+'''
 
 def doc_metadata_to_db():
     print "building per-doc metadata table"

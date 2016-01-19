@@ -62,16 +62,22 @@ def get_from_redis(key, row, col):
 
 
 @lrudecorator(100)
-def load_matrix(key, row, col):
+def load_matrix(key, row, col, name):
     '''
     loads a F x D matrix (via redis)
     '''
-    r = redis.StrictRedis(host='localhost', port=6379, db=0)
-    if r.get(key) is None:
-        print "[*] Hang on. Adding {} to redis".format(name)
-        add_to_redis(key, pickle.load(open("rookieindex/{}.p".format(name), "rb")))
-    return get_from_redis(key, row, col)
-
+    try:
+        r = redis.StrictRedis(host='localhost', port=6379, db=0)
+        if r.get(key) is None:
+            print "[*] Hang on. Adding {} to redis".format(name)
+            add_to_redis(key, pickle.load(open("rookieindex/{}_matrix.p".format(name), "rb")))
+        return get_from_redis(key, row, col)
+    except redis.ConnectionError:
+        # No redis. More likely in live web app
+        print "cant find redis. loading from disk. hang on"
+        tmp = pickle.load(open("rookieindex/{}_matrix.p".format(name), "rb"))
+        print "done!"
+        return tmp
 
 @lrudecorator(100)
 def load_all_data_structures():
@@ -85,12 +91,12 @@ def load_all_data_structures():
     idf = {}
     with open("rookieindex/meta_data.json") as inf:
         mt = ujson.load(inf)
-    for n in ["people", "org", "ngram"]:
+    for n in ["ngram"]:
         decoder = pickle.load(open("rookieindex/{}_key.p".format(n), "rb"))
         decoder_r = {v: k for k, v in decoder.items()}
         decoders[n] = decoder
         reverse_decoders[n] = decoder_r
-        matrixes[n] = load_matrix(n + "_matrix", len(decoder.keys()), NDOCS)
+        matrixes[n] = load_matrix(n + "_matrix", len(decoder.keys()), NDOCS, n)
         df[n] = pickle.load(open("rookieindex/{}_df.p".format(n), "rb"))
         idf[n] = pickle.load(open("rookieindex/{}_idf.p".format(n), "rb"))
     return {"decoders": decoders, "reverse_decoders": reverse_decoders, "matrixes": matrixes, "df": df, "idf": idf, "metadata": mt}

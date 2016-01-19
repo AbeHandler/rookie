@@ -82,6 +82,9 @@ module.exports = React.createClass({
         },
         types: types
     },
+    point: {
+        show: false
+    },
      bindto: '#chart',
      axis: {
         x: {

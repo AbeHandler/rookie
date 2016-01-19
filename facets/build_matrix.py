@@ -131,13 +131,14 @@ def build_matrix(docids, ok_people, ok_org, ok_ngrams):
     
     NDOCS = len(docids)
     #np.log(NDOCS / df)
+
+    print "dumping pickled stuff..."
     pickle.dump(np.log(NDOCS / df_vec(people_counter, person_to_slot, len(ok_people))), open("rookieindex/people_idf.p", "wb" ))
     pickle.dump(np.log(NDOCS / df_vec(org_counter, org_to_slot, len(ok_org))), open("rookieindex/org_idf.p", "wb" ))
     pickle.dump(np.log(NDOCS / df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams))), open("rookieindex/ngram_idf.p", "wb" ))
     
     pickle.dump(people_matrix, open("rookieindex/people_matrix.p", "wb" ))
     pickle.dump(org_matrix, open("rookieindex/org_matrix.p", "wb" ))
-    pickle.dump(ngram_matrix, open("rookieindex/ngram_matrix.p", "wb" ))
     pickle.dump(ngram_matrix, open("rookieindex/ngram_matrix.p", "wb" ))
     pickle.dump(dict(string_to_pubdate_index), open("rookieindex/string_to_pubdate_index.p", "wb" ))
 
