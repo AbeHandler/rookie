@@ -14,3 +14,4 @@ scp  -i "awsstuff/medrookie.pem" data/lens_processed/6* ubuntu@54.213.128.229:/h
 scp  -i "awsstuff/medrookie.pem" data/lens_processed/7* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
 scp  -i "awsstuff/medrookie.pem" data/lens_processed/8* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
 scp  -i "awsstuff/medrookie.pem" data/lens_processed/9* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
+scp  -i "awsstuff/medrookie.pem" rookieindex/ngram_matrix.p ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/

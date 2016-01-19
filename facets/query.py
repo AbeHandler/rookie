@@ -10,6 +10,7 @@ from dateutil.parser import parse
 from whoosh.index import open_dir
 from collections import defaultdict
 import ujson
+import joblib
 import numpy as np
 import ipdb
 import time
@@ -75,8 +76,7 @@ def load_matrix(key, row, col, name):
     except redis.ConnectionError:
         # No redis. More likely in live web app
         print "cant find redis. loading from disk. hang on"
-        tmp = pickle.load(open("rookieindex/{}_matrix.p".format(name), "rb"))
-        print "done!"
+        tmp = joblib.load('rookieindex/ngram_matrix.joblib')
         return tmp
 
 @lrudecorator(100)

@@ -4,6 +4,8 @@ This module loads a facet_document matrix
 from rookie.classes import IncomingFile
 from collections import defaultdict
 from pylru import lrudecorator
+from joblib import Memory
+from tempfile import mkdtemp
 import ujson
 import os
 import ipdb
@@ -12,10 +14,12 @@ import time
 import ipdb
 import cPickle as pickle
 import numpy as np
-
+import joblib
 from whoosh import query
 from whoosh.index import open_dir
 
+cachedir = mkdtemp()
+memory = Memory(cachedir=cachedir, verbose=1)
 
 def get_all_doc_ids():
     index = open_dir("rookieindex")
@@ -125,23 +129,47 @@ def build_matrix(docids, ok_people, ok_org, ok_ngrams):
             string_to_pubdate_index[n].append(MT[unicode(docid)]["pubdate"])
             ngram_counter[n] += 1
 
-    pickle.dump(df_vec(people_counter, person_to_slot, len(ok_people)), open("rookieindex/people_df.p", "wb" ))
-    pickle.dump(df_vec(org_counter, org_to_slot, len(ok_org)), open("rookieindex/org_df.p", "wb" ))
+    # pickle.dump(df_vec(people_counter, person_to_slot, len(ok_people)), open("rookieindex/people_df.p", "wb" ))
+    # pickle.dump(df_vec(org_counter, org_to_slot, len(ok_org)), open("rookieindex/org_df.p", "wb" ))
     pickle.dump(df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams)), open("rookieindex/ngram_df.p", "wb" ))
     
     NDOCS = len(docids)
     #np.log(NDOCS / df)
 
     print "dumping pickled stuff..."
-    pickle.dump(np.log(NDOCS / df_vec(people_counter, person_to_slot, len(ok_people))), open("rookieindex/people_idf.p", "wb" ))
-    pickle.dump(np.log(NDOCS / df_vec(org_counter, org_to_slot, len(ok_org))), open("rookieindex/org_idf.p", "wb" ))
+    # pickle.dump(np.log(NDOCS / df_vec(people_counter, person_to_slot, len(ok_people))), open("rookieindex/people_idf.p", "wb" ))
+    # pickle.dump(np.log(NDOCS / df_vec(org_counter, org_to_slot, len(ok_org))), open("rookieindex/org_idf.p", "wb" ))
     pickle.dump(np.log(NDOCS / df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams))), open("rookieindex/ngram_idf.p", "wb" ))
     
-    pickle.dump(people_matrix, open("rookieindex/people_matrix.p", "wb" ))
-    pickle.dump(org_matrix, open("rookieindex/org_matrix.p", "wb" ))
-    pickle.dump(ngram_matrix, open("rookieindex/ngram_matrix.p", "wb" ))
+    # pickle.dump(people_matrix, open("rookieindex/people_matrix.p", "wb" ))
+    # pickle.dump(org_matrix, open("rookieindex/org_matrix.p", "wb" ))
+    # pickle.dump(ngram_matrix, open("rookieindex/ngram_matrix.p", "wb" ))
+    joblib.dump(ngram_matrix, 'rookieindex/ngram_matrix.joblib')
     pickle.dump(dict(string_to_pubdate_index), open("rookieindex/string_to_pubdate_index.p", "wb" ))
 
+
+@memory.cache
+def ngram_matrix(docids, ok_ngrams):
+    '''
+    This function builds three facet X doc matrixes: one for people, one for org, one for ngrams
+    '''
+    print "[*] Building three facet X doc matrixes"
+
+    ngram_to_slot = {n: i for (i, n) in enumerate(ok_ngrams)}
+
+    ngram_matrix = np.zeros((len(ok_ngrams), len(docids)))
+
+    ngram_counter = defaultdict(int)
+
+    for dinex, docid in enumerate(docids):
+        print dinex
+        ngram = set([str(j) for j in MT[unicode(docid)]["ngram"] if j in ok_ngrams])
+        docid = int(docid)
+        for n in ngram:
+            ngram_matrix[ngram_to_slot[n]][docid] = 1
+            ngram_counter[n] += 1
+
+    return ngram_matrix
 
 def filter(input, n):
     '''
@@ -157,4 +185,6 @@ if __name__ == '__main__':
     org = filter(org, N)
     ngram = filter(ngram, N)
     build_matrix(ALLDOCIDS, people, org, ngram)
+    #print ngram_matrix(ALLDOCIDS, ngram).shape
+    #print ngram_matrix(ALLDOCIDS, ngram).shape
 

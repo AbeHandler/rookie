@@ -8,6 +8,7 @@ data/lens_processed/*
 *.csv
 *ygz
 *.p
+*joblib*
 *json
 data/lens
 .coverage
