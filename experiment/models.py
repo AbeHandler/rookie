@@ -293,14 +293,8 @@ class Models(object):
         return good_docs
 
     @staticmethod
-    def get_doclist(results, params, PAGE_LENGTH, aliases=None):
+    def get_doclist(results, params, aliases=None):
         doc_results = []
-        if params.page < 1:
-            params.page == 1
-        # chop off to only relevant results
-        start = ((params.page - 1) * PAGE_LENGTH)
-        end = start + PAGE_LENGTH
-        # results = results[start:end]
 
         # AH: assuming the order of results is not changed since coming out from IR system
         for whoosh_index, r in enumerate(results):

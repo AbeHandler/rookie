@@ -15,15 +15,16 @@ from facets.query import get_facets_for_q
 from experiment.views import Views
 from collections import defaultdict
 from experiment.models import Models, Parameters
-from experiment import LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS
+from experiment import IP, ROOKIE_JS, ROOKIE_CSS
 from experiment import log
-from experiment import PAGE_LENGTH
 from whooshy.reader import query_subset
 from experiment.models import get_doc_metadata
 
 app = Flask(__name__)
 
-views = Views(LENS_CSS, BANNER_CSS, IP, ROOKIE_JS, ROOKIE_CSS)
+views = Views(IP, ROOKIE_JS, ROOKIE_CSS)
+
+print views.rookie_css
 
 cache = pylru.lrucache(1000)
 
@@ -47,7 +48,7 @@ def get_doc_list():
     
     results = Models.f_occurs_filter(results, facet=params.detail, aliases=aliases)
     
-    doc_list = Models.get_doclist(results, params, PAGE_LENGTH, aliases=aliases)
+    doc_list = Models.get_doclist(results, params, aliases=aliases)
 
     return json.dumps(doc_list)
 
@@ -92,7 +93,7 @@ def medviz():
 
     aliases = defaultdict(list) # TODO
 
-    doc_list = Models.get_doclist(results, params, PAGE_LENGTH)
+    doc_list = Models.get_doclist(results, params)
 
     metadata = [get_doc_metadata(r) for r in results]
 

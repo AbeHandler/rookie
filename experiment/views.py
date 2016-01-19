@@ -5,16 +5,13 @@ from nltk.tokenize import word_tokenize
 
 class Views(object):
 
-    def __init__(self, lens_css, banner_css, IP, ROOKIE_JS, ROOKIE_CSS):
+    def __init__(self, IP, ROOKIE_JS, ROOKIE_CSS):
         '''
         Initalize the views
         '''
-        self.lens_css = lens_css
-        self.banner_css = banner_css
         self.ip = IP
         self.js = ROOKIE_JS
         self.rookie_css = ROOKIE_CSS
-        self.banner_css = banner_css
 
 
     def get_doc_list(self, results, params, status):
