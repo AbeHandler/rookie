@@ -81,8 +81,11 @@ def get_keys(q_pubdates, bin):
     '''
     Returns a set of date keys between a start and stop date. bin = size of step
     '''
-    start = min(q_pubdates)
-    stop = max(q_pubdates)
+    try:
+        start = min(q_pubdates)
+        stop = max(q_pubdates)
+    except ValueError: # this means pubdates == []
+        return [] # being pythonic and leaping before looking
     output = []
     counter = start
     assert bin in ["year", "month", "day"]

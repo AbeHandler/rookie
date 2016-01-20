@@ -1,7 +1,5 @@
 import ipdb
-from experiment.models import get_metadata_file
 from flask import render_template
-from nltk.tokenize import word_tokenize
 
 class Views(object):
 
@@ -12,22 +10,6 @@ class Views(object):
         self.ip = IP
         self.js = ROOKIE_JS
         self.rookie_css = ROOKIE_CSS
-
-
-    def get_doc_list(self, results, params, status):
-        '''
-        Returns the first view of the application
-        '''
-
-        response = render_template(
-            'doclist.html',
-             query_toks=word_tokenize(params.q),
-             results=results,
-             page=params.page,
-             status=status
-        )
-
-        return response
 
 
     def get_q_response_med(self, params, results, q_and_t, keys, q_datas, len_results, binsize, binned_facets, g_facets):
@@ -46,9 +28,9 @@ class Views(object):
             detail=binsize,
             len_keys=len(keys),
             binned_facets=binned_facets,
-            IP = self.ip,
-            ROOKIE_JS = self.js,
-            ROOKIE_CSS = self.rookie_css
+            IP=self.ip,
+            ROOKIE_JS=self.js,
+            ROOKIE_CSS=self.rookie_css
         )
 
         return response

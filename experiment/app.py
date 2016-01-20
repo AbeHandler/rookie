@@ -53,7 +53,7 @@ def get_doc_list():
     return json.dumps(doc_list)
 
 
-@app.route('/medviz', methods=['GET'])
+@app.route('/', methods=['GET'])
 def medviz():
 
     params = Models.get_parameters(request)

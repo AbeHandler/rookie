@@ -8,15 +8,17 @@ from rookie.classes import IncomingFile
 from collections import defaultdict
 from rookie import processed_location
 import ipdb
-import itertools
 import os
 import json
 import glob
-import time
+
 
 
 def load(index_location, processed_location):
-    
+    '''
+    Load documents from procesed location into whoosh @ index_location
+    '''
+
     s_counter = 0 # only increments when doc actually added to whoosh
     # w/o this kludge, doc ids cause index errors b/c loop counter higher b/c ~15 docs error on load
 
@@ -31,7 +33,7 @@ def load(index_location, processed_location):
 
     files_to_check = glob.glob(processed_location + "/*")
 
-    for counter, infile in enumerate(files_to_check):
+    for infile in files_to_check:
         try:
             full_text = IncomingFile(infile).doc.full_text
             headline = unicode(IncomingFile(infile).headline)
@@ -50,7 +52,7 @@ def load(index_location, processed_location):
             meta_data['facet_index'] = dict(meta_data['facet_index'])
             meta_data['sentences'] = sentences
             meta_data['pubdate'] = IncomingFile(infile).pubdate
-            # NOTE: 
+            # NOTE:
             # pubdate_index is set in facets/build_matrix.py
             if len(headline) > 0 and len(full_text) > 0:
                 writer.add_document(title=headline, path=u"/" + str(s_counter), content=full_text)

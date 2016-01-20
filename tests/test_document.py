@@ -7,7 +7,6 @@ import itertools
 from experiment import CORPUS_LOC
 from rookie.classes import Document
 from rookie.classes import N_Grammer
-from rookie.utils import stop_word
 
 
 class GenericTestCase(unittest.TestCase):
@@ -50,9 +49,6 @@ class GenericTestCase(unittest.TestCase):
         self.assertTrue(all(bigram[0].is_noun() or
                         bigram[0].is_adjective()) for b in trigrams)
 
-
-    def test_strip_stop_words2(self):
-        self.assertTrue(stop_word("NEW ORLEANS"))
 
 if __name__ == '__main__':
     unittest.main()
