@@ -11,7 +11,7 @@ import ipdb
 import os
 import json
 import glob
-
+from dateutil.parser import parse
 
 
 def load(index_location, processed_location):
@@ -54,7 +54,8 @@ def load(index_location, processed_location):
             meta_data['pubdate'] = IncomingFile(infile).pubdate
             # NOTE:
             # pubdate_index is set in facets/build_matrix.py
-            if len(headline) > 0 and len(full_text) > 0:
+            # NOTE: only adding articles after 2010
+            if len(headline) > 0 and len(full_text) > 0 and parse(meta_data['pubdate']).year >= 2010:
                 writer.add_document(title=headline, path=u"/" + str(s_counter), content=full_text)
                 people_org_ngram_index[s_counter] = meta_data
                 s_counter += 1

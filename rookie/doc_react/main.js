@@ -7,10 +7,6 @@ var moment = require('moment');
 var c3 = require('c3');
 global.$ = global.jQuery = require('jquery');
 
-var LinguisticFacets = require('./components/LinguisticFacets.jsx');
-var TemporalFacets = require('./components/TemporalFacets.jsx');
-var DocViewer = require('./components/DocViewer.jsx');
-var BinnedLinguisticFacets = require('./components/BinnedLinguisticFacets.jsx');
 var UI = require('./components/UI.jsx');
 
 ReactDOM.render(

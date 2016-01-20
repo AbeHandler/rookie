@@ -14,9 +14,21 @@ module.exports = React.createClass({
     this.setState({active: item});
     this.props.handleBinClick(item);
   },
+  hoverCheck: function(item){
+    return this.props.hovered===item;
+  },
+  handleHoverIn: function(item) {
+    this.props.handleHoverIn(item);
+  },
+  handleHoverOut: function(item) {
+    this.props.handleHoverOut(item);
+  },
   render: function() {
     let fw = this.props.fontweight;
     let len_items = this.props.items.length;
+    let hoverCheck = this.hoverCheck;
+    let hoverIn = this.handleHoverIn;
+    let hoverOut = this.handleHoverOut;
     return (
       <span>
         {this.props.items.map(function(item, i) {
@@ -26,7 +38,7 @@ module.exports = React.createClass({
               borderBottomColor: "grey"
           };
           return (
-            <FacetPreview position={i} len_items={len_items} name={item} style={divStyle} onClick={this.handleClick} key={i}/>
+            <FacetPreview handleHoverIn={hoverIn} handleHoverOut={hoverOut} isHovered={hoverCheck(item)} position={i} len_items={len_items} name={item} style={divStyle} onClick={this.handleClick} key={i}/>
           );
         }, this)}
       </span>

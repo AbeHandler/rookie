@@ -8,7 +8,7 @@ var _ = require('lodash');
 var moment = require('moment');
 
 var BinnedLinguisticFacets = require('./BinnedLinguisticFacets.jsx');
-var LinguisticFacets = require('./LinguisticFacets.jsx');
+var GlobalFacetList = require('./GlobalFacetList.jsx');
 var TemporalFacets = require('./TemporalFacets.jsx');
 var DocViewer = require('./DocViewer.jsx');
 var Chart = require('./Chart.jsx');
@@ -40,7 +40,7 @@ module.exports = React.createClass({
   },
 
   handleF: function(e){
-    //user just clicked an F button in LinguisticFacets
+    //user just clicked an F button in GlobalFacetList
     if (this.state.f === e){
         this.setState({f: -1}, this.check_mode);
     }else{
@@ -137,7 +137,8 @@ module.exports = React.createClass({
     //2) keeping track of y/mo/dy is annoying but react won't allow object as prop
     let min = this.get_min(this.props.all_results);
     let max = this.get_max(this.props.all_results);
-    return {f: -1, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview"};
+    //TODO: if no results, this fails
+    return {f: -1, hovered: -1, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview"};
   },
 
   getStatus: function(ndocs){
@@ -163,6 +164,13 @@ module.exports = React.createClass({
     return status;
   },
 
+  linguisticFacetHoverIn: function(e){
+    this.setState({hovered: e});
+  },
+
+  linguisticFacetHoverOut: function(e){
+    this.setState({hovered: -1});
+  },
 
   resultsToDocs: function(results){
     if (this.state.f != -1){
@@ -170,18 +178,6 @@ module.exports = React.createClass({
     }
     let start = moment(this.state.mo_start + "-" + this.state.dy_start + "-" +  this.state.yr_start, "MM-DD-YYYY");
     let end = moment(this.state.mo_end + "-" + this.state.dy_end + "-" +  this.state.yr_end, "MM-DD-YYYY");
-    let tmp = _.filter(results, function(value, key) {
-          return moment(value.pubdate, "YYYY-MM-DD").format("YYYY") == "2011";
-        }
-      );
-    
-    let tmp2 = _.filter(tmp, function(value, key) {
-          console.log(value);
-          return moment(value.pubdate, "YYYY-MM-DD").format("MM") == "10";
-        }
-      );
-    console.log("tmp2is");
-    console.log(tmp2);
     return _.filter(results, function(value, key) {
         //dates come from server as YYYY-MM-DD
         if (moment(value.pubdate, "YYYY-MM-DD").isAfter(start) || moment(value.pubdate, "YYYY-MM-DD").isSame(start)){
@@ -219,7 +215,7 @@ module.exports = React.createClass({
       main_panel = <div style={y_scroll}><DocViewer f={this.state.f} handleBinClick={this.handleBinClick} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/></div>;
     } else {
       //status = "Found " + this.props.all_results.length + " results for " + this.props.q + " related to:"
-      main_panel = <BinnedLinguisticFacets rw_height={row_height} bin_size="year" handleMo={uiMonthHandler} handleBinDocsZoom={this.handleBinDocsZoom} f={f} handleF={this.handleF} bins={binned_facets}/>;
+      main_panel = <BinnedLinguisticFacets hovered={this.state.hovered} handleHoverIn={this.linguisticFacetHoverIn} hovered={this.state.hovered} rw_height={row_height} bin_size="year" handleMo={uiMonthHandler} handleBinDocsZoom={this.handleBinDocsZoom} f={f} handleF={this.handleF} bins={binned_facets}/>;
     }
     let rw = {
         width: "100%",
@@ -248,7 +244,7 @@ module.exports = React.createClass({
             <div style={rw}>
                 Subjects related to {q}:
             </div>
-            <LinguisticFacets active={f} onClick={this.handleF} items={this.props.datas}/>
+            <GlobalFacetList hovered={this.state.hovered} handleHoverIn={this.linguisticFacetHoverIn} handleHoverOut={this.linguisticFacetHoverOut} active={f} onClick={this.handleF} items={this.props.datas}/>
             <div>{status}</div>
             <div style={rw} >
                 <div style={lc}><TemporalFacets vars={this.props.vars} q_data={this.props.q_data} bins={this.props.chart_bins} handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={this.props.all_results} f={f} bin_size={bin_size}/></div>

@@ -5,18 +5,18 @@ I0
 sS'McClure'
 p3
 I1
-sS'Annette'
+sS'Bailey'
 p4
 I2
 sS'Lyce Franais'
 p5
-I256
+I251
 sS'Lyce Franais de la Nouvelle-Orlans'
 p6
 I3
 sS'Kevin Wildes'
 p7
-I59
+I58
 sS'Joseph A. Craig'
 p8
 I5
@@ -62,4108 +62,4054 @@ I18
 sS'Seth Bloom'
 p22
 I19
-sS'Bailey'
+sS'Collins'
 p23
 I20
-sS'Collins'
+sS'Zachary Wool'
 p24
 I21
-sS'Zachary Wool'
+sS'Leikin'
 p25
 I22
-sS'Leikin'
+sS'Barry Landry'
 p26
 I23
-sS'Barry Landry'
+sS'Katrina Jackson'
 p27
 I24
-sS'Katrina Jackson'
+sS'Tillison'
 p28
 I25
-sS'Tillison'
+sS'Sylvia Arcenaux-Ellison'
 p29
 I26
-sS'Sylvia Arcenaux-Ellison'
-p30
-I27
 sS'Lawliss Turner'
-p31
-I262
+p30
+I257
 sS'Akilis'
+p31
+I28
+sS'Leila Eames'
 p32
 I29
-sS'Leila Eames'
+sS'Andry'
 p33
 I30
-sS'Andry'
+sS'David Napoleon'
 p34
 I31
-sS'David Napoleon'
+sS'Pierson'
 p35
 I32
-sS'Pierson'
+sS'Swayze'
 p36
 I33
-sS'Swayze'
+sS'Medard Nelson'
 p37
 I34
-sS'Medard Nelson'
+sS'Lynette Brice'
 p38
 I35
-sS'Lynette Brice'
+sS'Landrieus'
 p39
 I36
-sS'Landrieus'
+sS'Dan Forman'
 p40
 I37
-sS'Dan Forman'
+sS'Adam Hawf'
 p41
 I38
-sS'Adam Hawf'
+sS'Pam Laborde'
 p42
 I39
-sS'Pam Laborde'
+sS'Kinlaw'
 p43
 I40
-sS'Kinlaw'
+sS'Siona LaFrance'
 p44
 I41
-sS'Siona LaFrance'
+sS'Defillo'
 p45
 I42
-sS'Defillo'
+sS'Bouie'
 p46
 I43
-sS'Bouie'
+sS'John Wettermark'
 p47
 I44
-sS'John Wettermark'
+sS'LaToya Cantrell'
 p48
 I45
-sS'LaToya Cantrell'
+sS'Kirk Talbot'
 p49
 I46
-sS'Kirk Talbot'
+sS'Gentry'
 p50
 I47
-sS'Gentry'
+sS'Neil Abramson'
 p51
 I48
-sS'Neil Abramson'
+sS'Alisa Dupre'
 p52
 I49
-sS'Alisa Dupre'
+sS'Morris Jeff'
 p53
 I50
-sS'Morris Jeff'
+sS'Elizabeth Chaponot'
 p54
 I51
-sS'Elizabeth Chaponot'
+sS'Paul Kemp'
 p55
 I52
-sS'Paul Kemp'
+sS'Mary Jacobs Jones'
 p56
-I53
-sS'Wiley Ates'
+I337
+sS'Gilyot'
 p57
 I54
-sS'Gilyot'
+sS'Nayita Wilson'
 p58
 I55
-sS'Nayita Wilson'
+sS'Wondwossen'
 p59
 I56
-sS'Wondwossen'
+sS'Anderson Baker'
 p60
 I57
-sS'Anderson Baker'
-p61
-I58
 sS'Shirley'
-p62
+p61
 I4
 sS'Keith Sanders'
-p63
-I1105
+p62
+I1087
 sS'Ozanne'
-p64
-I61
+p63
+I60
 sS'Will Bradshaw'
-p65
-I382
+p64
+I375
 sS'Beebe'
+p65
+I62
+sS'Walsh'
 p66
 I63
-sS'Walsh'
+sS'Brett Hunt'
 p67
 I64
-sS'Brett Hunt'
+sS'Le'
 p68
 I65
-sS'Le'
+sS'Warren Easton'
 p69
 I66
-sS'Warren Easton'
+sS'Twitchell'
 p70
 I67
-sS'Twitchell'
+sS'Doris Roch-Hicks'
 p71
 I68
-sS'Doris Roch-Hicks'
-p72
-I69
 sS'Bruno'
-p73
-I431
+p72
+I422
 sS'Jessica Williams'
+p73
+I70
+sS'Leger'
 p74
 I71
-sS'Leger'
+sS'Gardner'
 p75
 I72
-sS'Gardner'
+sS'St. Cyr'
 p76
 I73
-sS'St. Cyr'
+sS'John Hope'
 p77
 I74
-sS'John Hope'
+sS'Ira Thomas'
 p78
 I75
-sS'Ira Thomas'
+sS'Bates'
 p79
 I76
-sS'Bates'
+sS'Kate Mehok'
 p80
 I77
-sS'Kate Mehok'
+sS'David Bailey'
 p81
 I78
-sS'David Bailey'
+sS'Reese'
 p82
 I79
-sS'Reese'
+sS'Amoss'
 p83
 I80
-sS'Amoss'
+sS'Glapion'
 p84
 I81
-sS'Glapion'
+sS'Jill Otis'
 p85
 I82
-sS'Jill Otis'
+sS'Kristin Huston'
 p86
 I83
-sS'Kristin Huston'
+sS'David Benelli'
 p87
 I84
-sS'David Benelli'
+sS'Fannin'
 p88
 I85
-sS'Fannin'
+sS'Lundbeck'
 p89
 I86
-sS'Lundbeck'
+sS'Slager'
 p90
 I87
-sS'Slager'
+sS'Zapata'
 p91
 I88
-sS'Zapata'
+sS'Robertson'
 p92
 I89
-sS'Robertson'
+sS'Michael Harrison'
 p93
 I90
-sS'Michael Harrison'
+sS'Gabriel Bordenave'
 p94
 I91
-sS'Gabriel Bordenave'
+sS'Sizeler Thompson Brown'
 p95
 I92
-sS'Sizeler Thompson Brown'
+sS'Blanco'
 p96
 I93
-sS'Blanco'
+sS'Sean Lansing'
 p97
 I94
-sS'Sean Lansing'
+sS'Pamela Randall'
 p98
 I95
-sS'Pamela Randall'
+sS'Beck'
 p99
 I96
-sS'Beck'
+sS'Harris'
 p100
 I97
-sS'Harris'
+sS'Pate'
 p101
 I98
-sS'Pate'
-p102
-I99
 sS'McCormack Baron Salazar'
-p103
-I1178
+p102
+I1160
 sS'Christiansen'
+p103
+I100
+sS'Alice Harte'
 p104
 I101
-sS'Alice Harte'
+sS'B.W. Cooper'
 p105
 I102
-sS'B.W. Cooper'
+sS'Christine Mitchell'
 p106
 I103
-sS'Christine Mitchell'
+sS'Kopplin'
 p107
 I104
-sS'Kopplin'
+sS'Aluise'
 p108
 I105
-sS'Aluise'
+sS'Lee Reid'
 p109
 I106
-sS'Lee Reid'
+sS'Mark Davis'
 p110
 I107
-sS'Mark Davis'
+sS'Antoine'
 p111
 I108
-sS'Lockett'
+sS'Latoya Cantrell'
 p112
 I109
-sS'Antoine'
+sS'John Kennedy'
 p113
 I110
-sS'Latoya Cantrell'
+sS'Sandra Cahill'
 p114
 I111
-sS'Beasley'
+sS'Goodwin'
 p115
 I112
-sS'John Kennedy'
+sS'Sam Joel'
 p116
 I113
-sS'Gustav'
+sS'Marc Ehrhardt'
 p117
 I114
-sS'Sandra Cahill'
+sS'James Hilburn'
 p118
 I115
-sS'Goodwin'
+sS'Vallas'
 p119
 I116
-sS'Sam Joel'
+sS'Vaughn Fauria'
 p120
 I117
-sS'Marc Ehrhardt'
+sS'Lorin Crenshaw'
 p121
 I118
-sS'James Hilburn'
+sS'Duane Drucker'
 p122
 I119
-sS'Vallas'
+sS'Julius Kimbrough'
 p123
 I120
-sS'Vaughn Fauria'
+sS'Tim Gray'
 p124
 I121
-sS'Lorin Crenshaw'
+sS'Ward'
 p125
 I122
-sS'Duane Drucker'
+sS'Napoleon'
 p126
 I123
-sS'Julius Kimbrough'
+sS'Meyer'
 p127
 I124
-sS'Tim Gray'
+sS'Serpas'
 p128
 I125
-sS'Ward'
+sS'Hunnewell'
 p129
-I126
-sS'Napoleon'
+I705
+sS'Ed Graf'
 p130
 I127
-sS'Meyer'
+sS'Lopinto'
 p131
 I128
-sS'Serpas'
+sS'Bajoie'
 p132
 I129
-sS'Hunnewell'
+sS'Daschbach'
 p133
-I719
-sS'Ed Graf'
+I130
+sS'Mike Bagot'
 p134
 I131
-sS'Lopinto'
+sS'Austin Badon'
 p135
 I132
-sS'Bajoie'
+sS'Rosenberg'
 p136
 I133
-sS'Daschbach'
+sS'Nick Felton'
 p137
 I134
-sS'Mike Bagot'
+sS'Nancy Shoemaker'
 p138
 I135
-sS'Austin Badon'
+sS'Karran Harper Royal'
 p139
 I136
-sS'Rosenberg'
+sS'Walter Paulson'
 p140
 I137
-sS'Nick Felton'
+sS'Daniel OConnell'
 p141
 I138
-sS'Nancy Shoemaker'
+sS'Donald Pate'
 p142
 I139
-sS'Cooper'
+sS'Vilmenay'
 p143
 I140
-sS'Karran Harper Royal'
+sS'Stacy Head'
 p144
 I141
-sS'Walter Paulson'
+sS'Charles Rice'
 p145
 I142
-sS'Daniel OConnell'
+sS'Julie Lause'
 p146
 I143
-sS'Donald Pate'
+sS'Marlon Ford'
 p147
 I144
-sS'Vilmenay'
+sS'Sidney Barthelemy'
 p148
 I145
-sS'Stacy Head'
+sS'Mark Mayer'
 p149
 I146
-sS'Charles Rice'
+sS'Ryan Mast'
 p150
 I147
-sS'Julie Lause'
-p151
-I148
-sS'Marlon Ford'
-p152
-I149
-sS'Sidney Barthelemy'
-p153
-I150
-sS'Alexander'
-p154
-I151
-sS'Ryan Mast'
-p155
-I152
 sS'Andrew Ward'
-p156
-I930
+p151
+I914
 sS'Guitterrez'
-p157
-I155
+p152
+I150
 sS'Bagneris'
+p153
+I152
+sS'Michael Bagneris'
+p154
+I1063
+sS'Denise Williams'
+p155
+I154
+sS'Calvin Johnson'
+p156
+I155
+sS'Bobby Jindals'
+p157
+I156
+sS'Craig'
 p158
 I157
-sS'Michael Bagneris'
+sS'Guerin'
 p159
-I1081
-sS'Denise Williams'
+I158
+sS'Lisa Tabb'
 p160
 I159
-sS'Calvin Johnson'
+sS'Jim Huger'
 p161
 I160
-sS'Bobby Jindals'
+sS'Kwame Smith'
 p162
 I161
-sS'Craig'
+sS'Andrew Abrams'
 p163
 I162
-sS'Guerin'
+sS'Alison Hartman'
 p164
 I163
-sS'Lisa Tabb'
+sS'Edward Hynes'
 p165
 I164
-sS'Jim Huger'
+sS'Ferris'
 p166
 I165
-sS'Kwame Smith'
+sS'Cary Grant'
 p167
 I166
-sS'Andrew Abrams'
+sS'Paula Griffin'
 p168
 I167
-sS'Alison Hartman'
+sS'Timothy Rusnak'
 p169
 I168
-sS'Edward Hynes'
+sS'Williams'
 p170
 I169
-sS'Ferris'
+sS'Kathy Riedlinger'
 p171
 I170
-sS'Cary Grant'
+sS'Serpe'
 p172
 I171
-sS'Paula Griffin'
+sS'Gisele Schexnider'
 p173
 I172
-sS'Timothy Rusnak'
+sS'Benenson'
 p174
 I173
-sS'Williams'
+sS'Stephen Estopinal'
 p175
 I174
-sS'Kathy Riedlinger'
+sS'Jones'
 p176
 I175
-sS'Serpe'
+sS'Hearin'
 p177
 I176
-sS'Gisele Schexnider'
+sS'Monica Edwards'
 p178
 I177
-sS'Benenson'
+sS'Candal'
 p179
 I178
-sS'Stephen Estopinal'
+sS'Bono'
 p180
 I179
-sS'Jones'
+sS'Olivier'
 p181
 I180
-sS'Hearin'
+sS'Buckley'
 p182
 I181
-sS'Monica Edwards'
+sS'Paige'
 p183
 I182
-sS'Candal'
+sS'Robert Sloan'
 p184
 I183
-sS'Bono'
+sS'Eades Hogue'
 p185
 I184
-sS'Olivier'
+sS'Lewis'
 p186
 I185
-sS'Buckley'
+sS'Rubenstein'
 p187
 I186
-sS'Paige'
+sS'Will Kulick'
 p188
 I187
-sS'Robert Sloan'
+sS'Diana Lewis'
 p189
 I188
-sS'Eades Hogue'
+sS'Zeringue'
 p190
 I189
-sS'Lewis'
+sS'DJuan Hernandez'
 p191
 I190
-sS'Rubenstein'
+sS'Carey'
 p192
 I191
-sS'Will Kulick'
+sS'McDonough'
 p193
 I192
-sS'Diana Lewis'
+sS'Foti'
 p194
 I193
-sS'Zeringue'
+sS'Susie Morgan'
 p195
 I194
-sS'DJuan Hernandez'
+sS'Doug Guidry'
 p196
 I195
-sS'Carey'
+sS'Koppel'
 p197
 I196
-sS'McDonough'
+sS'Huger'
 p198
 I197
-sS'Foti'
+sS'John Hummel'
 p199
 I198
-sS'Susie Morgan'
+sS'Joel Robideaux'
 p200
 I199
-sS'Doug Guidry'
-p201
-I200
-sS'Koppel'
-p202
-I201
-sS'Huger'
-p203
-I202
-sS'John Hummel'
-p204
-I203
-sS'Joel Robideaux'
-p205
-I204
 sS'Batiste'
+p201
+I201
+sS'Sharon Clark'
+p202
+I202
+sS'Moore'
+p203
+I203
+sS'Ken Ducote'
+p204
+I204
+sS'Douglas Evans'
+p205
+I205
+sS'Pearce'
 p206
 I206
-sS'Sharon Clark'
+sS'Lisa Daggs'
 p207
 I207
-sS'Moore'
+sS'Bradshaw'
 p208
 I208
-sS'Ken Ducote'
+sS'Kyle Plotkin'
 p209
 I209
-sS'Douglas Evans'
+sS'Perez'
 p210
 I210
-sS'Pearce'
+sS'Vinnett'
 p211
 I211
-sS'Lisa Daggs'
+sS'Jackson'
 p212
 I212
-sS'Bradshaw'
+sS'Michael Richard'
 p213
 I213
-sS'Kyle Plotkin'
+sS'Ripski'
 p214
 I214
-sS'Perez'
+sS'Sholes Sr.'
 p215
 I215
-sS'Vinnett'
+sS'Anderson'
 p216
 I216
-sS'Jackson'
+sS'Foster'
 p217
-I217
-sS'Michael Richard'
+I1172
+sS'Butler'
 p218
 I218
-sS'Ripski'
+sS'John'
 p219
-I219
-sS'Sholes Sr.'
+I1180
+sS'Kristen Ponthier'
 p220
 I220
-sS'Anderson'
+sS'Dardenne'
 p221
 I221
-sS'Foster'
+sS'John Broussard'
 p222
-I1190
-sS'Butler'
+I222
+sS'Laura Charbonnet'
 p223
 I223
-sS'John'
+sS'Ernest N. Morial'
 p224
-I1198
-sS'Kristen Ponthier'
+I224
+sS'Greenwald'
 p225
 I225
-sS'Dardenne'
+sS'Hurricane Isaac'
 p226
 I226
-sS'John Broussard'
+sS'Sodexo'
 p227
 I227
-sS'Laura Charbonnet'
+sS'Bobby Jindal'
 p228
 I228
-sS'Ernest N. Morial'
+sS'Carol Asher'
 p229
 I229
-sS'Greenwald'
+sS'Esman'
 p230
 I230
-sS'Hurricane Isaac'
+sS'Michelle Brown'
 p231
 I231
-sS'Sodexo'
+sS'Maurice Lightfoot'
 p232
 I232
-sS'Bobby Jindal'
+sS'Gaudet'
 p233
 I233
-sS'Carol Asher'
+sS'Elizabeth Ostberg'
 p234
 I234
-sS'Esman'
+sS'Candice Frazier'
 p235
 I235
-sS'Michelle Brown'
+sS'Dibert'
 p236
 I236
-sS'Maurice Lightfoot'
+sS'Wesley Bishop'
 p237
 I237
-sS'Gaudet'
+sS'Mireille Rabat'
 p238
 I238
-sS'Elizabeth Ostberg'
+sS'Harrell'
 p239
 I239
-sS'Candice Frazier'
+sS'Bryan Collins'
 p240
 I240
-sS'Dibert'
+sS'Hadley'
 p241
 I241
-sS'Wesley Bishop'
+sS'John White'
 p242
 I242
-sS'Mireille Rabat'
+sS'Hernandez'
 p243
 I243
-sS'Harrell'
+sS'Hillard'
 p244
 I244
-sS'Bryan Collins'
+sS'Claudia Kent'
 p245
 I245
-sS'Hadley'
+sS'Carl Indest'
 p246
 I246
-sS'John White'
+sS'Adams'
 p247
 I247
-sS'Hernandez'
+sS'Egana'
 p248
 I248
-sS'Hillard'
+sS'Derbigny'
 p249
 I249
-sS'Claudia Kent'
+sS'Stuart'
 p250
 I250
-sS'Carl Indest'
+sS'Pastorek'
 p251
-I251
-sS'Adams'
+I1177
+sS'Amy George-Hirons'
 p252
 I252
-sS'Egana'
+sS'Holmes'
 p253
 I253
-sS'Derbigny'
+sS'Barbara McPhee'
 p254
 I254
-sS'Stuart'
+sS'Emily Danielson'
 p255
 I255
-sS'Pastorek'
+sS'Conklin'
 p256
-I1195
-sS'Amy George-Hirons'
+I256
+sS'Bechet'
 p257
-I257
-sS'Holmes'
+I27
+sS'Charline Wright'
 p258
 I258
-sS'Barbara McPhee'
+sS'Harrison'
 p259
 I259
-sS'Emily Danielson'
+sS'Campbell'
 p260
 I260
-sS'Conklin'
-p261
-I261
-sS'Bechet'
-p262
-I28
-sS'Charline Wright'
-p263
-I263
-sS'Harrison'
-p264
-I264
-sS'Campbell'
-p265
-I265
 sS'Hema Banangada'
-p266
-I355
+p261
+I348
 sS'Bush'
+p262
+I261
+sS'Courtney'
+p263
+I262
+sS'Lindsey Moore'
+p264
+I263
+sS'Mary Landrieus'
+p265
+I264
+sS'Jeffrey'
+p266
+I265
+sS'Abrams'
 p267
 I266
-sS'Courtney'
+sS'LaMothe'
 p268
 I267
-sS'Lindsey Moore'
+sS'Chana Benenson'
 p269
 I268
-sS'Mary Landrieus'
+sS'Ed Quatrevaux'
 p270
 I269
-sS'Jeffrey'
+sS'Bordson-Bozzo'
 p271
 I270
-sS'Abrams'
+sS'Kim Bondy'
 p272
 I271
-sS'LaMothe'
+sS'Roch-Hicks'
 p273
 I272
-sS'Chana Benenson'
+sS'Eisenhower'
 p274
 I273
-sS'Ed Quatrevaux'
+sS'Shes'
 p275
 I274
-sS'Bordson-Bozzo'
+sS'Morris'
 p276
 I275
-sS'Kim Bondy'
+sS'Patterson'
 p277
-I276
-sS'Roch-Hicks'
+I1181
+sS'Gina Dupart'
 p278
 I277
-sS'Eisenhower'
+sS'Pelican'
 p279
 I278
-sS'Shes'
+sS'Brett Geymann'
 p280
 I279
-sS'Morris'
+sS'Stephen Rosenthal'
 p281
 I280
-sS'Patterson'
+sS'Lisa Hudson'
 p282
-I1199
-sS'Gina Dupart'
+I281
+sS'Andy Kopplin'
 p283
 I282
-sS'Pelican'
+sS'Jeff Zapata'
 p284
 I283
-sS'Brett Geymann'
+sS'Ellen Bankston'
 p285
 I284
-sS'Stephen Rosenthal'
+sS'Jeffrey Rouse'
 p286
 I285
-sS'Lisa Hudson'
+sS'Colleen Mackay'
 p287
 I286
-sS'Andy Kopplin'
+sS'Mickey Landry'
 p288
 I287
-sS'Jeff Zapata'
+sS'Hassinger'
 p289
 I288
-sS'Ellen Bankston'
+sS'Mardi Gras'
 p290
 I289
-sS'Jeffrey Rouse'
+sS'Carol McCall'
 p291
-I290
-sS'Colleen Mackay'
+I296
+sS'James'
 p292
 I291
-sS'Mickey Landry'
+sS'Schexnider'
 p293
 I292
-sS'Hassinger'
+sS'Forcier'
 p294
 I293
-sS'Mardi Gras'
+sS'Kelly Batiste'
 p295
 I294
-sS'Carol McCall'
+sS'Leon Cannizzaro'
 p296
-I301
-sS'James'
+I295
+sS'Norman Foster'
 p297
-I296
-sS'Schexnider'
+I1259
+sS'Winkler-Schmit'
 p298
 I297
-sS'Forcier'
+sS'Frank Buckley'
 p299
 I298
-sS'Kelly Batiste'
+sS'Keith Bartlett'
 p300
 I299
-sS'Leon Cannizzaro'
+sS'Caldwell'
 p301
 I300
-sS'Norman Foster'
+sS'Mary Joseph'
 p302
-I1277
-sS'Winkler-Schmit'
+I301
+sS'Ostberg'
 p303
 I302
-sS'Ed Blakely'
+sS'Triplett'
 p304
 I303
-sS'Frank Buckley'
+sS'Noel'
 p305
 I304
-sS'Keith Bartlett'
+sS'Jean Montes'
 p306
 I305
-sS'Caldwell'
+sS'David Garland'
 p307
-I306
-sS'Soros'
+I149
+sS'Lee'
 p308
 I307
-sS'Mary Joseph'
+sS'Kristina Kent'
 p309
 I308
-sS'Ostberg'
+sS'Lee Pryor'
 p310
-I309
-sS'Triplett'
+I369
+sS'Lucas Diaz'
 p311
 I310
-sS'Noel'
+sS'Juanita Chenevert'
 p312
 I311
-sS'Jean Montes'
+sS'Ehrhardt'
 p313
-I312
-sS'David Garland'
+I658
+sS'Mackel'
 p314
-I154
-sS'Lee'
+I313
+sS'Carol Whelan'
 p315
 I314
-sS'Kristina Kent'
+sS'Graf'
 p316
 I315
-sS'Lee Pryor'
+sS'Todd Purvis'
 p317
-I376
-sS'Lucas Diaz'
+I316
+sS'Weimer'
 p318
 I317
-sS'Juanita Chenevert'
+sS'Ronicka Briscoe'
 p319
-I318
-sS'Ehrhardt'
+I1185
+sS'Josh Densen'
 p320
-I669
-sS'Mackel'
+I319
+sS'Perricone'
 p321
 I320
-sS'Carol Whelan'
+sS'Robideaux'
 p322
-I321
-sS'Graf'
+I450
+sS'Jim Raby'
 p323
 I322
-sS'Todd Purvis'
+sS'Bob Turner'
 p324
 I323
-sS'Weimer'
+sS'Woldenberg'
 p325
 I324
-sS'Ronicka Briscoe'
+sS'Parrish'
 p326
-I1203
-sS'Josh Densen'
+I325
+sS'James Huger'
 p327
 I326
-sS'Perricone'
+sS'Chris Hines'
 p328
 I327
-sS'Robideaux'
+sS'Grandiere'
 p329
-I459
-sS'Jim Raby'
+I512
+sS'Clarksons'
 p330
 I329
-sS'Bob Turner'
+sS'Sarah T. Reed'
 p331
 I330
-sS'Woldenberg'
+sS'Steve Beatty'
 p332
-I331
-sS'Parrish'
+I151
+sS'Marta Jewson'
 p333
 I332
-sS'James Huger'
+sS'F.H. Paschen'
 p334
 I333
-sS'Chris Hines'
+sS'Hudson'
 p335
-I334
-sS'Grandiere'
+I569
+sS'Patricia Ventura'
 p336
-I521
-sS'Clarksons'
+I575
+sS'Dan OConnell'
 p337
-I336
-sS'Sarah T. Reed'
+I577
+sS'Wiley Ates'
 p338
-I337
-sS'Steve Beatty'
+I53
+sS'Aesha Rasheed'
 p339
-I156
-sS'Marta Jewson'
+I338
+sS'David Jackson'
 p340
 I339
-sS'F.H. Paschen'
+sS'JVann Martin'
 p341
 I340
-sS'Hudson'
+sS'Mayer'
 p342
-I579
-sS'Patricia Ventura'
+I341
+sS'Goetzee'
 p343
-I585
-sS'Dan OConnell'
+I342
+sS'Doug Finegan'
 p344
-I587
-sS'Mary Jacobs Jones'
+I343
+sS'Rachel Wisdom'
 p345
 I344
-sS'Aesha Rasheed'
+sS'Gurtner'
 p346
 I345
-sS'David Jackson'
+sS'Mays'
 p347
 I346
-sS'JVann Martin'
+sS'Patrick Walsh'
 p348
 I347
-sS'Mayer'
+sS'Shawn Barney'
 p349
-I348
-sS'Goetzee'
+I424
+sS'Ryan Bates'
 p350
 I349
-sS'Doug Finegan'
+sS'Gasho'
 p351
 I350
-sS'Rachel Wisdom'
+sS'Bill Langenstein'
 p352
 I351
-sS'Gurtner'
+sS'Cambre'
 p353
 I352
-sS'Mays'
+sS'Arnold'
 p354
 I353
-sS'Patrick Walsh'
+sS'Nan Ryan'
 p355
 I354
-sS'Shawn Barney'
+sS'Jeremy Hunnewell'
 p356
-I433
-sS'Ryan Bates'
+I355
+sS'Charles'
 p357
 I356
-sS'Gasho'
+sS'Erroll Williams'
 p358
 I357
-sS'Bill Langenstein'
+sS'Jim Schneiders'
 p359
 I358
-sS'Cambre'
+sS'Marshall Fitz'
 p360
 I359
-sS'Arnold'
+sS'Mike Greer'
 p361
 I360
-sS'Nan Ryan'
+sS'Boyle'
 p362
 I361
-sS'Jeremy Hunnewell'
+sS'Ridley'
 p363
 I362
-sS'Charles'
+sS'Martin Feibelman'
 p364
 I363
-sS'Erroll Williams'
+sS'Milestone'
 p365
 I364
-sS'Jim Schneiders'
+sS'John Dibert'
 p366
 I365
-sS'Marshall Fitz'
+sS'Mark Caramanica'
 p367
-I366
-sS'Mike Greer'
+I739
+sS'Linda Launey'
 p368
 I367
-sS'Boyle'
+sS'Jerry Sneed'
 p369
 I368
-sS'Ridley'
+sS'Lause'
 p370
-I369
-sS'Martin Feibelman'
+I309
+sS'Andrea Thomas-Reynolds'
 p371
 I370
-sS'Milestone'
+sS'James Reiss'
 p372
 I371
-sS'John Dibert'
+sS'Vitter'
 p373
 I372
-sS'Mark Caramanica'
+sS'Parker'
 p374
-I753
-sS'Linda Launey'
+I373
+sS'Joseph Kimbrell'
 p375
 I374
-sS'Jerry Sneed'
+sS'Crowe'
 p376
-I375
-sS'Lause'
+I61
+sS'Mitch Landrieus'
 p377
-I316
-sS'Andrea Thomas-Reynolds'
+I376
+sS'Lawrence Vinnett'
 p378
 I377
-sS'James Reiss'
+sS'Behrman'
 p379
 I378
-sS'Vitter'
+sS'George'
 p380
 I379
-sS'Parker'
-p381
-I380
-sS'Joseph Kimbrell'
-p382
-I381
-sS'Crowe'
-p383
-I62
-sS'Mitch Landrieus'
-p384
-I383
-sS'Lawrence Vinnett'
-p385
-I384
-sS'Behrman'
-p386
-I385
-sS'George'
-p387
-I386
 sS'Gray'
-p388
-I319
+p381
+I312
 sS'Reilly'
+p382
+I380
+sS'Rice'
+p383
+I381
+sS'John Schroder'
+p384
+I382
+sS'Langston Hughes'
+p385
+I383
+sS'Cahill'
+p386
+I384
+sS'Head'
+p387
+I385
+sS'Robin Gorman'
+p388
+I386
+sS'Ray Nagin'
 p389
 I387
-sS'Rice'
+sS'Joseph Neary'
 p390
 I388
-sS'John Schroder'
+sS'Sandra Monroe'
 p391
 I389
-sS'Langston Hughes'
+sS'Lopez'
 p392
 I390
-sS'Cahill'
+sS'Dow Edwards'
 p393
 I391
-sS'Head'
+sS'Ray Nagins'
 p394
 I392
-sS'Robin Gorman'
+sS'Bernie Pinsonat'
 p395
 I393
-sS'Ray Nagin'
+sS'Keith Amacker'
 p396
 I394
-sS'Joseph Neary'
+sS'Gary Clements'
 p397
 I395
-sS'Sandra Monroe'
+sS'Jean-Jacques Grandiere'
 p398
 I396
-sS'Lopez'
+sS'Stupak'
 p399
 I397
-sS'Ed Blakley'
+sS'Brian K. Richburg'
 p400
 I398
-sS'Dow Edwards'
+sS'Charmaine Robertson'
 p401
 I399
-sS'Ray Nagins'
+sS'Minyard'
 p402
 I400
-sS'Bernie Pinsonat'
+sS'Mullin'
 p403
 I401
-sS'Keith Amacker'
+sS'Sharon Courtney'
 p404
 I402
-sS'Gary Clements'
+sS'Coleman Ridley'
 p405
 I403
-sS'Jean-Jacques Grandiere'
+sS'Isaac'
 p406
 I404
-sS'Stupak'
+sS'Sanders'
 p407
 I405
-sS'Brian K. Richburg'
+sS'Joe Daschbach'
 p408
 I406
-sS'Charmaine Robertson'
+sS'Appel'
 p409
 I407
-sS'Minyard'
+sS'Barfield'
 p410
 I408
-sS'Mullin'
+sS'Ryan Bennett'
 p411
-I409
-sS'Sharon Courtney'
+I989
+sS'Kleckley'
 p412
 I410
-sS'Coleman Ridley'
+sS'Ben Hicks'
 p413
 I411
-sS'Isaac'
+sS'Freret'
 p414
-I412
-sS'Sanders'
+I200
+sS'Ashe'
 p415
 I413
-sS'Joe Daschbach'
+sS'Munchak'
 p416
 I414
-sS'Appel'
+sS'Asher'
 p417
-I415
-sS'Barfield'
+I1026
+sS'Barr'
 p418
 I416
-sS'Ryan Bennett'
+sS'George Washington Carver'
 p419
-I1007
-sS'Kleckley'
+I417
+sS'Priestley'
 p420
 I418
-sS'Ben Hicks'
+sS'Benelli'
 p421
 I419
-sS'Freret'
+sS'Amedee'
 p422
-I205
-sS'Ashe'
+I420
+sS'Abney'
 p423
 I421
-sS'Munchak'
-p424
-I422
-sS'Asher'
-p425
-I1044
-sS'Barr'
-p426
-I424
-sS'George Washington Carver'
-p427
-I425
-sS'Priestley'
-p428
-I426
-sS'Benelli'
-p429
-I427
-sS'Anh Cao'
-p430
-I428
-sS'Amedee'
-p431
-I429
-sS'Abney'
-p432
-I430
 sS'Todd James'
-p433
-I70
+p424
+I69
 sS'Courtney Bagneris'
-p434
-I1089
+p425
+I1071
 sS'Errol George'
+p426
+I425
+sS'Jackie Clarkson'
+p427
+I426
+sS'Southall'
+p428
+I427
+sS'Joseph Cao'
+p429
+I428
+sS'Mary Brown'
+p430
+I429
+sS'Densen'
+p431
+I430
+sS'Garnesha Crawford'
+p432
+I431
+sS'Marvin Thompson'
+p433
+I432
+sS'Sean Bruno'
+p434
+I433
+sS'Cannizzaros'
 p435
 I434
-sS'Jackie Clarkson'
+sS'Martin'
 p436
 I435
-sS'Southall'
+sS'Geneva Longlois-Marney'
 p437
 I436
-sS'Joseph Cao'
+sS'Shawne Favre'
 p438
 I437
-sS'Mary Brown'
+sS'Jamar McKneely'
 p439
 I438
-sS'Densen'
+sS'Kelly McClure'
 p440
 I439
-sS'Garnesha Crawford'
+sS'Andrew Yon'
 p441
 I440
-sS'Marvin Thompson'
+sS'Jen Walcott'
 p442
 I441
-sS'Sean Bruno'
+sS'Lee Hampton'
 p443
 I442
-sS'Cannizzaros'
+sS'Jean Claude Brunet'
 p444
 I443
-sS'Martin'
+sS'Hester'
 p445
 I444
-sS'Geneva Longlois-Marney'
+sS'White'
 p446
 I445
-sS'Shawne Favre'
+sS'Cook Sr.'
 p447
 I446
-sS'Jamar McKneely'
+sS'Windi Brown'
 p448
 I447
-sS'Kelly McClure'
+sS'Larry Eustis'
 p449
 I448
-sS'Andrew Yon'
+sS'Hightower'
 p450
 I449
-sS'Jen Walcott'
+sS'Louisianas'
 p451
-I450
-sS'Lee Hampton'
+I321
+sS'Melissa Jagers'
 p452
 I451
-sS'Jean Claude Brunet'
+sS'Ed Blouin'
 p453
 I452
-sS'Hester'
+sS'Cherie Lopez'
 p454
 I453
-sS'White'
+sS'Ariella Cohen'
 p455
 I454
-sS'Cook Sr.'
+sS'Padian'
 p456
 I455
-sS'Windi Brown'
+sS'Gordon'
 p457
 I456
-sS'Larry Eustis'
+sS'Kemp'
 p458
 I457
-sS'Hightower'
+sS'Webster'
 p459
 I458
-sS'Louisianas'
+sS'Glasser'
 p460
-I328
-sS'Melissa Jagers'
+I459
+sS'Stephens'
 p461
 I460
-sS'Ed Blouin'
+sS'Julie Walker'
 p462
 I461
-sS'Cherie Lopez'
+sS'Chuck Kleckley'
 p463
 I462
-sS'Ariella Cohen'
+sS'McCampbell'
 p464
 I463
-sS'Padian'
+sS'Belinda Cambre'
 p465
 I464
-sS'Gordon'
+sS'Pete Rodway'
 p466
 I465
-sS'Kemp'
+sS'Darius Munchak'
 p467
 I466
-sS'Webster'
+sS'McLeish'
 p468
 I467
-sS'Glasser'
+sS'Sheppard'
 p469
 I468
-sS'Stephens'
+sS'Monique Cola'
 p470
 I469
-sS'Julie Walker'
+sS'Lauren Pigeon'
 p471
 I470
-sS'Chuck Kleckley'
+sS'John Williams'
 p472
 I471
-sS'McCampbell'
+sS'Pierre A. Capdau'
 p473
 I472
-sS'Belinda Cambre'
+sS'Caramanica'
 p474
 I473
-sS'Pete Rodway'
+sS'Andrew Shahan'
 p475
 I474
-sS'Darius Munchak'
+sS'Collette Creppell'
 p476
 I475
-sS'McLeish'
+sS'Harry Rosenberg'
 p477
 I476
-sS'Sheppard'
+sS'Darleen Mipro'
 p478
 I477
-sS'Monique Cola'
+sS'Medley'
 p479
-I478
-sS'Lauren Pigeon'
+I753
+sS'Alysson Mills'
 p480
 I479
-sS'John Williams'
+sS'Kalifey-Aluise'
 p481
 I480
-sS'Pierre A. Capdau'
+sS'Kabacoff'
 p482
 I481
-sS'Caramanica'
+sS'Howell'
 p483
 I482
-sS'Andrew Shahan'
+sS'Anna Koehl'
 p484
 I483
-sS'Collette Creppell'
+sS'Jon Wool'
 p485
 I484
-sS'Harry Rosenberg'
+sS'Landry'
 p486
 I485
-sS'Darleen Mipro'
+sS'Templeman'
 p487
 I486
-sS'Medley'
+sS'Hoffman'
 p488
-I767
-sS'Alysson Mills'
+I487
+sS'Palmer'
 p489
 I488
-sS'Kalifey-Aluise'
+sS'Mike Lappa'
 p490
-I489
-sS'Kabacoff'
+I755
+sS'Bob Stefani'
 p491
 I490
-sS'Howell'
+sS'Abramson'
 p492
 I491
-sS'Anna Koehl'
+sS'Lee Caston'
 p493
 I492
-sS'Jon Wool'
+sS'Alcazar'
 p494
 I493
-sS'Landry'
+sS'Capdau'
 p495
 I494
-sS'Templeman'
+sS'Carolyn Chandler'
 p496
 I495
-sS'Hoffman'
+sS'Peterson'
 p497
 I496
-sS'Palmer'
+sS'Hardrick'
 p498
 I497
-sS'Mike Lappa'
+sS'Alison Mehr'
 p499
-I769
-sS'Bob Stefani'
+I498
+sS'Cali'
 p500
 I499
-sS'Abramson'
+sS'Crawford'
 p501
 I500
-sS'Lee Caston'
+sS'Hicks-Cook'
 p502
 I501
-sS'Alcazar'
+sS'Grandire'
 p503
 I502
-sS'Capdau'
+sS'Brett Bonin'
 p504
 I503
-sS'Carolyn Chandler'
+sS'Gail Armant'
 p505
 I504
-sS'Peterson'
+sS'Montagnes'
 p506
 I505
-sS'Hardrick'
+sS'Paul Habans Elementary'
 p507
 I506
-sS'Alison Mehr'
+sS'Doucette'
 p508
 I507
-sS'Cali'
+sS'Walt Leger'
 p509
 I508
-sS'Crawford'
+sS'Robert Corvo'
 p510
 I509
-sS'Hicks-Cook'
+sS'Stephen Boyard'
 p511
 I510
-sS'Grandire'
+sS'Joseph S. Clark'
 p512
 I511
-sS'Brett Bonin'
+sS'Chris Lozier'
 p513
-I512
-sS'Gail Armant'
+I328
+sS'LaBruzzo'
 p514
 I513
-sS'Montagnes'
+sS'Donald Herry'
 p515
 I514
-sS'Paul Habans Elementary'
+sS'Mince'
 p516
 I515
-sS'Doucette'
+sS'Monroe'
 p517
 I516
-sS'Walt Leger'
+sS'Jean Monts'
 p518
 I517
-sS'Robert Corvo'
+sS'Fran Trujillo'
 p519
 I518
-sS'Stephen Boyard'
+sS'Barry'
 p520
 I519
-sS'Joseph S. Clark'
+sS'Alarcon'
 p521
-I520
-sS'Chris Lozier'
+I543
+sS'Usdin'
 p522
-I335
-sS'LaBruzzo'
+I521
+sS'Kent'
 p523
 I522
-sS'Donald Herry'
+sS'Kristen Gisleson Palmer'
 p524
 I523
-sS'Mince'
+sS'Ann Salzer'
 p525
 I524
-sS'Don Eduardo'
+sS'Walter L. Cohen'
 p526
 I525
-sS'Monroe'
+sS'Bunton'
 p527
 I526
-sS'Jean Monts'
+sS'Piazza'
 p528
 I527
-sS'Fran Trujillo'
-p529
-I528
-sS'Barry'
-p530
-I529
-sS'Alarcon'
-p531
-I553
-sS'Usdin'
-p532
-I531
-sS'Kent'
-p533
-I532
-sS'Kristen Gisleson Palmer'
-p534
-I533
-sS'Ann Salzer'
-p535
-I534
-sS'Walter L. Cohen'
-p536
-I535
-sS'Bunton'
-p537
-I536
-sS'Piazza'
-p538
-I537
 sS'Cameron Henry'
-p539
-I634
+p529
+I623
 sS'Louis'
+p530
+I528
+sS'Toranto'
+p531
+I529
+sS'Mark Boucree'
+p532
+I530
+sS'Pres Kabacoff'
+p533
+I531
+sS'Ronal Serpas'
+p534
+I532
+sS'Tilton'
+p535
+I533
+sS'Carol McCree'
+p536
+I534
+sS'Allen'
+p537
+I535
+sS'Vanessa Gueringer'
+p538
+I536
+sS'Grant'
+p539
+I537
+sS'Monica Candal'
 p540
 I538
-sS'Toranto'
+sS'Jackson Knowles'
 p541
 I539
-sS'Mark Boucree'
+sS'Markowitz'
 p542
 I540
-sS'Pres Kabacoff'
+sS'Arthur Hardy'
 p543
 I541
-sS'Ronal Serpas'
+sS'Melancon'
 p544
 I542
-sS'Tilton'
+sS'Patricia Perkins'
 p545
-I543
-sS'Carol McCree'
+I520
+sS'Berner'
 p546
 I544
-sS'Allen'
+sS'Kathryn Broussard'
 p547
 I545
-sS'Vanessa Gueringer'
+sS'Johnson'
 p548
 I546
-sS'Grant'
+sS'Arthur Ashe'
 p549
 I547
-sS'Monica Candal'
+sS'Burvant'
 p550
 I548
-sS'Jackson Knowles'
+sS'Mireille Rabate'
 p551
 I549
-sS'Markowitz'
+sS'Mipro'
 p552
 I550
-sS'Arthur Hardy'
+sS'Jay Dardenne'
 p553
 I551
-sS'Melancon'
+sS'Carver'
 p554
 I552
-sS'Patricia Perkins'
+sS'House Bill'
 p555
-I530
-sS'Berner'
+I553
+sS'Phipps'
 p556
 I554
-sS'Kathryn Broussard'
+sS'Silva'
 p557
 I555
-sS'Johnson'
+sS'Kenneth Polite'
 p558
 I556
-sS'Arthur Ashe'
+sS'Marlin Gusman'
 p559
 I557
-sS'Burvant'
+sS'Dennis McGuire'
 p560
 I558
-sS'Mireille Rabate'
+sS'John Georges'
 p561
 I559
-sS'Mipro'
+sS'Patrick Dobard'
 p562
 I560
-sS'Jay Dardenne'
+sS'Riley'
 p563
 I561
-sS'Carver'
+sS'John Hiser'
 p564
 I562
-sS'House Bill'
+sS'Kisa Holmes'
 p565
 I563
-sS'Phipps'
+sS'Jim Dukes'
 p566
-I564
-sS'Silva'
+I1232
+sS'Hynes'
 p567
 I565
-sS'Kenneth Polite'
+sS'Bui'
 p568
 I566
-sS'Marlin Gusman'
+sS'Claiborne'
 p569
 I567
-sS'Dennis McGuire'
+sS'Bob Marshall'
 p570
 I568
-sS'John Georges'
+sS'Purvis'
 p571
-I569
-sS'Patrick Dobard'
+I334
+sS'Hebert'
 p572
 I570
-sS'Riley'
+sS'Corvo'
 p573
 I571
-sS'John Hiser'
+sS'Joseph Dunn'
 p574
 I572
-sS'Kisa Holmes'
+sS'Osborn'
 p575
 I573
-sS'Jim Dukes'
+sS'Shaud Wilson'
 p576
-I1250
-sS'Hynes'
+I574
+sS'Kelt'
 p577
-I575
-sS'Bui'
+I335
+sS'Phong Tran'
 p578
 I576
-sS'Claiborne'
+sS'Berni'
 p579
-I577
-sS'Bob Marshall'
+I336
+sS'Marshall'
 p580
 I578
-sS'Purvis'
+sS'Raftelis'
 p581
-I341
-sS'Hebert'
+I579
+sS'Couhig'
 p582
 I580
-sS'Corvo'
+sS'Vic Richard'
 p583
 I581
-sS'Joseph Dunn'
+sS'Hammonds'
 p584
 I582
-sS'Osborn'
+sS'Mary Landrieu'
 p585
 I583
-sS'Shaud Wilson'
+sS'Ingrid Labat'
 p586
-I584
-sS'Kelt'
+I727
+sS'Otis'
 p587
-I342
-sS'Phong Tran'
+I585
+sS'Alexina Medley'
 p588
 I586
-sS'Berni'
+sS'Wool'
 p589
-I343
-sS'Marshall'
+I749
+sS'Tubman'
 p590
 I588
-sS'Raftelis'
+sS'Matt Davis'
 p591
 I589
-sS'Couhig'
+sS'Dan Henderson'
 p592
 I590
-sS'Vic Richard'
+sS'Eileen Williams'
 p593
 I591
-sS'Hammonds'
+sS'Kevin Maney'
 p594
 I592
-sS'Mary Landrieu'
+sS'Darrin Cook'
 p595
 I593
-sS'Ingrid Labat'
+sS'Brian Richburg'
 p596
-I741
-sS'Otis'
+I594
+sS'Fertitta'
 p597
-I595
-sS'Alexina Medley'
+I792
+sS'Katie Schwartzmann'
 p598
 I596
-sS'Wool'
+sS'Helene Derbigny'
 p599
-I763
-sS'Tubman'
+I597
+sS'Jindal'
 p600
 I598
-sS'Matt Davis'
+sS'Carlos Zervigon'
 p601
 I599
-sS'Dan Henderson'
+sS'Phil Stelly'
 p602
 I600
-sS'Eileen Williams'
+sS'Lance Harris'
 p603
 I601
-sS'Kevin Maney'
+sS'Granderson'
 p604
 I602
-sS'Darrin Cook'
+sS'Rob Couhig'
 p605
 I603
-sS'Brian Richburg'
+sS'Im'
 p606
 I604
-sS'Fertitta'
+sS'Cora Charles'
 p607
-I806
-sS'Katie Schwartzmann'
+I605
+sS'Montes'
 p608
 I606
-sS'Helene Derbigny'
+sS'Kenneth Charity'
 p609
 I607
-sS'Jindal'
+sS'Barrios'
 p610
 I608
-sS'Carlos Zervigon'
+sS'Estopinal'
 p611
 I609
-sS'Phil Stelly'
+sS'Ross Anderson'
 p612
 I610
-sS'Lance Harris'
+sS'Muntean'
 p613
 I611
-sS'Granderson'
+sS'Cowan'
 p614
 I612
-sS'Rob Couhig'
+sS'James Carter'
 p615
 I613
-sS'Im'
+sS'Kristin Gisleson Palmer'
 p616
 I614
-sS'Alpaugh'
+sS'Derek Rabb'
 p617
 I615
-sS'Montes'
+sS'Kullman'
 p618
 I616
-sS'Kenneth Charity'
+sS'Greg St. Etienne'
 p619
 I617
-sS'Barrios'
+sS'MacPhaille'
 p620
 I618
-sS'Estopinal'
+sS'Georges'
 p621
 I619
-sS'Ross Anderson'
-p622
-I620
-sS'Clouet'
-p623
-I621
-sS'Muntean'
-p624
-I622
-sS'Cowan'
-p625
-I623
-sS'James Carter'
-p626
-I624
-sS'Kristin Gisleson Palmer'
-p627
-I625
-sS'Derek Rabb'
-p628
-I626
-sS'Kullman'
-p629
-I627
-sS'Greg St. Etienne'
-p630
-I628
-sS'MacPhaille'
-p631
-I629
-sS'Georges'
-p632
-I630
 sS'Norton'
-p633
-I313
+p622
+I306
 sS'Claire McDaniel'
-p634
-I631
+p623
+I620
 sS'Martin Luther King'
+p624
+I621
+sS'Mao'
+p625
+I622
+sS'Ursin'
+p626
+I1344
+sS'Robichaux'
+p627
+I624
+sS'Alvin Meister'
+p628
+I625
+sS'Harriet Tubman'
+p629
+I626
+sS'Perry'
+p630
+I627
+sS'Plessy'
+p631
+I628
+sS'Charles Petrey'
+p632
+I629
+sS'Vong Nguyen'
+p633
+I630
+sS'David Bordson-Bozzo'
+p634
+I1001
+sS'Bedell'
 p635
 I632
-sS'Mao'
+sS'Darryl Kilbert'
 p636
 I633
-sS'Ursin'
+sS'Douglass'
 p637
-I1362
-sS'Robichaux'
+I634
+sS'Thelma Ruth'
 p638
 I635
-sS'Alvin Meister'
+sS'Mary Kay Parker'
 p639
 I636
-sS'Harriet Tubman'
+sS'Kesana Durand'
 p640
 I637
-sS'Perry'
+sS'Landrieu'
 p641
 I638
-sS'Plessy'
+sS'Jon Johnson'
 p642
 I639
-sS'Charles Petrey'
+sS'Joseph Daschbach'
 p643
 I640
-sS'Vong Nguyen'
+sS'Melissa Lessell'
 p644
 I641
-sS'David Bordson-Bozzo'
+sS'Errol B. Conley'
 p645
-I1019
-sS'Bedell'
+I1068
+sS'Shawn Toranto'
 p646
 I643
-sS'Darryl Kilbert'
+sS'Roslyn Smith'
 p647
 I644
-sS'Douglass'
+sS'Richard Pennington'
 p648
 I645
-sS'Thelma Ruth'
+sS'Teague'
 p649
 I646
-sS'Mary Kay Parker'
+sS'Cynthia Hedge-Morrell'
 p650
 I647
-sS'Kesana Durand'
+sS'Principal Robertson'
 p651
 I648
-sS'Landrieu'
+sS'MacPhee'
 p652
 I649
-sS'Jon Johnson'
+sS'Floyd'
 p653
 I650
-sS'Joseph Daschbach'
+sS'Bower'
 p654
 I651
-sS'Melissa Lessell'
+sS'Sharonda Williams'
 p655
 I652
-sS'Errol B. Conley'
+sS'Bartlett'
 p656
-I1086
-sS'Shawn Toranto'
+I653
+sS'Jana Smith'
 p657
 I654
-sS'Roslyn Smith'
+sS'Obama'
 p658
 I655
-sS'Richard Pennington'
+sS'Jindals'
 p659
 I656
-sS'Teague'
+sS'Brian Jacobs'
 p660
-I657
-sS'Cynthia Hedge-Morrell'
+I412
+sS'Jan Moller'
 p661
-I658
-sS'Principal Robertson'
+I657
+sS'Beckner'
 p662
 I659
-sS'MacPhee'
+sS'Walker'
 p663
 I660
-sS'Floyd'
+sS'Johnston'
 p664
 I661
-sS'Bower'
+sS'Gusmans'
 p665
 I662
-sS'Sharonda Williams'
+sS'Brooke Muntean'
 p666
 I663
-sS'Bartlett'
+sS'Rodriguez'
 p667
 I664
-sS'Jana Smith'
+sS'Joseph'
 p668
 I665
-sS'Obama'
+sS'Sean Perkins'
 p669
 I666
-sS'Jindals'
+sS'Hutson'
 p670
 I667
-sS'Brian Jacobs'
+sS'Gregory Thompson'
 p671
-I420
-sS'Jan Moller'
-p672
 I668
-sS'Beckner'
+sS'Robert Bell'
+p672
+I669
+sS'Garland'
 p673
 I670
-sS'Walker'
+sS'Zanders'
 p674
 I671
-sS'Johnston'
+sS'Sybil Favrot'
 p675
 I672
-sS'Gusmans'
+sS'Watson'
 p676
-I673
-sS'Brooke Muntean'
+I1289
+sS'Broussard'
 p677
 I674
-sS'Rodriguez'
+sS'Ramsey Green'
 p678
 I675
-sS'Joseph'
+sS'Walcott'
 p679
 I676
-sS'Louisa'
+sS'Charlie Mackles'
 p680
-I677
-sS'Sean Perkins'
+I951
+sS'Scott Jacobs'
 p681
 I678
-sS'Hutson'
+sS'Ashley Beckner'
 p682
 I679
-sS'Gregory Thompson'
+sS'Victor Gordon'
 p683
 I680
-sS'Robert Bell'
+sS'Ben Mays'
 p684
 I681
-sS'Garland'
+sS'Timothy Ryan'
 p685
 I682
-sS'Zanders'
+sS'Tracy Joseph'
 p686
 I683
-sS'Sybil Favrot'
+sS'Peggy Wilson'
 p687
 I684
-sS'Watson'
+sS'Edison'
 p688
-I1307
-sS'Broussard'
+I685
+sS'Derek Bardell'
 p689
 I686
-sS'Ramsey Green'
+sS'Schmidt'
 p690
 I687
-sS'Walcott'
+sS'Erin Greenwald'
 p691
 I688
-sS'Charlie Mackles'
+sS'Brown'
 p692
-I968
-sS'Scott Jacobs'
+I689
+sS'Matthew Amoss'
 p693
 I690
-sS'Ashley Beckner'
+sS'Gaudry'
 p694
 I691
-sS'Victor Gordon'
+sS'Lance Africk'
 p695
 I692
-sS'Ben Mays'
+sS'William J. Fischer'
 p696
 I693
-sS'Ed Shanklin'
+sS'Charleen Blache'
 p697
 I694
-sS'Timothy Ryan'
+sS'Anna Burrell'
 p698
 I695
-sS'Tracy Joseph'
+sS'Darren Beltz'
 p699
 I696
-sS'Peggy Wilson'
+sS'James Perry'
 p700
 I697
-sS'Edison'
+sS'Troy Henry'
 p701
 I698
-sS'Derek Bardell'
+sS'Cam Thanh Tran'
 p702
-I699
-sS'Blakely'
+I1035
+sS'Wanda Brooks'
 p703
 I700
-sS'Schmidt'
+sS'Andrea Armstrong'
 p704
 I701
-sS'Erin Greenwald'
+sS'Fowler'
 p705
 I702
-sS'Brown'
+sS'Nagin'
 p706
 I703
-sS'Matthew Amoss'
+sS'Klingler'
 p707
 I704
-sS'Gaudry'
+sS'Charles Southall III'
 p708
-I705
-sS'Lance Africk'
+I126
+sS'Simone Green'
 p709
 I706
-sS'William J. Fischer'
+sS'Chase'
 p710
 I707
-sS'Charleen Blache'
+sS'Schlesinger'
 p711
 I708
-sS'Anna Burrell'
+sS'Steve Barr'
 p712
 I709
-sS'Darren Beltz'
+sS'John Barry'
 p713
 I710
-sS'James Perry'
+sS'Sametta Brown'
 p714
 I711
-sS'Troy Henry'
+sS'Madonna Green'
 p715
 I712
-sS'Cam Thanh Tran'
+sS'Jim Fannin'
 p716
-I1053
-sS'Wanda Brooks'
+I713
+sS'Keith Crawford'
 p717
 I714
-sS'Andrea Armstrong'
-p718
-I715
-sS'Fowler'
-p719
-I716
-sS'Nagin'
-p720
-I717
-sS'Klingler'
-p721
-I718
-sS'Charles Southall III'
-p722
-I130
-sS'Simone Green'
-p723
-I720
-sS'Chase'
-p724
-I721
-sS'Schlesinger'
-p725
-I722
-sS'Steve Barr'
-p726
-I723
-sS'John Barry'
-p727
-I724
-sS'Sametta Brown'
-p728
-I725
-sS'Madonna Green'
-p729
-I726
-sS'Jim Fannin'
-p730
-I727
-sS'Keith Crawford'
-p731
-I728
 sS'Shafer'
-p732
-I1185
+p718
+I1167
 sS'Edwin Murray'
+p719
+I715
+sS'Jason Williams'
+p720
+I716
+sS'Rusnak'
+p721
+I717
+sS'Marcovitz'
+p722
+I718
+sS'Clark'
+p723
+I719
+sS'Buddy Roemer'
+p724
+I720
+sS'Heather Schwartz'
+p725
+I721
+sS'Dobard'
+p726
+I722
+sS'Victor'
+p727
+I723
+sS'Loeffelholz'
+p728
+I724
+sS'Jason Hughes'
+p729
+I725
+sS'Tom Slager'
+p730
+I726
+sS'Akili Academys'
+p731
+I584
+sS'Clarence Robinson'
+p732
+I728
+sS'Mary Ellen Alexander'
 p733
 I729
-sS'Jason Williams'
+sS'Francis Cascio'
 p734
 I730
-sS'Rusnak'
+sS'Claire Adriaan'
 p735
 I731
-sS'Marcovitz'
+sS'Beatty'
 p736
 I732
-sS'Clark'
+sS'Zoey Reed'
 p737
 I733
-sS'Buddy Roemer'
+sS'Laurin Jacobsen'
 p738
 I734
-sS'Heather Schwartz'
+sS'Kennedy'
 p739
 I735
-sS'Dobard'
+sS'Blake LeMaire'
 p740
 I736
-sS'Victor'
+sS'Ducote'
 p741
 I737
-sS'Loeffelholz'
+sS'Ruocco'
 p742
 I738
-sS'Jason Hughes'
+sS'Jabbar'
 p743
-I739
-sS'Tom Slager'
+I366
+sS'Buddy Caldwell'
 p744
 I740
-sS'Akili Academys'
+sS'Wade'
 p745
-I594
-sS'Clarence Robinson'
+I741
+sS'Dupre'
 p746
 I742
-sS'Mary Ellen Alexander'
+sS'Sylvanie Williams'
 p747
 I743
-sS'Francis Cascio'
+sS'Sophie B. Wrights'
 p748
 I744
-sS'Claire Adriaan'
+sS'Thompson'
 p749
 I745
-sS'Beatty'
+sS'Coleman'
 p750
 I746
-sS'Zoey Reed'
+sS'Claire Jecklin'
 p751
 I747
-sS'Laurin Jacobsen'
+sS'Jacobsen'
 p752
 I748
-sS'Kennedy'
+sS'Carpenter'
 p753
-I749
-sS'Blake LeMaire'
-p754
 I750
-sS'Ducote'
-p755
+sS'Amato'
+p754
 I751
-sS'Ruocco'
-p756
+sS'Chauncey Nash'
+p755
 I752
-sS'Jabbar'
+sS'Anderson-Guillaume'
+p756
+I478
+sS'Kelly'
 p757
-I373
-sS'Buddy Caldwell'
-p758
 I754
-sS'Wade'
+sS'Doody'
+p758
+I489
+sS'Ninh Tran'
 p759
-I755
-sS'Dupre'
-p760
 I756
-sS'Sylvanie Williams'
-p761
+sS'Stevens'
+p760
 I757
-sS'Sophie B. Wrights'
-p762
+sS'Richard Cortizas'
+p761
 I758
-sS'Thompson'
-p763
+sS'Dudek'
+p762
 I759
-sS'Coleman'
+sS'Alvaro Alcazar'
+p763
+I331
+sS'Christopher Kaul'
 p764
 I760
-sS'Claire Jecklin'
+sS'Lee Adler'
 p765
 I761
-sS'Jacobsen'
+sS'Joseph Craig Elementary'
 p766
 I762
-sS'Carpenter'
+sS'Nolan Marshall Jr.'
 p767
-I764
-sS'Amato'
+I763
+sS'Paul Pechon'
 p768
-I765
-sS'Chauncey Nash'
+I764
+sS'Kleban'
 p769
-I766
-sS'Anderson-Guillaume'
+I765
+sS'Bill Davis'
 p770
-I487
-sS'Kelly'
+I766
+sS'Diaz'
 p771
-I768
-sS'Doody'
+I767
+sS'Allen Square'
 p772
-I498
-sS'Ninh Tran'
+I768
+sS'Sams'
 p773
-I770
-sS'Stevens'
+I769
+sS'John Gaudry'
 p774
-I771
-sS'Richard Cortizas'
+I770
+sS'Marco'
 p775
-I772
-sS'Dudek'
+I771
+sS'Tap Bui'
 p776
-I773
-sS'Alvaro Alcazar'
+I772
+sS'Benjamin Franklin'
 p777
-I338
-sS'Christopher Kaul'
+I773
+sS'Nichols'
 p778
 I774
-sS'Lee Adler'
+sS'Lecour'
 p779
 I775
-sS'Joseph Craig Elementary'
+sS'Chuck Gasho'
 p780
 I776
-sS'Nolan Marshall Jr.'
+sS'Jerome Jordan'
 p781
 I777
-sS'Paul Pechon'
+sS'Bertsch'
 p782
 I778
-sS'Kleban'
+sS'Christopher Sepulvado'
 p783
 I779
-sS'Bill Davis'
+sS'Amy Knower'
 p784
 I780
-sS'Diaz'
+sS'John McDonoghs'
 p785
 I781
-sS'Allen Square'
+sS'Robert Jackson'
 p786
 I782
-sS'Sams'
+sS'JP Hymel'
 p787
 I783
-sS'John Gaudry'
+sS'Lappa'
 p788
 I784
-sS'Marco'
+sS'Warren Riley'
 p789
 I785
-sS'Tap Bui'
+sS'Cynthia Cade'
 p790
 I786
-sS'Benjamin Franklin'
+sS'Jefferson'
 p791
 I787
-sS'Nichols'
+sS'L.B. Landry-O'
 p792
 I788
-sS'Lecour'
+sS'Nannette Jolivette Brown'
 p793
 I789
-sS'Chuck Gasho'
+sS'Ted Alpaugh'
 p794
 I790
-sS'Jerome Jordan'
+sS'Mercedes Montagnes'
 p795
 I791
-sS'Bertsch'
+sS'Hicks'
 p796
-I792
-sS'Christopher Sepulvado'
+I595
+sS'Murray Pitts'
 p797
 I793
-sS'Amy Knower'
+sS'Terry Ebbert'
 p798
 I794
-sS'John McDonoghs'
+sS'Hester Cottles'
 p799
 I795
-sS'Robert Jackson'
+sS'LeCesne'
 p800
 I796
-sS'JP Hymel'
+sS'Mackles'
 p801
 I797
-sS'Lappa'
+sS'Greggory Harris'
 p802
 I798
-sS'Warren Riley'
+sS'Evans'
 p803
 I799
-sS'Cynthia Cade'
+sS'Charbonnet'
 p804
 I800
-sS'Jefferson'
+sS'Gilbane'
 p805
 I801
-sS'L.B. Landry-O'
+sS'Gary Robichaux'
 p806
 I802
-sS'Nannette Jolivette Brown'
+sS'Allison Bent'
 p807
 I803
-sS'Ted Alpaugh'
+sS'Jon Smith'
 p808
 I804
-sS'Mercedes Montagnes'
+sS'Jonathan Bertsch'
 p809
 I805
-sS'Hicks'
+sS'Altman'
 p810
-I605
-sS'Murray Pitts'
+I806
+sS'Dayphne Burnett'
 p811
 I807
-sS'Terry Ebbert'
+sS'Matthews'
 p812
 I808
-sS'Hester Cottles'
+sS'Louella Givens'
 p813
 I809
-sS'LeCesne'
+sS'Geymann'
 p814
 I810
-sS'Mackles'
+sS'Gladstone Jones'
 p815
 I811
-sS'Reid'
+sS'Clarkson'
 p816
 I812
-sS'Evans'
+sS'John Whites'
 p817
 I813
-sS'Charbonnet'
+sS'Emily Waterfield'
 p818
 I814
-sS'Gilbane'
+sS'Malin'
 p819
 I815
-sS'Gary Robichaux'
+sS'Mary Laurie'
 p820
 I816
-sS'Allison Bent'
+sS'Kathy Conklin'
 p821
 I817
-sS'Jon Smith'
+sS'Doug Harrell'
 p822
 I818
-sS'Jonathan Bertsch'
-p823
-I819
-sS'Altman'
-p824
-I820
-sS'Dayphne Burnett'
-p825
-I821
-sS'Matthews'
-p826
-I822
-sS'Louella Givens'
-p827
-I823
-sS'Geymann'
-p828
-I824
-sS'Gladstone Jones'
-p829
-I825
-sS'Clarkson'
-p830
-I826
-sS'John Whites'
-p831
-I827
-sS'Emily Waterfield'
-p832
-I828
-sS'Malin'
-p833
-I829
-sS'Mary Laurie'
-p834
-I830
-sS'Kathy Conklin'
-p835
-I831
-sS'Doug Harrell'
-p836
-I832
 sS'Ruth Ramsey'
+p823
+I820
+sS'Jonathan Wilson'
+p824
+I821
+sS'Carol Skriloff Starr'
+p825
+I822
+sS'John Tobler'
+p826
+I886
+sS'John Edwards'
+p827
+I824
+sS'Douglas'
+p828
+I825
+sS'Carmouche'
+p829
+I826
+sS'Stephen Perry'
+p830
+I827
+sS'Lyces'
+p831
+I828
+sS'Martins'
+p832
+I829
+sS'Ryan Berni'
+p833
+I830
+sS'Brenda Christiansen'
+p834
+I831
+sS'Elaine Reyes'
+p835
+I832
+sS'Cantrell'
+p836
+I833
+sS'Yvonne Locke'
 p837
 I834
-sS'Jonathan Wilson'
+sS'Julien'
 p838
 I835
-sS'Mark Mayer'
+sS'James Pineda'
 p839
 I836
-sS'Carol Skriloff Starr'
+sS'Ventura'
 p840
 I837
-sS'John Tobler'
+sS'Robinson'
 p841
-I902
-sS'John Edwards'
+I838
+sS'Norris'
 p842
 I839
-sS'Douglas'
+sS'James Baker'
 p843
 I840
-sS'Carmouche'
+sS'Marc Morial'
 p844
 I841
-sS'Stephen Perry'
+sS'Hill'
 p845
 I842
-sS'Lyces'
+sS'Dee Fuchs'
 p846
 I843
-sS'Martins'
+sS'Helena Moreno'
 p847
 I844
-sS'Ryan Berni'
+sS'Henderson'
 p848
 I845
-sS'Brenda Christiansen'
+sS'Schedler'
 p849
 I846
-sS'Elaine Reyes'
+sS'Tim Barfield'
 p850
 I847
-sS'Cantrell'
+sS'Dunn'
 p851
 I848
-sS'Yvonne Locke'
+sS'Jessie Hoffman'
 p852
-I849
-sS'Julien'
+I153
+sS'Reed'
 p853
-I850
-sS'James Pineda'
+I1054
+sS'Rouse'
 p854
 I851
-sS'Ventura'
+sS'Tessa Jackson'
 p855
 I852
-sS'Robinson'
+sS'Alario'
 p856
 I853
-sS'Norris'
+sS'Eva Alito'
 p857
 I854
-sS'James Baker'
+sS'Dupuy'
 p858
-I855
-sS'Marc Morial'
+I1101
+sS'David Vitter'
 p859
 I856
-sS'Hill'
+sS'Niloy Gangopadhyay'
 p860
 I857
-sS'Dee Fuchs'
+sS'Jared Frank'
 p861
 I858
-sS'Helena Moreno'
+sS'Cornelius Tilton'
 p862
 I859
-sS'Henderson'
+sS'Larkins'
 p863
 I860
-sS'Schedler'
+sS'Whitehead'
 p864
 I861
-sS'Tim Barfield'
+sS'Graves'
 p865
 I862
-sS'Dunn'
+sS'Fox'
 p866
 I863
-sS'Jessie Hoffman'
+sS'Jernigan'
 p867
-I158
-sS'Reed'
+I864
+sS'Damon Burns'
 p868
-I1072
-sS'Rouse'
+I865
+sS'Wright'
 p869
 I866
-sS'Tessa Jackson'
+sS'Glaser'
 p870
 I867
-sS'Alario'
+sS'Michelle Douglas'
 p871
 I868
-sS'Eva Alito'
+sS'Waterfield'
 p872
 I869
-sS'Dupuy'
+sS'Ramona Perkins'
 p873
-I1119
-sS'David Vitter'
+I870
+sS'Osborne'
 p874
 I871
-sS'Niloy Gangopadhyay'
+sS'Gamble'
 p875
-I872
-sS'Jared Frank'
+I1287
+sS'Richards'
 p876
 I873
-sS'Cornelius Tilton'
+sS'King'
 p877
 I874
-sS'Larkins'
+sS'Moret'
 p878
 I875
-sS'Whitehead'
+sS'Todd'
 p879
 I876
-sS'Graves'
+sS'Trujillo'
 p880
 I877
-sS'Fox'
+sS'Graham'
 p881
 I878
-sS'Jernigan'
+sS'Scott Sternberg'
 p882
 I879
-sS'Damon Burns'
+sS'Gusman'
 p883
 I880
-sS'Wright'
+sS'Pineda'
 p884
 I881
-sS'Glaser'
+sS'Lynden Swayze'
 p885
 I882
-sS'Michelle Douglas'
+sS'Sean Wilson'
 p886
 I883
-sS'Waterfield'
+sS'Deemer'
 p887
 I884
-sS'Ramona Perkins'
+sS'Hiser'
 p888
 I885
-sS'Osborne'
+sS'Allen Kelly'
 p889
-I886
-sS'Gamble'
+I823
+sS'Lyce Francais'
 p890
-I1305
-sS'Richards'
+I887
+sS'Raza'
 p891
 I888
-sS'King'
+sS'Grisela Jackson'
 p892
 I889
-sS'Moret'
+sS'David Gilmore'
 p893
 I890
-sS'Chin'
+sS'Sandra Bullock'
 p894
 I891
-sS'Todd'
+sS'Edwards'
 p895
 I892
-sS'Trujillo'
+sS'Delarge'
 p896
 I893
-sS'Graham'
+sS'Osterberg'
 p897
 I894
-sS'Scott Sternberg'
+sS'Lycee Francais'
 p898
 I895
-sS'Gusman'
+sS'Weishaupt'
 p899
 I896
-sS'Pineda'
+sS'Barbara MacPhee'
 p900
 I897
-sS'Lynden Swayze'
+sS'Pinero'
 p901
 I898
-sS'Sean Wilson'
+sS'David Muth'
 p902
 I899
-sS'Deemer'
+sS'Willie Zanders'
 p903
 I900
-sS'Hiser'
+sS'Charles Fenet'
 p904
 I901
-sS'Allen Kelly'
+sS'Dastugue'
 p905
-I838
-sS'Lyce Francais'
+I902
+sS'Ebbert'
 p906
 I903
-sS'Raza'
+sS'Wisner'
 p907
 I904
-sS'Grisela Jackson'
+sS'Todd Schexnayder'
 p908
 I905
-sS'David Gilmore'
+sS'Kathleen Carlin'
 p909
 I906
-sS'Sandra Bullock'
+sS'Catrina Reed'
 p910
 I907
-sS'Edwards'
+sS'Cox'
 p911
 I908
-sS'Delarge'
+sS'Connick'
 p912
 I909
-sS'Osterberg'
+sS'Frank Williams'
 p913
 I910
-sS'Lycee Francais'
+sS'Caroline Roemer Shirley'
 p914
 I911
-sS'Weishaupt'
+sS'Elizabeth Rhodes'
 p915
 I912
-sS'Barbara MacPhee'
+sS'Robert Delle'
 p916
 I913
-sS'Pinero'
+sS'Karr'
 p917
-I914
-sS'David Muth'
+I148
+sS'Miller-McCoys'
 p918
 I915
-sS'Willie Zanders'
+sS'Carter'
 p919
 I916
-sS'Charles Fenet'
+sS'Miller'
 p920
 I917
-sS'Dastugue'
+sS'Ali McCormick'
 p921
 I918
-sS'Ebbert'
+sS'Booker'
 p922
 I919
-sS'Wisner'
+sS'Randy Roig'
 p923
 I920
-sS'Todd Schexnayder'
+sS'Nelson'
 p924
-I921
-sS'Kathleen Carlin'
+I1296
+sS'Dwight McKenna'
 p925
 I922
-sS'Catrina Reed'
+sS'Bernard'
 p926
 I923
-sS'Cox'
+sS'Ben Castoriano'
 p927
 I924
-sS'Connick'
+sS'Charles Maldonado'
 p928
 I925
-sS'Frank Williams'
+sS'Adrian Morgan'
 p929
 I926
-sS'Caroline Roemer Shirley'
+sS'Hesson'
 p930
 I927
-sS'Elizabeth Rhodes'
+sS'Gregory St. Etienne'
 p931
 I928
-sS'Robert Delle'
+sS'Debra Robertson'
 p932
 I929
-sS'Karr'
+sS'Sheila Danzey'
 p933
-I153
-sS'Miller-McCoys'
+I930
+sS'Sal Genovese'
 p934
 I931
-sS'Carter'
+sS'Brian Weimer'
 p935
 I932
-sS'Miller'
+sS'Arthur Williams Jr.'
 p936
 I933
-sS'Ali McCormick'
+sS'Catherine MacPhaille'
 p937
 I934
-sS'Booker'
+sS'Delgado'
 p938
 I935
-sS'Randy Roig'
+sS'Timothy Jackson'
 p939
 I936
-sS'Nelson'
+sS'Ben McLeish'
 p940
-I1314
-sS'Dwight McKenna'
+I937
+sS'Henderson Lewis Jr.'
 p941
 I938
-sS'Bernard'
+sS'John Alario'
 p942
 I939
-sS'Ben Castoriano'
+sS'Anthony Amato'
 p943
 I940
-sS'Charles Maldonado'
+sS'Nadine Ramsey'
 p944
 I941
-sS'Adrian Morgan'
+sS'Jolynn King'
 p945
 I942
-sS'Hesson'
+sS'Cohen'
 p946
 I943
-sS'Gregory St. Etienne'
+sS'Griffin'
 p947
 I944
-sS'Debra Robertson'
+sS'Gert Town'
 p948
 I945
-sS'Sheila Danzey'
+sS'Guillory'
 p949
 I946
-sS'Sal Genovese'
+sS'Neary'
 p950
 I947
-sS'Brian Weimer'
+sS'David St. Etienne'
 p951
 I948
-sS'Arthur Williams Jr.'
+sS'Shelley Landrieu'
 p952
 I949
-sS'Catherine MacPhaille'
+sS'Dangerfield'
 p953
 I950
-sS'Delgado'
-p954
-I951
-sS'Timothy Jackson'
-p955
-I952
-sS'Ben McLeish'
-p956
-I953
-sS'Henderson Lewis Jr.'
-p957
-I954
-sS'John Alario'
-p958
-I955
-sS'Anthony Amato'
-p959
-I956
-sS'Nadine Ramsey'
-p960
-I957
-sS'Jolynn King'
-p961
-I958
-sS'Cohen'
-p962
-I959
-sS'Bradley'
-p963
-I960
-sS'Griffin'
-p964
-I961
-sS'Gert Town'
-p965
-I962
-sS'Guillory'
-p966
-I963
-sS'Neary'
-p967
-I964
-sS'David St. Etienne'
-p968
-I965
-sS'Shelley Landrieu'
-p969
-I966
-sS'Dangerfield'
-p970
-I967
 sS'Christian Rhodes'
-p971
-I969
+p954
+I952
 sS'Frantz'
-p972
-I970
+p955
+I953
 sS'Frank'
-p973
-I971
+p956
+I954
 sS'Bobby Hardrick'
-p974
-I972
+p957
+I955
 sS'Sneed'
-p975
-I973
+p958
+I956
 sS'Lysianne Essama'
-p976
-I974
+p959
+I957
 sS'Darleene Peters'
-p977
-I975
+p960
+I958
 sS'Brady'
+p961
+I960
+sS'Brimmer'
+p962
+I961
+sS'Bill'
+p963
+I962
+sS'Tennyson'
+p964
+I963
+sS'J.P. Hymel'
+p965
+I964
+sS'Davis'
+p966
+I965
+sS'Cassandra Youmans'
+p967
+I966
+sS'Payton'
+p968
+I967
+sS'Catherine Pierson'
+p969
+I968
+sS'Singleton'
+p970
+I969
+sS'Taylor'
+p971
+I959
+sS'Sepulvado'
+p972
+I971
+sS'Dolores T. Aaron Elementary'
+p973
+I972
+sS'Kyshun Webster'
+p974
+I973
+sS'Hawkins'
+p975
+I974
+sS'Shaw'
+p976
+I975
+sS'Young'
+p977
+I976
+sS'Dolliole'
 p978
 I977
-sS'Brimmer'
+sS'Karen Carter Peterson'
 p979
 I978
-sS'Bill'
+sS'Hilda Young'
 p980
 I979
-sS'Tennyson'
+sS'Derwyn Bunton'
 p981
 I980
-sS'David'
+sS'Chas Roemer'
 p982
 I981
-sS'J.P. Hymel'
+sS'Laura Hawkins'
 p983
 I982
-sS'Davis'
+sS'Alan Philipson'
 p984
 I983
-sS'Cassandra Youmans'
+sS'Franklins'
 p985
 I984
-sS'Payton'
+sS'Herb Patterson'
 p986
 I985
-sS'Catherine Pierson'
+sS'Anthony'
 p987
 I986
-sS'Singleton'
+sS'Harry Blumenthal'
 p988
 I987
-sS'Taylor'
+sS'Hines'
 p989
-I976
-sS'Sepulvado'
+I988
+sS'Adley'
 p990
-I989
-sS'Dolores T. Aaron Elementary'
+I409
+sS'Esperanza'
 p991
 I990
-sS'Kyshun Webster'
+sS'Nola'
 p992
 I991
-sS'Hawkins'
+sS'Franklin'
 p993
 I992
-sS'Shaw'
+sS'Stacey Gengel'
 p994
 I993
-sS'Young'
+sS'Kira Orange Jones'
 p995
 I994
-sS'Dolliole'
+sS'Quatrevaux'
 p996
 I995
-sS'Karen Carter Peterson'
+sS'Austin'
 p997
 I996
-sS'Hilda Young'
+sS'Shea'
 p998
 I997
-sS'Derwyn Bunton'
+sS'Africk'
 p999
 I998
-sS'Chas Roemer'
+sS'Bell'
 p1000
 I999
-sS'Laura Hawkins'
+sS'Bennett'
 p1001
 I1000
-sS'Alan Philipson'
+sS'Susan Hutson'
 p1002
-I1001
-sS'Franklins'
+I631
+sS'Rodney Lilley'
 p1003
 I1002
-sS'Herb Patterson'
+sS'Michael Cowan'
 p1004
 I1003
-sS'Anthony'
+sS'Lindo'
 p1005
 I1004
-sS'Harry Blumenthal'
+sS'Hillard Heintze'
 p1006
 I1005
-sS'Hines'
+sS'Sartisky'
 p1007
 I1006
-sS'Adley'
+sS'Matt Amoss'
 p1008
-I417
-sS'Esperanza'
+I1007
+sS'Rasheed'
 p1009
 I1008
-sS'Nola'
+sS'Saleun'
 p1010
 I1009
-sS'Franklin'
+sS'Curtis'
 p1011
 I1010
-sS'Stacey Gengel'
+sS'Harding'
 p1012
 I1011
-sS'Kira Orange Jones'
+sS'Alpaugh'
 p1013
 I1012
-sS'Quatrevaux'
+sS'Gail Lazard'
 p1014
 I1013
-sS'Austin'
+sS'Chervenak'
 p1015
 I1014
-sS'Shea'
+sS'Kyle Graham'
 p1016
 I1015
-sS'Africk'
+sS'Riser'
 p1017
 I1016
-sS'Bell'
+sS'Logan Crowe'
 p1018
 I1017
-sS'Bennett'
+sS'Courtney Garrett'
 p1019
 I1018
-sS'Susan Hutson'
+sS'Riedlinger'
 p1020
-I642
-sS'Rodney Lilley'
+I1019
+sS'Roemer Shirley'
 p1021
 I1020
-sS'Michael Cowan'
+sS'Lusher'
 p1022
 I1021
-sS'Lindo'
+sS'Janice Dupuy'
 p1023
 I1022
-sS'Hillard Heintze'
+sS'Wanda Guillaume'
 p1024
 I1023
-sS'Sartisky'
+sS'Blaine LeCesne'
 p1025
 I1024
-sS'Matt Amoss'
+sS'Lourdes Moran'
 p1026
 I1025
-sS'Rasheed'
+sS'Andrew Wilson'
 p1027
-I1026
-sS'Saleun'
+I415
+sS'Sarah Usdin'
 p1028
 I1027
-sS'Curtis'
+sS'Reynolds'
 p1029
 I1028
-sS'Harding'
+sS'Scott'
 p1030
 I1029
-sS'Cora Charles'
+sS'Turner'
 p1031
 I1030
-sS'Gail Lazard'
+sS'Eartha Johnson'
 p1032
 I1031
-sS'Chervenak'
+sS'Gressett'
 p1033
 I1032
-sS'Kyle Graham'
+sS'George Freeman'
 p1034
 I1033
-sS'Riser'
+sS'Tim Ryan'
 p1035
 I1034
-sS'Logan Crowe'
+sS'Darby'
 p1036
-I1035
-sS'Courtney Garrett'
+I699
+sS'Al Miester'
 p1037
 I1036
-sS'Riedlinger'
+sS'Tyler Gamble'
 p1038
 I1037
-sS'Roemer Shirley'
+sS'Michael Booker'
 p1039
 I1038
-sS'Lusher'
+sS'Swanson'
 p1040
 I1039
-sS'Janice Dupuy'
+sS'James Gray'
 p1041
 I1040
-sS'Wanda Guillaume'
+sS'Lyce'
 p1042
 I1041
-sS'Blaine LeCesne'
+sS'Rhodes'
 p1043
 I1042
-sS'Lourdes Moran'
+sS'Jeff Hebert'
 p1044
 I1043
-sS'Andrew Wilson'
+sS'Danzey'
 p1045
-I423
-sS'Sarah Usdin'
+I1044
+sS'Sims'
 p1046
 I1045
-sS'Reynolds'
+sS'Vera Triplett'
 p1047
 I1046
-sS'Scott'
+sS'Roemer'
 p1048
 I1047
-sS'Turner'
+sS'Howard'
 p1049
 I1048
-sS'Eartha Johnson'
+sS'Picard'
 p1050
 I1049
-sS'Gressett'
+sS'Garret Graves'
 p1051
 I1050
-sS'George Freeman'
+sS'Mary Zervigon'
 p1052
 I1051
-sS'Tim Ryan'
+sS'John Sens'
 p1053
 I1052
-sS'Darby'
+sS'Hammond'
 p1054
-I713
-sS'Al Miester'
+I1053
+sS'Tim Doody'
 p1055
-I1054
-sS'Tyler Gamble'
+I850
+sS'Randall'
 p1056
 I1055
-sS'Michael Booker'
+sS'Tanya Bryant'
 p1057
 I1056
-sS'Swanson'
+sS'Greer'
 p1058
 I1057
-sS'James Gray'
+sS'Susan Krinsky'
 p1059
 I1058
-sS'Lyce'
+sS'Finegan'
 p1060
 I1059
-sS'Rhodes'
+sS'Green'
 p1061
 I1060
-sS'Jeff Hebert'
+sS'LeBlanc'
 p1062
 I1061
-sS'Danzey'
+sS'Boyer'
 p1063
 I1062
-sS'Sims'
+sS'Moton'
 p1064
-I1063
-sS'Vera Triplett'
-p1065
 I1064
-sS'Roemer'
-p1066
+sS'Kendal Turner'
+p1065
 I1065
-sS'Howard'
-p1067
+sS'Stan Smith'
+p1066
 I1066
-sS'Picard'
+sS'Wheatley'
+p1067
+I849
+sS'Lauren Hightower'
 p1068
 I1067
-sS'Garret Graves'
+sS'Nancy Marshall'
 p1069
-I1068
-sS'Mary Zervigon'
+I642
+sS'Brian Egana'
 p1070
 I1069
-sS'John Sens'
+sS'Dominique Wilson'
 p1071
 I1070
-sS'Hammond'
+sS'Jim Nelson'
 p1072
-I1071
-sS'Tim Doody'
+I423
+sS'Daniels'
 p1073
-I865
-sS'Randall'
+I1072
+sS'Mitch Landrieu'
 p1074
 I1073
-sS'Tanya Bryant'
+sS'Avery Corenswet'
 p1075
 I1074
-sS'Greer'
+sS'Robert Burvant'
 p1076
 I1075
-sS'Susan Krinsky'
+sS'Akili'
 p1077
 I1076
-sS'Finegan'
+sS'Karen Gadbois'
 p1078
 I1077
-sS'Green'
+sS'Lafitte'
 p1079
 I1078
-sS'LeBlanc'
+sS'Barbier'
 p1080
 I1079
-sS'Boyer'
+sS'Lemle'
 p1081
 I1080
-sS'Moton'
+sS'Nash'
 p1082
-I1082
-sS'Kendal Turner'
+I1081
+sS'Agnieszka McPeak'
 p1083
-I1083
-sS'Stan Smith'
+I1082
+sS'Carolyn Hill'
 p1084
-I1084
-sS'Wheatley'
+I1083
+sS'Frosch'
 p1085
-I864
-sS'Lauren Hightower'
+I1084
+sS'Jay Altman'
 p1086
 I1085
-sS'Nancy Marshall'
-p1087
-I653
-sS'Brian Egana'
-p1088
-I1087
-sS'Dominique Wilson'
-p1089
-I1088
-sS'Jim Nelson'
-p1090
-I432
-sS'Daniels'
-p1091
-I1090
-sS'Mitch Landrieu'
-p1092
-I1091
-sS'Avery Corenswet'
-p1093
-I1092
-sS'Robert Burvant'
-p1094
-I1093
-sS'Akili'
-p1095
-I1094
-sS'Karen Gadbois'
-p1096
-I1095
-sS'Lafitte'
-p1097
-I1096
-sS'Barbier'
-p1098
-I1097
-sS'Lemle'
-p1099
-I1098
-sS'Nash'
-p1100
-I1099
-sS'Agnieszka McPeak'
-p1101
-I1100
-sS'Carolyn Hill'
-p1102
-I1101
-sS'Frosch'
-p1103
-I1102
-sS'Jay Altman'
-p1104
-I1103
 sS'Reidlinger'
-p1105
-I1104
+p1087
+I1086
 sS'Dana Kaplan'
-p1106
-I1106
+p1088
+I1088
 sS'Tiffany Hardrick'
+p1089
+I1089
+sS'Sophie B. Wright'
+p1090
+I1090
+sS'Blumenthal'
+p1091
+I1091
+sS'Clayton'
+p1092
+I1092
+sS'Bankston'
+p1093
+I1093
+sS'Ashton Ryan Jr.'
+p1094
+I1094
+sS'Thomas Robichaux'
+p1095
+I1095
+sS'Ryan'
+p1096
+I1096
+sS'Bernell St. Cyr'
+p1097
+I1097
+sS'Garcia'
+p1098
+I1098
+sS'Elizabeth Sigler'
+p1099
+I1099
+sS'Barthelemy'
+p1100
+I1100
+sS'Greg Thompson'
+p1101
+I855
+sS'Margaret Nguyen'
+p1102
+I1102
+sS'Abe Handler'
+p1103
+I1103
+sS'Kathleen Blanco'
+p1104
+I1104
+sS'Dave Whiddon'
+p1105
+I1105
+sS'Shaun Rafferty'
+p1106
+I1179
+sS'Adriaan'
 p1107
 I1107
-sS'Sophie B. Wright'
+sS'Wilson'
 p1108
 I1108
-sS'Blumenthal'
+sS'Jacqueline Simon'
 p1109
 I1109
-sS'Clayton'
+sS'Smith'
 p1110
 I1110
-sS'Bankston'
+sS'Phillips'
 p1111
 I1111
-sS'Ashton Ryan Jr.'
+sS'Favre'
 p1112
 I1112
-sS'Thomas Robichaux'
+sS'Julianne Ruocco'
 p1113
 I1113
-sS'Ryan'
+sS'Brooks'
 p1114
 I1114
-sS'Bernell St. Cyr'
+sS'Allison Bent Bowler'
 p1115
 I1115
-sS'Garcia'
+sS'Hilburn'
 p1116
 I1116
-sS'Elizabeth Sigler'
+sS'Tim Bryant'
 p1117
 I1117
-sS'Barthelemy'
+sS'Gatehouse'
 p1118
 I1118
-sS'Greg Thompson'
+sS'Colton'
 p1119
-I870
-sS'Margaret Nguyen'
+I1119
+sS'Janet Howard'
 p1120
 I1120
-sS'Abe Handler'
+sS'Cao'
 p1121
 I1121
-sS'Kathleen Blanco'
+sS'Jeff Teague'
 p1122
 I1122
-sS'Dave Whiddon'
+sS'Kevin Kane'
 p1123
 I1123
-sS'Shaun Rafferty'
+sS'Terri Smith'
 p1124
-I1197
-sS'Adriaan'
+I1124
+sS'Kern Reese'
 p1125
 I1125
-sS'Wilson'
+sS'Kristyna Jones'
 p1126
 I1126
-sS'Jacqueline Simon'
+sS'Ora Wiley'
 p1127
 I1127
-sS'Smith'
+sS'Landis'
 p1128
 I1128
-sS'Phillips'
+sS'Ben Kleban'
 p1129
 I1129
-sS'Favre'
+sS'Philipson'
 p1130
 I1130
-sS'Julianne Ruocco'
+sS'Mills'
 p1131
 I1131
-sS'Brooks'
+sS'Miller-McCoy'
 p1132
 I1132
-sS'Allison Bent Bowler'
+sS'Donahue'
 p1133
 I1133
-sS'Hilburn'
+sS'Juaquana Stewart'
 p1134
 I1134
-sS'Tim Bryant'
+sS'Julian Parker'
 p1135
 I1135
-sS'Gatehouse'
+sS'John Bel Edwards'
 p1136
 I1136
-sS'Colton'
+sS'Edwin Edwards'
 p1137
 I1137
-sS'Janet Howard'
+sS'Salmon Shomade'
 p1138
 I1138
-sS'Cao'
+sS'Lagniappe'
 p1139
 I1139
-sS'Jeff Teague'
+sS'Vera'
 p1140
 I1140
-sS'Kevin Kane'
+sS'Arnie Fielkow'
 p1141
 I1141
-sS'Terri Smith'
+sS'Waganfeald'
 p1142
 I1142
-sS'Kern Reese'
+sS'Susan Norwood'
 p1143
 I1143
-sS'Kristyna Jones'
+sS'Victoria Johnson'
 p1144
 I1144
-sS'Ora Wiley'
+sS'Colin Brooks'
 p1145
 I1145
-sS'Landis'
+sS'James Austin'
 p1146
 I1146
-sS'Ben Kleban'
+sS'Keith Hardie'
 p1147
 I1147
-sS'Philipson'
+sS'David Winkler-Schmit'
 p1148
 I1148
-sS'Mills'
+sS'Morrell'
 p1149
 I1149
-sS'Miller-McCoy'
+sS'Marjorie Esman'
 p1150
 I1150
-sS'Donahue'
+sS'Janet Gaudet'
 p1151
 I1151
-sS'Juaquana Stewart'
+sS'Roland Doucette'
 p1152
 I1152
-sS'Julian Parker'
+sS'Jack Carey'
 p1153
 I1153
-sS'John Bel Edwards'
+sS'Jentoft'
 p1154
 I1154
-sS'Edwin Edwards'
+sS'Duris Holmes'
 p1155
 I1155
-sS'Salmon Shomade'
+sS'Dejean'
 p1156
 I1156
-sS'Lagniappe'
+sS'Angela Kinlaw'
 p1157
 I1157
-sS'Vera'
+sS'Dana Henry'
 p1158
 I1158
-sS'Arnie Fielkow'
+sS'Fielkow'
 p1159
 I1159
-sS'Waganfeald'
+sS'Delisalynn'
 p1160
-I1160
-sS'Susan Norwood'
+I99
+sS'Brent Washington'
 p1161
 I1161
-sS'Victoria Johnson'
+sS'Kevin Guitterrez'
 p1162
 I1162
-sS'Colin Brooks'
+sS'Doris Hicks'
 p1163
 I1163
-sS'James Austin'
+sS'Hawf'
 p1164
 I1164
-sS'Keith Hardie'
+sS'James LeBlanc'
 p1165
 I1165
-sS'David Winkler-Schmit'
+sS'Walsworth'
 p1166
 I1166
-sS'Morrell'
+sS'Porcari'
 p1167
-I1167
-sS'Marjorie Esman'
+I819
+sS'Burnett'
 p1168
 I1168
-sS'Janet Gaudet'
+sS'Harney'
 p1169
 I1169
-sS'Roland Doucette'
+sS'Robert Adley'
 p1170
 I1170
-sS'Jack Carey'
+sS'Ellison'
 p1171
 I1171
-sS'Jentoft'
+sS'Wolff'
 p1172
-I1172
-sS'Duris Holmes'
+I217
+sS'Della Hasselle'
 p1173
 I1173
-sS'Dejean'
+sS'Kunkel'
 p1174
 I1174
-sS'Angela Kinlaw'
+sS'Richard'
 p1175
 I1175
-sS'Dana Henry'
+sS'Felton'
 p1176
 I1176
-sS'Fielkow'
-p1177
-I1177
-sS'Delisalynn'
-p1178
-I100
-sS'Brent Washington'
-p1179
-I1179
-sS'Kevin Guitterrez'
-p1180
-I1180
-sS'Doris Hicks'
-p1181
-I1181
-sS'Hawf'
-p1182
-I1182
-sS'James LeBlanc'
-p1183
-I1183
-sS'Walsworth'
-p1184
-I1184
-sS'Porcari'
-p1185
-I833
-sS'Burnett'
-p1186
-I1186
-sS'Harney'
-p1187
-I1187
-sS'Robert Adley'
-p1188
-I1188
-sS'Ellison'
-p1189
-I1189
-sS'Wolff'
-p1190
-I222
-sS'Della Hasselle'
-p1191
-I1191
-sS'Kunkel'
-p1192
-I1192
-sS'Richard'
-p1193
-I1193
-sS'Felton'
-p1194
-I1194
 sS'Paul Rainwater'
-p1195
-I1336
+p1177
+I1318
 sS'Simms'
-p1196
-I1196
+p1178
+I1178
 sS'Shelia Hebert'
-p1197
-I689
+p1179
+I677
 sS'Charles Foti'
-p1198
-I1124
+p1180
+I1106
 sS'Kristen Lozada'
-p1199
-I224
+p1181
+I219
 sS'Boyett'
-p1200
-I281
+p1182
+I276
 sS'Kim Henry'
+p1183
+I1182
+sS'Carla Major'
+p1184
+I1183
+sS'Tran'
+p1185
+I1184
+sS'Wayne James'
+p1186
+I318
+sS'Patricia Adams'
+p1187
+I1186
+sS'Gisleson Palmer'
+p1188
+I1187
+sS'Barbara Griffin'
+p1189
+I1188
+sS'Kindall Petri'
+p1190
+I1189
+sS'Hedge-Morrell'
+p1191
+I1190
+sS'Julie MacFetters'
+p1192
+I1191
+sS'Ostroske'
+p1193
+I1192
+sS'Michael Todd'
+p1194
+I1193
+sS'Keeanya Dupre'
+p1195
+I1194
+sS'McNamara'
+p1196
+I1195
+sS'Nicole Boudreaux'
+p1197
+I1196
+sS'Conrad Appel'
+p1198
+I1197
+sS'Bishop'
+p1199
+I1198
+sS'Jack Bergman'
+p1200
+I1199
+sS'L.B. Landry'
 p1201
 I1200
-sS'Carla Major'
+sS'Ben Franklins'
 p1202
 I1201
-sS'Tran'
+sS'Jolene Jeff'
 p1203
 I1202
-sS'Wayne James'
+sS'Stephen Tremaine'
 p1204
-I325
-sS'Patricia Adams'
+I1203
+sS'Edna Karr'
 p1205
 I1204
-sS'Gisleson Palmer'
+sS'Raashand Hamilton'
 p1206
 I1205
-sS'Barbara Griffin'
+sS'Barbara Richard'
 p1207
 I1206
-sS'Kindall Petri'
+sS'Greg Albrecht'
 p1208
 I1207
-sS'Hedge-Morrell'
+sS'Chris Broadwater'
 p1209
 I1208
-sS'Julie MacFetters'
+sS'Pennington'
 p1210
 I1209
-sS'Ostroske'
+sS'Kendall Petri'
 p1211
 I1210
-sS'Michael Todd'
+sS'Sheila Nelson'
 p1212
 I1211
-sS'Keeanya Dupre'
+sS'James Henderson'
 p1213
 I1212
-sS'McNamara'
+sS'J.P. Morrell'
 p1214
 I1213
-sS'Nicole Boudreaux'
+sS'Joel Vilmenay'
 p1215
 I1214
-sS'Conrad Appel'
+sS'Ruth Kullman'
 p1216
 I1215
-sS'Bishop'
+sS'Don Wheat'
 p1217
 I1216
-sS'Jack Bergman'
+sS'Stelly'
 p1218
 I1217
-sS'L.B. Landry'
+sS'Rosner'
 p1219
 I1218
-sS'Ben Franklins'
+sS'Benjamin Orillon'
 p1220
 I1219
-sS'Jolene Jeff'
+sS'Sullivan'
 p1221
 I1220
-sS'Stephen Tremaine'
+sS'Biagas'
 p1222
 I1221
-sS'Edna Karr'
+sS'NORA'
 p1223
 I1222
-sS'Raashand Hamilton'
+sS'Jennifer Weishaupt'
 p1224
 I1223
-sS'Barbara Richard'
+sS'Gilmore'
 p1225
 I1224
-sS'Greg Albrecht'
+sS'C.B. Forgotston'
 p1226
 I1225
-sS'Chris Broadwater'
+sS'Petri'
 p1227
 I1226
-sS'Pennington'
+sS'Sens'
 p1228
 I1227
-sS'Kendall Petri'
+sS'Woody Koppel'
 p1229
 I1228
-sS'Sheila Nelson'
+sS'Crenshaw'
 p1230
 I1229
-sS'James Henderson'
+sS'Campo'
 p1231
 I1230
-sS'J.P. Morrell'
+sS'Moreno'
 p1232
 I1231
-sS'Joel Vilmenay'
+sS'Harte'
 p1233
-I1232
-sS'Ruth Kullman'
+I564
+sS'Donnica Conway'
 p1234
 I1233
-sS'Don Wheat'
+sS'Billy Hatchett'
 p1235
 I1234
-sS'Stelly'
+sS'Woods'
 p1236
 I1235
-sS'Rosner'
+sS'Laborde'
 p1237
 I1236
-sS'Benjamin Orillon'
+sS'Rosenthal'
 p1238
 I1237
-sS'Sullivan'
+sS'Brice'
 p1239
 I1238
-sS'Biagas'
+sS'Kathleen Padian'
 p1240
 I1239
-sS'NORA'
+sS'Marullo'
 p1241
 I1240
-sS'Jennifer Weishaupt'
+sS'Warren Eastons'
 p1242
 I1241
-sS'Gilmore'
+sS'Gary Ostroske'
 p1243
 I1242
-sS'C.B. Forgotston'
+sS'Eric Griggs'
 p1244
 I1243
-sS'Petri'
+sS'Sternberg'
 p1245
 I1244
-sS'Sens'
+sS'Craigs'
 p1246
 I1245
-sS'Woody Koppel'
+sS'Cannizzaro'
 p1247
 I1246
-sS'Crenshaw'
+sS'Jim Singleton'
 p1248
 I1247
-sS'Campo'
+sS'Mobley'
 p1249
 I1248
-sS'Moreno'
+sS'Richardson'
 p1250
 I1249
-sS'Harte'
+sS'Peter Harding'
 p1251
-I574
-sS'Donnica Conway'
+I1250
+sS'Wildes'
 p1252
 I1251
-sS'Billy Hatchett'
+sS'Al Shaw'
 p1253
 I1252
-sS'Woods'
+sS'Christopher Sepulvados'
 p1254
 I1253
-sS'Laborde'
+sS'Kristy Nichols'
 p1255
 I1254
-sS'Rosenthal'
+sS'Yon'
 p1256
 I1255
-sS'Brice'
+sS'Jacobs'
 p1257
 I1256
-sS'Kathleen Padian'
+sS'Varley'
 p1258
 I1257
-sS'Marullo'
-p1259
-I1258
-sS'Warren Eastons'
-p1260
-I1259
-sS'Gary Ostroske'
-p1261
-I1260
-sS'Eric Griggs'
-p1262
-I1261
-sS'Sternberg'
-p1263
-I1262
-sS'Craigs'
-p1264
-I1263
-sS'Cannizzaro'
-p1265
-I1264
-sS'Jim Singleton'
-p1266
-I1265
-sS'Mobley'
-p1267
-I1266
-sS'Richardson'
-p1268
-I1267
-sS'Peter Harding'
-p1269
-I1268
-sS'Wildes'
-p1270
-I1269
-sS'Al Shaw'
-p1271
-I1270
-sS'Christopher Sepulvados'
-p1272
-I1271
-sS'Kristy Nichols'
-p1273
-I1272
-sS'Yon'
-p1274
-I1273
-sS'Jacobs'
-p1275
-I1274
-sS'Varley'
-p1276
-I1275
 sS'Square'
-p1277
-I988
+p1259
+I970
 sS'Marchand'
+p1260
+I1258
+sS'Rick Conway'
+p1261
+I290
+sS'Jecklin'
+p1262
+I1260
+sS'Ben Marcovitz'
+p1263
+I1261
+sS'Goyeneche'
+p1264
+I1262
+sS'Leslie Ellison'
+p1265
+I1263
+sS'Jacqueline Smith'
+p1266
+I1264
+sS'Keith Twitchell'
+p1267
+I1265
+sS'Laurie White'
+p1268
+I1266
+sS'Lapeyre'
+p1269
+I1267
+sS'Leslie Jacobs'
+p1270
+I1268
+sS'Reid'
+p1271
+I1269
+sS'Tania Moore'
+p1272
+I1270
+sS'Mitchell'
+p1273
+I1271
+sS'Marlin Gusmans'
+p1274
+I1272
+sS'Mackay'
+p1275
+I1273
+sS'Perkins'
+p1276
+I1274
+sS'Moran'
+p1277
+I1275
+sS'Simonne Robinson'
 p1278
 I1276
-sS'Rick Conway'
+sS'C.J. Bower'
 p1279
-I295
-sS'Jecklin'
+I1277
+sS'Hal Brown'
 p1280
 I1278
-sS'Ben Marcovitz'
+sS'Paul Barron'
 p1281
 I1279
-sS'Goyeneche'
+sS'Cecilia Garcia'
 p1282
 I1280
-sS'Leslie Ellison'
+sS'Wanda Anderson-Guillaume'
 p1283
 I1281
-sS'Jacqueline Smith'
+sS'Jon Johnsons'
 p1284
 I1282
-sS'Keith Twitchell'
+sS'Zervigon'
 p1285
 I1283
-sS'Laurie White'
+sS'Jim Letten'
 p1286
 I1284
-sS'Lapeyre'
+sS'Lozier'
 p1287
 I1285
-sS'Leslie Jacobs'
+sS'Avione Pichon'
 p1288
 I1286
-sS'Greggory Harris'
+sS'Jeff Angers'
 p1289
-I1287
-sS'Tania Moore'
+I872
+sS'Tracie Washington'
 p1290
 I1288
-sS'Mitchell'
+sS'Liza Sherman'
 p1291
-I1289
-sS'Marlin Gusmans'
+I673
+sS'Marcellus Grace'
 p1292
 I1290
-sS'Mackay'
+sS'Jay Lapeyre'
 p1293
 I1291
-sS'Perkins'
+sS'OConnell'
 p1294
 I1292
-sS'Moran'
+sS'Jasmine Haralson'
 p1295
 I1293
-sS'Simonne Robinson'
+sS'Joseph Gilyot'
 p1296
 I1294
-sS'C.J. Bower'
+sS'Barack Obama'
 p1297
 I1295
-sS'Hal Brown'
+sS'Clements'
 p1298
-I1296
-sS'Paul Barron'
+I921
+sS'Chenevert'
 p1299
 I1297
-sS'Cecilia Garcia'
+sS'Penny Dastugue'
 p1300
 I1298
-sS'Wanda Anderson-Guillaume'
+sS'Rebekah Cain'
 p1301
 I1299
-sS'Jon Johnsons'
+sS'Ann Meese'
 p1302
 I1300
-sS'Zervigon'
+sS'Rachal'
 p1303
 I1301
-sS'Jim Letten'
+sS'Paul Pastorek'
 p1304
 I1302
-sS'Lozier'
+sS'Iverson'
 p1305
 I1303
-sS'Avione Pichon'
+sS'Catherine Boozer'
 p1306
 I1304
-sS'Jeff Angers'
+sS'Emily Wolff'
 p1307
-I887
-sS'Tracie Washington'
+I1305
+sS'Cade'
 p1308
 I1306
-sS'Liza Sherman'
+sS'Susan Weeks'
 p1309
-I685
-sS'Marcellus Grace'
+I1307
+sS'Ben Blanchard'
 p1310
 I1308
-sS'Jay Lapeyre'
+sS'Pierre Capdau'
 p1311
 I1309
-sS'OConnell'
+sS'Mehok'
 p1312
 I1310
-sS'Jasmine Haralson'
+sS'George Rabb'
 p1313
 I1311
-sS'Joseph Gilyot'
+sS'John McDonogh'
 p1314
 I1312
-sS'Barack Obama'
+sS'Raby'
 p1315
 I1313
-sS'Clements'
+sS'Rabb'
 p1316
-I937
-sS'Chenevert'
+I1314
+sS'Conley'
 p1317
 I1315
-sS'Penny Dastugue'
+sS'Shahan'
 p1318
 I1316
-sS'Rebekah Cain'
+sS'Crocker'
 p1319
-I1317
-sS'Ann Meese'
+I59
+sS'McCormick'
 p1320
-I1318
-sS'Rachal'
+I1317
+sS'Barron'
 p1321
 I1319
-sS'Paul Pastorek'
+sS'Baker'
 p1322
 I1320
-sS'Iverson'
+sS'Paul Vallas'
 p1323
 I1321
-sS'Catherine Boozer'
+sS'Bryant'
 p1324
 I1322
-sS'Emily Wolff'
+sS'Paulette Bruno'
 p1325
 I1323
-sS'Cade'
+sS'Leslie Bouie'
 p1326
 I1324
-sS'Susan Weeks'
+sS'Boozer'
 p1327
 I1325
-sS'Ben Blanchard'
+sS'Chester'
 p1328
 I1326
-sS'Pierre Capdau'
+sS'Mark Morgan'
 p1329
 I1327
-sS'Mehok'
+sS'Marina Schoen'
 p1330
 I1328
-sS'George Rabb'
+sS'Michelle Craig'
 p1331
 I1329
-sS'John McDonogh'
+sS'Timolynn Sams'
 p1332
 I1330
-sS'Raby'
+sS'Jason Coleman'
 p1333
 I1331
-sS'Rabb'
+sS'Stephen Osborn'
 p1334
 I1332
-sS'Conley'
+sS'Cedric Grant'
 p1335
-I1333
-sS'Shahan'
+I1366
+sS'Paul Sens'
 p1336
 I1334
-sS'Crocker'
+sS'Joe Long'
 p1337
-I60
-sS'McCormick'
-p1338
 I1335
-sS'Barron'
+sS'Morris Jeffs'
+p1338
+I1336
+sS'Thomas-Reynolds'
 p1339
 I1337
-sS'Baker'
+sS'O. Perry Walker'
 p1340
 I1338
-sS'Paul Vallas'
+sS'Nolan Marshall'
 p1341
 I1339
-sS'Bryant'
+sS'Ramsey'
 p1342
 I1340
-sS'Paulette Bruno'
+sS'Andrew H. Wilson'
 p1343
 I1341
-sS'Leslie Bouie'
+sS'Medard H. Nelson'
 p1344
 I1342
-sS'Boozer'
+sS'Blake Oakes'
 p1345
 I1343
-sS'Chester'
-p1346
-I1344
-sS'Mark Morgan'
-p1347
-I1345
-sS'Marina Schoen'
-p1348
-I1346
-sS'Michelle Craig'
-p1349
-I1347
-sS'Timolynn Sams'
-p1350
-I1348
-sS'Jason Coleman'
-p1351
-I1349
-sS'Stephen Osborn'
-p1352
-I1350
-sS'Cedric Grant'
-p1353
-I1384
-sS'Paul Sens'
-p1354
-I1352
-sS'Joe Long'
-p1355
-I1353
-sS'Morris Jeffs'
-p1356
-I1354
-sS'Thomas-Reynolds'
-p1357
-I1355
-sS'O. Perry Walker'
-p1358
-I1356
-sS'Nolan Marshall'
-p1359
-I1357
-sS'Ramsey'
-p1360
-I1358
-sS'Andrew H. Wilson'
-p1361
-I1359
-sS'Medard H. Nelson'
-p1362
-I1360
-sS'Blake Oakes'
-p1363
-I1361
 sS'Ronald McDonald'
+p1346
+I1345
+sS'Paige Saleun'
+p1347
+I1346
+sS'Gangopadhyay'
+p1348
+I1347
+sS'Lushers'
+p1349
+I1348
+sS'Ive'
+p1350
+I1349
+sS'Sean Berner'
+p1351
+I1350
+sS'Jim Richardson'
+p1352
+I1351
+sS'Einstein'
+p1353
+I1352
+sS'John Jones'
+p1354
+I1353
+sS'Hymel'
+p1355
+I1354
+sS'Diana Bajoie'
+p1356
+I1355
+sS'Charles Varley'
+p1357
+I1356
+sS'Berrigan'
+p1358
+I1357
+sS'Jenny Hunter'
+p1359
+I1358
+sS'Jr.'
+p1360
+I1359
+sS'McKneely'
+p1361
+I1360
+sS'John Mac'
+p1362
+I1361
+sS'Shanda Gentry'
+p1363
+I1362
+sS'Guidry'
 p1364
 I1363
-sS'Paige Saleun'
+sS'Faircloth'
 p1365
 I1364
-sS'Gangopadhyay'
+sS'Morgan'
 p1366
 I1365
-sS'Lushers'
+sS'Ben Franklin'
 p1367
-I1366
-sS'Ive'
+I1333
+sS'Stewart'
 p1368
 I1367
-sS'Sean Berner'
+sS'Rafael Goyeneche'
 p1369
 I1368
-sS'Jim Richardson'
+sS'Neilson'
 p1370
 I1369
-sS'Einstein'
-p1371
-I1370
-sS'John Jones'
-p1372
-I1371
-sS'Hymel'
-p1373
-I1372
-sS'Diana Bajoie'
-p1374
-I1373
-sS'Charles Varley'
-p1375
-I1374
-sS'Berrigan'
-p1376
-I1375
-sS'Jenny Hunter'
-p1377
-I1376
-sS'Jr.'
-p1378
-I1377
-sS'McKneely'
-p1379
-I1378
-sS'John Mac'
-p1380
-I1379
-sS'Shanda Gentry'
-p1381
-I1380
-sS'Guidry'
-p1382
-I1381
-sS'Faircloth'
-p1383
-I1382
-sS'Morgan'
-p1384
-I1383
-sS'Ben Franklin'
-p1385
-I1351
-sS'Stewart'
-p1386
-I1385
-sS'Rafael Goyeneche'
-p1387
-I1386
-sS'Neilson'
-p1388
-I1387
 sS'Tom Gogola'
-p1389
-I597
+p1371
+I587
 sS'Helen Berrigan'
-p1390
-I1388
+p1372
+I1370
 s.

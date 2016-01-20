@@ -7,7 +7,12 @@ var React = require('react');
 var FacetPreviewList = require('./FacetPreviewList.jsx');
 
 module.exports = React.createClass({
-
+    handleHoverIn: function(item) {
+      this.props.handleHoverIn(item);
+    },
+    handleHoverOut: function(item) {
+      this.props.handleHoverOut(item);
+    },
     render: function(){
         let row = {
           width:"100%",
@@ -15,11 +20,13 @@ module.exports = React.createClass({
           height:this.props.rw_height
         };
         let binsize = this.props.bin_size;
+        let hoverIn = this.props.handleHoverIn;
+        let hoverOut = this.props.handleHoverOut;
         return(
            <div>
                 {this.props.bins.map((x, i) =>
                     <div key={i} style={row}>
-                        <FacetPreviewList active={this.props.f} items={x.facets} onClick={this.props.handleF}/>
+                        <FacetPreviewList handleHoverIn={hoverIn} handleHoverOut={hoverOut} hovered={this.props.hovered} active={this.props.f} items={x.facets} onClick={this.props.handleF}/>
                     </div>
                 )}
            </div>

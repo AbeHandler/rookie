@@ -13,7 +13,7 @@ p5
 I3
 sS'U.S. Fifth Circuit Court of Appeals'
 p6
-I425
+I417
 sS'Flood Protection Authority'
 p7
 I4
@@ -58,7 +58,7 @@ p20
 I16
 sS'First Presbyterian Church'
 p21
-I436
+I428
 sS'Customs Enforcement'
 p22
 I17
@@ -82,16 +82,16 @@ p28
 I23
 sS'Coast Guard'
 p29
-I154
-sS'Obamas'
+I153
+sS'Governance Committee'
 p30
-I25
+I290
 sS'Collegiate Academies'
 p31
 I26
 sS'Education Department'
 p32
-I505
+I495
 sS'Legislative Black Caucus'
 p33
 I28
@@ -110,1705 +110,1669 @@ I73
 sS'Supreme Courts'
 p38
 I33
-sS'NPR'
+sS'CMO'
 p39
 I34
-sS'CMO'
+sS'Legislative Fiscal Office'
 p40
 I35
-sS'Legislative Fiscal Office'
+sS'The Lens'
 p41
 I36
-sS'The Lens'
+sS'Lycee'
 p42
 I37
-sS'Lycee'
+sS'Entergy'
 p43
 I38
-sS'Entergy'
+sS'John McDonogh Senior High School'
 p44
 I39
-sS'John McDonogh Senior High School'
+sS'State'
 p45
 I40
-sS'State'
+sS'state Division of Administration'
 p46
 I41
-sS'state Division of Administration'
-p47
-I42
-sS'Benjamin E. Mays Preparatory School'
-p48
-I350
 sS'Drug Enforcement Administration'
-p49
+p47
 I44
 sS'Tulane University'
-p50
+p48
 I45
 sS'Lyces'
-p51
+p49
 I46
 sS'Appropriations Committee'
-p52
+p50
 I47
 sS'HUD'
-p53
+p51
 I48
 sS'Robinsons'
-p54
+p52
 I49
 sS'Algiers Development District'
-p55
+p53
 I50
 sS'Senate Finance Committee'
-p56
-I195
+p54
+I193
 sS'Ford'
-p57
+p55
 I52
 sS'Orleans Parish Schools'
-p58
+p56
 I53
 sS'Recovery School District'
-p59
-I305
+p57
+I302
 sS'Reed'
-p60
+p58
 I55
 sS'Benjamin Franklin High Schools'
-p61
+p59
 I56
 sS'Partnership for Assessment of Readiness for College and Careers'
-p62
+p60
 I57
 sS'Audubon Charter School'
-p63
+p61
 I59
 sS'Harrahs Casino'
-p64
+p62
 I60
 sS'YMCA'
-p65
-I390
-sS'United Teachers of New Orleans'
-p66
-I179
+p63
+I384
+sS'NFL'
+p64
+I62
 sS'Martin Behrman Charter School Academy of Creative Arts and Sciences'
-p67
+p65
 I63
 sS'Budget'
-p68
+p66
 I64
 sS'Martin Behrman Charter School'
-p69
+p67
 I65
 sS'Green'
-p70
+p68
 I66
 sS'New Orleans Charter Science and Math High School'
-p71
+p69
 I67
 sS'Morris Jeff Community School'
-p72
+p70
 I68
 sS'University of New Orleans'
-p73
+p71
 I69
 sS'Sylvanie Williams College Prep'
-p74
+p72
 I70
 sS'Associates'
-p75
+p73
 I71
 sS'Austins'
-p76
+p74
 I74
 sS'NOPD'
-p77
+p75
 I75
 sS'Dillard University'
-p78
+p76
 I76
 sS'DOJ'
-p79
+p77
 I77
 sS'Literacy Charter School'
-p80
+p78
 I78
 sS'D-Baton Rouge'
-p81
+p79
 I79
 sS'Oprah Winfrey Network'
-p82
+p80
 I80
 sS'Southern University'
-p83
+p81
 I81
 sS'Medard H. Nelson Charter School'
-p84
+p82
 I82
 sS'New Beginnings Schools Foundation'
-p85
+p83
 I83
 sS'City Planning Commission'
-p86
-I201
+p84
+I199
 sS'A.P. Tureaud Elementary'
-p87
+p85
 I84
 sS'Crocker Arts and Technology School'
-p88
+p86
 I85
 sS'Edgar P. Harney Spirit of Excellence Academy'
-p89
+p87
 I86
 sS'Browns'
-p90
+p88
 I87
 sS'R-Baton Rouge'
-p91
+p89
 I88
 sS'Academic Excellence Committee'
-p92
+p90
 I89
 sS'Committee for a Better New Orleans'
-p93
+p91
 I90
 sS'Orleans Public Education Network'
-p94
-I420
+p92
+I412
 sS'WWL-TV'
-p95
+p93
 I91
 sS'NOLA'
-p96
+p94
 I92
 sS'Lens'
-p97
+p95
 I93
 sS'New Beginnings School Foundation'
-p98
+p96
 I94
 sS'Rosary Catholic Church'
-p99
+p97
 I95
 sS'Recovery School'
-p100
+p98
 I43
 sS'Charity'
-p101
+p99
 I97
 sS'National Wildlife Federation'
-p102
-I589
+p100
+I577
 sS'International School'
-p103
+p101
 I98
 sS'Reed Elementary'
-p104
+p102
 I99
 sS'Xavier University'
-p105
+p103
 I101
 sS'Crescent Citys'
-p106
+p104
 I102
 sS'First NBC'
-p107
+p105
 I103
 sS'Alice M. Harte Charter School'
-p108
+p106
 I104
 sS'American Civil Liberties Union'
-p109
+p107
 I105
 sS'St. Tammany Sheriffs Office'
-p110
+p108
 I106
 sS'Sojourner Truth'
-p111
+p109
 I107
 sS'Nola Business Alliance'
-p112
-I453
+p110
+I444
 sS'Gentilly Terrace'
-p113
+p111
 I108
 sS'Lake Forest Elementary Charter School'
-p114
+p112
 I58
 sS'Benjamin Franklin High School'
-p115
+p113
 I110
 sS'Samuel J. Green Charter School'
-p116
+p114
 I112
 sS'Police Department'
-p117
+p115
 I113
 sS'Sojourner Truth Academy'
-p118
+p116
 I114
 sS'New Orleans Advocate'
-p119
+p117
 I115
 sS'Juvenile Court'
-p120
+p118
 I116
 sS'Elementary Charter School'
-p121
+p119
 I117
 sS'Warren Easton Charter High School'
-p122
+p120
 I119
 sS'Morris Jeff Community Schools'
-p123
+p121
 I120
 sS'Algiers Technology Academy'
-p124
+p122
 I121
 sS'KIPP New Orleans'
-p125
-I521
+p123
+I511
 sS'Times-Picayune'
-p126
+p124
 I123
 sS'New Orleans Police'
-p127
+p125
 I124
 sS'Orleans Parish Sheriffs Office'
-p128
-I251
+p126
+I249
 sS'Lake Area New Tech Early College High School'
-p129
+p127
 I126
 sS'Crescent Leadership Academy'
-p130
+p128
 I127
 sS'Broadmoor Charter School Board'
-p131
+p129
 I128
 sS'Louisiana Supreme Court'
-p132
+p130
 I129
 sS'Flood Protection Authoritys'
-p133
-I148
+p131
+I147
 sS'Police Association of New Orleans'
-p134
+p132
 I131
 sS'Algiers Charter School Association'
-p135
+p133
 I132
 sS'Medley'
-p136
+p134
 I133
 sS'Delgados'
-p137
+p135
 I134
 sS'Benjamin Banneker Elementary School'
-p138
+p136
 I135
 sS'Hall of Fame'
-p139
+p137
 I136
 sS'Carr , Riggs & Ingram'
-p140
+p138
 I137
 sS'Walton Foundation'
-p141
+p139
 I138
 sS'RSD'
-p142
+p140
 I139
-sS'Walgreens'
-p143
-I140
 sS'Southern Media & Opinion Research'
-p144
-I141
+p141
+I140
 sS'Edison Learning'
-p145
-I142
+p142
+I141
 sS'Center for Reform of School Systems'
-p146
-I143
+p143
+I142
 sS'Friends of King Schools'
-p147
-I569
+p144
+I557
 sS'CODOFIL'
-p148
-I144
+p145
+I143
 sS'New Orleans Recreation Development Commission'
-p149
-I291
+p146
+I288
 sS'Kings'
-p150
-I146
+p147
+I145
 sS'Catholic'
-p151
+p148
 I72
 sS'NOAH'
-p152
-I149
+p149
+I148
 sS'City Council District C'
-p153
-I150
+p150
+I149
 sS'George Washington Carver Collegiate Academy'
-p154
-I151
+p151
+I150
 sS'Paul Habans Charter School'
-p155
-I152
+p152
+I151
 sS'Louisiana Board of Elementary and Secondary Education'
-p156
-I153
+p153
+I152
 sS'Orleans Parish School'
-p157
+p154
 I24
 sS'Sci High'
-p158
-I155
+p155
+I154
 sS'Cypress'
-p159
-I156
+p156
+I155
 sS'Louisiana Department of Corrections'
-p160
-I157
+p157
+I156
 sS'Martin Luther King High School'
-p161
-I158
+p158
+I157
 sS'SABIS'
-p162
+p159
 I125
 sS'New Orleans Civil Service Commission'
-p163
-I529
+p160
+I518
 sS'Walton Family Foundation'
-p164
-I160
+p161
+I159
 sS'New Orleans Tourism and Marketing Corp.'
-p165
-I161
+p162
+I160
 sS'New Orleans Culinary and Hospitality Institute'
-p166
-I162
+p163
+I161
 sS'Firstline Schools , Inc.'
-p167
-I163
+p164
+I162
 sS'Mildred Osborne Charter School'
-p168
-I164
+p165
+I163
 sS'Office of Community Development'
-p169
-I165
+p166
+I164
 sS'Arts Council'
-p170
-I166
+p167
+I165
 sS'Civil Rights Division'
-p171
-I167
+p168
+I166
 sS'City Council Budget Committee'
-p172
-I168
+p169
+I167
 sS'U.S. Department of Justice'
-p173
-I169
+p170
+I168
 sS'Internal Revenue Service'
-p174
-I170
+p171
+I169
 sS'Common Core'
-p175
-I171
+p172
+I170
 sS'DBE'
-p176
-I172
+p173
+I171
 sS'JMAC'
-p177
-I173
+p174
+I172
 sS'Council'
-p178
-I174
+p175
+I173
 sS'Orleans Public Defenders Office'
-p179
-I175
+p176
+I174
 sS'Saints'
-p180
-I176
+p177
+I175
 sS'Public Works'
-p181
-I177
+p178
+I176
 sS'Miller-McCoy'
-p182
-I178
+p179
+I177
+sS'United Teachers of New Orleans'
+p180
+I346
 sS'Morrells'
+p181
+I178
+sS'Southeast Louisiana Flood Protection Authority East'
+p182
+I179
+sS'RTA'
 p183
 I180
-sS'Southeast Louisiana Flood Protection Authority East'
+sS'Judicial Building Commission'
 p184
 I181
-sS'RTA'
-p185
-I182
-sS'Judicial Building Commission'
-p186
-I183
 sS'Recovery School Districts'
+p185
+I183
+sS'Jagers'
+p186
+I184
+sS'National Oceanic and Atmospheric Administration'
 p187
 I185
-sS'Jagers'
+sS'New Orleans Bar Association Campaign Finance Report'
 p188
 I186
-sS'National Oceanic and Atmospheric Administration'
+sS'New Orleans Public Library'
 p189
 I187
-sS'New Orleans Bar Association Campaign Finance Report'
+sS'MCPA'
 p190
 I188
-sS'New Orleans Public Library'
+sS'School Board'
 p191
 I189
-sS'MCPA'
+sS'ENCORE'
 p192
 I190
-sS'School Board'
+sS'GCA'
 p193
 I191
-sS'ENCORE'
+sS'RFP'
 p194
 I192
-sS'GCA'
-p195
-I193
-sS'RFP'
-p196
-I194
 sS'Louisiana Legislature'
-p197
+p195
 I51
 sS'ENCORE Academy'
+p196
+I194
+sS'Department of Public Safety and Corrections'
+p197
+I195
+sS'Office of Parental Options'
 p198
 I196
-sS'Department of Public Safety and Corrections'
-p199
-I197
-sS'Office of Parental Options'
-p200
-I198
 sS'Republican Governors Association'
-p201
-I437
+p199
+I429
 sS'state Department of Education'
-p202
-I199
+p200
+I197
 sS'Lagniappe Academy'
-p203
-I200
+p201
+I198
 sS'John Dibert School'
-p204
+p202
 I32
 sS'New Orleans Military'
+p203
+I200
+sS'Sheriffs Office'
+p204
+I201
+sS'McDonogh City Park Academy'
 p205
 I202
-sS'Sheriffs Office'
+sS'Standard & Poors'
 p206
 I203
-sS'McDonogh City Park Academy'
+sS'International High School of New Orleans'
 p207
 I204
-sS'Standard & Poors'
+sS'NASA'
 p208
 I205
-sS'International High School of New Orleans'
+sS'Pride College Prep'
 p209
 I206
-sS'NASA'
+sS'Achievement Network'
 p210
 I207
-sS'Pride College Prep'
+sS'Lake Borgne Levee District'
 p211
 I208
-sS'Achievement Network'
+sS'SciTech Academy'
 p212
 I209
-sS'Lake Borgne Levee District'
+sS'U.S. Department of Housing and Urban Development'
 p213
 I210
-sS'SciTech Academy'
+sS'Audubon'
 p214
-I211
-sS'U.S. Department of Housing and Urban Development'
+I413
+sS'Karran Harper Royal'
 p215
 I212
-sS'Audubon'
+sS'Disadvantaged Business Enterprise'
 p216
-I421
-sS'Karran Harper Royal'
+I579
+sS'Civil Service Department'
 p217
 I214
-sS'Disadvantaged Business Enterprise'
+sS'ISL'
 p218
-I591
-sS'Civil Service Department'
+I215
+sS'Delgado Community College'
 p219
 I216
-sS'ISL'
+sS'House Appropriations Committee'
 p220
 I217
-sS'Delgado Community College'
+sS'James Singleton Charter School'
 p221
 I218
-sS'House Appropriations Committee'
+sS'Miller-McCoy Academy'
 p222
 I219
-sS'James Singleton Charter School'
+sS'Congress'
 p223
 I220
-sS'Miller-McCoy Academy'
+sS'CDBG'
 p224
 I221
-sS'Congress'
+sS'Criminal District Court'
 p225
 I222
-sS'CDBG'
+sS'Office of Police Secondary Employment'
 p226
 I223
-sS'Criminal District Court'
+sS'Delta'
 p227
 I224
-sS'Office of Police Secondary Employment'
+sS'Medicaid'
 p228
 I225
-sS'Delta'
+sS'National Institute of Justice'
 p229
-I226
-sS'Medicaid'
+I415
+sS'Metropolitan Crime Commission'
 p230
 I227
-sS'National Institute of Justice'
-p231
-I423
-sS'Metropolitan Crime Commission'
-p232
-I229
 sS'Judicial Candidate Information Form'
+p231
+I229
+sS'Neighborhood Conservation District Committee'
+p232
+I230
+sS'Finance and Operations'
 p233
 I231
-sS'Neighborhood Conservation District Committee'
+sS'Civil Service'
 p234
 I232
-sS'Finance and Operations'
+sS'Joseph A. Craig Charter School'
 p235
 I233
-sS'Civil Service'
+sS'Bricolage Academy'
 p236
 I234
-sS'Joseph A. Craig Charter School'
+sS'New Orleans Fire Department'
 p237
 I235
-sS'Bricolage Academy'
+sS'Inc.'
 p238
 I236
-sS'New Orleans Fire Department'
+sS'UNO'
 p239
 I237
-sS'Inc.'
+sS'FirstLine Schools'
 p240
 I238
-sS'UNO'
+sS'Better Choice Foundation'
 p241
 I239
-sS'FirstLine Schools'
+sS'Sears'
 p242
 I240
-sS'Better Choice Foundation'
+sS'CRA'
 p243
 I241
-sS'Sears'
+sS'Maritime Academy'
 p244
 I242
-sS'CRA'
+sS'Archon'
 p245
 I243
-sS'Maritime Academy'
+sS'French American International School'
 p246
 I244
-sS'Archon'
+sS'Southeast Louisiana Flood Protection Authority-West'
 p247
 I245
-sS'French American International School'
+sS'Gentilly Terrace Charter School'
 p248
 I246
-sS'Southeast Louisiana Flood Protection Authority-West'
+sS'Court'
 p249
 I247
-sS'Gentilly Terrace Charter School'
+sS'Army Corps of Engineers'
 p250
 I248
-sS'Court'
-p251
-I249
-sS'Army Corps of Engineers'
-p252
-I250
 sS'Republican Party'
+p251
+I250
+sS'L.B. Landry High School'
+p252
+I251
+sS'Office of Supplier Diversity'
 p253
 I252
-sS'L.B. Landry High School'
+sS'New Orleans Regional Transit Authority'
 p254
 I253
-sS'Office of Supplier Diversity'
+sS'Cowen Institute'
 p255
 I254
-sS'New Orleans Regional Transit Authority'
-p256
-I255
-sS'Cowen Institute'
-p257
-I256
 sS'NOMMA'
-p258
-I542
+p256
+I530
 sS'Jindals'
-p259
-I543
+p257
+I531
 sS'Einstein Charter School'
+p258
+I257
+sS'Langston Hughes'
+p259
+I258
+sS'LSU Interim Hospital'
 p260
 I259
-sS'Langston Hughes'
+sS'Lafayette Academy Charter School'
 p261
 I260
-sS'LSU Interim Hospital'
+sS'International School of Louisianas'
 p262
 I261
-sS'Lafayette Academy Charter School'
+sS'Legislature'
 p263
 I262
-sS'International School of Louisianas'
+sS'Hughes'
 p264
 I263
-sS'Legislature'
+sS'Public Defenders Office'
 p265
 I264
-sS'Hughes'
+sS'Louisiana Municipal Association'
 p266
 I265
-sS'Public Defenders Office'
+sS'New Orleans Police Departments'
 p267
 I266
-sS'Louisiana Municipal Association'
+sS'U.S. Justice Department'
 p268
 I267
-sS'New Orleans Police Departments'
+sS'Public Strategies Group'
 p269
 I268
-sS'U.S. Justice Department'
+sS'Jefferson Parish'
 p270
 I269
-sS'Budget Committee'
+sS'Paul Habans Elementary School'
 p271
 I270
-sS'Jefferson Parish'
-p272
-I271
-sS'Paul Habans Elementary School'
-p273
-I272
 sS'Fannie C. Williams'
+p272
+I272
+sS'Housing Authority of New Orleans'
+p273
+I273
+sS'City Park Academys'
 p274
 I274
-sS'Housing Authority of New Orleans'
+sS'GOP'
 p275
 I275
-sS'City Park Academys'
+sS'Homer A. Plessy Community School'
 p276
 I276
-sS'GOP'
+sS'Schroder'
 p277
 I277
-sS'Homer A. Plessy Community School'
+sS'Google'
 p278
 I278
-sS'Schroder'
+sS'Fraternal Order of Police'
 p279
 I279
-sS'Google'
+sS'Harriet Tubman Charter School'
 p280
 I280
-sS'Fraternal Order of Police'
+sS'Audubon Nature Institute'
 p281
 I281
-sS'Harriet Tubman Charter School'
+sS'Edna Karr Charter High School'
 p282
 I282
-sS'Audubon Nature Institute'
+sS'New Orleans Police Department'
 p283
 I283
-sS'NCDC'
+sS'John Dibert Community School'
 p284
 I284
-sS'Edna Karr Charter High School'
+sS'International High School'
 p285
-I285
-sS'New Orleans Police Department'
+I533
+sS'Lagniappe Academies'
 p286
 I286
-sS'John Dibert Community School'
+sS'White House'
 p287
 I287
-sS'International High School'
+sS'Success Preparatory Academy'
 p288
-I545
-sS'Lagniappe Academies'
+I146
+sS'Guidrys'
 p289
 I289
-sS'White House'
+sS'BESE'
 p290
-I290
-sS'Success Preparatory Academy'
+I25
+sS'McDonogh City Park Academys'
 p291
-I147
-sS'Guidrys'
+I291
+sS'New Orleans College Prep'
 p292
 I292
-sS'Governance Committee'
+sS'Parkers'
 p293
 I293
-sS'McDonogh City Park Academys'
+sS'New Orleans College Preparatory Academies'
 p294
 I294
-sS'New Orleans College Prep'
+sS'NET Charter High School'
 p295
-I295
-sS'Parkers'
+I535
+sS'Encore Academy'
 p296
 I296
-sS'New Orleans College Preparatory Academies'
+sS'Treme Charter School Association'
 p297
 I297
-sS'NET Charter High School'
+sS'Campbells'
 p298
-I547
-sS'Encore Academy'
+I298
+sS'Friends of Kings'
 p299
 I299
-sS'Treme Charter School Association'
+sS'George Washington Carver High School'
 p300
 I300
-sS'Campbells'
+sS'Metro Disposal'
 p301
 I301
-sS'Friends of Kings'
-p302
-I302
-sS'George Washington Carver High School'
-p303
-I303
-sS'Metro Disposal'
-p304
-I304
 sS'LSU'
-p305
+p302
 I54
 sS'Collegiate Academy'
+p303
+I303
+sS'Strategic Alliance Partners'
+p304
+I304
+sS'Traffic Court'
+p305
+I305
+sS'New Orleans Federal Alliance'
 p306
 I306
-sS'Strategic Alliance Partners'
+sS'Enron Energy Services'
 p307
 I307
-sS'Traffic Court'
+sS'Trem Charter School Association'
 p308
 I308
-sS'New Orleans Federal Alliance'
-p309
-I309
-sS'Enron Energy Services'
-p310
-I310
-sS'Trem Charter School Association'
-p311
-I311
 sS'Landrys'
+p309
+I310
+sS'World Trade Center'
+p310
+I311
+sS'Vera Institute of Justice'
+p311
+I312
+sS'Legislatures'
 p312
 I313
-sS'World Trade Center'
+sS'Sizeler'
 p313
 I314
-sS'Vera Institute of Justice'
+sS'Capital One-New Beginnings Charter School Network'
 p314
 I315
-sS'Legislatures'
+sS'Office of Juvenile Justice'
 p315
 I316
-sS'Sizeler'
+sS'IHS'
 p316
 I317
-sS'Capital One-New Beginnings Charter School Network'
-p317
-I318
-sS'Office of Juvenile Justice'
-p318
-I319
-sS'IHS'
-p319
-I320
 sS'Louisiana Artists Guild'
-p320
-I322
+p317
+I319
 sS'NORA'
-p321
-I323
+p318
+I320
 sS'Housing Authority'
-p322
-I324
+p319
+I321
 sS'House'
-p323
-I553
+p320
+I541
 sS'District Attorneys Office'
+p321
+I324
+sS'Dryades YMCA'
+p322
+I325
+sS'New Orleans Workers Center for Racial Justice'
+p323
+I326
+sS'KIPP Renaissance High School'
 p324
 I327
-sS'Dryades YMCA'
+sS'TRSL'
 p325
 I328
-sS'New Orleans Workers Center for Racial Justice'
+sS'Press Club'
 p326
 I329
-sS'KIPP Renaissance High School'
+sS'McDonogh'
 p327
 I330
-sS'TRSL'
+sS'Robert Russa Moton Charter School'
 p328
 I331
-sS'Press Club'
+sS'Louisiana Department of Education'
 p329
 I332
-sS'McDonogh'
+sS'EMS'
 p330
 I333
-sS'Robert Russa Moton Charter School'
+sS'Schaumburg Elementary'
 p331
 I334
-sS'Louisiana Department of Education'
+sS'WWNO'
 p332
 I335
-sS'EMS'
+sS'Budget Committee'
 p333
-I336
-sS'Schaumburg Elementary'
-p334
-I337
-sS'WWNO'
-p335
-I338
+I144
 sS'Murray Henderson Elementary'
-p336
-I339
-sS'BESE'
-p337
-I340
+p334
+I336
 sS'New Orleans Coalition'
-p338
-I341
+p335
+I337
 sS'American Federation of Teachers'
-p339
-I342
+p336
+I338
 sS'Louisiana Budget Project'
-p340
-I343
+p337
+I339
 sS'MFP'
-p341
-I344
+p338
+I340
 sS'GT Asset Management'
-p342
-I345
+p339
+I341
 sS'Harvard'
-p343
-I346
+p340
+I342
 sS'Sewerage & Water Board'
-p344
-I347
+p341
+I343
 sS'Langston Hughes Academy'
-p345
+p342
 I118
 sS'King'
-p346
-I349
-sS'NFL'
-p347
-I62
+p343
+I345
+sS'Benjamin E. Mays Preparatory School'
+p344
+I42
 sS'FOX'
-p348
-I352
-sS'Laurel St. Help'
-p349
-I351
-sS'Warren Easton Charter Foundation'
-p350
-I353
-sS'Civil Service Commission'
-p351
-I354
-sS'Louisiana Association of Business and Industry'
-p352
-I557
-sS'OSHA'
-p353
-I356
-sS'House Democratic Caucus'
-p354
-I357
-sS'Medard Nelson Charter School'
-p355
-I364
-sS'Touro'
-p356
-I359
-sS'state Board of Elementary and Secondary Education'
-p357
-I360
-sS'MOU'
-p358
-I361
-sS'Eastbank Collaborative of Charter Schools'
-p359
-I362
-sS'Hes'
-p360
-I363
-sS'Reporters Committee for Freedom of the Press'
-p361
-I365
-sS'Board'
-p362
-I366
-sS'Health Department'
-p363
-I367
-sS'New Orleans Charter Schools Foundation'
-p364
-I368
-sS'Department of Education'
-p365
-I369
-sS'Redevelopment Authority'
-p366
-I370
-sS'Associated Press'
-p367
-I371
-sS'Akili Academy'
-p368
-I372
-sS'ARAMARK'
-p369
-I373
-sS'HRI'
-p370
-I433
-sS'LFNO'
-p371
-I374
-sS'City Park Academy'
-p372
-I375
-sS'Crescent City'
-p373
-I376
-sS'Columbia University'
-p374
-I377
-sS'Andrew Wilson Charter School'
-p375
-I378
-sS'Louisiana Housing Finance Agency'
-p376
-I379
-sS'Mardi Gras'
-p377
-I454
-sS'Sarah T. Reed High School'
-p378
-I381
-sS'Division of Administration'
-p379
-I383
-sS'Algiers Charter Schools Association'
-p380
-I384
-sS'Lyce Franais'
-p381
-I385
-sS'James M. Singleton Charter School'
-p382
-I386
-sS'CDC'
-p383
-I387
-sS'VAYLA'
-p384
-I388
-sS'McDonald'
-p385
-I389
-sS'Esperanza Charter School'
-p386
-I61
-sS'Church'
-p387
-I391
-sS'Campbell'
-p388
-I392
-sS'Charter School Reporting Corps'
-p389
-I567
-sS'Arthur Ashe Charter School'
-p390
-I394
-sS'Office of Inspector General'
-p391
-I546
-sS'Louisiana Recovery Authority'
-p392
-I396
-sS'O. Perry Walker High School'
-p393
-I397
-sS'EIS'
-p394
-I398
-sS'Frantz Elementary'
-p395
-I399
-sS'New York Times'
-p396
-I400
-sS'CVS'
-p397
-I401
-sS'Central Business District'
-p398
-I402
-sS'Attorney Generals Office'
-p399
-I403
-sS'NOCP'
-p400
-I404
-sS'Republican'
-p401
+p345
 I348
-sS'Louisiana Weekly'
-p402
-I405
-sS'Edna Karr High School'
-p403
-I406
-sS'Southern Media'
-p404
-I407
-sS'Lafayette Academy'
-p405
-I487
-sS'Lycee Francais'
-p406
-I408
-sS'Office of Neighborhood Engagement'
-p407
-I409
-sS'Department of Revenue'
-p408
-I410
-sS'NOLA for Life Fund'
-p409
-I411
-sS'Langston Hughes Academy Charter School'
-p410
-I412
-sS'KIPP Central City Academy'
-p411
-I413
-sS'Phillis Wheatley Elementary School'
-p412
-I414
-sS'Roch-Hicks'
-p413
-I415
-sS'IRS'
-p414
-I416
-sS'House Ways and Means Committee'
-p415
-I417
-sS'TCSA'
-p416
-I418
-sS'Public Integrity Bureau'
-p417
-I321
-sS'UTNO'
-p418
-I184
-sS'JCC'
-p419
-I213
-sS'Entergy New Orleans'
-p420
-I600
-sS'NAACP'
-p421
-I422
-sS'Edward Hynes Charter School'
-p422
-I228
-sS'Social Security'
-p423
-I424
-sS'U.S. Army Corps of Engineers'
-p424
-I312
-sS'Criminal Justice Committee'
-p425
-I426
-sS'Senate'
-p426
-I427
-sS'Vera Institute'
-p427
-I428
-sS'KIPP Central City Primary'
-p428
-I429
-sS'Dwight D. Eisenhower Academy of Global Studies'
-p429
-I431
-sS'Coroners Office'
-p430
-I432
-sS'ExxonMobil'
-p431
-I273
-sS'Charity Hospital'
-p432
-I434
-sS'Host Committee'
-p433
-I435
-sS'Public Service Commission'
-p434
-I325
-sS'ARISE Academy'
-p435
-I215
-sS'Fannie C. Williams Charter School'
-p436
-I438
-sS'Orleans Parish'
-p437
-I439
-sS'Department of Public Works'
-p438
-I440
-sS'Public Charter School Program'
-p439
-I441
-sS'BP'
-p440
-I442
-sS'Archon Information Systems'
-p441
-I443
-sS'Iberia Bank'
-p442
-I444
-sS'DRC'
-p443
+sS'Laurel St. Help'
+p346
+I347
+sS'Warren Easton Charter Foundation'
+p347
+I349
+sS'Civil Service Commission'
+p348
+I350
+sS'Louisiana Association of Business and Industry'
+p349
+I545
+sS'OSHA'
+p350
+I352
+sS'House Democratic Caucus'
+p351
+I353
+sS'Medard Nelson Charter School'
+p352
+I354
+sS'McDonald'
+p353
+I355
+sS'state Board of Elementary and Secondary Education'
+p354
+I356
+sS'MOU'
+p355
+I357
+sS'Eastbank Collaborative of Charter Schools'
+p356
+I358
+sS'Hes'
+p357
+I359
+sS'Reporters Committee for Freedom of the Press'
+p358
+I360
+sS'Board'
+p359
+I361
+sS'Health Department'
+p360
+I362
+sS'New Orleans Charter Schools Foundation'
+p361
+I363
+sS'Department of Education'
+p362
+I364
+sS'Redevelopment Authority'
+p363
+I365
+sS'Associated Press'
+p364
+I366
+sS'Akili Academy'
+p365
+I367
+sS'ARAMARK'
+p366
+I368
+sS'HRI'
+p367
+I425
+sS'LFNO'
+p368
+I369
+sS'City Park Academy'
+p369
+I370
+sS'Crescent City'
+p370
+I371
+sS'Columbia University'
+p371
+I372
+sS'Andrew Wilson Charter School'
+p372
+I373
+sS'Louisiana Housing Finance Agency'
+p373
+I374
+sS'Mardi Gras'
+p374
 I445
-sS'EPA'
-p444
-I446
-sS'Friends of King'
-p445
-I447
-sS'Public Strategies Group'
-p446
-I145
-sS'KIPP New Orleans Schools'
-p447
-I448
-sS'KIPP Believe'
-p448
-I449
-sS'Loyola'
-p449
-I450
-sS'Advocates for Academic Excellence in Education'
-p450
-I451
-sS'Justice'
-p451
-I452
-sS'Orleans Parish Prison'
-p452
-I430
-sS'Sci Academy'
-p453
+sS'Sarah T. Reed High School'
+p375
+I376
+sS'Division of Administration'
+p376
+I378
+sS'Algiers Charter Schools Association'
+p377
+I379
+sS'Lyce Franais'
+p378
 I380
-sS'DOC'
-p454
-I455
-sS'Cohen College Prep'
-p455
-I456
-sS'Historic District Landmarks Commission'
-p456
-I457
-sS'Louisiana Department of Public Safety and Corrections'
-p457
-I458
-sS'International Business and Education'
-p458
-I395
-sS'U.S. Department of Education'
-p459
-I460
-sS'Firstline Schools'
-p460
-I461
-sS'Department of Justice'
-p461
-I462
-sS'French Market Corporation'
-p462
-I463
-sS'Orleans Parish School Board'
-p463
-I464
-sS'Fifth Circuit'
-p464
-I465
-sS'WDSU'
-p465
-I466
-sS'Workers Center'
-p466
-I467
-sS'Crocker College Prep'
-p467
-I468
-sS'Orleans Parish School District'
-p468
-I469
-sS'Board of Elementary and Secondary Education'
-p469
-I470
-sS'House of Detention'
-p470
+sS'James M. Singleton Charter School'
+p379
+I381
+sS'CDC'
+p380
 I382
-sS'House Education Committee'
-p471
-I472
-sS'Charter School Development Corp.'
-p472
-I473
-sS'Gulf Restoration Network'
-p473
-I474
-sS'Metros'
-p474
-I475
-sS'Orleans Parish Communication District'
-p475
-I476
-sS'Scheuermann & Jones'
-p476
+sS'VAYLA'
+p381
+I383
+sS'Esperanza Charter School'
+p382
+I61
+sS'Campbell'
+p383
+I385
+sS'Charter School Reporting Corps'
+p384
+I555
+sS'Arthur Ashe Charter School'
+p385
+I387
+sS'Office of Inspector General'
+p386
+I534
+sS'Louisiana Recovery Authority'
+p387
+I389
+sS'O. Perry Walker High School'
+p388
+I390
+sS'EIS'
+p389
+I391
+sS'Frantz Elementary'
+p390
+I392
+sS'New York Times'
+p391
+I393
+sS'Central Business District'
+p392
+I394
+sS'Attorney Generals Office'
+p393
+I395
+sS'NOCP'
+p394
+I396
+sS'Republican'
+p395
+I344
+sS'Louisiana Weekly'
+p396
+I397
+sS'Edna Karr High School'
+p397
+I398
+sS'Southern Media'
+p398
+I399
+sS'Lafayette Academy'
+p399
 I477
+sS'Lycee Francais'
+p400
+I400
+sS'Office of Neighborhood Engagement'
+p401
+I401
+sS'Department of Revenue'
+p402
+I402
+sS'NOLA for Life Fund'
+p403
+I403
+sS'Langston Hughes Academy Charter School'
+p404
+I404
+sS'KIPP Central City Academy'
+p405
+I405
+sS'Phillis Wheatley Elementary School'
+p406
+I406
+sS'Roch-Hicks'
+p407
+I407
+sS'IRS'
+p408
+I408
+sS'House Ways and Means Committee'
+p409
+I409
+sS'TCSA'
+p410
+I410
+sS'Public Integrity Bureau'
+p411
+I318
+sS'UTNO'
+p412
+I182
+sS'JCC'
+p413
+I211
+sS'Entergy New Orleans'
+p414
+I588
+sS'NAACP'
+p415
+I414
+sS'Edward Hynes Charter School'
+p416
+I226
+sS'Social Security'
+p417
+I416
+sS'U.S. Army Corps of Engineers'
+p418
+I309
+sS'Criminal Justice Committee'
+p419
+I418
+sS'Senate'
+p420
+I419
+sS'Vera Institute'
+p421
+I420
+sS'KIPP Central City Primary'
+p422
+I421
+sS'Dwight D. Eisenhower Academy of Global Studies'
+p423
+I423
+sS'Coroners Office'
+p424
+I424
+sS'ExxonMobil'
+p425
+I271
+sS'Charity Hospital'
+p426
+I426
+sS'Host Committee'
+p427
+I427
+sS'Public Service Commission'
+p428
+I322
+sS'ARISE Academy'
+p429
+I213
+sS'Fannie C. Williams Charter School'
+p430
+I430
+sS'Orleans Parish'
+p431
+I431
+sS'Department of Public Works'
+p432
+I432
+sS'Public Charter School Program'
+p433
+I433
+sS'BP'
+p434
+I434
+sS'Archon Information Systems'
+p435
+I435
+sS'Iberia Bank'
+p436
+I436
+sS'EPA'
+p437
+I437
+sS'Friends of King'
+p438
+I438
+sS'KIPP New Orleans Schools'
+p439
+I439
+sS'KIPP Believe'
+p440
+I440
+sS'Loyola'
+p441
+I441
+sS'Advocates for Academic Excellence in Education'
+p442
+I442
+sS'Justice'
+p443
+I443
+sS'Orleans Parish Prison'
+p444
+I422
+sS'Sci Academy'
+p445
+I375
+sS'DOC'
+p446
+I446
+sS'Cohen College Prep'
+p447
+I447
+sS'Historic District Landmarks Commission'
+p448
+I448
+sS'Louisiana Department of Public Safety and Corrections'
+p449
+I449
+sS'International Business and Education'
+p450
+I388
+sS'U.S. Department of Education'
+p451
+I451
+sS'Firstline Schools'
+p452
+I452
+sS'Department of Justice'
+p453
+I453
+sS'French Market Corporation'
+p454
+I454
+sS'Orleans Parish School Board'
+p455
+I455
+sS'Fifth Circuit'
+p456
+I456
+sS'Workers Center'
+p457
+I457
+sS'Crocker College Prep'
+p458
+I458
+sS'Orleans Parish School District'
+p459
+I459
+sS'Board of Elementary and Secondary Education'
+p460
+I460
+sS'House of Detention'
+p461
+I377
+sS'House Education Committee'
+p462
+I462
+sS'Charter School Development Corp.'
+p463
+I463
+sS'Gulf Restoration Network'
+p464
+I464
+sS'Metros'
+p465
+I465
+sS'Orleans Parish Communication District'
+p466
+I466
+sS'Scheuermann & Jones'
+p467
+I467
 sS'New Orleans Convention and Visitors Bureau'
-p477
-I478
+p468
+I468
 sS'John McDonogh'
-p478
-I479
+p469
+I469
 sS'ReNEW Accelerated High School'
-p479
-I480
+p470
+I470
 sS'Convention Center'
-p480
-I481
-sS'Governors Office of Homeland Security'
-p481
-I482
-sS'Ethics Board'
-p482
-I483
-sS'Commission'
-p483
-I484
-sS'Morris Jeff Association of Educators'
-p484
-I485
-sS'Ben Franklin High School'
-p485
-I486
-sS'Louisiana State Police'
-p486
+p471
 I471
+sS'Governors Office of Homeland Security'
+p472
+I472
+sS'Ethics Board'
+p473
+I473
+sS'Commission'
+p474
+I474
+sS'Morris Jeff Association of Educators'
+p475
+I475
+sS'Ben Franklin High School'
+p476
+I476
+sS'Louisiana State Police'
+p477
+I461
 sS'U.S. District Court'
-p487
-I488
+p478
+I478
 sS'Ehrhardt Group'
-p488
-I489
+p479
+I479
 sS'PTO'
-p489
-I490
+p480
+I480
 sS'New Orleans Redevelopment Authority'
-p490
-I491
+p481
+I481
 sS'Bureau of Governmental Research'
-p491
-I492
+p482
+I482
 sS'Postlethwaite & Netterville'
-p492
-I493
+p483
+I483
 sS'Orleans Parish School Boards'
-p493
-I494
+p484
+I484
 sS'Tricentennial Consortium'
-p494
-I586
+p485
+I574
 sS'Audubon Place'
-p495
-I496
+p486
+I486
 sS'Intuit'
-p496
-I497
+p487
+I487
 sS'PTA'
-p497
-I498
+p488
+I488
 sS'Choice Foundation'
-p498
-I499
+p489
+I489
 sS'Facebook'
-p499
-I500
+p490
+I490
 sS'City Attorneys Office'
-p500
-I501
+p491
+I491
 sS'Treme'
-p501
-I502
+p492
+I492
 sS'LLC'
-p502
-I503
+p493
+I493
 sS'Southeast Louisiana Flood Protection Authority-East'
-p503
-I602
+p494
+I590
 sS'KIPP McDonogh'
-p504
-I504
+p495
+I494
 sS'Orleans Parish Sheriffs'
-p505
+p496
 I27
 sS'Lake Forest Elementary'
-p506
-I506
+p497
+I496
 sS'Louisiana Board of Ethics'
-p507
-I507
+p498
+I497
 sS'Louisiana Department of Educations'
-p508
-I508
-sS'Federal Court'
-p509
-I554
+p499
+I498
 sS'City Councils Criminal Justice Committee'
+p500
+I499
+sS'Einstein Charter Schools'
+p501
+I500
+sS'Preparatory High School'
+p502
+I501
+sS'Elementary School'
+p503
+I502
+sS'Tulane Institute'
+p504
+I503
+sS'Aramark'
+p505
+I504
+sS'Southern Poverty Law Center'
+p506
+I450
+sS'Batiste Cultural Arts Academy'
+p507
+I506
+sS'Texas Tribune'
+p508
+I507
+sS'Marco Outdoor Advertising'
+p509
+I508
+sS'Intercultural Charter School'
 p510
 I509
-sS'Einstein Charter Schools'
+sS'International School of Louisiana'
 p511
 I510
-sS'Preparatory High School'
-p512
-I511
-sS'Elementary School'
-p513
-I512
-sS'Tulane Institute'
-p514
-I513
-sS'Aramark'
-p515
-I514
-sS'Southern Poverty Law Center'
-p516
-I459
-sS'Batiste Cultural Arts Academy'
-p517
-I516
-sS'Texas Tribune'
-p518
-I517
-sS'Marco Outdoor Advertising'
-p519
-I518
-sS'Intercultural Charter School'
-p520
-I519
-sS'International School of Louisiana'
-p521
-I520
 sS'Mayors Office'
-p522
+p512
 I122
 sS'Chevron'
-p523
+p513
 I130
 sS'John McDonogh High School'
+p514
+I514
+sS'Board of Zoning Adjustments'
+p515
+I515
+sS'Revenue Department'
+p516
+I516
+sS'Loyola University'
+p517
+I517
+sS'Hawks'
+p518
+I158
+sS'Criminal Justice Working Group'
+p519
+I519
+sS'U.S. Supreme Court'
+p520
+I520
+sS'Minimum Foundation Program'
+p521
+I521
+sS'St. Bernard Parish Council'
+p522
+I522
+sS'KIPP Believe College Prep'
+p523
+I523
+sS'Uptown Messenger'
 p524
 I524
-sS'Board of Zoning Adjustments'
+sS'Finance'
 p525
 I525
-sS'Red Cross'
+sS'The Times-Picayune'
 p526
 I526
-sS'Revenue Department'
+sS'Lusher Charter School'
 p527
 I527
-sS'Loyola University'
+sS'Baton Rouge'
 p528
 I528
-sS'Hawks'
+sS'Greater New Orleans Foundation'
 p529
-I159
-sS'Criminal Justice Working Group'
+I411
+sS'Orleans Parish Civil District Court'
 p530
-I530
-sS'U.S. Supreme Court'
+I529
+sS'FirstLine'
 p531
-I531
-sS'Minimum Foundation Program'
+I255
+sS'Esperanza'
 p532
-I532
-sS'St. Bernard Parish Council'
+I256
+sS'New Orleans College Preps'
 p533
-I533
-sS'IDC'
+I532
+sS'Charter School'
 p534
-I534
-sS'KIPP Believe College Prep'
+I285
+sS'Lushers'
 p535
-I535
-sS'Uptown Messenger'
+I295
+sS'Jefferson Parish School Board'
 p536
 I536
-sS'Finance'
+sS'John A. Shaw Elementary School'
 p537
 I537
-sS'The Times-Picayune'
+sS'George Washington Carver Preparatory Academy'
 p538
 I538
-sS'Lusher Charter School'
+sS'New Orleans Public Schools'
 p539
 I539
-sS'Baton Rouge'
+sS'Bell'
 p540
 I540
-sS'Greater New Orleans Foundation'
+sS'Louisiana Economic Development'
 p541
-I419
-sS'Orleans Parish Civil District Court'
+I323
+sS'Department of Corrections'
 p542
-I541
-sS'FirstLine'
+I542
+sS'KIPP'
 p543
-I257
-sS'Esperanza'
+I543
+sS'St. Bernard Parish'
 p544
-I258
-sS'New Orleans College Preps'
-p545
 I544
-sS'Charter School'
+sS'Wilsons'
+p545
+I351
+sS'FBI'
 p546
-I288
-sS'Lushers'
+I546
+sS'Board of Regents'
 p547
-I298
-sS'Jefferson Parish School Board'
+I547
+sS'Louisiana Association of Public Charter Schools'
 p548
 I548
-sS'John A. Shaw Elementary School'
+sS'Sewerage & Water Board of New Orleans'
 p549
 I549
-sS'George Washington Carver Preparatory Academy'
+sS'Arise Academy'
 p550
 I550
-sS'New Orleans Public Schools'
+sS'New Orleans City Council'
 p551
 I551
-sS'Bell'
+sS'Regional Transit Authority'
 p552
 I552
-sS'Louisiana Economic Development'
+sS'Orleans Parish Prison Reform Coalition'
 p553
-I326
-sS'Department of Corrections'
+I553
+sS'Office Depot'
 p554
-I358
-sS'KIPP'
+I554
+sS'Hammonds Transportation'
 p555
-I555
-sS'St. Bernard Parish'
+I386
+sS'Aesha Rasheed'
 p556
 I556
-sS'Wilsons'
-p557
-I355
-sS'FBI'
-p558
-I558
-sS'Board of Regents'
-p559
-I559
-sS'Louisiana Association of Public Charter Schools'
-p560
-I560
-sS'Sewerage & Water Board of New Orleans'
-p561
-I561
-sS'Arise Academy'
-p562
-I562
-sS'New Orleans City Council'
-p563
-I563
-sS'Regional Transit Authority'
-p564
-I564
-sS'Orleans Parish Prison Reform Coalition'
-p565
-I565
-sS'Office Depot'
-p566
-I566
-sS'Hammonds Transportation'
-p567
-I393
-sS'Aesha Rasheed'
-p568
-I568
 sS'City Hall'
-p569
+p557
 I109
 sS'Coastal Protection and Restoration Authority'
+p558
+I558
+sS'FEMA'
+p559
+I559
+sS'City Council'
+p560
+I560
+sS'Crescent City Schools'
+p561
+I561
+sS'House of Representatives'
+p562
+I562
+sS'Orleans Parish Assessors Office'
+p563
+I563
+sS'John McDonogh Advisory Committee'
+p564
+I564
+sS'Governmental Affairs Committee'
+p565
+I565
+sS'Franklin'
+p566
+I566
+sS'ACSA'
+p567
+I567
+sS'Water Board'
+p568
+I568
+sS'New Orleans Charter Science & Mathematics High School'
+p569
+I569
+sS'Enron'
 p570
 I570
-sS'FEMA'
+sS'Edison'
 p571
 I571
-sS'City Council'
-p572
-I572
-sS'Crescent City Schools'
-p573
-I573
-sS'House of Representatives'
-p574
-I574
-sS'Orleans Parish Assessors Office'
-p575
-I575
-sS'John McDonogh Advisory Committee'
-p576
-I576
-sS'Governmental Affairs Committee'
-p577
-I577
-sS'Franklin'
-p578
-I578
-sS'ACSA'
-p579
-I579
-sS'Water Board'
-p580
-I580
-sS'New Orleans Charter Science & Mathematics High School'
-p581
-I581
-sS'Enron'
-p582
-I582
-sS'Edison'
-p583
-I583
 sS'Committee'
-p584
-I523
+p572
+I513
 sS'Civil District Court'
-p585
-I584
+p573
+I572
 sS'Metro'
-p586
-I585
+p574
+I573
 sS'Andrew H. Wilson Charter School'
-p587
-I495
+p575
+I485
 sS'Louisiana State University'
-p588
-I587
+p576
+I575
 sS'Arnold'
-p589
-I588
+p577
+I576
 sS'Esperanza Charter'
-p590
-I515
+p578
+I505
 sS'AP'
-p591
-I590
+p579
+I578
 sS'New Orleans Recreation Department'
-p592
-I522
+p580
+I512
 sS'District Court'
-p593
-I592
+p581
+I580
 sS'Morgan'
-p594
-I593
+p582
+I581
 sS'OPSO'
-p595
-I597
+p583
+I585
 sS'Wheat'
-p596
-I594
+p584
+I582
 sS'Turner'
-p597
-I595
+p585
+I583
 sS'Crescent City Connection'
-p598
-I596
+p586
+I584
 sS'Grace Episcopal Church'
-p599
+p587
 I111
 sS'OPSB'
-p600
-I598
+p588
+I586
 sS'Accelerated Academy'
-p601
-I599
+p589
+I587
 sS'Justice Department'
-p602
-I230
+p590
+I228
 sS'Fiscal Hawks'
-p603
-I601
+p591
+I589
 sS'Audubon Charter'
-p604
+p592
 I100
 sS'Bond Commission'
-p605
-I603
+p593
+I591
 s.

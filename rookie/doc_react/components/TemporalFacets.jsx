@@ -97,7 +97,6 @@ module.exports = React.createClass({
     },
 
     get_selected_mo: function(){
-        console.log(this.props);
         if (this.props.mo_start == this.props.mo_end & this.props.mo_start != -1 & this.props.mo_end != -1){
             return this.props.mo_start;
         }
