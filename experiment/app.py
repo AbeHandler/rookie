@@ -3,21 +3,15 @@ The main web app for rookie
 '''
 import ipdb
 import pylru
-import time
 import json
-import math
 from dateutil.parser import parse
 from experiment.models import make_dataframe, get_keys, get_val_from_df, bin_dataframe, filter_results_with_binary_dataframe
 from flask import Flask
-from rookie.rookie import Rookie
 from flask import request
 from facets.query import get_facets_for_q
 from experiment.views import Views
-from collections import defaultdict
-from experiment.models import Models, Parameters
+from experiment.models import Models
 from experiment import IP, ROOKIE_JS, ROOKIE_CSS
-from experiment import log
-from whooshy.reader import query_subset
 from experiment.models import get_doc_metadata
 
 app = Flask(__name__)
@@ -59,16 +53,6 @@ def get_doc_list():
     return json.dumps(doc_list)
 
 
-def date_filter(results, start, end):
-    '''
-    TODO delete 
-    '''
-    if start is not None and end is not None:
-        md = lambda r: get_doc_metadata(r)
-        return [r for r in results if parse(md(r)["pubdate"]) > start and parse(md(r)["pubdate"]) < end]
-    else:
-        return results
-
 @app.route('/medviz', methods=['GET'])
 def medviz():
 
@@ -82,7 +66,7 @@ def medviz():
     #    cache[params.q + "##" + f] = aliases[f]
     #    alias_table[params.q][f] = aliases[f]
 
-    aliases = defaultdict(list) # TODO
+    aliases = [] # TODO
 
     doc_list = Models.get_doclist(results, params)
 
@@ -96,19 +80,13 @@ def medviz():
 
     df = bin_dataframe(df, binsize)
 
-    try:
-        start = min(q_pubdates)
-        stop = max(q_pubdates)
-        keys = get_keys(start, stop, binsize)
-    except ValueError:
-        keys = []
+    keys = get_keys(q_pubdates, binsize)
 
     if binsize == "month":
         q_data = [str(params.q)] + [get_val_from_df(params.q, key, df, binsize) for key in keys]
 
     facet_datas = {}
     for f in binned_facets['g']:
-        start_time = time.time()
         facet_datas[f] = [str(f)] + [get_val_from_df(f, key, df, binsize) for key in keys]
         # fresults = Models.f_occurs_filter(results, facet=params.detail, aliases=aliases)
         # fdoc_list = Models.get_doclist(results, params, PAGE_LENGTH, aliases=aliases)

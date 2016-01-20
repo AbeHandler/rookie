@@ -1,22 +1,17 @@
 '''
 Application logic for webapp should be in here
 '''
-import sys
 import datetime
 import time
-import json
 import pandas as pd
-import itertools
 import ujson
 import ipdb
 import cPickle as pickle
 from dateutil.parser import parse
 from pylru import lrudecorator
 from dateutil.relativedelta import relativedelta
-from collections import defaultdict
 from rookie.rookie import Rookie
-from experiment import log
-from experiment.snippet_maker import get_snippet_pg, get_snippet2
+from experiment.snippet_maker import get_snippet2
 from experiment.classes import CONNECTION_STRING
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -82,10 +77,12 @@ def get_doc_metadata(docid):
     row = session.connection().execute("select data from doc_metadata where docid=%s", docid).fetchone()
     return row[0]
 
-def get_keys(start, stop, bin):
+def get_keys(q_pubdates, bin):
     '''
     Returns a set of date keys between a start and stop date. bin = size of step
     '''
+    start = min(q_pubdates)
+    stop = max(q_pubdates)
     output = []
     counter = start
     assert bin in ["year", "month", "day"]
@@ -100,12 +97,6 @@ def get_keys(start, stop, bin):
             output.append(str(counter.year) + "-" + str(counter.month))
             counter = counter + delta
     return output
-
-# http://stackoverflow.com/questions/26496831/how-to-convert-defaultdict-of-defaultdicts-of-defaultdicts-to-dict-of-dicts-o
-def default_to_regular(d):
-    if isinstance(d, defaultdict):
-        d = {k: default_to_regular(v) for k, v in d.iteritems()}
-    return d
  
 
 class Parameters(object):
@@ -139,18 +130,6 @@ def get_val_from_df(val_key, dt_key, df, binsize="month"):
         return 0
 
 
-def ovelaps_with_query(facet, query_tokens):
-    '''
-    :param facet:
-    :param query_tokens:
-    :return:
-    '''
-    if len(set(facet.split(" ")).intersection(query_tokens)) == 0:
-        return False
-    else:
-        return True
-
-
 def bin_dataframe(df, binsize):
     '''
     :param df: binary df of what facets show up in what doc_results
@@ -169,7 +148,6 @@ def bin_dataframe(df, binsize):
 
 def make_dataframe(p, facets, results, q_pubdates, aliases):
     '''
-    Checks if given username and password match correct credentials.
     :param p: params
     :type username: Parameters
     :param facets: facets
