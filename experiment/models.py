@@ -151,15 +151,6 @@ def ovelaps_with_query(facet, query_tokens):
         return True
 
 
-def overlaps_with_output(facet, output):
-    '''
-    Is this facet already in the list?
-    '''
-    for i in output:
-        if len(set(facet.split(" ")).intersection(i.split(" "))) > 0:
-            return True
-    return False
-
 def bin_dataframe(df, binsize):
     '''
     :param df: binary df of what facets show up in what doc_results
@@ -174,6 +165,7 @@ def bin_dataframe(df, binsize):
         assert binsize == "day"
         df = df.groupby([df['pd'].map(lambda x: x.year), df['pd'].map(lambda x: x.month), df['pd'].map(lambda x: x.day)]).sum().unstack(0).fillna(0)
     return df
+
 
 def make_dataframe(p, facets, results, q_pubdates, aliases):
     '''
@@ -198,33 +190,7 @@ def make_dataframe(p, facets, results, q_pubdates, aliases):
     return df
 
 
-def passes_one_word_heuristic(on_deck):
-    '''
-    Short check for meaningless 1-grams like "commission"
-    '''
-    if len(on_deck.split(" ")) < 2 and sum(1 for l in on_deck if l.isupper()) < 2:
-        return False
-    return True
-
-
 class Models(object):
-
-    @staticmethod
-    def get_headline(docid):
-        return get_doc_metadata(docid)['headline']
-
-    @staticmethod
-    def get_pub_date(docid):
-        return get_doc_metadata(docid)['pubdate']
-
-    @staticmethod
-    def get_message(l_results, params, len_doc_list, PAGE_LENGTH):
-        if params.page < 1:
-            params.page == 1
-        start = ((params.page - 1) * PAGE_LENGTH) + 1
-        end = start + PAGE_LENGTH + 1
-        output = "{} total results for {}.".format(l_results, params.q)
-        return output
 
     @staticmethod
     def get_parameters(request):
@@ -236,7 +202,6 @@ class Models(object):
         try:
             output.startdate = parse(request.args.get('startdate'))
         except:
-            print "could not parse start date {}".format(request.args.get('startdate'))
             output.startdate = None
         try:
             output.enddate = parse(request.args.get('enddate'))
@@ -265,17 +230,6 @@ class Models(object):
         results = ROOKIE.query(params.q)
         return results
 
-    @staticmethod
-    def date_filter(results, params):
-        '''
-        Filter results by date
-        '''
-        if params.startdate is not None and params.enddate is not None:
-            md = lambda r: get_doc_metadata(r)
-            return [r for r in results if parse(md(r)["pubdate"]) > params.startdate and parse(md(r)["pubdate"]) < params.enddate]
-        else:
-            return results
-
 
     @staticmethod
     def get_doclist(results, params, aliases=None):
@@ -296,11 +250,6 @@ class Models(object):
                 'snippet': Models.get_snippet(r, params.q, f=params.f, aliases=aliases).encode("ascii", "ignore")
             })
         return doc_results
-
-
-    @staticmethod
-    def get_status(params):
-        return ""
 
 
     @staticmethod
