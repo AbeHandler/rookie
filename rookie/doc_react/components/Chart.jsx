@@ -10,6 +10,48 @@ var c3 = require('c3');
 
 module.exports = React.createClass({
 
+   padDigits: function(number, digits) {
+      let n_string = number.toString();
+      if (n_string.length == 1){
+        n_string = "0" + n_string
+      }
+      return n_string;
+   },
+
+  shouldComponentUpdate: function(nextProps, nextState) {
+    console.log(nextProps);
+    console.log(nextState);
+    let current_start = moment(this.props.yr_start + "-" + this.props.mo_start + "-" + this.props.dy_start, "YYYY-MM-DD");
+    let current_end = moment(this.props.yr_end + "-" + this.props.mo_end + "-" + this.props.dy_end, "YYYY-MM-DD");
+    if (this.props.f != nextProps.f){
+       console.log(1);
+       return true;
+    } else if (current_end.format("YYYY") != nextProps.yr_end.toString()){
+       console.log(2);
+       return true;
+    } else if (current_start.format("YYYY") != nextProps.yr_start.toString()){
+       console.log(3);
+       return true;
+    } else if (current_end.format("MM") != this.padDigits(nextProps.mo_end)){
+       console.log(4);
+       console.log(current_end.format("MM"));
+       console.log(nextProps.mo_end.toString());
+       return true;
+    } else if (current_start.format("MM") != this.padDigits(nextProps.mo_start)){
+       console.log(5);
+       return true;
+    } else if (current_end.format("DD") != this.padDigits(nextProps.dy_end)){
+       console.log(6);
+       return true;
+    } else if (current_start.format("DD") != this.padDigits(nextProps.dy_start)){
+       console.log(7);
+       return true;
+    } else {
+       console.log(8);
+       return false;
+    }
+  },
+
   convert_to_c3_land_subtract: function(dt){
     //workaround for https://github.com/masayuki0812/c3/issues/65
     //return moment(dt).format("YYYY-MM-DD");
