@@ -148,17 +148,22 @@ module.exports = React.createClass({
     return {f: -1, hovered: -1, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview"};
   },
 
+  getDuration: function(){
+    let start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
+    let end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
+    var duration = moment.duration(end.diff(start));
+    return duration;
+  },
+
   getStatus: function(ndocs){
     let status = "Found " + ndocs + " stories for " + this.props.q;
+    let duration = this.getDuration();
     if (ndocs == 0){
       return status;
     }
     if (this.state.mode == "overview"){
         status = status + " related to:";
     }else if (this.state.mode == "docs") {
-        let start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
-        let end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
-        var duration = moment.duration(end.diff(start));
         if (this.state.f != -1){
             status = status + " and " + this.state.f; 
         }
@@ -223,7 +228,18 @@ module.exports = React.createClass({
     let binned_facets = _.sortBy(this.props.binned_facets, function(item) {
         return parseInt(item.key);
     });
-
+    let yr_start = this.state.yr_start;
+    let selected_binned_facets;
+    let duration = this.getDuration();
+    if (this.state.yr_start == this.state.yr_end && this.state.mo_end == 12 && this.state.mo_start == 1){
+      selected_binned_facets = _.filter(binned_facets, function(o) { 
+        return o.key == yr_start;
+      });
+    }else if(duration < 360){
+        selected_binned_facets = [];
+    }else{
+      selected_binned_facets = binned_facets;
+    }
     let row_height = Math.floor(this.props.height/binned_facets.length);
 
     let main_panel;
@@ -231,7 +247,10 @@ module.exports = React.createClass({
     let uiMonthHandler = this.handleMo;
 
     if (this.state.mode != "overview") {      
-      main_panel = <div style={y_scroll}><DocViewer f={this.state.f} handleBinClick={this.handleBinClick} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/></div>;
+      main_panel = <div style={y_scroll}>
+                    <BinnedLinguisticFacets hovered={this.state.hovered} handleHoverOut={this.linguisticFacetHoverOut} handleHoverIn={this.linguisticFacetHoverIn} hovered={this.state.hovered} bin_size="year" handleMo={uiMonthHandler} handleBinDocsZoom={this.handleBinDocsZoom} f={f} handleF={this.handleF} bins={selected_binned_facets}/>
+                    <DocViewer f={this.state.f} handleBinClick={this.handleBinClick} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>
+                   </div>;
     } else if (docs.length == 0){
       main_panel = <div></div>;
     } else {
