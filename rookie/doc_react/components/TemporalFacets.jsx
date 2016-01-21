@@ -115,7 +115,7 @@ module.exports = React.createClass({
         let rw_height = this.props.rw_height;
         let mo_bins;
         let selected_fn = this.get_selected_mo;
-        if(this.props.ndocs == 0){
+        if(this.props.n_results == 0){
             return <div></div>
         }
         if (this.props.show_months){
@@ -127,7 +127,7 @@ module.exports = React.createClass({
                     <div style={right}>
                         <div>
                         {_.map(bins, function(n){
-                            return <div key={n[0]}><YearBin rw_height={rw_height} selected={sel(n[0], bin_size)} handleBinClick={binclick} text={n[0]} ndocs={n[1]}/></div>;
+                            return <div key={n[0]}><YearBin rw_height={rw_height} selected={sel(n[0], bin_size)} handleBinClick={binclick} text={n[0]} n_results={n[1]}/></div>;
                         })}
                         </div>
                     </div>
@@ -136,7 +136,7 @@ module.exports = React.createClass({
         }else{
             return (<div>
                 {_.map(bins, function(n){
-                    return <div key={n[0]}><YearBin rw_height={rw_height} selected={sel(n[0], bin_size)} handleBinClick={binclick} text={n[0]} ndocs={n[1]}/></div>;
+                    return <div key={n[0]}><YearBin rw_height={rw_height} selected={sel(n[0], bin_size)} handleBinClick={binclick} text={n[0]} n_results={n[1]}/></div>;
                 })}
                 </div>); 
         }

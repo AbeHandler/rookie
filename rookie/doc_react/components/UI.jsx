@@ -171,6 +171,7 @@ module.exports = React.createClass({
             status = status + " in " + this.state.yr_start;
         }
         else if (Math.floor(duration.asDays()) < 32 & Math.floor(duration.asDays()) > 28){
+            let end = moment(this.state.mo_end + "-" + this.state.dy_end + "-" + this.state.yr_end, "MM-DD-YYYY");
             status = status + " in " + end.format("MMM YYYY");
         }else if (Math.floor(duration.asDays()) > 364 & Math.floor(duration.asDays()) < 366){
             status = status + " in " + start.format("YYYY");
@@ -232,12 +233,16 @@ module.exports = React.createClass({
     let selected_binned_facets;
     let duration = this.getDuration();
     if (this.state.yr_start == this.state.yr_end && this.state.mo_end == 12 && this.state.mo_start == 1){
+      console.log(1);
       selected_binned_facets = _.filter(binned_facets, function(o) { 
         return o.key == yr_start;
       });
-    }else if(duration < 360){
+    }else if(duration.days() < 360){
+      console.log(2);
+      console.log(duration);
         selected_binned_facets = [];
     }else{
+      console.log(3);
       selected_binned_facets = binned_facets;
     }
     let row_height = Math.floor(this.props.height/binned_facets.length);
@@ -288,14 +293,14 @@ module.exports = React.createClass({
             <div style={rw}>
                 {linguistic_status}
             </div>
-            <GlobalFacetList ndocs={docs.length} hovered={this.state.hovered} handleHoverIn={this.linguisticFacetHoverIn} handleHoverOut={this.linguisticFacetHoverOut} active={f} onClick={this.handleF} items={this.props.datas}/>
+            <GlobalFacetList n_results={this.props.all_results.length} hovered={this.state.hovered} handleHoverIn={this.linguisticFacetHoverIn} handleHoverOut={this.linguisticFacetHoverOut} active={f} onClick={this.handleF} items={this.props.datas}/>
             <div>{status}</div>
             <div style={rw} >
-                <div style={lc}><TemporalFacets ndocs={docs.length} vars={this.props.vars} q_data={this.props.q_data} bins={this.props.chart_bins} handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={this.props.all_results} f={f} bin_size={bin_size}/></div>
+                <div style={lc}><TemporalFacets n_results={this.props.all_results.length} vars={this.props.vars} q_data={this.props.q_data} bins={this.props.chart_bins} handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={this.props.all_results} f={f} bin_size={bin_size}/></div>
                 <div style={rc}>{main_panel}</div>
             </div>
             <div style={rw}>
-            <Chart ndocs={docs.length} chart_bins={this.props.chart_bins} q_data={this.props.q_data} vars={this.props.vars} q={q} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} tHandler={this.handleT} f={this.state.f}/>
+            <Chart ndocs={this.props.all_results.length} chart_bins={this.props.chart_bins} q_data={this.props.q_data} vars={this.props.vars} q={q} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} tHandler={this.handleT} f={this.state.f}/>
             </div>
        </div>);
   }
