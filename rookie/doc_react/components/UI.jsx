@@ -135,14 +135,24 @@ module.exports = React.createClass({
     //Notes.
     //1) convention: -1 == null
     //2) keeping track of y/mo/dy is annoying but react won't allow object as prop
-    let min = this.get_min(this.props.all_results);
-    let max = this.get_max(this.props.all_results);
+    let min;
+    let max;
+    if (this.props.all_results.length > 0){
+        min = this.get_min(this.props.all_results);
+        max = this.get_max(this.props.all_results);      
+    } else{
+        min = moment("01-01-2010"); //TODO: hardcoded for Lens corpus
+        max = moment("05-01-2010", "MM-DD-YYYY"); //TODO: hardcoded for Lens corpus
+    }
     //TODO: if no results, this fails
     return {f: -1, hovered: -1, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview"};
   },
 
   getStatus: function(ndocs){
     let status = "Found " + ndocs + " stories for " + this.props.q;
+    if (ndocs == 0){
+      return status;
+    }
     if (this.state.mode == "overview"){
         status = status + " related to:";
     }else if (this.state.mode == "docs") {
@@ -189,12 +199,21 @@ module.exports = React.createClass({
     });
   },
 
+  get_linguistic_facet_status(q, ndocs){
+    if (ndocs > 0){
+      return "Subjects related to " + q + ":";
+    }else{
+      return "";
+    }
+  },
+
   render: function() {
     let f = this.state.f;
     let q = this.props.q;
     let bin_size = "year"; //default binsize
     // docs = those that match q, f & t. all_results = what comes from browser.
     let docs = this.resultsToDocs(this.props.all_results);
+
     let status = this.getStatus(docs.length);
 
     let y_scroll = {
@@ -213,6 +232,8 @@ module.exports = React.createClass({
 
     if (this.state.mode != "overview") {      
       main_panel = <div style={y_scroll}><DocViewer f={this.state.f} handleBinClick={this.handleBinClick} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/></div>;
+    } else if (docs.length == 0){
+      main_panel = <div></div>;
     } else {
       //status = "Found " + this.props.all_results.length + " results for " + this.props.q + " related to:"
       main_panel = <BinnedLinguisticFacets hovered={this.state.hovered} handleHoverOut={this.linguisticFacetHoverOut} handleHoverIn={this.linguisticFacetHoverIn} hovered={this.state.hovered} rw_height={row_height} bin_size="year" handleMo={uiMonthHandler} handleBinDocsZoom={this.handleBinDocsZoom} f={f} handleF={this.handleF} bins={binned_facets}/>;
@@ -233,25 +254,29 @@ module.exports = React.createClass({
         height: this.props.height,
         textAlign: "center"
     };
+    if (docs.length == 0){
+      lc.borderRight = "1px solid white"
+    };
     let rc = {
         width: (100 - left_col_width - 1).toString() + "%",
         float: "left",
         height: this.props.height
     };
     let handleMoUI = this.handleMo;
+    let linguistic_status = this.get_linguistic_facet_status(q, docs.length);
     return(
         <div>
             <div style={rw}>
-                Subjects related to {q}:
+                {linguistic_status}
             </div>
-            <GlobalFacetList hovered={this.state.hovered} handleHoverIn={this.linguisticFacetHoverIn} handleHoverOut={this.linguisticFacetHoverOut} active={f} onClick={this.handleF} items={this.props.datas}/>
+            <GlobalFacetList ndocs={docs.length} hovered={this.state.hovered} handleHoverIn={this.linguisticFacetHoverIn} handleHoverOut={this.linguisticFacetHoverOut} active={f} onClick={this.handleF} items={this.props.datas}/>
             <div>{status}</div>
             <div style={rw} >
-                <div style={lc}><TemporalFacets vars={this.props.vars} q_data={this.props.q_data} bins={this.props.chart_bins} handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={this.props.all_results} f={f} bin_size={bin_size}/></div>
+                <div style={lc}><TemporalFacets ndocs={docs.length} vars={this.props.vars} q_data={this.props.q_data} bins={this.props.chart_bins} handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={this.props.all_results} f={f} bin_size={bin_size}/></div>
                 <div style={rc}>{main_panel}</div>
             </div>
             <div style={rw}>
-            <Chart chart_bins={this.props.chart_bins} q_data={this.props.q_data} vars={this.props.vars} q={q} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} tHandler={this.handleT} f={this.state.f}/>
+            <Chart ndocs={docs.length} chart_bins={this.props.chart_bins} q_data={this.props.q_data} vars={this.props.vars} q={q} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} tHandler={this.handleT} f={this.state.f}/>
             </div>
        </div>);
   }

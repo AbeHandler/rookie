@@ -19,6 +19,10 @@ module.exports = React.createClass({
         let docs = _.sortBy(this.props.docs, function(d){
             return moment(d.pubdate);
         });
+        console.log(docs.length);
+        if (docs.length < 1){
+            return <div></div>;
+        }
         let f = this.props.f;
         var markup = function(doc) { 
            return {__html: doc.snippet};

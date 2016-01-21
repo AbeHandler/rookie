@@ -115,6 +115,9 @@ module.exports = React.createClass({
         let rw_height = this.props.rw_height;
         let mo_bins;
         let selected_fn = this.get_selected_mo;
+        if(this.props.ndocs == 0){
+            return <div></div>
+        }
         if (this.props.show_months){
            let right = {
             "width":"50%",

@@ -25,6 +25,9 @@ module.exports = React.createClass({
   render: function() {
     let hoverCheck = this.hoverCheck;
     let selectedCheck = this.selectedCheck;
+    if (this.props.ndocs == 0){
+      return <div></div>;
+    }
     return (<div>
         {this.props.items.map(function(item, i) {
           //TODO: no logic in render
