@@ -9,6 +9,8 @@ import ipdb
 import cPickle as pickle
 from dateutil.parser import parse
 from pylru import lrudecorator
+from joblib import Memory
+from tempfile import mkdtemp
 from dateutil.relativedelta import relativedelta
 from rookie.rookie import Rookie
 from experiment.snippet_maker import get_snippet2
@@ -16,11 +18,17 @@ from experiment.classes import CONNECTION_STRING
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+
+cachedir = mkdtemp()
+
 ROOKIE = Rookie("rookieindex")
+
+memory = Memory(cachedir=cachedir, verbose=0)
 
 engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
+
 
 
 def filter_results_with_binary_dataframe(results, facet, df):
@@ -31,6 +39,19 @@ def filter_results_with_binary_dataframe(results, facet, df):
     for h in hits:
         assert h in results
     return hits
+
+
+@memory.cache
+def results_to_doclist(results, q, f, aliases):
+    '''
+    Start w/ search results. filter based on params. get a doclist back.
+    '''
+    metadata = [get_doc_metadata(r) for r in results]
+    q_pubdates = [parse(h["pubdate"]) for h in metadata]
+    df = make_dataframe(q, [f], results, q_pubdates, aliases)
+    results = filter_results_with_binary_dataframe(results, f, df)
+    fdoc_list = Models.get_doclist(results, q, f, aliases=aliases)
+    return fdoc_list
 
 
 @lrudecorator(100)
@@ -149,9 +170,9 @@ def bin_dataframe(df, binsize):
     return df
 
 
-def make_dataframe(p, facets, results, q_pubdates, aliases):
+def make_dataframe(q, facets, results, q_pubdates, aliases):
     '''
-    :param p: params
+    :param q: params.q
     :type username: Parameters
     :param facets: facets
     :type: unicode
@@ -160,7 +181,7 @@ def make_dataframe(p, facets, results, q_pubdates, aliases):
     df = pd.DataFrame()
     df['id'] = results
     df['pd'] = q_pubdates
-    df[p.q] = [1 for i in q_pubdates]
+    df[q] = [1 for i in q_pubdates]
     for facet in facets:
         facet_dates = [i for i in set([i for i in get_pubdates_for_ngram(facet)])]
         #TODO
@@ -209,11 +230,11 @@ class Models(object):
         '''
 
         results = ROOKIE.query(params.q)
-        return results
+        return tuple(results)
 
 
     @staticmethod
-    def get_doclist(results, params, aliases=None):
+    def get_doclist(results, q, f, aliases=None):
         doc_results = []
 
         # AH: assuming the order of results is not changed since coming out from IR system
@@ -228,7 +249,7 @@ class Models(object):
                 'year': pubdate.year,
                 'month': pubdate.month,
                 'day': pubdate.day,
-                'snippet': Models.get_snippet(r, params.q, f=params.f, aliases=aliases).encode("ascii", "ignore")
+                'snippet': Models.get_snippet(r, q, f, aliases=aliases).encode("ascii", "ignore")
             })
         return doc_results
 

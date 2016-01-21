@@ -3,9 +3,10 @@ The main web app for rookie
 '''
 import ipdb
 import pylru
+import time
 import json
 from dateutil.parser import parse
-from experiment.models import make_dataframe, get_keys, get_val_from_df, bin_dataframe, filter_results_with_binary_dataframe
+from experiment.models import results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, filter_results_with_binary_dataframe
 from flask import Flask
 from flask import request
 from facets.query import get_facets_for_q
@@ -13,12 +14,20 @@ from experiment.views import Views
 from experiment.models import Models
 from experiment import IP, ROOKIE_JS, ROOKIE_CSS
 from experiment.models import get_doc_metadata
+import threading
+
+def worker(results, params, f, aliases):
+    """Starts prepping doclist to go fast on facet click"""
+    results_to_doclist(results, params.q, f, aliases=tuple([])) #TODO aliases
+    print "cached {}".format(f)
+    #TODO: lots of repeating code here and in POST and GET methods below
+
+    return
+
 
 app = Flask(__name__)
 
 views = Views(IP, ROOKIE_JS, ROOKIE_CSS)
-
-print views.rookie_css
 
 cache = pylru.lrucache(1000)
 
@@ -37,18 +46,7 @@ def get_doc_list():
 
     results = Models.get_results(params)
 
-    aliases = [] # cache[params.q + "##" + params.detail]
-    
-    metadata = [get_doc_metadata(r) for r in results]
-
-    q_pubdates = [parse(h["pubdate"]) for h in metadata]
-
-    # TODO note no aliases
-    df = make_dataframe(params, [params.f], results, q_pubdates, aliases)
-
-    results = filter_results_with_binary_dataframe(results, params.f, df)
-
-    doc_list = Models.get_doclist(results, params, aliases=aliases)
+    doc_list = results_to_doclist(results, params.q, params.f, aliases=tuple([])) #TODO aliases
 
     return json.dumps(doc_list)
 
@@ -56,6 +54,7 @@ def get_doc_list():
 @app.route('/', methods=['GET'])
 def medviz():
 
+    start = time.time()
     params = Models.get_parameters(request)
 
     results = Models.get_results(params)
@@ -68,7 +67,7 @@ def medviz():
 
     aliases = [] # TODO
 
-    doc_list = Models.get_doclist(results, params)
+    doc_list = Models.get_doclist(results, params.q, params.f)
 
     metadata = [get_doc_metadata(r) for r in results]
 
@@ -76,7 +75,7 @@ def medviz():
 
     binsize = "month"
 
-    df = make_dataframe(params, binned_facets['g'], results, q_pubdates, aliases)
+    df = make_dataframe(params.q, binned_facets['g'], results, q_pubdates, aliases)
 
     df = bin_dataframe(df, binsize)
 
@@ -86,11 +85,11 @@ def medviz():
         q_data = [str(params.q)] + [get_val_from_df(params.q, key, df, binsize) for key in keys]
 
     facet_datas = {}
+    processes = []
     for f in binned_facets['g']:
         facet_datas[f] = [str(f)] + [get_val_from_df(f, key, df, binsize) for key in keys]
-        # fresults = Models.f_occurs_filter(results, facet=params.detail, aliases=aliases)
-        # fdoc_list = Models.get_doclist(results, params, PAGE_LENGTH, aliases=aliases)
-        # print "[*] getting facets took {}".format(start_time - time.time())
+        t = threading.Thread(target=worker, args=(results, params, f, aliases))
+        t.start()
 
     keys = ["x"] + [k + "-1" for k in keys] # hacky addition of date to keys
 
@@ -104,6 +103,11 @@ def medviz():
 
     view = views.get_q_response_med(params, doc_list, facet_datas, keys, q_data, len(results), binsize, display_bins, binned_facets['g'])
 
+    #for t in processes:
+    #    t.start()
+
+    elapsed = time.time() - start
+    print "tot time = {}".format(elapsed)
     return view
 
 

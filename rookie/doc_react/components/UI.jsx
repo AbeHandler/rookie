@@ -72,14 +72,22 @@ module.exports = React.createClass({
 
   handleMo:function (e){
     //the user just clicked a month facet, e
-    this.setState({mo_start: e});
-    this.setState({mo_end: e});
-    this.setState({dy_start: 1});
-    //thiry days hath september ... 
-    //https://en.wikipedia.org/wiki/Thirty_days_hath_September#History
-    //Since 1488!
-    this.setState({dy_end: this.thiryDaysHath(e)});
 
+    //if the month is already selected... unselect it
+    if (this.state.mo_start == e && this.state.mo_end == e){
+      this.setState({mo_start: 1});
+      this.setState({mo_end: 12});
+      this.setState({dy_start: 1});
+      this.setState({dy_end: 31});
+    }else{
+      this.setState({mo_start: e});
+      this.setState({mo_end: e});
+      this.setState({dy_start: 1});
+      //thiry days hath september ... 
+      //https://en.wikipedia.org/wiki/Thirty_days_hath_September#History
+      //Since 1488!
+      this.setState({dy_end: this.thiryDaysHath(e)});      
+    }
   },
 
 
@@ -232,17 +240,13 @@ module.exports = React.createClass({
     let yr_start = this.state.yr_start;
     let selected_binned_facets;
     let duration = this.getDuration();
-    if (this.state.yr_start == this.state.yr_end && this.state.mo_end == 12 && this.state.mo_start == 1){
-      console.log(1);
+    if (this.state.yr_start == this.state.yr_end && this.state.mo_end == 12 && this.state.mo_start == 1 && this.state.f == -1){
       selected_binned_facets = _.filter(binned_facets, function(o) { 
         return o.key == yr_start;
       });
     }else if(duration.days() < 360){
-      console.log(2);
-      console.log(duration);
         selected_binned_facets = [];
     }else{
-      console.log(3);
       selected_binned_facets = binned_facets;
     }
     let row_height = Math.floor(this.props.height/binned_facets.length);
@@ -287,7 +291,7 @@ module.exports = React.createClass({
         height: this.props.height
     };
     let handleMoUI = this.handleMo;
-    let linguistic_status = this.get_linguistic_facet_status(q, docs.length);
+    let linguistic_status = this.get_linguistic_facet_status(q, this.props.all_results.length);
     return(
         <div>
             <div style={rw}>
