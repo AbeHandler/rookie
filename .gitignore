@@ -3,6 +3,7 @@
 gawk/*
 stanford_corenlp_pywrapper/*
 lens_downloader/files/*
+corpora/*
 *pyc
 *log
 data/lens_processed/*
