@@ -2,7 +2,7 @@
 Queries whoosh and builds facets for query
 '''
 from __future__ import division
-from experiment.models import ROOKIE
+from webapp.models import ROOKIE
 from pylru import lrudecorator
 from whoosh import query
 import bottleneck

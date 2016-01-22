@@ -6,14 +6,14 @@ import pylru
 import time
 import json
 from dateutil.parser import parse
-from experiment.models import results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, filter_results_with_binary_dataframe
+from webapp.models import results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, filter_results_with_binary_dataframe
 from flask import Flask
 from flask import request
 from facets.query import get_facets_for_q
-from experiment.views import Views
-from experiment.models import Models
-from experiment import IP, ROOKIE_JS, ROOKIE_CSS
-from experiment.models import get_doc_metadata
+from webapp.views import Views
+from webapp.models import Models
+from webapp import IP, ROOKIE_JS, ROOKIE_CSS
+from webapp.models import get_doc_metadata
 import threading
 
 def worker(results, params, f, aliases):

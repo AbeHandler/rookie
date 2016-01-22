@@ -6,18 +6,39 @@ import time
 import pandas as pd
 import ujson
 import ipdb
+import os
 import cPickle as pickle
 from dateutil.parser import parse
 from pylru import lrudecorator
 from joblib import Memory
+from whoosh.index import open_dir
 from tempfile import mkdtemp
+from whoosh.qparser import QueryParser
 from dateutil.relativedelta import relativedelta
-from rookie.rookie import Rookie
-from experiment.snippet_maker import get_snippet2
-from experiment.classes import CONNECTION_STRING
+from webapp.snippet_maker import get_snippet2
+from webapp.classes import CONNECTION_STRING
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+class Rookie:
+    """The Rookie engine"""
+    def __init__(self, path):
+        self.path = path
+        # for now, just checks if metadata_json is there, if not, runs index
+        if "meta_data.json" not in os.listdir(path):
+            self.index()
+
+
+    def query(self, qry_string):
+        start_time = time.time()
+        index = open_dir(self.path)
+        query_parser = QueryParser("content", schema=index.schema)
+        query = query_parser.parse(qry_string)
+        with index.searcher() as srch:
+            results_a = srch.search(query, limit=None)
+            out = [a.get("path").replace("/", "") for a in results_a]
+        #print "[*] querying took {}".format(start_time - time.time())
+        return out
 
 cachedir = mkdtemp()
 

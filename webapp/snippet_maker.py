@@ -3,11 +3,11 @@ import datetime
 # import ipdb
 import itertools
 import time
-from experiment.classes import Sentence, Document
+from webapp.classes import Sentence, Document
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import desc
-from experiment.classes import CONNECTION_STRING
+from webapp.classes import CONNECTION_STRING
 
 start_time = time.time()
 engine = create_engine(CONNECTION_STRING)
@@ -97,7 +97,7 @@ def get_snippet2(docid, q, f_aliases=None, taginfo=None):
     return them as the snippet.
     """
 
-    from experiment.models import get_doc_metadata
+    from webapp.models import get_doc_metadata
     d = get_doc_metadata(docid)
     hsents = {'has_q':[], 'has_f':[]}
     for sentnum,toktext in enumerate(d['sentences']):

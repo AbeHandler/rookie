@@ -36,6 +36,6 @@ Run whooshy/loader.py to put the articles in the search engine.
 
 `experiment/snippet_maker.py` simple snippet maker that finds sentences that contain a query or facet as substring
 
-`rookie` Mostly legacy code slowly moving over to /experiment.
+`rookie_ui` React UI for rookie. use gulp b to push js to /webapp
 
 `whooshy` Holds code for interacting with whoosh, the IR system for Rookie

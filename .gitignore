@@ -16,8 +16,8 @@ devenv-key.pem
 test.dot
 .ipynb_checkpoints/
 awsstuff/medrookie.pem
-rookie/doc_react/node_modules/*
-rookie/doc_react/app/*
+rookie_ui/doc_react/node_modules/*
+rookie_ui/doc_react/app/*
 experiment/static/js/bundle.js
 articles/*
 rookie/doc_react/.sass-cache/
