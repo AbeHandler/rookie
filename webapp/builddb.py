@@ -7,52 +7,15 @@ import pickle
 import ipdb
 import datetime
 import dateutil.parser
-from rookie import processed_location
-from experiment.classes import Document, Facet, Sentence, DocumentFacet
-from rookie.classes import IncomingFile
+
+#TODO : ini file not hardcoded
+
+
+from webapp.classes import Document, Facet, Sentence, DocumentFacet
+from webapp.classes import IncomingFile
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from experiment.classes import CONNECTION_STRING
-
-'''
-def build(processed_location):
-I THINK DEAD CODE
-    files_to_check = glob.glob(processed_location + "/*")
-
-    facetcounter = 0
-    for counter, infile in enumerate(files_to_check):
-        try:
-            if counter % 100 == 0:
-                print counter
-            full_text = IncomingFile(infile).doc.full_text
-            headline = unicode(IncomingFile(infile).headline).encode("ascii", "ignore")
-            pubdate = IncomingFile(infile).pubdate
-            ed_user = Document(pubdate=pubdate, headline=headline, docid=counter)
-            session.add(ed_user)
-            session.flush()
-            for s_index, sentence in enumerate(IncomingFile(infile).doc.sentences):
-                s_db = Sentence(str(sentence), counter, s_index)
-                session.add(s_db)
-                for ne in sentence.ner:
-                    facet = Facet(str(ne).decode("ascii", "ignore"), facetcounter)
-                    docfacet = DocumentFacet(counter, facetcounter)
-                    session.add(facet)
-                    session.flush()
-                    session.add(docfacet)
-                    session.flush()
-                    facetcounter += 1
-                for ng in sentence.ngrams:
-                    facet = Facet(" ".join([i.raw.encode("ascii", "ignore") for i in ng]), facetcounter)
-                    docfacet = DocumentFacet(counter, facetcounter)
-                    session.add(facet)
-                    session.flush()
-                    session.add(docfacet)
-                    session.flush()
-                    facetcounter += 1
-
-        except AttributeError:
-            print "error"
-'''
+from webapp.classes import CONNECTION_STRING
 
 def doc_metadata_to_db():
     print "building per-doc metadata table"
@@ -66,7 +29,6 @@ def doc_metadata_to_db():
     docids = [int(i) for i in docids]
     docids.sort()
     for docid in docids:
-        print docid
         go("""INSERT INTO doc_metadata (docid, data) VALUES (%s, %s)""", 
             docid, ujson.dumps(mt[str(docid)]))
     print "Num docs in metadata table:", go("select count(1) from doc_metadata").fetchone()[0]
@@ -81,8 +43,6 @@ def create_pubdate_index():
     with open("rookieindex/string_to_pubdate_index.p") as inf:
         metadata = pickle.load(inf)
     for i,ngram in enumerate(metadata):
-        if i % 1000==0:
-            sys.stdout.write("...%s" % i); sys.stdout.flush()
         dates = metadata[ngram]
         dates = sorted(set(dates))
         go(u"""INSERT INTO ngram_pubdates (ngram, pubdates) VALUES (%s, %s)""",

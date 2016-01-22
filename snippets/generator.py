@@ -1,7 +1,7 @@
 import sys
 import math
 import pdb
-from rookie.classes import IncomingFile
+from experiment.classes import IncomingFile
 
 
 def query_unigram_overlap(sentence_tokens, query_words):

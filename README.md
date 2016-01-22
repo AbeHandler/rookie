@@ -12,15 +12,21 @@ This project began at [The Lens](http://www.thelensnola.org "The Lens") with [su
 
 [![Build Status](https://travis-ci.org/AbeHandler/rookie.svg?branch=master)](https://travis-ci.org/AbeHandler/rookie) [![Coverage Status](https://coveralls.io/repos/AbeHandler/rookie/badge.svg?branch=master&service=github)](https://coveralls.io/github/AbeHandler/rookie?branch=master)
 
+#### Data
+
 #### Indexing
 
-Run the downloadandprocess to download from The Lens and run CoreNLP.
+Rookie holds raw corpora in corpora/[corpusname]/raw/all.extract
 
-Run whooshy/loader.py to put the articles in the search engine.
+It assumes that all.extract stores all.extract is a tsv with the pubdate in position 1, the text in position 5 and the headline in position 4. Like this: "NA\t1-1-2000\tNA\tNA\tHEADLINE\tTEXT". An optional url goes in position 6.
+
+Getting the corpora into this format is considered preprocessing outside of Rookie's scope.
+
+Rookie processes corpora in corpora/[corpusname]/raw/all.extract by running them through @brenocon 's corenlp pipeline. Use `python getting_and_processing_corpora/corpus_proc.py path/to/corenlp corpusname`
+
+Once corpora are processed, Rookie needs to add them to whoosh. To do this, use `$ py getting_and_processing_corpora/load_to_whoosh.py --corpus [corpusname]`
 
 #### Code
-
-`aliaswork` Mostly old code trying to find captions for people using dependency graphs + AP style
 
 `awsstuff` Code to load stuff into AWS (only ec2 right now). Note: Rookie used to run on AWS cloud search but now uses Whoosh. So some of that code is old.
 
@@ -28,13 +34,7 @@ Run whooshy/loader.py to put the articles in the search engine.
 
 `docker` The docker file and other docker stuff
 
-`experiment` The main rookie app
-
-`experiment/classes.py` SQL alchemy classes that wrap db tables
-
-`experiment/builddb.py` loops over output from StanfordCoreNLP wrapper and adds to a postgres db
-
-`experiment/snippet_maker.py` simple snippet maker that finds sentences that contain a query or facet as substring
+`webapp` 
 
 `rookie_ui` React UI for rookie. use gulp b to push js to /webapp
 

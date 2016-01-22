@@ -1,5 +1,7 @@
 *.jshintrc
 *.DS_Store
+gawk/*
+stanford_corenlp_pywrapper/*
 lens_downloader/files/*
 *pyc
 *log

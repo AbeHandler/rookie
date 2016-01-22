@@ -1,0 +1,3 @@
+run corpus_proc.py path/to/core/nlp corpusdir. 
+
+assumes the following file structure: corpora/corpusdir/raw and corpora/corpusdir/processed 

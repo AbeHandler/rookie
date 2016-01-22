@@ -1,7 +1,7 @@
 '''
 This module loads a facet_document matrix
 '''
-from rookie.classes import IncomingFile
+from webapp.classes import IncomingFile
 from collections import defaultdict
 from pylru import lrudecorator
 from joblib import Memory
@@ -153,7 +153,7 @@ def ngram_matrix(docids, ok_ngrams):
     '''
     This function builds three facet X doc matrixes: one for people, one for org, one for ngrams
     '''
-    print "[*] Building three facet X doc matrixes"
+    print "[*] Facet X doc matrixes"
 
     ngram_to_slot = {n: i for (i, n) in enumerate(ok_ngrams)}
 
@@ -162,7 +162,6 @@ def ngram_matrix(docids, ok_ngrams):
     ngram_counter = defaultdict(int)
 
     for dinex, docid in enumerate(docids):
-        print dinex
         ngram = set([str(j) for j in MT[unicode(docid)]["ngram"] if j in ok_ngrams])
         docid = int(docid)
         for n in ngram:

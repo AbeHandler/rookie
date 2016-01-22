@@ -4,7 +4,7 @@ import pdb
 import pickle
 from collections import defaultdict
 
-from rookie.classes import IncomingFile
+from experiment.classes import IncomingFile
 
 language_model = defaultdict(int)
 jk_language_model = defaultdict(int)

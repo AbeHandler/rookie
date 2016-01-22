@@ -3,6 +3,12 @@ import socket
 import os
 
 
+LENS_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/lens.css'
+BANNER_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/banner.css'
+SEARCH_JS = 'http://s3-us-west-2.amazonaws.com/rookielens/js/search.js'
+CLOUD_JS = 'http://s3-us-west-2.amazonaws.com/rookielens/js/cloud.js'
+CLOUD_LAYOUT_JS = 'http://s3-us-west-2.amazonaws.com/rookielens/js/d3.layout.cloud.js'
+
 LOG_PATH = "experiment.log"
 
 # http://stackoverflow.com/questions/166506/finding-local-ip-addresses-using-pythons-stdlib
@@ -18,6 +24,24 @@ else:
     ROOKIE_JS = "https://s3-us-west-2.amazonaws.com/rookie2/js/"
     ROOKIE_CSS = "https://s3-us-west-2.amazonaws.com/rookie2/css/"
     PG_HOST = os.environ.get('PG_PORT_5432_TCP_ADDR','localhost')
+
+
+
+if socket.gethostname() == 'dewey':
+    files_location = "/Users/ahandler/research/rookie/"
+    processed_location = "/Users/ahandler/research/rookie/lens_processed"
+elif 'btop2' in socket.gethostname():
+    server_port=8000
+    core_nlp_location = None
+    corpus_loc = None
+    files_location = None
+    processed_location = None
+    tagger_base = None
+    window_length = 30
+else:
+    files_location = "/home/app/rookie/"
+    processed_location = "/Users/abramhandler/research/rookie/data/lens_processed"
+    server_port = 80
 
 
 log = logging.getLogger(__name__)

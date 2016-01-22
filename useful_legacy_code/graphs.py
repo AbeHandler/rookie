@@ -1,7 +1,7 @@
 import pdb
 import networkx as nx
 import matplotlib.pyplot as plt
-from rookie.classes import Sentence
+from experiment.classes import Sentence
 # https://stackoverflow.com/questions/15644684/best-practices-for-querying-graphs-by-edge-and-node-attributes-in-networkx
 
 

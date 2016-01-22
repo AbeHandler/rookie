@@ -4,9 +4,9 @@ This module loads documents into whoosh and creates a sentence index
 from whoosh.index import create_in
 from whoosh.fields import Schema, TEXT, ID
 from whoosh import writing
-from rookie.classes import IncomingFile
+from webapp.classes import IncomingFile
 from collections import defaultdict
-from rookie import processed_location
+from webapp import processed_location
 import ipdb
 import os
 import json
@@ -60,7 +60,7 @@ def load(index_location, processed_location):
                 people_org_ngram_index[s_counter] = meta_data
                 s_counter += 1
                 print s_counter
-        except AttributeError:
+        except UnicodeError:
             print "error"
 
     writer.commit(mergetype=writing.CLEAR)
