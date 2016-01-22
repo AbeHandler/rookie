@@ -59,7 +59,9 @@ def medviz():
 
     results = Models.get_results(params)
 
+    fstart = time.time()
     binned_facets = get_facets_for_q(params.q, results, 9)
+    print "facet time = {}".format(time.time() - fstart)
 
     #for f in facets:
     #    cache[params.q + "##" + f] = aliases[f]
@@ -67,13 +69,18 @@ def medviz():
 
     aliases = [] # TODO
 
+    dlstart = time.time()
     doc_list = Models.get_doclist(results, params.q, params.f)
+    print "doclist time = {}".format(time.time() - dlstart)
+
 
     metadata = [get_doc_metadata(r) for r in results]
 
     q_pubdates = [parse(h["pubdate"]) for h in metadata]
 
     binsize = "month"
+
+    print "early time = {}".format(time.time() - start)
 
     df = make_dataframe(params.q, binned_facets['g'], results, q_pubdates, aliases)
 
@@ -88,8 +95,6 @@ def medviz():
     processes = []
     for f in binned_facets['g']:
         facet_datas[f] = [str(f)] + [get_val_from_df(f, key, df, binsize) for key in keys]
-        t = threading.Thread(target=worker, args=(results, params, f, aliases))
-        t.start()
 
     keys = ["x"] + [k + "-1" for k in keys] # hacky addition of date to keys
 
@@ -103,11 +108,12 @@ def medviz():
 
     view = views.get_q_response_med(params, doc_list, facet_datas, keys, q_data, len(results), binsize, display_bins, binned_facets['g'])
 
-    #for t in processes:
-    #    t.start()
+    print "tot time = {}".format(time.time() - start)
+    for f in binned_facets['g']:
+        t = threading.Thread(target=worker, args=(results, params, f, aliases))
+        t.start()
 
-    elapsed = time.time() - start
-    print "tot time = {}".format(elapsed)
+    print "thread time = {}".format(time.time() - start)
     return view
 
 

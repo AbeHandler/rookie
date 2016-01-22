@@ -164,7 +164,11 @@ module.exports = React.createClass({
   },
 
   getStatus: function(ndocs){
-    let status = "Found " + ndocs + " stories for " + this.props.q;
+    let story_phrase = "stories";
+    if (ndocs) == 1 {
+      story_phrase = "story";
+    }
+    let status = "Found " + story_phrase + " stories for " + this.props.q;
     let duration = this.getDuration();
     if (ndocs == 0){
       return status;
