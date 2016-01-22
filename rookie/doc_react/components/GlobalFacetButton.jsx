@@ -24,7 +24,9 @@ module.exports = React.createClass({
             "fontWeight": "bold",
             "backgroundColor": "#D3D3D3",
             "color": "black",
-            "fontSize":12
+            "fontSize":12,
+            "paddingBottom": 3,
+            "paddingTop": 3
          };
          if (this.props.selected){
             divStyle.color = "rgb(0, 40, 163)";
