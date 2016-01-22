@@ -6,8 +6,9 @@ A simple cherrypy server that runs the experiment
 # from app import application
 # Example:
 
-from experiment.app import app
-from rookie import server_port
+from webapp.app import app
+
+server_port = 80
 
 # Import CherryPy
 import cherrypy
