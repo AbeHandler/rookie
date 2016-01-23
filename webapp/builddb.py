@@ -6,6 +6,7 @@ import ujson
 import pickle
 import ipdb
 import datetime
+import argparse
 import dateutil.parser
 
 #TODO : ini file not hardcoded
@@ -17,13 +18,17 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from webapp.classes import CONNECTION_STRING
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--corpus', help='the thing in the middle of corpus/{}/raw', required=True)
+args = parser.parse_args()
+
 def doc_metadata_to_db():
     print "building per-doc metadata table"
     go = lambda *args: session.connection().execute(*args)
     go("drop table if exists doc_metadata")
     go("create table doc_metadata (docid integer not null primary key, data jsonb)")
 
-    mt = ujson.load(open("rookieindex/meta_data.json"))
+    mt = ujson.load(open("indexes/{}/meta_data.json".format(args.corpus)))
     print len(mt), "docs in metadata json"
     docids = mt.keys()
     docids = [int(i) for i in docids]
@@ -40,7 +45,7 @@ def create_pubdate_index():
     go("drop table if exists ngram_pubdates")
     go("create table ngram_pubdates (ngram text, pubdates jsonb)")
     # string to pubdate matrix created in building matrix
-    with open("rookieindex/string_to_pubdate_index.p") as inf:
+    with open("indexes/lens/string_to_pubdate_index.p") as inf: #TODO: lens hardcoded
         metadata = pickle.load(inf)
     for i,ngram in enumerate(metadata):
         dates = metadata[ngram]

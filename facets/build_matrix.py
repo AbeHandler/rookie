@@ -10,19 +10,27 @@ import ujson
 import os
 import ipdb
 import glob
+import sys
 import time
 import ipdb
 import cPickle as pickle
 import numpy as np
 import joblib
+import argparse
 from whoosh import query
 from whoosh.index import open_dir
+
+from dateutil.parser import parse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--corpus', help='the thing in the middle of corpus/{}/raw', required=True)
+args = parser.parse_args()
 
 cachedir = mkdtemp()
 memory = Memory(cachedir=cachedir, verbose=1)
 
 def get_all_doc_ids():
-    index = open_dir("rookieindex")
+    index = open_dir("indexes/{}/".format(args.corpus))
     qr = query.Every()
     with index.searcher() as srch:
         results_a = srch.search(qr, limit=None)
@@ -36,7 +44,7 @@ ALLDOCIDS = get_all_doc_ids()
 def get_metadata_file():
     print "Loading metadata file"
     t0=time.time()
-    with open("rookieindex/meta_data.json") as inf:
+    with open("indexes/{}/meta_data.json".format(args.corpus)) as inf:
         metadata = ujson.load(inf)
     print "Loaded metadata file in secs:", time.time()-t0
     return metadata
@@ -56,16 +64,9 @@ def count_facets():
     for docid in ALLDOCIDS:
         try:
             counter += 1
-            if counter % 100 == 0:
-                print counter
-            print MT[docid].keys()
-            people = MT[docid]["people"]
-            org = MT[docid]["org"]
-            ngram = MT[docid]["ngram"]
-            for p in people:
-                people_count[p] += 1
-            for o in org:
-                org_count[o] += 1
+            if counter % 1000 == 0:
+                sys.stdout.write("...%s" % counter); sys.stdout.flush()
+            ngram = MT[docid]["ngrams"]
             for n in ngram:
                 ngram_count[n] += 1        
 
@@ -96,63 +97,40 @@ def build_matrix(docids, ok_people, ok_org, ok_ngrams):
     string_to_pubdate_index = defaultdict(list)
 
     # dict to look up correct row #s in array
-    person_to_slot = {p: i for (i, p) in enumerate(ok_people)}
-    org_to_slot = {o: i for (i, o) in enumerate(ok_org)}
     ngram_to_slot = {n: i for (i, n) in enumerate(ok_ngrams)}
 
-    pickle.dump(person_to_slot, open("rookieindex/people_key.p", "wb" ))
-    pickle.dump(org_to_slot, open("rookieindex/org_key.p", "wb" ))
-    pickle.dump(ngram_to_slot, open("rookieindex/ngram_key.p", "wb" ))
+    pickle.dump(ngram_to_slot, open("indexes/{}/ngram_key.p".format(args.corpus), "wb" ))
 
-    people_matrix = np.zeros((len(ok_people), len(docids)))
-    org_matrix = np.zeros((len(ok_org), len(docids)))
     ngram_matrix = np.zeros((len(ok_ngrams), len(docids)))
 
-    people_counter = defaultdict(int)
     ngram_counter = defaultdict(int)
-    org_counter = defaultdict(int)
 
     for dinex, docid in enumerate(docids):
-        print dinex
-        people = set([str(i) for i in MT[unicode(docid)]["people"] if str(i) in ok_people])
-        org = set([str(i) for i in MT[unicode(docid)]["org"]  if str(i) in ok_org])
-        ngram = set([str(j) for j in MT[unicode(docid)]["ngram"] if j in ok_ngrams])
+        if dinex % 1000 == 0:
+            sys.stdout.write("...%s" % dinex); sys.stdout.flush()
+        ngram = set([str(j) for j in MT[unicode(docid)]["ngrams"] if j in ok_ngrams])
         docid = int(docid)
-        for p in people:
-            people_matrix[person_to_slot[p]][docid] = 1
-            people_counter[p] += 1
-        for o in org:
-            org_matrix[org_to_slot[o]][docid] = 1
-            org_counter[o] += 1
         for n in ngram:
             ngram_matrix[ngram_to_slot[n]][docid] = 1
             string_to_pubdate_index[n].append(MT[unicode(docid)]["pubdate"])
             ngram_counter[n] += 1
 
-    # pickle.dump(df_vec(people_counter, person_to_slot, len(ok_people)), open("rookieindex/people_df.p", "wb" ))
-    # pickle.dump(df_vec(org_counter, org_to_slot, len(ok_org)), open("rookieindex/org_df.p", "wb" ))
-    pickle.dump(df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams)), open("rookieindex/ngram_df.p", "wb" ))
+    pickle.dump(df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams)), open("indexes/{}/ngram_df.p".format(args.corpus), "wb" ))
     
     NDOCS = len(docids)
-    #np.log(NDOCS / df)
 
-    print "dumping pickled stuff..."
-    # pickle.dump(np.log(NDOCS / df_vec(people_counter, person_to_slot, len(ok_people))), open("rookieindex/people_idf.p", "wb" ))
-    # pickle.dump(np.log(NDOCS / df_vec(org_counter, org_to_slot, len(ok_org))), open("rookieindex/org_idf.p", "wb" ))
-    pickle.dump(np.log(NDOCS / df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams))), open("rookieindex/ngram_idf.p", "wb" ))
+    print "\ndumping pickled stuff..."
+    pickle.dump(np.log(NDOCS / df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams))), open("indexes/{}/ngram_idf.p".format(args.corpus), "wb" ))
     
-    # pickle.dump(people_matrix, open("rookieindex/people_matrix.p", "wb" ))
-    # pickle.dump(org_matrix, open("rookieindex/org_matrix.p", "wb" ))
-    # pickle.dump(ngram_matrix, open("rookieindex/ngram_matrix.p", "wb" ))
     joblib.dump(ngram_matrix, 'rookieindex/ngram_matrix.joblib')
-    pickle.dump(dict(string_to_pubdate_index), open("rookieindex/string_to_pubdate_index.p", "wb" ))
+    pickle.dump(dict(string_to_pubdate_index), open("indexes/{}/string_to_pubdate_index.p".format(args.corpus), "wb" ))
 
-
+    '''
 @memory.cache
 def ngram_matrix(docids, ok_ngrams):
-    '''
+
     This function builds three facet X doc matrixes: one for people, one for org, one for ngrams
-    '''
+
     print "[*] Facet X doc matrixes"
 
     ngram_to_slot = {n: i for (i, n) in enumerate(ok_ngrams)}
@@ -169,6 +147,7 @@ def ngram_matrix(docids, ok_ngrams):
             ngram_counter[n] += 1
 
     return ngram_matrix
+    '''
 
 def filter(input, n):
     '''

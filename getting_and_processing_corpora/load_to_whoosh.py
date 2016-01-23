@@ -220,11 +220,11 @@ def load(index_location, processed_location):
                                   for j in doc.ngrams]
             if len(headline) > 0 and len(full_text) > 0:
                 writer.add_document(title=headline, path=u"/" + str(s_counter), content=full_text)
-                people_org_ngram_index[s_counter] = {'headline': headline, 'pubdate': pubdate.strftime('%Y-%M-%D'), 'ngrams': ngrams}
+                people_org_ngram_index[s_counter] = {'headline': headline, 'pubdate': pubdate.strftime('%Y-%m-%d'), 'ngrams': ngrams}
                 s_counter += 1
                 if s_counter % 1000==0:
                     sys.stdout.write("...%s" % s_counter); sys.stdout.flush()
-                with open(index_location + '/' + processed_location + 'meta_data.json', 'w') as outfile:
+                with open(index_location + '/meta_data.json', 'w') as outfile:
                     json.dump(people_org_ngram_index, outfile)
         writer.commit(mergetype=writing.CLEAR)
         '''

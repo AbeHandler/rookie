@@ -42,7 +42,7 @@ class Rookie:
 
 cachedir = mkdtemp()
 
-ROOKIE = Rookie("rookieindex")
+ROOKIE = Rookie("indexes/lens/")
 
 memory = Memory(cachedir=cachedir, verbose=0)
 
@@ -110,7 +110,7 @@ def get_pubdates_for_ngram(ngram_str):
 def get_metadata_file():
     print "Loading metadata file"
     t0=time.time()
-    with open("rookieindex/meta_data.json") as inf:
+    with open("indexes/lens/lensmeta_data.json") as inf:
         metadata = ujson.load(inf)
     print "Loaded metadata file in secs:", time.time()-t0
     return metadata

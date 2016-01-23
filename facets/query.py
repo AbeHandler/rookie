@@ -89,16 +89,16 @@ def load_all_data_structures():
     matrixes = {}
     df = {}
     idf = {}
-    with open("rookieindex/meta_data.json") as inf:
+    with open("indexes/lens/meta_data.json") as inf:
         mt = ujson.load(inf)
     for n in ["ngram"]:
-        decoder = pickle.load(open("rookieindex/{}_key.p".format(n), "rb"))
+        decoder = pickle.load(open("indexes/lens/{}_key.p".format(n), "rb"))
         decoder_r = {v: k for k, v in decoder.items()}
         decoders[n] = decoder
         reverse_decoders[n] = decoder_r
         matrixes[n] = load_matrix(n + "_matrix", len(decoder.keys()), NDOCS, n)
-        df[n] = pickle.load(open("rookieindex/{}_df.p".format(n), "rb"))
-        idf[n] = pickle.load(open("rookieindex/{}_idf.p".format(n), "rb"))
+        df[n] = pickle.load(open("indexes/lens/{}_df.p".format(n), "rb"))
+        idf[n] = pickle.load(open("indexes/lens/{}_idf.p".format(n), "rb"))
     return {"decoders": decoders, "reverse_decoders": reverse_decoders, "matrixes": matrixes, "df": df, "idf": idf, "metadata": mt}
 
 

@@ -64,7 +64,13 @@ def process_story(html):
         print 'OSError'
         return {}
 
+try:
+    os.remove("corpora/lens/raw/all.extract")
+except UnicodeError:
+    pass
+
 files = glob.glob("corpora/lens/raw/html/lens_processed/*")
+print len(files)
 for f in files:
     with open(f) as inf:
         html = "\n".join(inf.readlines())
@@ -73,7 +79,7 @@ for f in files:
             with open("corpora/lens/raw/all.extract", "a") as outf:
                 outwriter = csv.writer(outf, delimiter='\t', quotechar='"')
                 try:
-                    outwriter.writerow(["", structured_story["pubdate"], "","", structured_story["headline"], structured_story["text"], structured_story["url"]])
+                    outwriter.writerow(["", structured_story["pubdate"], "","", structured_story["headline"], structured_story["text"].replace("\n", ""), structured_story["url"]])
                 except UnicodeEncodeError:
                     print "unicode error"
                     pass

@@ -12,8 +12,6 @@ This project began at [The Lens](http://www.thelensnola.org "The Lens") with [su
 
 [![Build Status](https://travis-ci.org/AbeHandler/rookie.svg?branch=master)](https://travis-ci.org/AbeHandler/rookie) [![Coverage Status](https://coveralls.io/repos/AbeHandler/rookie/badge.svg?branch=master&service=github)](https://coveralls.io/github/AbeHandler/rookie?branch=master)
 
-#### Data
-
 #### Indexing
 
 Rookie holds raw corpora in corpora/[corpusname]/raw/all.extract
@@ -22,7 +20,7 @@ It assumes that all.extract stores all.extract is a tsv with the pubdate in posi
 
 Getting the corpora into this format is considered preprocessing outside of Rookie's scope.
 
-Rookie processes corpora in corpora/[corpusname]/raw/all.extract by running them through @brenocon 's corenlp pipeline. Use `python getting_and_processing_corpora/corpus_proc.py path/to/corenlp corpusname`
+Rookie processes corpora in corpora/[corpusname]/raw/all.extract by running them through @brenocon 's corenlp pipeline. Use `python getting_and_processing_corpora/corpus_proc.py --nlpjar path/to/corenlp --corpus corpusname`
 
 Once corpora are processed, Rookie needs to add them to whoosh. To do this, use `$ py getting_and_processing_corpora/load_to_whoosh.py --corpus [corpusname]`
 
