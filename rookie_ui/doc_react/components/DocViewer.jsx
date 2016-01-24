@@ -19,7 +19,6 @@ module.exports = React.createClass({
         let docs = _.sortBy(this.props.docs, function(d){
             return moment(d.pubdate);
         });
-        console.log(docs.length);
         if (docs.length < 1){
             return <div></div>;
         }

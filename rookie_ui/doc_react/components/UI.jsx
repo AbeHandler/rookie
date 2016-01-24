@@ -61,7 +61,7 @@ module.exports = React.createClass({
   },
 
   thiryDaysHath: function(e){
-    if (_.includes([9, 11, 4, 5], e)){
+    if (_.includes([9, 11, 4, 6], e)){
         return 30;
     } else if (e == 2){
         return 28;
@@ -206,7 +206,26 @@ module.exports = React.createClass({
     }
     let start = moment(this.state.mo_start + "-" + this.state.dy_start + "-" +  this.state.yr_start, "MM-DD-YYYY");
     let end = moment(this.state.mo_end + "-" + this.state.dy_end + "-" +  this.state.yr_end, "MM-DD-YYYY");
-    return _.filter(results, function(value, key) {
+    let tmp = _.filter(results, function(value, key) {
+        //dates come from server as YYYY-MM-DD
+        if (moment(value.pubdate, "YYYY-MM-DD").format("YYYY") == "2014"){
+          if (moment(value.pubdate, "YYYY-MM-DD").format("MM") == "06"){
+            console.log(value);
+            console.log("checking start");
+            console.log(moment(value.pubdate, "YYYY-MM-DD").isAfter(start));
+            console.log(moment(value.pubdate, "YYYY-MM-DD").isSame(start));
+            console.log("checking end");
+            console.log(moment(value.pubdate, "YYYY-MM-DD").isAfter(end));
+            console.log(moment(value.pubdate, "YYYY-MM-DD").isSame(end));            
+            return true;
+          }
+        }
+        return false;
+    });
+    console.log(tmp);
+    console.log(start);
+    console.log(end);
+    let out_results =  _.filter(results, function(value, key) {
         //dates come from server as YYYY-MM-DD
         if (moment(value.pubdate, "YYYY-MM-DD").isAfter(start) || moment(value.pubdate, "YYYY-MM-DD").isSame(start)){
           if (moment(value.pubdate, "YYYY-MM-DD").isBefore(end) || moment(value.pubdate, "YYYY-MM-DD").isSame(end)){
@@ -215,6 +234,9 @@ module.exports = React.createClass({
         }
         return false;
     });
+    console.log(out_results);
+    return out_results; 
+
   },
 
   get_linguistic_facet_status(q, ndocs){
