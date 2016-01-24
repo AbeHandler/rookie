@@ -23,7 +23,16 @@ from Levenshtein import distance
 
 stops = ["live blog", "#### live", "matt davis", "ariella cohen", "story report", "####", "#### live blog", "the lens", "new orleans", "staff writer", "orleans parish"]
 
-NDOCS = 3488  # TODO: how many docs are indexed in whoosh?
+import whoosh.query
+
+@lrudecorator(100)
+def get_ndocs():
+    index = open_dir("indexes/lens/")
+    with index.searcher() as s:
+        results = s.search(whoosh.query.Every(), limit=None)
+    return len(results)  # TODO: how many docs are indexed in whoosh?
+
+NDOCS = get_ndocs()
 
 STOPTOKENS = ["new", "orleans"]
 
