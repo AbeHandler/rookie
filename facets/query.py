@@ -2,9 +2,8 @@
 Queries whoosh and builds facets for query
 '''
 from __future__ import division
-from webapp.models import ROOKIE
 from pylru import lrudecorator
-from whoosh import query
+from webapp.models import query
 import bottleneck
 from dateutil.parser import parse
 from whoosh.index import open_dir
@@ -24,7 +23,7 @@ from Levenshtein import distance
 
 stops = ["live blog", "#### live", "matt davis", "ariella cohen", "story report", "####", "#### live blog", "the lens", "new orleans", "staff writer", "orleans parish"]
 
-NDOCS = 3488  # how many docs are indexed in whoosh?
+NDOCS = 3488  # TODO: how many docs are indexed in whoosh?
 
 STOPTOKENS = ["new", "orleans"]
 
@@ -312,5 +311,5 @@ if __name__ == '__main__':
     else:
         DEBUG=False
 
-    RESULTZ = set(ROOKIE.query(args.query))
+    RESULTZ = query(args.query)
     print get_facets_for_q(args.query, RESULTZ, 9)

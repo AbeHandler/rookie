@@ -20,29 +20,19 @@ from webapp.classes import CONNECTION_STRING
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-class Rookie:
-    """The Rookie engine"""
-    def __init__(self, path):
-        self.path = path
-        # for now, just checks if metadata_json is there, if not, runs index
-        if "meta_data.json" not in os.listdir(path):
-            self.index()
 
-
-    def query(self, qry_string):
-        start_time = time.time()
-        index = open_dir(self.path)
-        query_parser = QueryParser("content", schema=index.schema)
-        query = query_parser.parse(qry_string)
-        with index.searcher() as srch:
-            results_a = srch.search(query, limit=None)
-            out = [a.get("path").replace("/", "") for a in results_a]
-        #print "[*] querying took {}".format(start_time - time.time())
-        return out
+def query(qry_string):
+    start_time = time.time()
+    index = open_dir("indexes/lens/")
+    query_parser = QueryParser("content", schema=index.schema)
+    query = query_parser.parse(qry_string)
+    with index.searcher() as srch:
+        results_a = srch.search(query, limit=None)
+        out = [a.get("path").replace("/", "") for a in results_a]
+    #print "[*] querying took {}".format(start_time - time.time())
+    return out
 
 cachedir = mkdtemp()
-
-ROOKIE = Rookie("indexes/lens/")
 
 memory = Memory(cachedir=cachedir, verbose=0)
 
@@ -74,28 +64,6 @@ def results_to_doclist(results, q, f, aliases):
     fdoc_list = Models.get_doclist(results, q, f, aliases=aliases)
     return fdoc_list
 
-
-@lrudecorator(100)
-def get_pubdate_index():
-    t0=time.time()
-
-    try:
-        output = pickle.load(open( "PI.p", "rb" ))
-        print '[*] found a pickled PI. Using that'
-    except:
-        print "[*] can't find pickled PI. Builing index from scratch"
-        start_time = time.time()
-        with open("rookieindex/string_to_pubdate.json") as inf:
-            metadata = ujson.load(inf)
-        print "[*] loading json took {}".format(time.time() - start_time)
-        output = {}
-        for key in metadata:
-            output[key] = set([parse(p) for p in metadata[key]])
-        print "[*] building index took {}".format(time.time() - start_time)
-        pickle.dump(output, open("PI.p", "wb" ))
-    
-    print "pubdate index load took", time.time()-t0
-    return output
 
 def get_pubdates_for_ngram(ngram_str):
     """used to be PI[ngram_str]"""
@@ -249,9 +217,7 @@ class Models(object):
         '''
         Just query whoosh
         '''
-
-        results = ROOKIE.query(params.q)
-        return tuple(results)
+        return tuple(query(params.q))
 
 
     @staticmethod
