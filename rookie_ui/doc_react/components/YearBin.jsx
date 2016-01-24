@@ -14,7 +14,7 @@ module.exports = React.createClass({
         let bin_key = {textDecoration: "underline", color: "black", fontWeight: "bold"};
         let link = {fontSize: "small", color: "rgb(0, 40, 163)"};
         if (this.props.selected === true){
-            bigStyle.backgroundColor = "rgba(102,126,199,.1)"; //same as region color
+            bigStyle.backgroundColor = "rgba(153, 153, 153,.1)"; //same as region color
             bigStyle.opacity = 1;
             link.opacity = 1;
         }else{

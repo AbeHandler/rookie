@@ -65,9 +65,9 @@ module.exports = React.createClass({
     let f = this.props.f;
     let tHandler = this.props.tHandler;
     color_array = {};
-    color_array[q] = '#B33125';
+    color_array[q] = '#0028a3';
     if (this.props.f != -1){
-        color_array[f] = '#0028a3';
+        color_array[f] = '#B33125';
     }
     let cols;
     let q_data = this.props.q_data;

@@ -70,13 +70,12 @@ def medviz():
     aliases = [] # TODO
 
     dlstart = time.time()
+
+    # a docllist is results + metadata/snippets
     doc_list = Models.get_doclist(results, params.q, params.f)
     print "doclist time = {}".format(time.time() - dlstart)
 
-
-    metadata = [get_doc_metadata(r) for r in results]
-
-    q_pubdates = [parse(h["pubdate"]) for h in metadata]
+    q_pubdates = [parse(get_doc_metadata(r)["pubdate"]) for r in results]
 
     binsize = "month"
 
@@ -92,7 +91,7 @@ def medviz():
         q_data = [str(params.q)] + [get_val_from_df(params.q, key, df, binsize) for key in keys]
 
     facet_datas = {}
-    processes = []
+
     for f in binned_facets['g']:
         facet_datas[f] = [str(f)] + [get_val_from_df(f, key, df, binsize) for key in keys]
 
@@ -101,10 +100,7 @@ def medviz():
     display_bins = []
     for key in binned_facets:
         if key != "g":
-            tmp = {}
-            tmp["key"] = key
-            tmp["facets"] = binned_facets[key]
-            display_bins.append(tmp)
+            display_bins.append({"key": key, "facets": binned_facets[key]})
 
     view = views.get_q_response_med(params, doc_list, facet_datas, keys, q_data, len(results), binsize, display_bins, binned_facets['g'])
 

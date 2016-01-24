@@ -13,7 +13,8 @@ module.exports = React.createClass({
             return {__html: doc + "..."};
         };
         let headlineStyle = {
-            color: "rgb(0, 40, 163)"
+            color: "#323232",
+            fontWeight: "bold"
         };
         let snippetStyle = {
             color: "grey",

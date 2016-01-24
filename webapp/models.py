@@ -283,7 +283,7 @@ class Models(object):
             f_aliases.add(f)
         hsents = get_snippet2(docid, q, f_aliases, 
                 taginfo=dict(
-                    q_ltag='<span style="font-weight:bold;color:black">',
+                    q_ltag='<span style="font-weight:bold;color:#0028a3">',
                     q_rtag='</span>',
                     f_ltag='<span style="font-weight:bold;color:#b33125">',
                     f_rtag='</span>',)

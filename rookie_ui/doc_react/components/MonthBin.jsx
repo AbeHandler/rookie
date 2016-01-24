@@ -14,7 +14,7 @@ module.exports = React.createClass({
         };
         if (this.props.selected_mo){
             dStyle.opacity="1";
-            dStyle.backgroundColor = "rgba(102,126,199,.1)"; //same as region color
+            dStyle.backgroundColor = "rgba(204, 204, 204,.1)"; //same as region color
         }else{
             dStyle.opacity=".4";
             dStyle.color="grey";

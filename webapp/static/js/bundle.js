@@ -105,9 +105,9 @@ module.exports = React.createClass({
         let f = this.props.f;
         let tHandler = this.props.tHandler;
         color_array = {};
-        color_array[q] = '#B33125';
+        color_array[q] = '#0028a3';
         if (this.props.f != -1) {
-            color_array[f] = '#0028a3';
+            color_array[f] = '#B33125';
         }
         let cols;
         let q_data = this.props.q_data;
@@ -371,10 +371,10 @@ module.exports = React.createClass({
             "paddingTop": 3
         };
         if (this.props.selected) {
-            divStyle.color = "rgb(0, 40, 163)";
+            divStyle.color = "#b33125";
         }
         if (this.props.hovered) {
-            divStyle.color = "#b33125";
+            divStyle.color = "rgb(0, 40, 163)";
         }
         return React.createElement(
             "div",
@@ -449,7 +449,7 @@ module.exports = React.createClass({
         };
         if (this.props.selected_mo) {
             dStyle.opacity = "1";
-            dStyle.backgroundColor = "rgba(102,126,199,.1)"; //same as region color
+            dStyle.backgroundColor = "rgba(204, 204, 204,.1)"; //same as region color
         } else {
                 dStyle.opacity = ".4";
                 dStyle.color = "grey";
@@ -531,7 +531,8 @@ module.exports = React.createClass({
             return { __html: doc + "..." };
         };
         let headlineStyle = {
-            color: "rgb(0, 40, 163)"
+            color: "#323232",
+            fontWeight: "bold"
         };
         let snippetStyle = {
             color: "grey",
@@ -1128,7 +1129,7 @@ module.exports = React.createClass({
         let bin_key = { textDecoration: "underline", color: "black", fontWeight: "bold" };
         let link = { fontSize: "small", color: "rgb(0, 40, 163)" };
         if (this.props.selected === true) {
-            bigStyle.backgroundColor = "rgba(102,126,199,.1)"; //same as region color
+            bigStyle.backgroundColor = "rgba(153, 153, 153,.1)"; //same as region color
             bigStyle.opacity = 1;
             link.opacity = 1;
         } else {
