@@ -122,7 +122,7 @@ def build_matrix(docids, ok_people, ok_org, ok_ngrams):
     print "\ndumping pickled stuff..."
     pickle.dump(np.log(NDOCS / df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams))), open("indexes/{}/ngram_idf.p".format(args.corpus), "wb" ))
     
-    joblib.dump(ngram_matrix, 'rookieindex/ngram_matrix.joblib')
+    joblib.dump(ngram_matrix, 'indexes/{}/ngram_matrix.joblib'.format(args.corpus))
     pickle.dump(dict(string_to_pubdate_index), open("indexes/{}/string_to_pubdate_index.p".format(args.corpus), "wb" ))
 
     '''

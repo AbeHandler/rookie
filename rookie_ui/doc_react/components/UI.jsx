@@ -209,22 +209,12 @@ module.exports = React.createClass({
     let tmp = _.filter(results, function(value, key) {
         //dates come from server as YYYY-MM-DD
         if (moment(value.pubdate, "YYYY-MM-DD").format("YYYY") == "2014"){
-          if (moment(value.pubdate, "YYYY-MM-DD").format("MM") == "06"){
-            console.log(value);
-            console.log("checking start");
-            console.log(moment(value.pubdate, "YYYY-MM-DD").isAfter(start));
-            console.log(moment(value.pubdate, "YYYY-MM-DD").isSame(start));
-            console.log("checking end");
-            console.log(moment(value.pubdate, "YYYY-MM-DD").isAfter(end));
-            console.log(moment(value.pubdate, "YYYY-MM-DD").isSame(end));            
+          if (moment(value.pubdate, "YYYY-MM-DD").format("MM") == "06"){        
             return true;
           }
         }
         return false;
     });
-    console.log(tmp);
-    console.log(start);
-    console.log(end);
     let out_results =  _.filter(results, function(value, key) {
         //dates come from server as YYYY-MM-DD
         if (moment(value.pubdate, "YYYY-MM-DD").isAfter(start) || moment(value.pubdate, "YYYY-MM-DD").isSame(start)){
@@ -234,7 +224,6 @@ module.exports = React.createClass({
         }
         return false;
     });
-    console.log(out_results);
     return out_results; 
 
   },

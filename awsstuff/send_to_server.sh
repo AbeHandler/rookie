@@ -1,17 +1,1 @@
-scp  -i "awsstuff/medrookie.pem" data/lens_processed/f* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
-scp  -i "awsstuff/medrookie.pem" data/lens_processed/a* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
-scp  -i "awsstuff/medrookie.pem" data/lens_processed/b* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
-scp  -i "awsstuff/medrookie.pem" data/lens_processed/c* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
-scp  -i "awsstuff/medrookie.pem" data/lens_processed/d* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
-scp  -i "awsstuff/medrookie.pem" data/lens_processed/e* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
-scp  -i "awsstuff/medrookie.pem" data/lens_processed/0* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
-scp  -i "awsstuff/medrookie.pem" data/lens_processed/1* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
-scp  -i "awsstuff/medrookie.pem" data/lens_processed/2* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
-scp  -i "awsstuff/medrookie.pem" data/lens_processed/3* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
-scp  -i "awsstuff/medrookie.pem" data/lens_processed/4* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
-scp  -i "awsstuff/medrookie.pem" data/lens_processed/5* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
-scp  -i "awsstuff/medrookie.pem" data/lens_processed/6* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
-scp  -i "awsstuff/medrookie.pem" data/lens_processed/7* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
-scp  -i "awsstuff/medrookie.pem" data/lens_processed/8* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
-scp  -i "awsstuff/medrookie.pem" data/lens_processed/9* ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
 scp  -i "awsstuff/medrookie.pem" rookieindex/ngram_matrix.p ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/

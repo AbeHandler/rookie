@@ -26,14 +26,10 @@ Once corpora are processed, Rookie needs to add them to whoosh. To do this, use 
 
 #### Code
 
-`awsstuff` Code to load stuff into AWS (only ec2 right now). Note: Rookie used to run on AWS cloud search but now uses Whoosh. So some of that code is old.
-
-`data` ~3500 articles from the Lens, plus NLP processing
+`awsstuff` Code to load stuff into AWS (only ec2 right now). Note: Rookie used to run on AWS cloud search but now uses Whoosh
 
 `docker` The docker file and other docker stuff
 
-`webapp` 
+`webapp` The Rookie webapp
 
 `rookie_ui` React UI for rookie. use gulp b to push js to /webapp
-
-`whooshy` Holds code for interacting with whoosh, the IR system for Rookie

@@ -71,12 +71,12 @@ def load_matrix(key, row, col, name):
         r = redis.StrictRedis(host='localhost', port=6379, db=0)
         if r.get(key) is None:
             print "[*] Hang on. Adding {} to redis".format(name)
-            add_to_redis(key, pickle.load(open("rookieindex/{}_matrix.p".format(name), "rb")))
+            add_to_redis(key, pickle.load(open("indexes/lens/{}_matrix.p".format(name), "rb")))
         return get_from_redis(key, row, col)
     except redis.ConnectionError:
         # No redis. More likely in live web app
         print "cant find redis. loading from disk. hang on"
-        tmp = joblib.load('rookieindex/ngram_matrix.joblib')
+        tmp = joblib.load('indexes/lens/ngram_matrix.joblib')
         return tmp
 
 @lrudecorator(100)
