@@ -1,6 +1,5 @@
 *.jshintrc
 *.DS_Store
-gawk/*
 stanford_corenlp_pywrapper/*
 lens_downloader/files/*
 corpora/*
@@ -21,6 +20,6 @@ test.dot
 awsstuff/medrookie.pem
 rookie_ui/doc_react/node_modules/*
 rookie_ui/doc_react/app/*
-experiment/static/js/bundle.js
+webapp/static/js/bundle.js
 articles/*
 rookie/doc_react/.sass-cache/
