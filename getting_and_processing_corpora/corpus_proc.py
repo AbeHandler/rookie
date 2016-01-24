@@ -26,10 +26,14 @@ with open ("corpora/" + args.corpus + "/raw/all.extract") as raw:
         pubdate = line[1]
         headline = line[4]
         text = proc.parse_doc(line[5])
-        url = text = proc.parse_doc(line[6])
+        try:
+            url = line[6]
+        except:
+            url = "unknown"
         out["pubdate"] = pubdate
         out["headline"] = headline
         out["text"] = text
+        out["url"] = url
         with open('corpora/' + args.corpus + '/processed/all.json', 'a') as outfile:
             json.dump(out, outfile)
             outfile.write("\n")

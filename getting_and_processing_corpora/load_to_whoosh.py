@@ -214,13 +214,16 @@ def load(index_location, processed_location):
             headline = line_json["headline"]
             pubdate = parse(line_json["pubdate"])
             procesed_text = line_json["text"]
+            url = line_json["url"]
             doc = Document(procesed_text)
             full_text = doc.full_text
             ngrams = [unicode(" ".join(i.raw for i in j)) \
                                   for j in doc.ngrams]
+            sentences = [" ".join([j.raw for j in i.tokens]) \
+                         for i in doc.sentences]
             if len(headline) > 0 and len(full_text) > 0:
                 writer.add_document(title=headline, path=u"/" + str(s_counter), content=full_text)
-                people_org_ngram_index[s_counter] = {'headline': headline, 'pubdate': pubdate.strftime('%Y-%m-%d'), 'ngrams': ngrams}
+                people_org_ngram_index[s_counter] = {'headline': headline, 'pubdate': pubdate.strftime('%Y-%m-%d'), 'ngrams': ngrams, "url": url, "sentences": sentences}
                 s_counter += 1
                 if s_counter % 1000==0:
                     sys.stdout.write("...%s" % s_counter); sys.stdout.flush()
