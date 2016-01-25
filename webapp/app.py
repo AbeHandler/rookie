@@ -5,6 +5,7 @@ import ipdb
 import pylru
 import time
 import json
+import itertools
 from dateutil.parser import parse
 from webapp.models import results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, filter_results_with_binary_dataframe
 from flask import Flask
@@ -39,7 +40,7 @@ cache = pylru.lrucache(1000)
 
 # AH: TODO check w/ brendan.
 
-@app.route("/post_for_docs", methods=['GET'])
+@app.route("/get_docs", methods=['GET'])
 def get_doc_list():
 
     params = Models.get_parameters(request)
@@ -47,6 +48,22 @@ def get_doc_list():
     results = Models.get_results(params)
 
     doc_list = results_to_doclist(results, params.q, params.f, aliases=tuple([])) #TODO aliases
+
+    return json.dumps(doc_list)
+
+
+@app.route("/get_binned_facet_dates", methods=['GET'])
+def get_binned_facet_dates():
+
+    params = Models.get_parameters(request)
+
+    results = Models.get_results(params)
+
+    q_pubdates = [parse(get_doc_metadata(r)["pubdate"]) for r in results]
+
+    df = make_dataframe(params.q, params.f, results, q_pubdates, aliases=[])
+
+    df = bin_dataframe(df, binsize)
 
     return json.dumps(doc_list)
 
@@ -81,31 +98,35 @@ def medviz():
 
     print "early time = {}".format(time.time() - start)
 
-    df = make_dataframe(params.q, binned_facets['g'], results, q_pubdates, aliases)
+    all_facets = [i for i in itertools.chain(*binned_facets.values())]
 
+    dfstart = time.time()
+    df = make_dataframe(params.q, all_facets, results, q_pubdates, aliases)
     df = bin_dataframe(df, binsize)
+    print "making + binning df = {}".format(time.time() - dfstart)
+    
 
-    keys = get_keys(q_pubdates, binsize)
+    chart_bins = get_keys(q_pubdates, binsize)
 
     if binsize == "month":
-        q_data = [str(params.q)] + [get_val_from_df(params.q, key, df, binsize) for key in keys]
+        q_data = [str(params.q)] + [get_val_from_df(params.q, key, df, binsize) for key in chart_bins]
 
     facet_datas = {}
 
-    for f in binned_facets['g']:
-        facet_datas[f] = [str(f)] + [get_val_from_df(f, key, df, binsize) for key in keys]
+    for f in all_facets:
+        facet_datas[f] = [str(f)] + [get_val_from_df(f, key, df, binsize) for key in chart_bins]
 
-    keys = ["x"] + [k + "-1" for k in keys] # hacky addition of date to keys
+    chart_bins = ["x"] + [k + "-1" for k in chart_bins] # hacky addition of date to keys
 
     display_bins = []
     for key in binned_facets:
         if key != "g":
             display_bins.append({"key": key, "facets": binned_facets[key]})
 
-    view = views.get_q_response_med(params, doc_list, facet_datas, keys, q_data, len(results), binsize, display_bins, binned_facets['g'])
+    view = views.get_q_response_med(params, doc_list, facet_datas, chart_bins, q_data, len(results), binsize, display_bins, binned_facets['g'])
 
     print "tot time = {}".format(time.time() - start)
-    for f in binned_facets['g']:
+    for f in all_facets:
         t = threading.Thread(target=worker, args=(results, params, f, aliases))
         t.start()
 

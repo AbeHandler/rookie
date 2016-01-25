@@ -12,7 +12,7 @@ class Views(object):
         self.rookie_css = ROOKIE_CSS
 
 
-    def get_q_response_med(self, params, results, q_and_t, keys, q_datas, len_results, binsize, binned_facets, g_facets):
+    def get_q_response_med(self, params, results, q_and_t, chart_bins, q_datas, len_results, binsize, binned_facets, g_facets):
         '''
         return medviz view
         '''
@@ -20,13 +20,13 @@ class Views(object):
             'medviz.html',
             query=params.q,
             f_counts=q_and_t,
-            chart_bins=keys,
+            chart_bins=chart_bins,
             q_datas=q_datas,
             g_facets=g_facets,
             doc_list=results,
             len_results=len_results,
             detail=binsize,
-            len_keys=len(keys),
+            len_keys=len(chart_bins),
             binned_facets=binned_facets,
             IP=self.ip,
             ROOKIE_JS=self.js,

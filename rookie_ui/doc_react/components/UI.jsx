@@ -44,7 +44,7 @@ module.exports = React.createClass({
     if (this.state.f === e){
         this.setState({f: -1}, this.check_mode);
     }else{
-        let url = "/post_for_docs?q=" + this.props.q + "&f=" + e;
+        let url = "/get_docs?q=" + this.props.q + "&f=" + e;
         $.ajax({
           url: url,
           dataType: 'json',
@@ -242,7 +242,20 @@ module.exports = React.createClass({
     if(_.includes(this.props.datas, e)){
       //
     }else{
-      this.setState({promoted_l_facet: e});
+        let url = "/get_binned_facet_dates?q=" + this.props.q + "&f=" + e;
+        $.ajax({
+          url: url,
+          dataType: 'json',
+          cache: true,
+          success: function(d) {
+            console.log(d);
+            this.setState({promoted_l_facet: e}, this.check_mode);
+          }.bind(this),
+          error: function(xhr, status, err) {
+            console.error(this.props.url, status, err.toString());
+          }.bind(this)
+        }); 
+        
     }
   },
 
