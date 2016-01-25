@@ -23,3 +23,6 @@ rookie_ui/doc_react/app/*
 webapp/static/js/bundle.js
 articles/*
 rookie/doc_react/.sass-cache/
+indexes/*
+rookie_ui/doc_react/.sass-cache/*
+.idea/*
