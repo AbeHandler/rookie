@@ -54,6 +54,14 @@ def filter_results_with_binary_dataframe(results, facet, df):
     return hits
 
 
+@lrudecorator(100)
+def results_to_pubdates(results):
+    '''
+    Start w/ search results. filter based on params. get a doclist back.
+    '''
+    return tuple([datetime.datetime.strptime(get_doc_metadata(r)["pubdate"], "%Y-%m-%d") for r in results])
+
+
 @memory.cache
 def results_to_doclist(results, q, f, aliases):
     '''
@@ -174,7 +182,6 @@ def make_dataframe(q, facets, results, q_pubdates, aliases):
     df['pd'] = q_pubdates
     df[q] = [1 for i in q_pubdates]
     for facet in facets:
-        print facet
         facet_dates = [i for i in set([i for i in get_pubdates_for_ngram(facet)])]
         #TODO
         #alias = [get_pubdates_for_ngram(a) for a in aliases[facet]]
@@ -230,7 +237,7 @@ class Models(object):
         # AH: assuming the order of results is not changed since coming out from IR system
         for whoosh_index, r in enumerate(results):
             d = get_doc_metadata(r)
-            pubdate = parse(d['pubdate'])
+            pubdate = datetime.datetime.strptime(d["pubdate"], "%Y-%m-%d")
             doc_results.append({
                 'search_engine_index': whoosh_index,
                 'pubdate': d['pubdate'].encode("ascii", "ignore"),

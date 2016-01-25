@@ -4,10 +4,11 @@ The main web app for rookie
 import ipdb
 import pylru
 import time
+import datetime
 import json
 import itertools
 from dateutil.parser import parse
-from webapp.models import results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, filter_results_with_binary_dataframe
+from webapp.models import results_to_pubdates, results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, filter_results_with_binary_dataframe
 from flask import Flask
 from flask import request
 from facets.query import get_facets_for_q
@@ -20,7 +21,7 @@ import threading
 def worker(results, params, f, aliases):
     """Starts prepping doclist to go fast on facet click"""
     results_to_doclist(results, params.q, f, aliases=tuple([])) #TODO aliases
-    print "cached {}".format(f)
+    print "cached {}".format(f),
     #TODO: lots of repeating code here and in POST and GET methods below
 
     return
@@ -55,7 +56,17 @@ def get_doc_list():
 
     doc_list = results_to_doclist(results, params.q, params.f, aliases=tuple([])) #TODO aliases
 
-    return json.dumps(doc_list)
+    q_pubdates = results_to_pubdates(results)
+    binsize = "month"
+    df = make_dataframe(params.q, [params.f], results, q_pubdates, aliases=[])
+    df = bin_dataframe(df, binsize)
+    chart_bins = get_keys(q_pubdates, binsize)
+
+    facet_datas = {}
+    facet_datas[params.f] = [str(params.f)] + [get_val_from_df(params.f, key, df, binsize) for key in chart_bins]
+
+
+    return json.dumps({"doclist":doc_list, "facet_datas":facet_datas})
 
 
 @app.route('/', methods=['GET'])
@@ -82,7 +93,7 @@ def medviz():
     doc_list = Models.get_doclist(results, params.q, params.f)
     print "doclist time = {}".format(time.time() - dlstart)
 
-    q_pubdates = [parse(get_doc_metadata(r)["pubdate"]) for r in results]
+    q_pubdates = results_to_pubdates(results)
 
     binsize = "month"
 
@@ -91,7 +102,7 @@ def medviz():
     all_facets = [i for i in itertools.chain(*binned_facets.values())]
 
     dfstart = time.time()
-    df = make_dataframe(params.q, all_facets, results, q_pubdates, aliases)
+    df = make_dataframe(params.q, binned_facets["g"], results, q_pubdates, aliases)
     df = bin_dataframe(df, binsize)
     print "making + binning df = {}".format(time.time() - dfstart)
     
@@ -103,7 +114,7 @@ def medviz():
 
     facet_datas = {}
 
-    for f in all_facets:
+    for f in binned_facets["g"]:
         facet_datas[f] = [str(f)] + [get_val_from_df(f, key, df, binsize) for key in chart_bins]
 
     chart_bins = ["x"] + [k + "-1" for k in chart_bins] # hacky addition of date to keys
@@ -117,6 +128,8 @@ def medviz():
     m = threading.Thread(target=manager, args=(results, params, all_facets, aliases))
     m.start()
     print "thread time = {}".format(time.time() - ftime)
+
+    print "all time = {}".format(time.time() - start)
     return views.get_q_response_med(params, doc_list, facet_datas, chart_bins, q_data, len(results), binsize, display_bins, binned_facets['g'])
 
 
