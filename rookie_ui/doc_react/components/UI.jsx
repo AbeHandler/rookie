@@ -249,7 +249,7 @@ module.exports = React.createClass({
           cache: true,
           success: function(d) {
             console.log(d);
-            this.setState({promoted_l_facet: e}, this.check_mode);
+            this.setState({promoted_l_facet: e, f: e, f_list: d}, this.check_mode);
           }.bind(this),
           error: function(xhr, status, err) {
             console.error(this.props.url, status, err.toString());
