@@ -22,12 +22,14 @@ from sqlalchemy.orm import sessionmaker
 
 
 def query(qry_string):
-    start_time = time.time()
+    '''
+    Query whoosh
+    '''
     index = open_dir("indexes/lens/")
     query_parser = QueryParser("content", schema=index.schema)
-    query = query_parser.parse(qry_string)
+    qry = query_parser.parse(qry_string)
     with index.searcher() as srch:
-        results_a = srch.search(query, limit=None)
+        results_a = srch.search(qry, limit=None)
         out = [a.get("path").replace("/", "") for a in results_a]
     #print "[*] querying took {}".format(start_time - time.time())
     return out

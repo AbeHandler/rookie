@@ -143,6 +143,8 @@ module.exports = React.createClass({
     //Notes.
     //1) convention: -1 == null
     //2) keeping track of y/mo/dy is annoying but react won't allow object as prop
+    //3) there can be exactly 1 linguistic facet from a bin (as opposed to global) that is
+    //   promoted up to global at one time. stored in state.promoted_l_facet
     let min;
     let max;
     if (this.props.all_results.length > 0){
@@ -153,7 +155,7 @@ module.exports = React.createClass({
         max = moment("05-01-2010", "MM-DD-YYYY"); //TODO: hardcoded for Lens corpus
     }
     //TODO: if no results, this fails
-    return {f: -1, hovered: -1, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview"};
+    return {f: -1, hovered: -1, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview", promoted_l_facet: -1};
   },
 
   getDuration: function(){
@@ -236,6 +238,22 @@ module.exports = React.createClass({
     }
   },
 
+  handleBinnedLinguisticFacetClick: function(e){
+    if(_.includes(this.props.datas, e)){
+      //
+    }else{
+      this.setState({promoted_l_facet: e});
+    }
+  },
+
+  get_global_facets: function(){
+    let tmp = this.props.datas; //fixed global facets
+    if (this.state.promoted_l_facet != -1 & !_.includes(this.props.datas, this.state.promoted_l_facet)){
+      tmp.push(this.state.promoted_l_facet);
+    }
+    return tmp;
+  },
+
   render: function() {
     let f = this.state.f;
     let q = this.props.q;
@@ -255,6 +273,8 @@ module.exports = React.createClass({
     let yr_start = this.state.yr_start;
     let selected_binned_facets;
     let duration = this.getDuration();
+    
+    //TODO: this is logic-y and should not go in render
     if (this.state.yr_start == this.state.yr_end && this.state.mo_end == 12 && this.state.mo_start == 1 && this.state.f == -1){
       selected_binned_facets = _.filter(binned_facets, function(o) { 
         return o.key == yr_start;
@@ -264,22 +284,23 @@ module.exports = React.createClass({
     }else{
       selected_binned_facets = binned_facets;
     }
+
     let row_height = Math.floor(this.props.height/binned_facets.length);
 
     let main_panel;
 
     let uiMonthHandler = this.handleMo;
-
+    let b_f_click = this.handleBinnedLinguisticFacetClick;
     if (this.state.mode != "overview") {      
       main_panel = <div style={y_scroll}>
-                    <BinnedLinguisticFacets hovered={this.state.hovered} handleHoverOut={this.linguisticFacetHoverOut} handleHoverIn={this.linguisticFacetHoverIn} hovered={this.state.hovered} bin_size="year" handleMo={uiMonthHandler} handleBinDocsZoom={this.handleBinDocsZoom} f={f} handleF={this.handleF} bins={selected_binned_facets}/>
+                    <BinnedLinguisticFacets hovered={this.state.hovered} handleHoverOut={this.linguisticFacetHoverOut} handleHoverIn={this.linguisticFacetHoverIn} hovered={this.state.hovered} bin_size="year" handleMo={uiMonthHandler} f={f} handleBinClick={b_f_click} bins={selected_binned_facets}/>
                     <DocViewer f={this.state.f} handleBinClick={this.handleBinClick} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>
                    </div>;
     } else if (docs.length == 0){
       main_panel = <div></div>;
     } else {
       //status = "Found " + this.props.all_results.length + " results for " + this.props.q + " related to:"
-      main_panel = <BinnedLinguisticFacets hovered={this.state.hovered} handleHoverOut={this.linguisticFacetHoverOut} handleHoverIn={this.linguisticFacetHoverIn} hovered={this.state.hovered} rw_height={row_height} bin_size="year" handleMo={uiMonthHandler} handleBinDocsZoom={this.handleBinDocsZoom} f={f} handleF={this.handleF} bins={binned_facets}/>;
+      main_panel = <BinnedLinguisticFacets hovered={this.state.hovered} handleHoverOut={this.linguisticFacetHoverOut} handleHoverIn={this.linguisticFacetHoverIn} hovered={this.state.hovered} rw_height={row_height} bin_size="year" handleMo={uiMonthHandler} handleBinClick={b_f_click} handleBinDocsZoom={this.handleBinDocsZoom} f={f} handleF={this.handleF} bins={binned_facets}/>;
     }
     let rw = {
         width: "100%",
@@ -307,12 +328,13 @@ module.exports = React.createClass({
     };
     let handleMoUI = this.handleMo;
     let linguistic_status = this.get_linguistic_facet_status(q, this.props.all_results.length);
+    let items = this.get_global_facets();
     return(
         <div>
             <div style={rw}>
                 {linguistic_status}
             </div>
-            <GlobalFacetList n_results={this.props.all_results.length} hovered={this.state.hovered} handleHoverIn={this.linguisticFacetHoverIn} handleHoverOut={this.linguisticFacetHoverOut} active={f} onClick={this.handleF} items={this.props.datas}/>
+            <GlobalFacetList n_results={this.props.all_results.length} hovered={this.state.hovered} handleHoverIn={this.linguisticFacetHoverIn} handleHoverOut={this.linguisticFacetHoverOut} active={f} onClick={this.handleF} items={items}/>
             <div>{status}</div>
             <div style={rw} >
                 <div style={lc}><TemporalFacets n_results={this.props.all_results.length} vars={this.props.vars} q_data={this.props.q_data} bins={this.props.chart_bins} handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={this.props.all_results} f={f} bin_size={bin_size}/></div>

@@ -26,7 +26,7 @@ module.exports = React.createClass({
             "marginRight": "3px"
          };
          if (this.props.isHovered){
-            aStyle.color = "#b33125";
+            aStyle.color = "#0028a3";
          }
          let display = this.props.name;
          if (this.props.position + 1 == this.props.len_items){

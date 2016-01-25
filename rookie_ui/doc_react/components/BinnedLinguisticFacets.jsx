@@ -22,11 +22,12 @@ module.exports = React.createClass({
         let binsize = this.props.bin_size;
         let hoverIn = this.props.handleHoverIn;
         let hoverOut = this.props.handleHoverOut;
+        let handleBinClick = this.props.handleBinClick;
         return(
            <div>
                 {this.props.bins.map((x, i) =>
                     <div key={i} style={row}>
-                        <FacetPreviewList handleHoverIn={hoverIn} handleHoverOut={hoverOut} hovered={this.props.hovered} active={this.props.f} items={x.facets} onClick={this.props.handleF}/>
+                        <FacetPreviewList handleHoverIn={hoverIn} handleHoverOut={hoverOut} hovered={this.props.hovered} active={this.props.f} items={x.facets} handleBinClick={handleBinClick}/>
                     </div>
                 )}
            </div>

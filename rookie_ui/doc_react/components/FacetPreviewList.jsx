@@ -7,11 +7,7 @@ var React = require('react');
 var FacetPreview = require('./FacetPreview.jsx');
 
 module.exports = React.createClass({
-  getInitialState(){
-    return {active: -1};
-  },
   handleClick: function(item) {
-    this.setState({active: item});
     this.props.handleBinClick(item);
   },
   hoverCheck: function(item){
