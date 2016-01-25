@@ -22,7 +22,7 @@ module.exports = React.createClass({
             "marginLeft": "3px",
             "marginRight": "3px",
             "fontWeight": "bold",
-            "backgroundColor": "#D3D3D3",
+            "backgroundColor": "#e6e6e6",
             "color": "black",
             "fontSize":12,
             "paddingBottom": 3,
