@@ -21,6 +21,7 @@
     "gulp-minify-css": "^1.2.3",
     "gulp-rename": "^1.2.2",
     "gulp-ruby-sass": "^1.0.0",
+    "gulp-streamify": "^1.0.2",
     "gulp-util": "^3.0.7",
     "mkdirp": "^0.5.1",
     "object-assign": "^2.1.1",
