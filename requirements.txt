@@ -55,6 +55,7 @@ sh==1.11
 simplegeneric==0.8.1
 six==1.10.0
 SQLAlchemy==1.0.10
+stanford-corenlp-pywrapper==0.1.0
 termcolor==1.1.0
 traitlets==4.0.0
 ujson==1.34

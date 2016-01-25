@@ -16,6 +16,8 @@ RUN apt-get install -y lib32ncurses5-dev
 RUN apt-get install -y libblas-dev liblapack-dev
 RUN apt-get install -y gfortran
 RUN mkdir /home/app && cd /home/app && git clone https://github.com/AbeHandler/rookie.git
+RUN mkdir /home/app/rookie/indexes
+RUN mkdir /home/app/rookie/indexes/lens
 RUN export PYTHONPATH=.
 RUN cd /home/app/rookie &&  pip install -r requirements.txt
 RUN cd /home/app/rookie

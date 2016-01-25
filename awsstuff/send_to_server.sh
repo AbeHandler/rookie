@@ -1,1 +1,1 @@
-scp  -i "awsstuff/medrookie.pem" rookieindex/ngram_matrix.p ubuntu@54.213.128.229:/home/ubuntu/data/lens_processed/
+scp  -i "awsstuff/medrookie.pem" /Users/ahandler/research/rookie/indexes/lens/* ubuntu@54.213.128.229:/home/app/rookie/indexes/lens

@@ -23,7 +23,7 @@
 
 # RUN THE APP: run a web app container that links to the postgres container 
 # Some of the requirements.txt hit errors and need to be manually installed w/ pip
-# sudo docker run -i -t -v /home/ubuntu/data/lens_processed/:/home/ubuntu/data/lens_processed/  -p 80:80 --link some-postgres:localhost webapp:latest /bin/bash
+# sudo docker run -i -t -v /home/app/rookie/indexes/lens/:/home/app/rookie/indexes/lens  -p 80:80 --link some-postgres:localhost webapp:latest /bin/bash
 
 
 # VARIOUS LINKS
