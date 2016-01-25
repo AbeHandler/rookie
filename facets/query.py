@@ -15,7 +15,6 @@ import ipdb
 import time
 import itertools
 import cPickle as pickle
-import redis
 import sys
 import argparse
 from Levenshtein import distance
@@ -47,45 +46,13 @@ def debug_print(msg):
     if DEBUG:
         print msg
 
-def add_to_redis(key, value):
-    '''
-    Value is a multi dimensional numpy array.
-    It is flattened in row major order and stored in redis
-    #http://docs.scipy.org/doc/numpy-1.10.1/reference/generated/numpy.matrix.flatten.html
-    This is b/c redis will store as string instead of as np array
-    '''
-    r = redis.StrictRedis(host='localhost', port=6379, db=0)
-    r.set(key, value.flatten().tobytes())
-
-
-def get_from_redis(key, row, col):
-    '''
-    Restores an array stored in redis as bytes.
-    need to supply how many rows/cols in the original matrix
-    '''
-    r = redis.StrictRedis(host='localhost', port=6379, db=0)
-    s = r.get(key)
-    deserialized = np.frombuffer(s).astype(np.float64)
-    rebuilt = deserialized.reshape((row, col))
-    return rebuilt
-
 
 @lrudecorator(100)
 def load_matrix(key, row, col, name):
     '''
-    loads a F x D matrix (via redis)
+    loads a F x D matrix
     '''
-    try:
-        r = redis.StrictRedis(host='localhost', port=6379, db=0)
-        if r.get(key) is None:
-            print "[*] Hang on. Adding {} to redis".format(name)
-            add_to_redis(key, pickle.load(open("indexes/lens/{}_matrix.p".format(name), "rb")))
-        return get_from_redis(key, row, col)
-    except redis.ConnectionError:
-        # No redis. More likely in live web app
-        print "cant find redis. loading from disk. hang on"
-        tmp = joblib.load('indexes/lens/ngram_matrix.joblib')
-        return tmp
+    return joblib.load('indexes/lens/ngram_matrix.joblib')
 
 @lrudecorator(100)
 def load_all_data_structures():
@@ -309,8 +276,6 @@ def get_facets_for_q(q, results, n_facets):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='parser')
-
-    parser.add_argument('--redis', action="store_true", default=False)
     parser.add_argument("-v", action="store_true", default=False, help="verbose")
     parser.add_argument('-q', '--query', dest='query')
     args = parser.parse_args()
