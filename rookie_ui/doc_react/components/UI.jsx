@@ -50,7 +50,8 @@ module.exports = React.createClass({
           dataType: 'json',
           cache: true,
           success: function(d) {
-            this.setState({f: e, f_list: d}, this.check_mode);
+            console.log(d);
+            this.setState({f: e, f_list: d["doclist"]}, this.check_mode);
           }.bind(this),
           error: function(xhr, status, err) {
             console.error(this.props.url, status, err.toString());
@@ -155,7 +156,7 @@ module.exports = React.createClass({
         max = moment("05-01-2010", "MM-DD-YYYY"); //TODO: hardcoded for Lens corpus
     }
     //TODO: if no results, this fails
-    return {f: -1, hovered: -1, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview", promoted_l_facet: -1};
+    return {f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview", promoted_l_facet: -1};
   },
 
   getDuration: function(){
@@ -248,8 +249,9 @@ module.exports = React.createClass({
           dataType: 'json',
           cache: true,
           success: function(d) {
-            console.log(d);
-            this.setState({promoted_l_facet: e, f: e, f_list: d["doclist"]}, this.check_mode);
+            let tmp = this.state.vars;
+            tmp[e] = d["facet_datas"];
+            this.setState({vars: tmp, promoted_l_facet: e, f: e, f_list: d["doclist"]}, this.check_mode);
           }.bind(this),
           error: function(xhr, status, err) {
             console.error(this.props.url, status, err.toString());
@@ -350,11 +352,11 @@ module.exports = React.createClass({
             <GlobalFacetList n_results={this.props.all_results.length} hovered={this.state.hovered} handleHoverIn={this.linguisticFacetHoverIn} handleHoverOut={this.linguisticFacetHoverOut} active={f} onClick={this.handleF} items={items}/>
             <div>{status}</div>
             <div style={rw} >
-                <div style={lc}><TemporalFacets n_results={this.props.all_results.length} vars={this.props.vars} q_data={this.props.q_data} bins={this.props.chart_bins} handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={this.props.all_results} f={f} bin_size={bin_size}/></div>
+                <div style={lc}><TemporalFacets n_results={this.props.all_results.length} vars={this.state.vars} q_data={this.props.q_data} bins={this.props.chart_bins} handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={this.props.all_results} f={f} bin_size={bin_size}/></div>
                 <div style={rc}>{main_panel}</div>
             </div>
             <div style={rw}>
-            <Chart ndocs={this.props.all_results.length} chart_bins={this.props.chart_bins} q_data={this.props.q_data} vars={this.props.vars} q={q} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} tHandler={this.handleT} f={this.state.f}/>
+            <Chart ndocs={this.props.all_results.length} chart_bins={this.props.chart_bins} q_data={this.props.q_data} vars={this.state.vars} q={q} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} tHandler={this.handleT} f={this.state.f}/>
             </div>
        </div>);
   }

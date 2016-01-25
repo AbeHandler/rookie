@@ -13,7 +13,7 @@ var ReactDOM = require('react-dom');
 var Sparklines = require('react-sparklines').Sparklines;
 var SparklinesLine = require('react-sparklines').SparklinesLine;
 var SparklinesSpots = require('react-sparklines').SparklinesSpots;
-var uglify = require('gulp-uglify');
+
 
 var paths = {
   scripts: ['components/*','main.js']
