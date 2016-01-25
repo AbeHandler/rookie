@@ -114,9 +114,6 @@ def medviz():
 
     facet_datas = {}
 
-    for f in binned_facets["g"]:
-        facet_datas[f] = [str(f)] + [get_val_from_df(f, key, df, binsize) for key in chart_bins]
-
     chart_bins = ["x"] + [k + "-1" for k in chart_bins] # hacky addition of date to keys
 
     display_bins = []

@@ -39,28 +39,6 @@ module.exports = React.createClass({
     return false;
   },
 
-  handleF: function(e){
-    //user just clicked an F button in GlobalFacetList
-    if (this.state.f === e){
-        this.setState({f: -1}, this.check_mode);
-    }else{
-        let url = "/get_docs?q=" + this.props.q + "&f=" + e;
-        $.ajax({
-          url: url,
-          dataType: 'json',
-          cache: true,
-          success: function(d) {
-            console.log(d);
-            this.setState({f: e, f_list: d["doclist"]}, this.check_mode);
-          }.bind(this),
-          error: function(xhr, status, err) {
-            console.error(this.props.url, status, err.toString());
-          }.bind(this)
-        });
-        //TODO, what if T is selected?
-    }
-  },
-
   thiryDaysHath: function(e){
     if (_.includes([9, 11, 4, 6], e)){
         return 30;
@@ -239,26 +217,25 @@ module.exports = React.createClass({
     }
   },
 
-  handleBinnedLinguisticFacetClick: function(e){
-    if(_.includes(this.props.datas, e)){
-      //
-    }else{
-        let url = "/get_docs?q=" + this.props.q + "&f=" + e;
+  handleLinguisticFacetClick: function(e){
+    if (this.state.f === e){
+        this.setState({f: -1}, this.check_mode);
+    } else{
+      let url = "/get_docs?q=" + this.props.q + "&f=" + e;
         $.ajax({
-          url: url,
-          dataType: 'json',
-          cache: true,
-          success: function(d) {
-            let tmp = this.state.vars;
-            tmp[e] = d["facet_datas"];
-            this.setState({vars: tmp, promoted_l_facet: e, f: e, f_list: d["doclist"]}, this.check_mode);
-          }.bind(this),
-          error: function(xhr, status, err) {
-            console.error(this.props.url, status, err.toString());
-          }.bind(this)
-        }); 
-        
-    }
+              url: url,
+              dataType: 'json',
+              cache: true,
+              success: function(d) {
+                let tmp = this.state.vars;
+                tmp[e] = d["facet_datas"][e];
+                this.setState({vars: tmp, promoted_l_facet: e, f: e, f_list: d["doclist"]}, this.check_mode);
+              }.bind(this),
+              error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+              }.bind(this)
+        });
+     } 
   },
 
   get_global_facets: function(){
@@ -305,7 +282,7 @@ module.exports = React.createClass({
     let main_panel;
 
     let uiMonthHandler = this.handleMo;
-    let b_f_click = this.handleBinnedLinguisticFacetClick;
+    let b_f_click = this.handleLinguisticFacetClick;
     if (this.state.mode != "overview") {      
       main_panel = <div style={y_scroll}>
                     <BinnedLinguisticFacets hovered={this.state.hovered} handleHoverOut={this.linguisticFacetHoverOut} handleHoverIn={this.linguisticFacetHoverIn} hovered={this.state.hovered} bin_size="year" handleMo={uiMonthHandler} f={f} handleBinClick={b_f_click} bins={selected_binned_facets}/>
@@ -349,7 +326,7 @@ module.exports = React.createClass({
             <div style={rw}>
                 {linguistic_status}
             </div>
-            <GlobalFacetList n_results={this.props.all_results.length} hovered={this.state.hovered} handleHoverIn={this.linguisticFacetHoverIn} handleHoverOut={this.linguisticFacetHoverOut} active={f} onClick={this.handleF} items={items}/>
+            <GlobalFacetList n_results={this.props.all_results.length} hovered={this.state.hovered} handleHoverIn={this.linguisticFacetHoverIn} handleHoverOut={this.linguisticFacetHoverOut} active={f} onClick={this.handleLinguisticFacetClick} items={items}/>
             <div>{status}</div>
             <div style={rw} >
                 <div style={lc}><TemporalFacets n_results={this.props.all_results.length} vars={this.state.vars} q_data={this.props.q_data} bins={this.props.chart_bins} handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={this.props.all_results} f={f} bin_size={bin_size}/></div>
