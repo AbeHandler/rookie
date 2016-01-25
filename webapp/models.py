@@ -174,6 +174,7 @@ def make_dataframe(q, facets, results, q_pubdates, aliases):
     df['pd'] = q_pubdates
     df[q] = [1 for i in q_pubdates]
     for facet in facets:
+        print facet
         facet_dates = [i for i in set([i for i in get_pubdates_for_ngram(facet)])]
         #TODO
         #alias = [get_pubdates_for_ngram(a) for a in aliases[facet]]

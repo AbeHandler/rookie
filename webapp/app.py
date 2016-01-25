@@ -25,6 +25,12 @@ def worker(results, params, f, aliases):
 
     return
 
+def manager(results, params, all_facets, aliases):
+    """Starts prepping doclist to go fast on facet click"""
+    for f in all_facets:
+        t = threading.Thread(target=worker, args=(results, params, f, aliases))
+        t.start()
+    return
 
 app = Flask(__name__)
 
@@ -48,22 +54,6 @@ def get_doc_list():
     results = Models.get_results(params)
 
     doc_list = results_to_doclist(results, params.q, params.f, aliases=tuple([])) #TODO aliases
-
-    return json.dumps(doc_list)
-
-
-@app.route("/get_binned_facet_dates", methods=['GET'])
-def get_binned_facet_dates():
-
-    params = Models.get_parameters(request)
-
-    results = Models.get_results(params)
-
-    q_pubdates = [parse(get_doc_metadata(r)["pubdate"]) for r in results]
-
-    df = make_dataframe(params.q, params.f, results, q_pubdates, aliases=[])
-
-    df = bin_dataframe(df, binsize)
 
     return json.dumps(doc_list)
 
@@ -123,15 +113,11 @@ def medviz():
         if key != "g":
             display_bins.append({"key": key, "facets": binned_facets[key]})
 
-    view = views.get_q_response_med(params, doc_list, facet_datas, chart_bins, q_data, len(results), binsize, display_bins, binned_facets['g'])
-
-    print "tot time = {}".format(time.time() - start)
-    for f in all_facets:
-        t = threading.Thread(target=worker, args=(results, params, f, aliases))
-        t.start()
-
-    print "thread time = {}".format(time.time() - start)
-    return view
+    ftime = time.time()
+    m = threading.Thread(target=manager, args=(results, params, all_facets, aliases))
+    m.start()
+    print "thread time = {}".format(time.time() - ftime)
+    return views.get_q_response_med(params, doc_list, facet_datas, chart_bins, q_data, len(results), binsize, display_bins, binned_facets['g'])
 
 
 if __name__ == '__main__':

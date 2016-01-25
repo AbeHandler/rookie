@@ -20,3 +20,5 @@ Buttons should be check marks? and should be on L side. Time bins on top.
 If you do away with an IR system, then you will have TONS of docs to read. so really need facets. 
 
 1/15/15 -- there might be a way to be less heuristic about the heuristics by using document frequency. more freq == better?
+
+1/24/15 -- promoting binned facets to global is great b/c even if algo fails, user can promote minor ones... so even if does not fit in global, it still is useful. can just click to promote.

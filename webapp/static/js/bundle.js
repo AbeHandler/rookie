@@ -25,13 +25,14 @@ module.exports = React.createClass({
     let binsize = this.props.bin_size;
     let hoverIn = this.props.handleHoverIn;
     let hoverOut = this.props.handleHoverOut;
+    let handleBinClick = this.props.handleBinClick;
     return React.createElement(
       'div',
       null,
       this.props.bins.map((x, i) => React.createElement(
         'div',
         { key: i, style: row },
-        React.createElement(FacetPreviewList, { handleHoverIn: hoverIn, handleHoverOut: hoverOut, hovered: this.props.hovered, active: this.props.f, items: x.facets, onClick: this.props.handleF })
+        React.createElement(FacetPreviewList, { handleHoverIn: hoverIn, handleHoverOut: hoverOut, hovered: this.props.hovered, active: this.props.f, items: x.facets, handleBinClick: handleBinClick })
       ))
     );
   }
@@ -260,7 +261,7 @@ module.exports = React.createClass({
          "marginRight": "3px"
       };
       if (this.props.isHovered) {
-         aStyle.color = "#b33125";
+         aStyle.color = "#0028a3";
       }
       let display = this.props.name;
       if (this.props.position + 1 == this.props.len_items) {
@@ -300,11 +301,7 @@ var FacetPreview = require('./FacetPreview.jsx');
 module.exports = React.createClass({
   displayName: 'exports',
 
-  getInitialState() {
-    return { active: -1 };
-  },
   handleClick: function (item) {
-    this.setState({ active: item });
     this.props.handleBinClick(item);
   },
   hoverCheck: function (item) {
@@ -811,7 +808,7 @@ module.exports = React.createClass({
     if (this.state.f === e) {
       this.setState({ f: -1 }, this.check_mode);
     } else {
-      let url = "/post_for_docs?q=" + this.props.q + "&f=" + e;
+      let url = "/get_docs?q=" + this.props.q + "&f=" + e;
       $.ajax({
         url: url,
         dataType: 'json',
@@ -909,6 +906,8 @@ module.exports = React.createClass({
     //Notes.
     //1) convention: -1 == null
     //2) keeping track of y/mo/dy is annoying but react won't allow object as prop
+    //3) there can be exactly 1 linguistic facet from a bin (as opposed to global) that is
+    //   promoted up to global at one time. stored in state.promoted_l_facet
     let min;
     let max;
     if (this.props.all_results.length > 0) {
@@ -919,7 +918,7 @@ module.exports = React.createClass({
       max = moment("05-01-2010", "MM-DD-YYYY"); //TODO: hardcoded for Lens corpus
     }
     //TODO: if no results, this fails
-    return { f: -1, hovered: -1, yr_start: min.format("YYYY"), mo_start: min.format("MM"), dy_start: min.format("DD"), yr_end: max.format("YYYY"), mo_end: max.format("MM"), dy_end: max.format("DD"), mode: "overview" };
+    return { f: -1, hovered: -1, yr_start: min.format("YYYY"), mo_start: min.format("MM"), dy_start: min.format("DD"), yr_end: max.format("YYYY"), mo_end: max.format("MM"), dy_end: max.format("DD"), mode: "overview", promoted_l_facet: -1 };
   },
 
   getDuration: function () {
@@ -1000,6 +999,34 @@ module.exports = React.createClass({
     }
   },
 
+  handleBinnedLinguisticFacetClick: function (e) {
+    if (_.includes(this.props.datas, e)) {
+      //
+    } else {
+        let url = "/get_docs?q=" + this.props.q + "&f=" + e;
+        $.ajax({
+          url: url,
+          dataType: 'json',
+          cache: true,
+          success: (function (d) {
+            console.log(d);
+            this.setState({ promoted_l_facet: e }, this.check_mode);
+          }).bind(this),
+          error: (function (xhr, status, err) {
+            console.error(this.props.url, status, err.toString());
+          }).bind(this)
+        });
+      }
+  },
+
+  get_global_facets: function () {
+    let tmp = this.props.datas; //fixed global facets
+    if (this.state.promoted_l_facet != -1 & !_.includes(this.props.datas, this.state.promoted_l_facet)) {
+      tmp.push(this.state.promoted_l_facet);
+    }
+    return tmp;
+  },
+
   render: function () {
     let f = this.state.f;
     let q = this.props.q;
@@ -1019,6 +1046,8 @@ module.exports = React.createClass({
     let yr_start = this.state.yr_start;
     let selected_binned_facets;
     let duration = this.getDuration();
+
+    //TODO: this is logic-y and should not go in render
     if (this.state.yr_start == this.state.yr_end && this.state.mo_end == 12 && this.state.mo_start == 1 && this.state.f == -1) {
       selected_binned_facets = _.filter(binned_facets, function (o) {
         return o.key == yr_start;
@@ -1028,24 +1057,25 @@ module.exports = React.createClass({
     } else {
       selected_binned_facets = binned_facets;
     }
+
     let row_height = Math.floor(this.props.height / binned_facets.length);
 
     let main_panel;
 
     let uiMonthHandler = this.handleMo;
-
+    let b_f_click = this.handleBinnedLinguisticFacetClick;
     if (this.state.mode != "overview") {
       main_panel = React.createElement(
         'div',
         { style: y_scroll },
-        React.createElement(BinnedLinguisticFacets, { hovered: this.state.hovered, handleHoverOut: this.linguisticFacetHoverOut, handleHoverIn: this.linguisticFacetHoverIn, hovered: this.state.hovered, bin_size: 'year', handleMo: uiMonthHandler, handleBinDocsZoom: this.handleBinDocsZoom, f: f, handleF: this.handleF, bins: selected_binned_facets }),
+        React.createElement(BinnedLinguisticFacets, { hovered: this.state.hovered, handleHoverOut: this.linguisticFacetHoverOut, handleHoverIn: this.linguisticFacetHoverIn, hovered: this.state.hovered, bin_size: 'year', handleMo: uiMonthHandler, f: f, handleBinClick: b_f_click, bins: selected_binned_facets }),
         React.createElement(DocViewer, { f: this.state.f, handleBinClick: this.handleBinClick, yr_start: this.state.yr_start, mo_start: this.state.mo_start, dy_start: this.state.dy_start, yr_end: this.state.yr_end, mo_end: this.state.mo_end, dy_end: this.state.dy_end, all_results: this.props.all_results, docs: docs, bin_size: bin_size, bins: binned_facets })
       );
     } else if (docs.length == 0) {
       main_panel = React.createElement('div', null);
     } else {
       //status = "Found " + this.props.all_results.length + " results for " + this.props.q + " related to:"
-      main_panel = React.createElement(BinnedLinguisticFacets, { hovered: this.state.hovered, handleHoverOut: this.linguisticFacetHoverOut, handleHoverIn: this.linguisticFacetHoverIn, hovered: this.state.hovered, rw_height: row_height, bin_size: 'year', handleMo: uiMonthHandler, handleBinDocsZoom: this.handleBinDocsZoom, f: f, handleF: this.handleF, bins: binned_facets });
+      main_panel = React.createElement(BinnedLinguisticFacets, { hovered: this.state.hovered, handleHoverOut: this.linguisticFacetHoverOut, handleHoverIn: this.linguisticFacetHoverIn, hovered: this.state.hovered, rw_height: row_height, bin_size: 'year', handleMo: uiMonthHandler, handleBinClick: b_f_click, handleBinDocsZoom: this.handleBinDocsZoom, f: f, handleF: this.handleF, bins: binned_facets });
     }
     let rw = {
       width: "100%"
@@ -1073,6 +1103,7 @@ module.exports = React.createClass({
     };
     let handleMoUI = this.handleMo;
     let linguistic_status = this.get_linguistic_facet_status(q, this.props.all_results.length);
+    let items = this.get_global_facets();
     return React.createElement(
       'div',
       null,
@@ -1081,7 +1112,7 @@ module.exports = React.createClass({
         { style: rw },
         linguistic_status
       ),
-      React.createElement(GlobalFacetList, { n_results: this.props.all_results.length, hovered: this.state.hovered, handleHoverIn: this.linguisticFacetHoverIn, handleHoverOut: this.linguisticFacetHoverOut, active: f, onClick: this.handleF, items: this.props.datas }),
+      React.createElement(GlobalFacetList, { n_results: this.props.all_results.length, hovered: this.state.hovered, handleHoverIn: this.linguisticFacetHoverIn, handleHoverOut: this.linguisticFacetHoverOut, active: f, onClick: this.handleF, items: items }),
       React.createElement(
         'div',
         null,

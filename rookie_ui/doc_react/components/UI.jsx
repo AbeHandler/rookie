@@ -242,7 +242,7 @@ module.exports = React.createClass({
     if(_.includes(this.props.datas, e)){
       //
     }else{
-        let url = "/get_binned_facet_dates?q=" + this.props.q + "&f=" + e;
+        let url = "/get_docs?q=" + this.props.q + "&f=" + e;
         $.ajax({
           url: url,
           dataType: 'json',
