@@ -28,11 +28,11 @@ module.exports = React.createClass({
             "paddingBottom": 3,
             "paddingTop": 3
          };
-         if (this.props.selected){
-            divStyle.color = "#b33125";
-         }
          if (this.props.hovered){
             divStyle.color = "rgb(0, 40, 163)";
+         }
+         if (this.props.selected){
+            divStyle.color = "#b33125";
          }
          return (<div onMouseLeave={this.handleHoverOut.bind(this, this.props.name)} onMouseEnter={this.handleHoverIn.bind(this, this.props.name)} className="button tiny secondary" style={divStyle} name={this.props.name} onClick={this.handleClick.bind(this, this.props.name)}>
             {this.props.name}
