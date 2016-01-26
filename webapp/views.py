@@ -19,7 +19,7 @@ class Views(object):
         if self.ip == "localhost":
             baseurl = "http://localhost:5000/"
         else:
-            baseurl = self.ip
+            baseurl = "" #TODO: why this should be blank for an IP address?
         response = render_template(
             'medviz.html',
             query=params.q,
