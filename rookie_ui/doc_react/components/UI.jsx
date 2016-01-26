@@ -151,15 +151,12 @@ module.exports = React.createClass({
     }
     let status = "Found " + ndocs + " " + story_phrase + " for " + this.props.q;
     let duration = this.getDuration();
-    if (ndocs == 0){
-      return status;
+    if (this.state.f != -1 & this.state.mode == "docs"){
+      status = status + " and " + this.state.f; 
     }
     if (this.state.mode == "overview"){
         status = status + " related to:";
     }else if (this.state.mode == "docs") {
-        if (this.state.f != -1){
-            status = status + " and " + this.state.f; 
-        }
         if (parseInt(this.state.dy_start) === 1 & parseInt(this.state.mo_start) === 1 & this.state.dy_end == "31" & this.state.mo_end == "12"){
             status = status + " in " + this.state.yr_start;
         }
