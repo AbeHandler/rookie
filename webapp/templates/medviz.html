@@ -30,7 +30,7 @@ var query = "{{query}}";
 
   <div>
     <div class="small-10 columns">
-      <input id="search_bar" type="text" class="small-12 columns" placeholder="{{query}}"></input>
+      <input id="search_bar" type="text" class="small-12 columns" value="{{query}}" placeholder="{{query}}"></input>
     </div>
     <div class="small-2 columns">
       <a href="#" class="button postfix" id="search_button">Search</a>
@@ -45,6 +45,19 @@ var query = "{{query}}";
 </div>
 
 <script src="{{ROOKIE_JS}}bundle.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+     $("#search_button").on("click", 
+        function(){location.href="{{baseurl}}?q=" + $("#search_bar").val();}
+    );
+    $(document).keypress(function(e) {
+      if(e.keyCode == 13) 
+        {
+          location.href="{{baseurl}}?q=" + $("#search_bar").val();
+        }
+    });
+});
+</script>
 
 </body>
 </html>

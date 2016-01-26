@@ -122,8 +122,8 @@ def medviz():
             display_bins.append({"key": key, "facets": binned_facets[key]})
 
     ftime = time.time()
-    m = threading.Thread(target=manager, args=(results, params, all_facets, aliases))
-    m.start()
+    #m = threading.Thread(target=manager, args=(results, params, all_facets, aliases))
+    #m.start()
     print "thread time = {}".format(time.time() - ftime)
 
     print "all time = {}".format(time.time() - start)

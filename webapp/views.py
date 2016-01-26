@@ -16,6 +16,10 @@ class Views(object):
         '''
         return medviz view
         '''
+        if self.ip == "localhost":
+            baseurl = "http://localhost:5000/"
+        else:
+            baseurl = self.ip
         response = render_template(
             'medviz.html',
             query=params.q,
@@ -29,6 +33,7 @@ class Views(object):
             len_keys=len(chart_bins),
             binned_facets=binned_facets,
             IP=self.ip,
+            baseurl=baseurl,
             ROOKIE_JS=self.js,
             ROOKIE_CSS=self.rookie_css
         )
