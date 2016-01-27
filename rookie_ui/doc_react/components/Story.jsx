@@ -47,7 +47,7 @@ module.exports = React.createClass({
                     <div style={yrStyle}>{mom.format("YYYY")}</div>
                 </div>
                 <div style={storyStyle}>
-                    <a style={headlineStyle}> <div>{this.props.story.headline}</div> </a>
+                    <a target="_blank" href={this.props.story.url} style={headlineStyle}> <div>{this.props.story.headline}</div> </a>
                     <div style={snippetStyle} dangerouslySetInnerHTML={markup(this.props.story.snippet)}/>
                 </div>
             </div>
