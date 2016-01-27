@@ -11,6 +11,7 @@ var BinnedLinguisticFacets = require('./BinnedLinguisticFacets.jsx');
 var GlobalFacetList = require('./GlobalFacetList.jsx');
 var TemporalFacets = require('./TemporalFacets.jsx');
 var DocViewer = require('./DocViewer.jsx');
+var Status = require('./Status.jsx');
 var Chart = require('./Chart.jsx');
 
 module.exports = React.createClass({
@@ -53,6 +54,8 @@ module.exports = React.createClass({
     //the user just clicked a month facet, e
 
     //if the month is already selected... unselect it
+    console.log(e);
+    console.log(this.state);
     if (this.state.mo_start == e && this.state.mo_end == e){
       this.setState({mo_start: 1});
       this.setState({mo_end: 12});
@@ -137,39 +140,6 @@ module.exports = React.createClass({
     return {f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview", promoted_l_facet: -1};
   },
 
-  getDuration: function(){
-    let start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
-    let end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
-    var duration = moment.duration(end.diff(start));
-    return duration;
-  },
-
-  getStatus: function(ndocs){
-    let story_phrase = "stories";
-    if ((ndocs) == 1) {
-      story_phrase = "story";
-    }
-    let status = "Found " + ndocs + " " + story_phrase + " for " + this.props.q;
-    let duration = this.getDuration();
-    if (this.state.f != -1 & this.state.mode == "docs"){
-      status = status + " and " + this.state.f; 
-    }
-    if (this.state.mode == "overview"){
-        status = status + " related to:";
-    }else if (this.state.mode == "docs") {
-        if (parseInt(this.state.dy_start) === 1 & parseInt(this.state.mo_start) === 1 & this.state.dy_end == "31" & this.state.mo_end == "12"){
-            status = status + " in " + this.state.yr_start;
-        }
-        else if (Math.floor(duration.asDays()) < 32 & Math.floor(duration.asDays()) > 28){
-            let end = moment(this.state.mo_end + "-" + this.state.dy_end + "-" + this.state.yr_end, "MM-DD-YYYY");
-            status = status + " in " + end.format("MMM YYYY");
-        }else if (Math.floor(duration.asDays()) > 364 & Math.floor(duration.asDays()) < 366){
-            status = status + " in " + start.format("YYYY");
-        }
-    }
-    return status;
-  },
-
   linguisticFacetHoverIn: function(e){
     this.setState({hovered: e});
   },
@@ -243,14 +213,19 @@ module.exports = React.createClass({
     return tmp;
   },
 
+      getDuration: function(){
+        let start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
+        let end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
+        var duration = moment.duration(end.diff(start));
+        return duration;
+    },
+
   render: function() {
     let f = this.state.f;
     let q = this.props.q;
     let bin_size = "year"; //default binsize
     // docs = those that match q, f & t. all_results = what comes from browser.
     let docs = this.resultsToDocs(this.props.all_results);
-
-    let status = this.getStatus(docs.length);
 
     let y_scroll = {
         overflowY: "scroll",
@@ -262,7 +237,6 @@ module.exports = React.createClass({
     let yr_start = this.state.yr_start;
     let selected_binned_facets;
     let duration = this.getDuration();
-    
     //TODO: this is logic-y and should not go in render
     if (this.state.yr_start == this.state.yr_end && this.state.mo_end == 12 && this.state.mo_start == 1 && this.state.f == -1){
       selected_binned_facets = _.filter(binned_facets, function(o) { 
@@ -324,7 +298,7 @@ module.exports = React.createClass({
                 {linguistic_status}
             </div>
             <GlobalFacetList n_results={this.props.all_results.length} hovered={this.state.hovered} handleHoverIn={this.linguisticFacetHoverIn} handleHoverOut={this.linguisticFacetHoverOut} active={f} onClick={this.handleLinguisticFacetClick} items={items}/>
-            <div>{status}</div>
+            <div><Status ndocs={docs.length} f={this.state.f} mode={this.state.mode} q={this.props.q} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end}/></div>
             <div style={rw} >
                 <div style={lc}><TemporalFacets n_results={this.props.all_results.length} vars={this.state.vars} q_data={this.props.q_data} bins={this.props.chart_bins} handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={this.props.all_results} f={f} bin_size={bin_size}/></div>
                 <div style={rc}>{main_panel}</div>
