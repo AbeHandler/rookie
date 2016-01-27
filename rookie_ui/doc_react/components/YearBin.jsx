@@ -21,6 +21,6 @@ module.exports = React.createClass({
             link.opacity = .6;
             bigStyle.opacity = .8;
         }
-        return <div onClick={this.handleClick.bind(this, this.props.text)} style={bigStyle}><div style={bin_key}>{this.props.text}</div><div style={link}>{this.props.ndocs} stories</div></div>;
+        return <div onClick={this.handleClick.bind(this, this.props.text)} style={bigStyle}><div style={bin_key}>{this.props.text}</div><div style={link}>{this.props.n_results} stories</div></div>;
     }
 });
