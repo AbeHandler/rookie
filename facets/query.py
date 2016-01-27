@@ -5,6 +5,7 @@ from __future__ import division
 from pylru import lrudecorator
 from webapp.models import query
 import bottleneck
+from webapp.models import get_doc_metadata
 from dateutil.parser import parse
 from whoosh.index import open_dir
 from collections import defaultdict
@@ -64,8 +65,6 @@ def load_all_data_structures():
     matrixes = {}
     df = {}
     idf = {}
-    with open("indexes/lens/meta_data.json") as inf:
-        mt = ujson.load(inf)
     for n in ["ngram"]:
         decoder = pickle.load(open("indexes/lens/{}_key.p".format(n), "rb"))
         decoder_r = {v: k for k, v in decoder.items()}
@@ -74,7 +73,7 @@ def load_all_data_structures():
         matrixes[n] = load_matrix(n + "_matrix", len(decoder.keys()), NDOCS, n)
         df[n] = pickle.load(open("indexes/lens/{}_df.p".format(n), "rb"))
         idf[n] = pickle.load(open("indexes/lens/{}_idf.p".format(n), "rb"))
-    return {"decoders": decoders, "reverse_decoders": reverse_decoders, "matrixes": matrixes, "df": df, "idf": idf, "metadata": mt}
+    return {"decoders": decoders, "reverse_decoders": reverse_decoders, "matrixes": matrixes, "df": df, "idf": idf}
 
 
 def s_check(facet, proposed_new_facet, distance):
@@ -215,7 +214,7 @@ def filter_t(results, start, end, structures):
     '''
     Take a set of results and return those that fall in [start, end]
     '''
-    return [i for i in results if parse(structures["metadata"][i]["pubdate"]) >= start and parse(structures["metadata"][i]["pubdate"]) <= end]
+    return [i for i in results if parse(get_doc_metadata(i)["pubdate"]) >= start and parse(get_doc_metadata(i)["pubdate"]) <= end]
 
 
 def get_raw_facets(results, bins, structures):

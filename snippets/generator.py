@@ -8,12 +8,6 @@ def query_unigram_overlap(sentence_tokens, query_words):
     return len(set(sentence_tokens).intersection(set(query_words)))
 
 
-def get_snippet(query, docs):
-    for doc in docs:
-        get_snippet_doc(query, doc['fields']['text'])
-    return "lorem ipsum, bro"
-
-
 def get_snippet_doc(query, full_text):
     query_words = query.split(" ")
     sentences = full_text.split(".")

@@ -1,4 +1,4 @@
-To see a demo of rookie, go [here](http://54.213.128.229/medviz?q=Mitch%20Landrieu/ "here"). This repo just holds the source code.
+To see a demo of rookie, go [here](http://54.213.128.229/?q=Mitch%20Landrieu/ "here"). This repo just holds the source code.
 
 #### Rookie
 

@@ -23,7 +23,9 @@ parser.add_argument('--corpus', help='the thing in the middle of corpus/{}/raw',
 args = parser.parse_args()
 
 def doc_metadata_to_db():
-    print "building per-doc metadata table"
+    print "building per-doc metadata table now handled in load_to_whoosh 1.27.16"
+    
+    '''
     go = lambda *args: session.connection().execute(*args)
     go("drop table if exists doc_metadata")
     go("create table doc_metadata (docid integer not null primary key, data jsonb)")
@@ -37,8 +39,10 @@ def doc_metadata_to_db():
         go("""INSERT INTO doc_metadata (docid, data) VALUES (%s, %s)""", 
             docid, ujson.dumps(mt[str(docid)]))
     print "Num docs in metadata table:", go("select count(1) from doc_metadata").fetchone()[0]
+    '''
 
 def create_pubdate_index():
+    '''
     go = lambda *args: session.connection().execute(*args)
 
     print "building pubdate index"
@@ -56,6 +60,7 @@ def create_pubdate_index():
     print "\nindexing"
     go("create index on ngram_pubdates (ngram)")
     print "pubdate index built over %s terms" % (go("select count(1) from ngram_pubdates").fetchone()[0])
+    '''
 
 if __name__ == '__main__':
     engine = create_engine(CONNECTION_STRING)

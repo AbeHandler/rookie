@@ -9,20 +9,26 @@ from collections import defaultdict
 from webapp import processed_location
 import ipdb
 import csv
-import json
 import os
 import sys
 from itertools import tee, izip, islice, chain
 csv.field_size_limit(sys.maxsize)
 
-import json
-import glob
+import ujson
 import argparse
 from dateutil.parser import parse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--corpus', help='the thing in the middle of corpus/{}/raw', required=True)
 args = parser.parse_args()
+
+'''build connection to db'''
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from webapp.classes import CONNECTION_STRING
+engine = create_engine(CONNECTION_STRING)
+Session = sessionmaker(bind=engine)
+session = Session()
 
 print "adding {} to whoosh and checking ngrams".format(args.corpus)
 
@@ -192,6 +198,27 @@ class Token(object):
             return False
 
 
+def create_pubdate_index(metadata):
+    '''
+    Takes a dict of ngrams that shows which ngram in what pubdate.
+    Inserts into db.
+    '''
+    go = lambda *args: session.connection().execute(*args)
+
+    print "building pubdate index"
+    go("drop table if exists ngram_pubdates")
+    go("create table ngram_pubdates (ngram text, pubdates jsonb)")
+    # string to pubdate matrix created in building matrix
+    for i,ngram in enumerate(metadata):
+        dates = metadata[ngram]
+        dates = sorted(set(dates))
+        go(u"""INSERT INTO ngram_pubdates (ngram, pubdates) VALUES (%s, %s)""",
+                ngram, ujson.dumps(dates))
+        
+    print "\nindexing"
+    go("create index on ngram_pubdates (ngram)")
+    print "pubdate index built over %s terms" % (go("select count(1) from ngram_pubdates").fetchone()[0])
+
 
 def load(index_location, processed_location):
     '''
@@ -205,12 +232,17 @@ def load(index_location, processed_location):
     ix = create_in(index_location, schema)
     writer = ix.writer()
 
+    ngram_pubdate_index = defaultdict(list)
+
     people_org_ngram_index = {}
-
-
+    go = lambda *args: session.connection().execute(*args)
+    go("drop table if exists doc_metadata")
+    go("create table doc_metadata (docid integer not null primary key, data jsonb)")
+    go("drop table if exists ngram_pubdates")
+    go("create table ngram_pubdates (ngram text, pubdates jsonb)")
     with open ("corpora/{}/processed/all.json".format(args.corpus)) as raw:
         for line in raw:
-            line_json = json.loads(line)
+            line_json = ujson.loads(line)
             headline = line_json["headline"]
             pubdate = parse(line_json["pubdate"])
             procesed_text = line_json["text"]
@@ -223,48 +255,19 @@ def load(index_location, processed_location):
                          for i in doc.sentences]
             if len(headline) > 0 and len(full_text) > 0:
                 writer.add_document(title=headline, path=u"/" + str(s_counter), content=full_text)
-                people_org_ngram_index[s_counter] = {'headline': headline, 'pubdate': pubdate.strftime('%Y-%m-%d'), 'ngrams': ngrams, "url": url, "sentences": sentences}
+                per_doc_json_blob = {'headline': headline, 'pubdate': pubdate.strftime('%Y-%m-%d'), 'ngrams': ngrams, "url": url, "sentences": sentences}
+                go("""INSERT INTO doc_metadata (docid, data) VALUES (%s, %s)""", s_counter, ujson.dumps(per_doc_json_blob))
+                for ngram in ngrams:
+                    ngram_pubdate_index[ngram].append(pubdate.strftime('%Y-%m-%d'))
                 s_counter += 1
                 if s_counter % 1000==0:
                     sys.stdout.write("...%s" % s_counter); sys.stdout.flush()
-                with open(index_location + '/meta_data.json', 'w') as outfile:
-                    json.dump(people_org_ngram_index, outfile)
+        create_pubdate_index(ngram_pubdate_index)
         writer.commit(mergetype=writing.CLEAR)
-        '''
-            full_text = IncomingFile(infile).doc.full_text
-            headline = unicode(IncomingFile(infile).headline)
-            meta_data = {}
-            meta_data['ngram'] = [unicode(" ".join(i.raw for i in j)) \
-                                  for j in IncomingFile(infile).doc.ngrams]
-            meta_data['headline'] = IncomingFile(infile).headline
-            meta_data['url'] = IncomingFile(infile).url
-            meta_data['pubdate'] = IncomingFile(infile).pubdate
-            meta_data['raw'] = os.path.split(infile)[1]
-            meta_data['facet_index'] = defaultdict(list)
-            sentences = [" ".join([j.raw for j in i.tokens]) \
-                         for i in IncomingFile(infile).doc.sentences]
-            meta_data['facet_index'] = dict(meta_data['facet_index'])
-            meta_data['sentences'] = sentences
-            meta_data['pubdate'] = IncomingFile(infile).pubdate
-            # NOTE:
-            # pubdate_index is set in facets/build_matrix.py
-            # NOTE: only adding articles after 2010
-            if len(headline) > 0 and len(full_text) > 0 and parse(meta_data['pubdate']).year >= 2010:
-                writer.add_document(title=headline, path=u"/" + str(s_counter), content=full_text)
-                people_org_ngram_index[s_counter] = meta_data
-                s_counter += 1
-                print s_counter
-
-    writer.commit(mergetype=writing.CLEAR)
-
-    with open(index_location + '/meta_data.json', 'w') as outfile:
-        json.dump(people_org_ngram_index, outfile)
-    with open(index_location + '/string_to_pubdate.json', 'w') as outfile:
-        json.dump(dict(string_to_pubdate_index), outfile)
-        '''
 
 if __name__ == '__main__':
     directory = "indexes/" + args.corpus
     if not os.path.exists(directory):
         os.makedirs(directory)
     load(directory, args.corpus)
+    session.commit()

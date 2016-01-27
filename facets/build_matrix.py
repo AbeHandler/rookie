@@ -17,6 +17,7 @@ import cPickle as pickle
 import numpy as np
 import joblib
 import argparse
+from webapp.models import get_doc_metadata
 from whoosh import query
 from whoosh.index import open_dir
 
@@ -40,17 +41,6 @@ def get_all_doc_ids():
 # get all docids from whoosh
 ALLDOCIDS = get_all_doc_ids()
 
-@lrudecorator(100)
-def get_metadata_file():
-    print "Loading metadata file"
-    t0=time.time()
-    with open("indexes/{}/meta_data.json".format(args.corpus)) as inf:
-        metadata = ujson.load(inf)
-    print "Loaded metadata file in secs:", time.time()-t0
-    return metadata
-
-MT = get_metadata_file()
-
 def count_facets():
     '''
     This function counts every person, org and ngram in the corpus
@@ -66,7 +56,7 @@ def count_facets():
             counter += 1
             if counter % 1000 == 0:
                 sys.stdout.write("...%s" % counter); sys.stdout.flush()
-            ngram = MT[docid]["ngrams"]
+            ngram = get_doc_metadata(docid)["ngrams"]
             for n in ngram:
                 ngram_count[n] += 1        
 
@@ -92,7 +82,7 @@ def build_matrix(docids, ok_people, ok_org, ok_ngrams):
     '''
     This function builds three facet X doc matrixes: one for people, one for org, one for ngrams
     '''
-    print "[*] Building three facet X doc matrixes"
+    print "[*] Building ngram X doc matrix"
 
     string_to_pubdate_index = defaultdict(list)
 
@@ -108,11 +98,11 @@ def build_matrix(docids, ok_people, ok_org, ok_ngrams):
     for dinex, docid in enumerate(docids):
         if dinex % 1000 == 0:
             sys.stdout.write("...%s" % dinex); sys.stdout.flush()
-        ngram = set([str(j) for j in MT[unicode(docid)]["ngrams"] if j in ok_ngrams])
+        ngram = set([str(j) for j in get_doc_metadata(docid)["ngrams"] if j in ok_ngrams])
         docid = int(docid)
         for n in ngram:
             ngram_matrix[ngram_to_slot[n]][docid] = 1
-            string_to_pubdate_index[n].append(MT[unicode(docid)]["pubdate"])
+            string_to_pubdate_index[n].append(get_doc_metadata(docid)["pubdate"])
             ngram_counter[n] += 1
 
     pickle.dump(df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams)), open("indexes/{}/ngram_df.p".format(args.corpus), "wb" ))
@@ -125,29 +115,6 @@ def build_matrix(docids, ok_people, ok_org, ok_ngrams):
     joblib.dump(ngram_matrix, 'indexes/{}/ngram_matrix.joblib'.format(args.corpus))
     pickle.dump(dict(string_to_pubdate_index), open("indexes/{}/string_to_pubdate_index.p".format(args.corpus), "wb" ))
 
-    '''
-@memory.cache
-def ngram_matrix(docids, ok_ngrams):
-
-    This function builds three facet X doc matrixes: one for people, one for org, one for ngrams
-
-    print "[*] Facet X doc matrixes"
-
-    ngram_to_slot = {n: i for (i, n) in enumerate(ok_ngrams)}
-
-    ngram_matrix = np.zeros((len(ok_ngrams), len(docids)))
-
-    ngram_counter = defaultdict(int)
-
-    for dinex, docid in enumerate(docids):
-        ngram = set([str(j) for j in MT[unicode(docid)]["ngram"] if j in ok_ngrams])
-        docid = int(docid)
-        for n in ngram:
-            ngram_matrix[ngram_to_slot[n]][docid] = 1
-            ngram_counter[n] += 1
-
-    return ngram_matrix
-    '''
 
 def filter(input, n):
     '''
