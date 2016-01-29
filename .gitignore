@@ -1,3 +1,4 @@
+react_svg_chart/node_modules/*
 *.jshintrc
 *.DS_Store
 stanford_corenlp_pywrapper/*
@@ -18,6 +19,7 @@ devenv-key.pem
 test.dot
 .ipynb_checkpoints/
 awsstuff/medrookie.pem
+react_svg_chart/app/js/bundle.js
 rookie_ui/doc_react/node_modules/*
 rookie_ui/doc_react/app/*
 webapp/static/js/bundle.js

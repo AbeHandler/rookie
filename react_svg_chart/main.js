@@ -21,19 +21,19 @@ var Demo = React.createClass({
   getInitialState: function() {
     // naming it initialX clearly indicates that the only purpose
     // of the passed down prop is to initialize something internally
-    return {x: 100, y: 100, x_r: 700, y_r: 100, drag_l: false, drag_r: false};
+    return {lscale: -1, x_l: 100, x_r: 700, y_r: 100, drag_l: false, drag_r: false};
   },
 
   lateralize: function (i, lateral_scale) {
     return lateral_scale(i);
   },
 
-  handleMouseMove: function(e) {
+  set_X: function(p) {
     if (this.state.drag_l == true){
-      this.setState({x: e.pageX, y: e.pageY});
+      this.setState({x_l: p});
     }
     if (this.state.drag_r == true){
-      this.setState({x_r: e.pageX, y_r: e.pageY});
+      this.setState({x_r: p});
     }
   },
 
@@ -68,6 +68,12 @@ var Demo = React.createClass({
     
   },
 
+  get_w: function(l, r){
+    console.log(l);
+    console.log(r);
+    return r - l;
+  },
+
   render: function() {
     let min = _.min(this.props.q_counts);
     let max = _.max(this.props.q_counts);
@@ -87,19 +93,25 @@ var Demo = React.createClass({
     let cliq = this.handleclick;
     let to_date = this.i_to_date;
     let drag_stop = this.toggle_drag_stop;
+    let set_X = this.set_X;
     return (
 
         <div>
         <svg width={this.props.width} height={this.props.height}>
         
         {/* background for chart */}
-        <rect onMouseMove={this.handleMouseMove} onMouseUp={this.toggle_drag_stop} y="0" x="0" opacity=".25" height={this.props.height} width={this.props.width} strokeWidth="4" fill="grey" />
+        {/* ->that crazy looking lambda invert scales the X position, takes the floor and then scales it again.
+            ->the point of doing that is to limit the possible range of x positions. so x gets mapped to only one of 
+            n locations, where n = the number of datapoints. 
+          */}
+        <rect onMouseMove={e=> set_X(lateral_scale(Math.floor(lateral_scale.invert(e.pageX))))} onMouseUp={this.toggle_drag_stop} y="0" x={this.state.x_l} opacity=".25" height={this.props.height} width={this.get_w(this.state.x_l, this.state.x_r)} strokeWidth="4" fill="grey" />
+
         {this.props.q_counts.map(function(object, i){
-            return <rect onMouseUp={drag_stop} key={i} onClick={e=>cliq(i)} y={get_y_offset(object, height_scale)} x={lateralize(i, lateral_scale)} height={get_height(object, height_scale)} width="14" strokeWidth="4" fill="blue" opacity=".25" />
+            return <rect onMouseMove={e=> set_X(lateral_scale(Math.floor(lateral_scale.invert(e.pageX))))} onMouseUp={drag_stop} key={i} onClick={e=>cliq(i)} y={get_y_offset(object, height_scale)} x={lateralize(i, lateral_scale)} height={get_height(object, height_scale)} width="14" strokeWidth="4" fill="blue" opacity=".25" />
         })}
          
-        <line onMouseUp={drag_stop} onMouseDown={this.toggle_drag_start} x1={this.state.x} y1="0" x2={this.state.x} y2={this.props.height} stroke="black" strokeWidth="10"/>
-        <line onMouseUp={drag_stop} onMouseDown={this.toggle_drag_start_r} x1={this.state.x_r} y1="0" x2={this.state.x_r} y2={this.props.height} stroke="black" strokeWidth="10"/>
+        <line onMouseMove={e=> set_X(lateral_scale(Math.floor(lateral_scale.invert(e.pageX))))} onMouseUp={drag_stop} onMouseDown={this.toggle_drag_start} x1={this.state.x_l} y1="0" x2={this.state.x_l} y2={this.props.height} stroke="black" strokeWidth="10"/>
+        <line onMouseMove={e=> set_X(lateral_scale(Math.floor(lateral_scale.invert(e.pageX))))} onMouseUp={drag_stop} onMouseDown={this.toggle_drag_start_r} x1={this.state.x_r} y1="0" x2={this.state.x_r} y2={this.props.height} stroke="black" strokeWidth="10"/>
         </svg>
       {/*  <svg>
         <rect height="100" width="100" fill="blue"/>
