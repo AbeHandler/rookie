@@ -13,7 +13,7 @@ var Demo = React.createClass({
   getInitialState: function() {
     // naming it initialX clearly indicates that the only purpose
     // of the passed down prop is to initialize something internally
-    return {x: 100, y: 100};
+    return {x: 100, y: 100, drag_l: false, drag_r: false};
   },
 
   lateralize: function (i, lateral_scale) {
@@ -21,7 +21,9 @@ var Demo = React.createClass({
   },
 
   handleMouseMove: function(e) {
-    this.setState({x: e.pageX, y: e.pageY});
+    if (this.state.drag_l == true){
+      this.setState({x: e.pageX, y: e.pageY});
+    }
   },
 
   get_height: function(i, scale){
@@ -33,8 +35,12 @@ var Demo = React.createClass({
     return this.props.height - scale(i);
   },
 
-  handleclick: function(e){
-    // console.log(e);
+  toggle_drag_start: function(e){
+    this.setState({drag_l : true});
+  },
+
+  toggle_drag_stop: function(e){
+    this.setState({drag_l : false});
   },
 
   handleMouseDown: function(e) {
@@ -73,11 +79,12 @@ var Demo = React.createClass({
         {this.props.data.map(function(object, i){
             return <rect key={i} onClick={e=>cliq(i)} y={get_y_offset(object, height_scale)} x={lateralize(i, lateral_scale)} height={get_height(object, height_scale)} width="14" stroke="green" strokeWidth="4" fill="yellow" />
         })}
+      {/* this is the axis */}
         <line x1="0" y1="325" x2={this.props.width} y2="325" stroke="black" strokeWidth="5"/>
         {this.props.data.map(function(object, i){
             return <text key={i} x={lateralize(i, lateral_scale)} y="350" fill="black">{i}</text>
         })}
-        <line x1={this.state.x} y1="0" x2={this.state.x} y2="50" stroke="black" strokeWidth="5"/>
+        <line onMouseDown={this.toggle_drag_start} x1={this.state.x} y1="0" x2={this.state.x} y2="50" stroke="black" strokeWidth="5"/>
         </svg>
         </div>
           
