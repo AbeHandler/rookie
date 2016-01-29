@@ -25,7 +25,9 @@ else:
     ROOKIE_CSS = "https://s3-us-west-2.amazonaws.com/rookie2/css/"
     PG_HOST = os.environ.get('PG_PORT_5432_TCP_ADDR','localhost')
 
-
+ROOKIE_PW = "rookie"
+if socket.gethostname() == "hobbes":
+    ROOKIE_PW = os.environ.get('ROOKIE_PW')
 
 if socket.gethostname() == 'dewey':
     files_location = "/Users/ahandler/research/rookie/"
