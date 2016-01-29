@@ -4,14 +4,15 @@ Classes used in the webapp
 import datetime
 import json
 import ipdb
-from webapp import PG_HOST
+from webapp import PG_HOST, ROOKIE_PW
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 
+
 CONNECTION_STRING = 'postgresql://%s:%s@%s:5432/%s' % (
     'rookie', # user
-    'rookie', # pw
+    ROOKIE_PW, # pw
     PG_HOST,
     'rookie', # db
 )

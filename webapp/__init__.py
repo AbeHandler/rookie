@@ -11,6 +11,8 @@ CLOUD_LAYOUT_JS = 'http://s3-us-west-2.amazonaws.com/rookielens/js/d3.layout.clo
 
 LOG_PATH = "experiment.log"
 
+CORPUS = "gawk"
+
 # http://stackoverflow.com/questions/166506/finding-local-ip-addresses-using-pythons-stdlib
 if socket.gethostname() == "dewey":
     CORPUS_LOC = "data/lens_processed/"

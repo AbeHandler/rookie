@@ -18,6 +18,7 @@ import itertools
 import cPickle as pickle
 import sys
 import argparse
+from webapp import CORPUS
 from Levenshtein import distance
 
 
@@ -26,13 +27,13 @@ stops = ["lens staff", "lens staff writer", "live blog", "#### live", "matt davi
 import whoosh.query
 
 @lrudecorator(100)
-def get_ndocs():
-    index = open_dir("indexes/lens/")
+def get_ndocs(corpus):
+    index = open_dir("indexes/{}/".format(corpus))
     with index.searcher() as s:
         results = s.search(whoosh.query.Every(), limit=None)
     return len(results)  # TODO: how many docs are indexed in whoosh?
 
-NDOCS = get_ndocs()
+NDOCS = get_ndocs(CORPUS)
 
 STOPTOKENS = ["new", "orleans"]
 
@@ -53,7 +54,7 @@ def load_matrix(key, row, col, name):
     '''
     loads a F x D matrix
     '''
-    return joblib.load('indexes/lens/ngram_matrix.joblib')
+    return joblib.load('indexes/{}/ngram_matrix.joblib'.format(corpus))
 
 @lrudecorator(100)
 def load_all_data_structures():
@@ -66,13 +67,13 @@ def load_all_data_structures():
     df = {}
     idf = {}
     for n in ["ngram"]:
-        decoder = pickle.load(open("indexes/lens/{}_key.p".format(n), "rb"))
+        decoder = pickle.load(open("indexes/{}/{}_key.p".format(CORPUS, n), "rb"))
         decoder_r = {v: k for k, v in decoder.items()}
         decoders[n] = decoder
         reverse_decoders[n] = decoder_r
         matrixes[n] = load_matrix(n + "_matrix", len(decoder.keys()), NDOCS, n)
-        df[n] = pickle.load(open("indexes/lens/{}_df.p".format(n), "rb"))
-        idf[n] = pickle.load(open("indexes/lens/{}_idf.p".format(n), "rb"))
+        df[n] = pickle.load(open("indexes/{}/{}_df.p".format(CORPUS, n), "rb"))
+        idf[n] = pickle.load(open("indexes/{}/{}_idf.p".format(CORPUS, n), "rb"))
     return {"decoders": decoders, "reverse_decoders": reverse_decoders, "matrixes": matrixes, "df": df, "idf": idf}
 
 
@@ -277,6 +278,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='parser')
     parser.add_argument("-v", action="store_true", default=False, help="verbose")
     parser.add_argument('-q', '--query', dest='query')
+    parser.add_argument('-c', '--corpus', dest='corpus')
     args = parser.parse_args()
 
     if args.v:
@@ -284,5 +286,6 @@ if __name__ == '__main__':
     else:
         DEBUG=False
 
+    CORPUS = args.corpus
     RESULTZ = query(args.query)
     print get_facets_for_q(args.query, RESULTZ, 9)

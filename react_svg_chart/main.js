@@ -13,7 +13,7 @@ var Demo = React.createClass({
   getInitialState: function() {
     // naming it initialX clearly indicates that the only purpose
     // of the passed down prop is to initialize something internally
-    return {x: 100, y: 100, drag_l: false, drag_r: false};
+    return {x: 100, y: 100, x_r: 700, y_r: 100, drag_l: false, drag_r: false};
   },
 
   lateralize: function (i, lateral_scale) {
@@ -23,6 +23,9 @@ var Demo = React.createClass({
   handleMouseMove: function(e) {
     if (this.state.drag_l == true){
       this.setState({x: e.pageX, y: e.pageY});
+    }
+    if (this.state.drag_r == true){
+      this.setState({x_r: e.pageX, y_r: e.pageY});
     }
   },
 
@@ -39,18 +42,13 @@ var Demo = React.createClass({
     this.setState({drag_l : true});
   },
 
-  toggle_drag_stop: function(e){
-    this.setState({drag_l : false});
+  toggle_drag_start_r: function(e){
+    this.setState({drag_r : true});
   },
 
-  handleMouseDown: function(e) {
-    //console.log(e.pageX);
-    //console.log(e.pageY);
-  },
-  
-  handleMouseUp: function(e) {
-    //console.log(e.pageX);
-    //console.log(e.pageY);
+  toggle_drag_stop: function(e){
+    this.setState({drag_l : false});
+    this.setState({drag_r : false});
   },
 
   render: function() {
@@ -75,7 +73,7 @@ var Demo = React.createClass({
 
         <div>
         <svg width={this.props.width} height="400">
-        <rect onMouseMove={this.handleMouseMove} onMouseDown={this.handleMouseDown} onMouseDown={this.handleMouseDown}  onMouseUp={this.handleMouseUp} y="0" x="0" opacity=".25" height={this.props.height} width={this.props.width} stroke="green" strokeWidth="4" fill="blue" />
+        <rect onMouseMove={this.handleMouseMove} onMouseUp={this.toggle_drag_stop} y="0" x="0" opacity=".25" height={this.props.height} width={this.props.width} stroke="green" strokeWidth="4" fill="blue" />
         {this.props.data.map(function(object, i){
             return <rect key={i} onClick={e=>cliq(i)} y={get_y_offset(object, height_scale)} x={lateralize(i, lateral_scale)} height={get_height(object, height_scale)} width="14" stroke="green" strokeWidth="4" fill="yellow" />
         })}
@@ -84,7 +82,8 @@ var Demo = React.createClass({
         {this.props.data.map(function(object, i){
             return <text key={i} x={lateralize(i, lateral_scale)} y="350" fill="black">{i}</text>
         })}
-        <line onMouseDown={this.toggle_drag_start} x1={this.state.x} y1="0" x2={this.state.x} y2="50" stroke="black" strokeWidth="5"/>
+        <line onMouseDown={this.toggle_drag_start} x1={this.state.x} y1="0" x2={this.state.x} y2="50" stroke="black" strokeWidth="10"/>
+        <line onMouseDown={this.toggle_drag_start_r} x1={this.state.x_r} y1="0" x2={this.state.x_r} y2="50" stroke="black" strokeWidth="10"/>
         </svg>
         </div>
           
