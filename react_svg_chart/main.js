@@ -43,7 +43,7 @@ var Demo = React.createClass({
 
   get_y_offset: function(i, scale){
     let height = this.get_height(i, scale);
-    return this.props.height - this.props.belowchart - scale(i);
+    return this.props.height - scale(i);
   },
 
   toggle_drag_start: function(e){
@@ -73,7 +73,6 @@ var Demo = React.createClass({
     let max = _.max(this.props.q_counts);
     let height = this.props.height;
     let width = this.props.width;
-    let belowchart = this.props.height - (this.props.belowchart / 2);
     let lateralize = this.lateralize;
     let get_height = this.get_height;
     let get_y_offset = this.get_y_offset;
@@ -82,30 +81,30 @@ var Demo = React.createClass({
                         .range([0, width]);
     let height_scale = d3.scale.linear()
                         .domain([0, max])
-                        .range([0, this.props.height - this.props.belowchart]);
+                        .range([0, this.props.height]);
     let xAxis = d3.svg.axis()
                    .scale(height_scale);
     let cliq = this.handleclick;
     let to_date = this.i_to_date;
+    let drag_stop = this.toggle_drag_stop;
     return (
 
         <div>
         <svg width={this.props.width} height={this.props.height}>
         
         {/* background for chart */}
-        <rect onMouseMove={this.handleMouseMove} onMouseUp={this.toggle_drag_stop} y="0" x="0" opacity=".25" height={this.props.height - this.props.belowchart} width={this.props.width} strokeWidth="4" fill="blue" />
+        <rect onMouseMove={this.handleMouseMove} onMouseUp={this.toggle_drag_stop} y="0" x="0" opacity=".25" height={this.props.height} width={this.props.width} strokeWidth="4" fill="grey" />
         {this.props.q_counts.map(function(object, i){
-            return <rect key={i} onClick={e=>cliq(i)} y={get_y_offset(object, height_scale)} x={lateralize(i, lateral_scale)} height={get_height(object, height_scale)} width="14" stroke="green" strokeWidth="4" fill="yellow" />
+            return <rect onMouseUp={drag_stop} key={i} onClick={e=>cliq(i)} y={get_y_offset(object, height_scale)} x={lateralize(i, lateral_scale)} height={get_height(object, height_scale)} width="14" strokeWidth="4" fill="blue" opacity=".25" />
         })}
          
-        {/* this is the axis */}
-        <line x1="0" y1={this.props.height - this.props.belowchart} x2={this.props.width} y2={this.props.height - this.props.belowchart} stroke="black" strokeWidth="5"/>
-        {this.props.q_counts.map(function(object, i){
-            return <text key={i} x={lateralize(i, lateral_scale)} y={belowchart} fill="black">{to_date(i)}</text>
-        })}
-        <line onMouseDown={this.toggle_drag_start} x1={this.state.x} y1="0" x2={this.state.x} y2={this.props.height - this.props.belowchart} stroke="black" strokeWidth="10"/>
-        <line onMouseDown={this.toggle_drag_start_r} x1={this.state.x_r} y1="0" x2={this.state.x_r} y2={this.props.height - this.props.belowchart} stroke="black" strokeWidth="10"/>
+        <line onMouseUp={drag_stop} onMouseDown={this.toggle_drag_start} x1={this.state.x} y1="0" x2={this.state.x} y2={this.props.height} stroke="black" strokeWidth="10"/>
+        <line onMouseUp={drag_stop} onMouseDown={this.toggle_drag_start_r} x1={this.state.x_r} y1="0" x2={this.state.x_r} y2={this.props.height} stroke="black" strokeWidth="10"/>
         </svg>
+      {/*  <svg>
+        <rect height="100" width="100" fill="blue"/>
+        </svg> */}
+        <Axis q={this.props.q} to_date={to_date} lateral_scale={lateral_scale} height="50" width={this.props.width} q_counts={this.props.q_counts} lateralize={lateralize}/>
         </div>
           
     );
@@ -113,6 +112,6 @@ var Demo = React.createClass({
 });
 
 ReactDOM.render(
-  <Demo show_nth_tickmark="10" belowchart="50" height="300" width="900" keys={chart_bins} q_counts={binned_counts_q} />,
+  <Demo q="some q" show_nth_tickmark="10" belowchart="50" height="300" width="900" keys={chart_bins} q_counts={binned_counts_q} />,
   document.getElementById('example')
 );
