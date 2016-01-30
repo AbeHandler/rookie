@@ -29,10 +29,10 @@ var Demo = React.createClass({
   },
 
   set_X: function(p) {
-    if (this.state.drag_l == true){
+    if (this.state.drag_l == true & p < this.state.x_r){
       this.setState({x_l: p});
     }
-    if (this.state.drag_r == true){
+    if (this.state.drag_r == true & p > this.state.x_l){
       this.setState({x_r: p});
     }
   },
@@ -69,8 +69,6 @@ var Demo = React.createClass({
   },
 
   get_w: function(l, r){
-    console.log(l);
-    console.log(r);
     return r - l;
   },
 

@@ -14,22 +14,19 @@ This project began at [The Lens](http://www.thelensnola.org "The Lens") with [su
 
 #### Indexing
 
-Rookie holds raw corpora in corpora/[corpusname]/raw/all.extract
-
-It assumes that all.extract stores all.extract is a tsv with the pubdate in position 1, the text in position 5 and the headline in position 4. Like this: "NA\t1-1-2000\tNA\tNA\tHEADLINE\tTEXT". An optional url goes in position 6.
-
-Getting the corpora into this format is considered preprocessing outside of Rookie's scope.
-
-Rookie processes corpora in corpora/[corpusname]/raw/all.extract by running them through @brenocon 's corenlp pipeline. Use `python getting_and_processing_corpora/corpus_proc.py --nlpjar path/to/corenlp --corpus corpusname`
-
-Once corpora are processed, Rookie needs to add them to whoosh. To do this, use `$ py getting_and_processing_corpora/load_to_whoosh.py --corpus [corpusname]`
+1. Preprocessing: Rookie holds raw corpora in `corpora/[corpusname]/raw/all.extract`. It assumes that all.extract stores all.extract is a tsv with the pubdate in position 1, the text in position 5 and the headline in position 4. Like this: `NA\t1-1-2000\tNA\tNA\tHEADLINE\tTEXT`. An optional url goes in position 6.
+2. Core NLP: Rookie processes corpora in `corpora/[corpusname]/raw/all.extract` by running them through @brenocon 's corenlp pipeline. Use `python getting_and_processing_corpora/corpus_proc.py --nlpjar path/to/corenlp --corpus corpusname`
+3. Load to whoosh: `$ py getting_and_processing_corpora/load_to_whoosh.py --corpus [corpusname]`
+4. Build sparse vectors for each doc. Store in Postgres: `$ py facets/build_sparse_matrix.py --corpus [corpusname]`
 
 #### Code
 
-`awsstuff` Code to load stuff into AWS (only ec2 right now). Note: Rookie used to run on AWS cloud search but now uses Whoosh
+`awsstuff` Code to load stuff into AWS (ec2 and s3)
 
 `docker` The docker file and other docker stuff
 
-`webapp` The Rookie webapp
+`facets` the facet engine
 
 `rookie_ui` React UI for rookie. use gulp b to push js to /webapp
+
+`webapp` The Rookie webapp
