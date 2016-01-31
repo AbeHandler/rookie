@@ -11,7 +11,7 @@ from dateutil.parser import parse
 from webapp.models import results_to_pubdates, results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, filter_results_with_binary_dataframe
 from flask import Flask
 from flask import request
-from facets.query import get_facets_for_q
+from facets.query_sparse import get_facets_for_q, load_all_data_structures
 from webapp.views import Views
 from webapp.models import Models
 from webapp import IP, ROOKIE_JS, ROOKIE_CSS
@@ -78,7 +78,7 @@ def medviz():
     results = Models.get_results(params)
 
     fstart = time.time()
-    binned_facets = get_facets_for_q(params.q, results, 9)
+    binned_facets = get_facets_for_q(params.q, results, 9, load_all_data_structures(params.corpus))
     print "facet time = {}".format(time.time() - fstart)
 
     #for f in facets:

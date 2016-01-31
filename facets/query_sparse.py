@@ -20,10 +20,10 @@ import itertools
 import cPickle as pickle
 import sys
 import argparse
-from webapp import CORPUS
 from Levenshtein import distance
 
-
+DEBUG = False
+STOPTOKENS = [] # TODO: set this in the db
 
 stops = ["lens staff", "lens staff writer", "live blog", "#### live", "matt davis", "ariella cohen", "story report", "####", "#### live blog", "the lens", "new orleans", "staff writer", "orleans parish"]
 
@@ -37,16 +37,21 @@ engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
 
+def getcorpusid(corpus):
+    go = lambda *args: session.connection().execute(*args)
+    for i in go("select corpusid from corpora where corpusname='{}'".format(corpus)):
+        return i[0]
 
-def load_sparse_vector_data_structures():
+def load_sparse_vector_data_structures(corpus):
     print "loading all sparse vectors"
+    corpusid = getcorpusid(corpus)
     output = {}
-    results = session.connection().execute("select * from count_vectors")
+    results = session.connection().execute("select * from count_vectors where corpusid='{}'".format(corpusid))
     for i, row in enumerate(results):
-        output[unicode(row[0])] = row[1].keys() # raw form ==> [u'34986', u'20174' ... u'6664']
+        # row = (doc id, corpus id, data)
+        output[unicode(row[0])] = row[2].keys() # raw form ==> [u'34986', u'20174' ... u'6664']
     return output
 
-VECTORS = load_sparse_vector_data_structures()
 
 @lrudecorator(100)
 def get_ndocs(corpus):
@@ -55,23 +60,13 @@ def get_ndocs(corpus):
         results = s.search(whoosh.query.Every(), limit=None)
     return len(results)  # TODO: how many docs are indexed in whoosh?
 
-NDOCS = get_ndocs(CORPUS)
-
-STOPTOKENS = ["new", "orleans"]
-
-aliases = defaultdict(list)
-
-CUTOFF = 25
-
-DEBUG = False # by default false. can be set to T w/ arg -v in command line mode
-
 
 def debug_print(msg):
     if DEBUG:
         print msg
 
 @lrudecorator(100)
-def load_all_data_structures():
+def load_all_data_structures(corpus):
     '''
     Load everything indexed in build_matrix.py
     '''
@@ -80,15 +75,16 @@ def load_all_data_structures():
     matrixes = {}
     df = {}
     idf = {}
-    for n in ["ngram"]:
-        decoder = pickle.load(open("indexes/{}/{}_key.p".format(CORPUS, n), "rb"))
-        decoder_r = {v: k for k, v in decoder.items()}
-        decoders[n] = decoder
-        reverse_decoders[n] = decoder_r
-        df[n] = pickle.load(open("indexes/{}/{}_df.p".format(CORPUS, n), "rb"))
-        idf[n] = pickle.load(open("indexes/{}/{}_idf.p".format(CORPUS, n), "rb"))
-        pubdates = pickle.load(open("indexes/{}/pubdates_xpress.p".format(CORPUS, n), "rb"))
-    return {"pubdates": pubdates, "decoders": decoders, "reverse_decoders": reverse_decoders, "df": df, "idf": idf}
+    n = "ngram"
+    decoder = pickle.load(open("indexes/{}/{}_key.p".format(corpus, n), "rb"))
+    decoder_r = {v: k for k, v in decoder.items()}
+    decoders[n] = decoder
+    reverse_decoders[n] = decoder_r
+    df[n] = pickle.load(open("indexes/{}/{}_df.p".format(corpus, n), "rb"))
+    idf[n] = pickle.load(open("indexes/{}/{}_idf.p".format(corpus, n), "rb"))
+    pubdates = pickle.load(open("indexes/{}/pubdates_xpress.p".format(corpus, n), "rb"))
+    vectors = load_sparse_vector_data_structures(corpus)
+    return {"pubdates": pubdates, "vectors": vectors, "decoders": decoders, "reverse_decoders": reverse_decoders, "df": df, "idf": idf}
 
 
 def s_check(facet, proposed_new_facet, distance):
@@ -111,7 +107,7 @@ def get_jaccard(one, two):
     return jacard
 
 
-def heuristic_cleanup(output, proposed_new_facet, structures, q):
+def heuristic_cleanup(output, proposed_new_facet, structures, q, aliases=defaultdict(list)):
     '''
     An ugly heuristic that tries to filter out bad/meaningless facets quickly
 
@@ -207,7 +203,7 @@ def get_all_facets(raws, structures, facet_type, q):
     return output
 
 
-def get_facet_tfidf_cutoff(results, structures, facet_type, cutoff):
+def get_facet_tfidf_cutoff(results, structures, facet_type, CUTOFF=25):
     '''
     get the tfidf score for each facet_type w/ a cutoff
     "tf" = how many queried documents contain f (i.e. boolean: facet occurs or no)
@@ -219,7 +215,7 @@ def get_facet_tfidf_cutoff(results, structures, facet_type, cutoff):
     start_time = time.time()
     tfs = defaultdict(int)
     for r in results:
-        n_counts = VECTORS[r]
+        n_counts = structures["vectors"][r]
         for n in n_counts:
             tfs[n] += 1
     tfidfs = defaultdict(int)
@@ -239,7 +235,7 @@ def filter_t(results, start, end, structures):
     return [i for i in results if structures["pubdates"][i] >= start and structures["pubdates"][i] <= end]
 
 
-def get_raw_facets(results, bins, structures):
+def get_raw_facets(results, bins, structures, CUTOFF=25): #TODO: CUTOFF no longer a fixed value. no caps.
     '''
     Returns top_n facets per bin + top_n for global bin
     '''
@@ -248,11 +244,8 @@ def get_raw_facets(results, bins, structures):
     raw_results["g"] = get_facet_tfidf_cutoff(results, structures, "ngram", CUTOFF)
     
     for yr in bins:
-        startTime = time.time()
         lresults = filter_t(results, datetime.datetime(int(yr), 1, 1),
                             datetime.datetime(int(yr + 1), 1, 1), structures)
-        print "filtering t took"
-        print time.time() - startTime
         raw_results[yr] = get_facet_tfidf_cutoff(lresults, structures, "ngram", CUTOFF)
 
     return raw_results
@@ -309,8 +302,19 @@ if __name__ == '__main__':
         DEBUG=False
 
     CORPUS = args.corpus
-    RESULTZ = query(args.query)
-    structures = load_all_data_structures()
+    NDOCS = get_ndocs(CORPUS)
+
+    STOPTOKENS = ["new", "orleans", "york"]
+
+    aliases = defaultdict(list)
+
+    CUTOFF = 25 # TODO no global var here
+
+    DEBUG = False # by default false. can be set to T w/ arg -v in command line mode
+
+    CORPUS_ID = getcorpusid(CORPUS)
+    RESULTZ = query(args.query, args.corpus)
+    structures = load_all_data_structures(CORPUS)
     startTime = time.time()
     facets = get_facets_for_q(args.query, RESULTZ, 9, structures)
     print facets

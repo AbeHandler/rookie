@@ -19,13 +19,15 @@ from webapp.snippet_maker import get_snippet2
 from webapp.classes import CONNECTION_STRING
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from webapp import CORPUS
 
-def query(qry_string):
+
+def query(qry_string, corpus):
     '''
     Query whoosh
     '''
-    index = open_dir("indexes/{}/".format(CORPUS))
+    print qry_string
+    print corpus
+    index = open_dir("indexes/{}/".format(corpus))
     query_parser = QueryParser("content", schema=index.schema)
     qry = query_parser.parse(qry_string)
     with index.searcher() as srch:
@@ -123,7 +125,8 @@ class Parameters(object):
         self.f = None
         self.startdate = None
         self.enddate = None
-        self.zoom = None
+        self.zoom = None # 1.31.16 what does this do? TODO. AH.
+        self.corpus = None
 
     def __repr__(self):
         return "<Parameters (q={}, detail={}, startdate={}, enddate={}, zoom={})>".format(
@@ -205,10 +208,17 @@ class Models(object):
         except:
             output.f = None
     
+        # TODO : no idea what this argument does. AH 1.31.16
         try:
             output.zoom = request.args.get('zoom')
         except:
             output.zoom = "year" # default zoom to a year
+
+        # TODO : no idea what this argument does. AH 1.31.16
+        try:
+            output.corpus = request.args.get('corpus')
+        except:
+            output.corpus = "corpus" # default zoom to a year
 
         return output
 
@@ -218,7 +228,7 @@ class Models(object):
         '''
         Just query whoosh
         '''
-        return tuple(query(params.q))
+        return tuple(query(params.q, params.corpus))
 
 
     @staticmethod

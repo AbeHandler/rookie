@@ -9,7 +9,7 @@ var jshint = require('gulp-jshint');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
 
 var paths = {
-  scripts: ['main.js']
+  scripts: ['main.js', "components/*"]
 };
 
 

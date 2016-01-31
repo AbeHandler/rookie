@@ -18,9 +18,6 @@ import ujson
 import argparse
 from dateutil.parser import parse
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--corpus', help='the thing in the middle of corpus/{}/raw', required=True)
-args = parser.parse_args()
 
 '''build connection to db'''
 from sqlalchemy import create_engine
@@ -36,9 +33,6 @@ def getcorpusid():
     for i in go("select corpusid from corpora where corpusname='{}'".format(args.corpus)):
         return i[0]
 
-CORPUSID = getcorpusid()
-
-print "adding {} to whoosh and checking ngrams".format(args.corpus)
 
 def stop_word(w):
     return False # TODO: corpus specific stop words
@@ -271,6 +265,15 @@ def load(index_location, processed_location):
         writer.commit(mergetype=writing.CLEAR)
 
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--corpus', help='the thing in the middle of corpus/{}/raw', required=True)
+    args = parser.parse_args()
+
+    CORPUSID = getcorpusid()
+
+    print "adding {} to whoosh and checking ngrams".format(args.corpus)
+
     directory = "indexes/" + args.corpus
     if not os.path.exists(directory):
         os.makedirs(directory)

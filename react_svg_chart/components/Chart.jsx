@@ -5,7 +5,6 @@ Chart.jsx
 var React = require('react');
 var d3 = require('d3');
 var _ = require('lodash');
-var moment = require('moment');
 
 var Axis = require('./Axis.jsx');
 var Bar = require('./Bar.jsx');
@@ -53,15 +52,6 @@ module.exports = React.createClass({
     this.setState({drag_r : false});
   },
 
-  i_to_date: function(i){
-    if (i % this.props.show_nth_tickmark == 0){
-      return this.props.keys[i];
-    } else{
-      return "";
-    }
-    
-  },
-
   get_w: function(l, r){
     return r - l;
   },
@@ -69,6 +59,10 @@ module.exports = React.createClass({
   get_key: function(i, r){
     let keystring = i + r;
     return keystring;
+  },
+
+  get_bar_width: function(){
+    return this.props.width / this.props.q_counts.length;
   },
 
   render: function() {
@@ -80,7 +74,7 @@ module.exports = React.createClass({
     let get_height = this.get_height;
     let get_y_offset = this.get_y_offset;
     let lateral_scale = d3.scale.linear()
-                        .domain([-1, this.props.q_counts.length])
+                        .domain([0, this.props.q_counts.length])
                         .range([0, width]);
     let height_scale = d3.scale.linear()
                         .domain([0, max])
@@ -88,12 +82,12 @@ module.exports = React.createClass({
     let xAxis = d3.svg.axis()
                    .scale(height_scale);
     let cliq = this.handleclick;
-    let to_date = this.i_to_date;
     let drag_stop = this.toggle_drag_stop;
     let set_X = this.set_X;
     let get_key = this.get_key;
     let q = this.props.q;
     let f = this.props.f;
+    let bar_width = this.get_bar_width();
     return (
 
         <div onMouseLeave={this.toggle_drag_stop}>
@@ -107,17 +101,17 @@ module.exports = React.createClass({
         <rect onMouseMove={e=> set_X(lateral_scale(Math.floor(lateral_scale.invert(e.pageX))))} onMouseUp={this.toggle_drag_stop} y="0" x={this.state.x_l} opacity=".25" height={this.props.height} width={this.get_w(this.state.x_l, this.state.x_r)} strokeWidth="4" fill="grey" />
 
         {this.props.q_counts.map(function(value, i){
-            return <Bar q={q} f={f} key={get_key("q", i)} color="blue" get_height={get_height} height_scale={height_scale} value={value} i={i} set_X={set_X} lateral_scale={lateral_scale} lateralize={lateralize} drag_stop={drag_stop} get_y_offset={get_y_offset}/>
+            return <Bar width={bar_width} q={q} f={f} key={get_key("q", i)} color="blue" get_height={get_height} height_scale={height_scale} value={value} i={i} set_X={set_X} lateral_scale={lateral_scale} lateralize={lateralize} drag_stop={drag_stop} get_y_offset={get_y_offset}/>
         })}
 
         {this.props.f_counts.map(function(value, i){
-            return <Bar q={q} f={f} key={get_key("f", i)} type="f" color="red" get_height={get_height} height_scale={height_scale} value={value} i={i} set_X={set_X} lateral_scale={lateral_scale} lateralize={lateralize} drag_stop={drag_stop} get_y_offset={get_y_offset}/>
+            return <Bar width={bar_width} q={q} f={f} key={get_key("f", i)} type="f" color="red" get_height={get_height} height_scale={height_scale} value={value} i={i} set_X={set_X} lateral_scale={lateral_scale} lateralize={lateralize} drag_stop={drag_stop} get_y_offset={get_y_offset}/>
         })}
          
         <line onMouseMove={e=> set_X(lateral_scale(Math.floor(lateral_scale.invert(e.pageX))))} onMouseUp={drag_stop} onMouseDown={this.toggle_drag_start} x1={this.state.x_l} y1="0" x2={this.state.x_l} y2={this.props.height} stroke="black" strokeWidth="10"/>
         <line onMouseMove={e=> set_X(lateral_scale(Math.floor(lateral_scale.invert(e.pageX))))} onMouseUp={drag_stop} onMouseDown={this.toggle_drag_start_r} x1={this.state.x_r} y1="0" x2={this.state.x_r} y2={this.props.height} stroke="black" strokeWidth="10"/>
         </svg>
-        <Axis q={this.props.q} to_date={to_date} lateral_scale={lateral_scale} height="50" width={this.props.width} q_counts={this.props.q_counts} lateralize={lateralize}/>
+        <Axis show_nth_tickmark="6" q={this.props.q} keys={this.props.keys} lateral_scale={lateral_scale} height="50" width={this.props.width} q_counts={this.props.q_counts} lateralize={lateralize}/>
         </div>
           
     );
