@@ -19,13 +19,13 @@ from webapp.snippet_maker import get_snippet2
 from webapp.classes import CONNECTION_STRING
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
+from webapp import CORPUS
 
 def query(qry_string):
     '''
     Query whoosh
     '''
-    index = open_dir("indexes/lens/")
+    index = open_dir("indexes/{}/".format(CORPUS))
     query_parser = QueryParser("content", schema=index.schema)
     qry = query_parser.parse(qry_string)
     with index.searcher() as srch:
@@ -83,15 +83,6 @@ def get_pubdates_for_ngram(ngram_str):
     row = res.fetchone()
     dates = row[0]
     return set(datetime.datetime.strptime(date, "%Y-%m-%d") for date in dates)
-
-@lrudecorator(100)
-def get_metadata_file():
-    print "Loading metadata file"
-    t0=time.time()
-    with open("indexes/lens/lensmeta_data.json") as inf:
-        metadata = ujson.load(inf)
-    print "Loaded metadata file in secs:", time.time()-t0
-    return metadata
 
 def get_doc_metadata(docid):
     row = session.connection().execute("select data from doc_metadata where docid=%s", docid).fetchone()

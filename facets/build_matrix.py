@@ -1,5 +1,9 @@
 '''
-This module loads a facet_document matrix
+This module creates a facet X document matrix.
+
+The matrix is too big to fit in memory for large corpora
+
+It was refactored into a dense form at facets/build_sparse_matrix.py
 '''
 from webapp.classes import IncomingFile
 from collections import defaultdict

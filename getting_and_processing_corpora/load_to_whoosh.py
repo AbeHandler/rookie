@@ -30,6 +30,14 @@ engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
 
+
+def getcorpusid():
+    go = lambda *args: session.connection().execute(*args)
+    for i in go("select corpusid from corpora where corpusname='{}'".format(args.corpus)):
+        return i[0]
+
+CORPUSID = getcorpusid()
+
 print "adding {} to whoosh and checking ngrams".format(args.corpus)
 
 def stop_word(w):
@@ -206,14 +214,12 @@ def create_pubdate_index(metadata):
     go = lambda *args: session.connection().execute(*args)
 
     print "building pubdate index"
-    go("drop table if exists ngram_pubdates")
-    go("create table ngram_pubdates (ngram text, pubdates jsonb)")
     # string to pubdate matrix created in building matrix
     for i,ngram in enumerate(metadata):
         dates = metadata[ngram]
         dates = sorted(set(dates))
-        go(u"""INSERT INTO ngram_pubdates (ngram, pubdates) VALUES (%s, %s)""",
-                ngram, ujson.dumps(dates))
+        go(u"""INSERT INTO ngram_pubdates (ngram, pubdates, CORPUSID) VALUES (%s, %s, %s)""",
+                ngram, ujson.dumps(dates), CORPUSID)
         
     print "\nindexing"
     go("create index on ngram_pubdates (ngram)")
@@ -236,17 +242,16 @@ def load(index_location, processed_location):
 
     people_org_ngram_index = {}
     go = lambda *args: session.connection().execute(*args)
-    go("drop table if exists doc_metadata")
-    go("create table doc_metadata (docid integer not null primary key, data jsonb)")
-    go("drop table if exists ngram_pubdates")
-    go("create table ngram_pubdates (ngram text, pubdates jsonb)")
     with open ("corpora/{}/processed/all.json".format(args.corpus)) as raw:
         for line in raw:
             line_json = ujson.loads(line)
             headline = line_json["headline"]
             pubdate = parse(line_json["pubdate"])
             procesed_text = line_json["text"]
-            url = line_json["url"]
+            try:
+                url = line_json["url"]
+            except KeyError:
+                url = "unknown"
             doc = Document(procesed_text)
             full_text = doc.full_text
             ngrams = [unicode(" ".join(i.raw for i in j)) \
@@ -256,7 +261,7 @@ def load(index_location, processed_location):
             if len(headline) > 0 and len(full_text) > 0:
                 writer.add_document(title=headline, path=u"/" + str(s_counter), content=full_text)
                 per_doc_json_blob = {'headline': headline, 'pubdate': pubdate.strftime('%Y-%m-%d'), 'ngrams': ngrams, "url": url, "sentences": sentences}
-                go("""INSERT INTO doc_metadata (docid, data) VALUES (%s, %s)""", s_counter, ujson.dumps(per_doc_json_blob))
+                go("""INSERT INTO doc_metadata (docid, data, corpusid) VALUES (%s, %s, %s)""", s_counter, ujson.dumps(per_doc_json_blob), CORPUSID)
                 for ngram in ngrams:
                     ngram_pubdate_index[ngram].append(pubdate.strftime('%Y-%m-%d'))
                 s_counter += 1

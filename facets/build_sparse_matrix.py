@@ -9,6 +9,7 @@ from pylru import lrudecorator
 from joblib import Memory
 from tempfile import mkdtemp
 import ujson
+import datetime
 import os
 import ipdb
 import glob
@@ -39,6 +40,14 @@ from webapp.classes import CONNECTION_STRING
 engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
+
+
+def getcorpusid():
+    go = lambda *args: session.connection().execute(*args)
+    for i in go("select corpusid from corpora where corpusname='{}'".format(args.corpus)):
+        return i[0]
+
+CORPUSID = getcorpusid()
 
 def get_all_doc_ids():
     index = open_dir("indexes/{}/".format(args.corpus))
@@ -96,8 +105,6 @@ def build_matrix(docids, ok_ngrams):
     string_to_pubdate_index = defaultdict(list)
 
     go = lambda *args: session.connection().execute(*args)
-    go("drop table if exists count_vectors")
-    go("create table count_vectors (docid integer not null primary key, data jsonb)")
     # dict to look up correct row #s in array
     ngram_to_slot = {n: i for (i, n) in enumerate(ok_ngrams)}
 
@@ -105,9 +112,13 @@ def build_matrix(docids, ok_ngrams):
 
     ngram_counter = defaultdict(int)
 
+    pubdates = {}
+
     for dinex, docid in enumerate(docids):
         if dinex % 1000 == 0:
             sys.stdout.write("...%s" % dinex); sys.stdout.flush()
+        pubdate = datetime.datetime.strptime(get_doc_metadata(docid)["pubdate"], '%Y-%m-%d')
+        pubdates[docid] = pubdate
         ngram = set([str(j) for j in get_doc_metadata(docid)["ngrams"] if j in ok_ngrams])
         docid = int(docid)
         ngrams_in_doc = {}
@@ -115,11 +126,13 @@ def build_matrix(docids, ok_ngrams):
             ngrams_in_doc[ngram_to_slot[n]] = 1
             string_to_pubdate_index[n].append(get_doc_metadata(docid)["pubdate"])
             ngram_counter[n] += 1
-        go("""INSERT INTO count_vectors (docid, data) VALUES (%s, %s)""", dinex, ujson.dumps(ngrams_in_doc))
+        go("""INSERT INTO count_vectors (docid, CORPUSID, data) VALUES (%s, %s, %s)""", dinex, int(CORPUSID), ujson.dumps(ngrams_in_doc))
     session.commit()
     print "\ndumping pickled stuff..."
 
     NDOCS = len(docids)
+
+    pickle.dump(pubdates, open("indexes/{}/pubdates_xpress.p".format(args.corpus), "wb" ))
 
     pickle.dump(df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams)), open("indexes/{}/ngram_df.p".format(args.corpus), "wb" ))
 

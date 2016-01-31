@@ -14,6 +14,7 @@ import ujson
 import joblib
 import numpy as np
 import ipdb
+import datetime
 import time
 import itertools
 import cPickle as pickle
@@ -21,6 +22,7 @@ import sys
 import argparse
 from webapp import CORPUS
 from Levenshtein import distance
+
 
 
 stops = ["lens staff", "lens staff writer", "live blog", "#### live", "matt davis", "ariella cohen", "story report", "####", "#### live blog", "the lens", "new orleans", "staff writer", "orleans parish"]
@@ -85,7 +87,8 @@ def load_all_data_structures():
         reverse_decoders[n] = decoder_r
         df[n] = pickle.load(open("indexes/{}/{}_df.p".format(CORPUS, n), "rb"))
         idf[n] = pickle.load(open("indexes/{}/{}_idf.p".format(CORPUS, n), "rb"))
-    return {"decoders": decoders, "reverse_decoders": reverse_decoders, "df": df, "idf": idf}
+        pubdates = pickle.load(open("indexes/{}/pubdates_xpress.p".format(CORPUS, n), "rb"))
+    return {"pubdates": pubdates, "decoders": decoders, "reverse_decoders": reverse_decoders, "df": df, "idf": idf}
 
 
 def s_check(facet, proposed_new_facet, distance):
@@ -200,9 +203,8 @@ def get_all_facets(raws, structures, facet_type, q):
     output = []
     for facet_bin in raws:
         for possible_f in raws[facet_bin]:
-            output = heuristic_cleanup(output, possible_f, structures, q)
-    print "best after heuristic_cleanup"
-    print output
+            output = heuristic_cleanup(output, possible_f[0], structures, q)
+    return output
 
 
 def get_facet_tfidf_cutoff(results, structures, facet_type, cutoff):
@@ -216,23 +218,16 @@ def get_facet_tfidf_cutoff(results, structures, facet_type, cutoff):
     '''
     start_time = time.time()
     tfs = defaultdict(int)
-    print "found {}".format(len(results))
     for r in results:
         n_counts = VECTORS[r]
         for n in n_counts:
             tfs[n] += 1
-    sorted_tfs = sorted(tfs.items(), key=operator.itemgetter(1), reverse=True)[0:CUTOFF]
-    sorted_tfs = [structures["reverse_decoders"][facet_type][int(i[0])] for i in sorted_tfs] # i[0] is ngram, i[1] is tfidf score
-    print "best by raw count"
-    print sorted_tfs
     tfidfs = defaultdict(int)
     idf = structures["idf"][facet_type]
     for t in tfs:
         tfidfs[t] = idf[int(t)] * tfs[t]
     sorted_x = sorted(tfidfs.items(), key=operator.itemgetter(1), reverse=True)[0:CUTOFF]
-    sorted_x = [structures["reverse_decoders"][facet_type][int(i[0])] for i in sorted_x] # i[0] is ngram, i[1] is tfidf score
-    print "best by td idf"
-    print sorted_x
+    sorted_x = [(structures["reverse_decoders"][facet_type][int(i[0])], i[1]) for i in sorted_x] # i[0] is ngram, i[1] is tfidf score
     return sorted_x
     # print tfidfs
 
@@ -241,7 +236,7 @@ def filter_t(results, start, end, structures):
     '''
     Take a set of results and return those that fall in [start, end]
     '''
-    return [i for i in results if parse(get_doc_metadata(i)["pubdate"]) >= start and parse(get_doc_metadata(i)["pubdate"]) <= end]
+    return [i for i in results if structures["pubdates"][i] >= start and structures["pubdates"][i] <= end]
 
 
 def get_raw_facets(results, bins, structures):
@@ -251,11 +246,14 @@ def get_raw_facets(results, bins, structures):
     raw_results = {} # raw best facets by tf idf
 
     raw_results["g"] = get_facet_tfidf_cutoff(results, structures, "ngram", CUTOFF)
-
-    #for yr in bins:
-    #    lresults = filter_t(results, parse("{}-01-01".format(yr)),
-    #                        parse("{}-01-01".format(yr+1)), structures)
-    #    raw_results[yr] = get_facet_tfidf_cutoff(lresults, structures, "ngram", CUTOFF)
+    
+    for yr in bins:
+        startTime = time.time()
+        lresults = filter_t(results, datetime.datetime(int(yr), 1, 1),
+                            datetime.datetime(int(yr + 1), 1, 1), structures)
+        print "filtering t took"
+        print time.time() - startTime
+        raw_results[yr] = get_facet_tfidf_cutoff(lresults, structures, "ngram", CUTOFF)
 
     return raw_results
 
@@ -264,37 +262,37 @@ def get_facets_for_bin(tfidfs, structures, ok_facets, n_facets):
     '''
     Given a list of tfidf scores, a list of ok_facets, n_facets
     '''
-    tfidfs.sort(key=lambda x: x[1]) # sort by score (they are top N in a partsort)
+    tfidfs.sort(key=lambda x: x[1]) # sort by score
     output = []
     for facet_name in tfidfs:
-        if facet_name in ok_facets:
-            output.append(facet_name)
+        if facet_name[0] in ok_facets:
+            output.append(facet_name[0])
         if len(output) == n_facets:
             return output
     return output
 
 
-def get_facets_for_q(q, results, n_facets):
+def get_facets_for_q(q, results, n_facets, structures):
     '''
     Provide q, set of results and n_facets. 
 
     Return binned facets. TODO: xrange(2010, 2016) hardcodes bins for now 
     '''
 
-    structures = load_all_data_structures()
-
     facet_results = defaultdict(list) # results per bin. output.
 
     # TODO binning
     # Get raw facets by tfidf score 
-    raw_results = get_raw_facets(results, xrange(2010, 2012), structures)
-
+    startTime = time.time()
+    raw_results = get_raw_facets(results, xrange(2002, 2012), structures)
+    print "getting facets took {}".format(time.time() - startTime)
+    
     # Get all of the possible facets
+    startTime = time.time()
     ok_facets = get_all_facets(raw_results, structures, "ngram", q)
-
-    #for t_bin in raw_results: # for each bin
-    #    facet_results[t_bin] = get_facets_for_bin(raw_results[t_bin], structures, ok_facets, n_facets)
-    print ok_facets
+    print "cleaning up took {}".format(time.time() - startTime)
+    for t_bin in raw_results: # for each bin
+        facet_results[t_bin] = get_facets_for_bin(raw_results[t_bin], structures, ok_facets, n_facets)
 
     return facet_results
 
@@ -312,4 +310,8 @@ if __name__ == '__main__':
 
     CORPUS = args.corpus
     RESULTZ = query(args.query)
-    print get_facets_for_q(args.query, RESULTZ, 9)
+    structures = load_all_data_structures()
+    startTime = time.time()
+    facets = get_facets_for_q(args.query, RESULTZ, 9, structures)
+    print facets
+    print time.time() - startTime
