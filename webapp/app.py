@@ -52,6 +52,11 @@ def get_doc_list():
 
     params = Models.get_parameters(request)
 
+    print "u r here"
+    print request
+    print request.args
+    print params.corpus
+
     results = Models.get_results(params)
 
     doc_list = results_to_doclist(results, params.q, params.f, params.corpus, aliases=tuple([])) #TODO aliases
@@ -127,7 +132,7 @@ def medviz():
     print "thread time = {}".format(time.time() - ftime)
 
     print "all time = {}".format(time.time() - start)
-    return views.get_q_response_med(params, doc_list, facet_datas, chart_bins, q_data, len(results), binsize, display_bins, binned_facets['g'])
+    return views.get_q_response_med(params, doc_list, facet_datas, chart_bins, q_data, len(results), binsize, display_bins, binned_facets['g'], params.corpus)
 
 
 if __name__ == '__main__':

@@ -180,7 +180,7 @@ module.exports = React.createClass({
     if (this.state.f === e){
         this.setState({f: -1}, this.check_mode);
     } else{
-      let url = "/get_docs?q=" + this.props.q + "&f=" + e;
+      let url = "/get_docs?q=" + this.props.q + "&f=" + e + "&corpus=" + this.props.corpus;
         $.ajax({
               url: url,
               dataType: 'json',

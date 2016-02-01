@@ -15,7 +15,7 @@ module.exports = React.createClass({
   getInitialState: function() {
     // naming it initialX clearly indicates that the only purpose
     // of the passed down prop is to initialize something internally
-    return {cache: {}, lscale: -1, x_l: 100, x_r: 700, y_r: 100, drag_l: false, drag_r: false};
+    return {cache: {}, lscale: -1, x_l: 0, x_r: this.props.width, y_r: 100, drag_l: false, drag_r: false};
   },
 
   lateralize: function (i, lateral_scale) {
@@ -26,15 +26,15 @@ module.exports = React.createClass({
     let p;
     p = this.state.cache[e_pageX];
     if (p == undefined){
-      p = lateral_scale(Math.floor(lateral_scale.invert(e_pageX)));
+      p = lateral_scale(lateral_scale.invert(e_pageX));
       let tcache = this.state.cache;
       tcache[e_pageX] = p;
       this.setState({cache: tcache});
     }
-    if (this.state.drag_l == true & p < this.state.x_r){
+    if (this.state.drag_l == true){
       this.setState({x_l: p});
     }
-    if (this.state.drag_r == true & p > this.state.x_l){
+    if (this.state.drag_r == true){
       this.setState({x_r: p});
     }
   },
@@ -98,7 +98,7 @@ module.exports = React.createClass({
     let bar_width = this.get_bar_width();
     return (
 
-        <div onMouseLeave={this.toggle_drag_stop} onMouseUp={this.toggle_drag_stop}>
+        <div onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={this.toggle_drag_stop} onMouseUp={this.toggle_drag_stop}>
         <svg width={this.props.width} height={this.props.height}>
         
         {/* background for chart */}
@@ -106,11 +106,13 @@ module.exports = React.createClass({
             ->the point of doing that is to limit the possible range of x positions. so x gets mapped to only one of 
             n locations, where n = the number of datapoints. 
           */}
-        <rect onMouseMove={e=> set_X(e.pageX, lateral_scale)} y="0" x={this.state.x_l} opacity=".25" height={this.props.height} width={this.get_w(this.state.x_l, this.state.x_r)} strokeWidth="4" fill="grey" />
+        <rect y="0" x={this.state.x_l} opacity=".25" height={this.props.height} width={this.get_w(this.state.x_l, this.state.x_r)} strokeWidth="4" fill="grey" />
+
 
         {this.props.q_counts.map(function(value, i){
-            return <Bar set_X={set_X} width={bar_width} q={q} f={f} key={get_key("q", i)} color="blue" get_height={get_height} height_scale={height_scale} value={value} i={i} lateral_scale={lateral_scale} lateralize={lateralize} get_y_offset={get_y_offset}/>
-        })}
+             return <Bar set_X={set_X} width={bar_width} q={q} f={f} key={get_key("q", i)} color="blue" get_height={get_height} height_scale={height_scale} value={value} i={i} lateral_scale={lateral_scale} lateralize={lateralize} get_y_offset={get_y_offset}/>
+          })
+        }
 
         {/*
         {this.props.f_counts.map(function(value, i){
@@ -118,8 +120,8 @@ module.exports = React.createClass({
         })}
         */}
          
-        <line onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseDown={this.toggle_drag_start} x1={this.state.x_l} y1="0" x2={this.state.x_l} y2={this.props.height} stroke="black" strokeWidth="10"/>
-        <line onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseDown={this.toggle_drag_start_r} x1={this.state.x_r} y1="0" x2={this.state.x_r} y2={this.props.height} stroke="black" strokeWidth="10"/>
+        <line onMouseDown={this.toggle_drag_start} x1={this.state.x_l} y1="0" x2={this.state.x_l} y2={this.props.height} stroke="black" strokeWidth="10"/>
+        <line onMouseDown={this.toggle_drag_start_r} x1={this.state.x_r} y1="0" x2={this.state.x_r} y2={this.props.height} stroke="black" strokeWidth="10"/>
         </svg>
         <Axis show_nth_tickmark="24" q={this.props.q} keys={this.props.keys} lateral_scale={lateral_scale} height="50" width={this.props.width} q_counts={this.props.q_counts} lateralize={lateralize}/>
         </div>
