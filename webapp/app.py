@@ -110,11 +110,11 @@ def medviz():
     chart_bins = get_keys(q_pubdates, binsize)
 
     if binsize == "month":
-        q_data = [str(params.q)] + [get_val_from_df(params.q, key, df, binsize) for key in chart_bins]
+        q_data = [get_val_from_df(params.q, key, df, binsize) for key in chart_bins]
 
     facet_datas = {}
 
-    chart_bins = ["x"] + [k + "-1" for k in chart_bins] # hacky addition of date to keys
+    chart_bins = [k + "-1" for k in chart_bins] # hacky addition of date to keys
 
     display_bins = []
     for key in binned_facets:

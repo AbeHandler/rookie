@@ -283,37 +283,23 @@ module.exports = React.createClass({
     };
     let handleMoUI = this.handleMo;
     let items = this.get_global_facets();
-    var chart_bins = []; //['2006', '2007', '2008', '2009', '2010', '2011','2012', '2013']
 
+    var binned_counts_f = this.props.binned_counts_f;
 
-    _.forEach(_.range(2002, 2012), function(yr) {
-       _.forEach(_.range(1, 12), function(mo) {
-           chart_bins.push(yr + "-" + mo + "-" + 1);
-        });
-    });
+    let chart_bins = this.props.chart_bins;
 
-
-    var binned_counts_q = [];
-
-    var binned_counts_f = [];
-
-    _.forEach(chart_bins, function(value, key) { 
-      binned_counts_q.push(Math.floor((Math.random() * 100) + 1));
-    });
-
-    _.forEach(binned_counts_q, function(value, key) { 
-      binned_counts_f.push(Math.floor((Math.random() * value) + 1));
-    });
     return(
         <div>
             <div><Status ndocs={docs.length} f={this.state.f} mode={this.state.mode} q={this.props.q} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end}/></div>
             <GlobalFacetList n_results={this.props.all_results.length} hovered={this.state.hovered} handleHoverIn={this.linguisticFacetHoverIn} handleHoverOut={this.linguisticFacetHoverOut} active={f} onClick={this.handleLinguisticFacetClick} items={items}/>
+            {/*
             <div style={rw} >
                 <div style={lc}><TemporalFacets n_results={this.props.all_results.length} vars={this.state.vars} q_data={this.props.q_data} bins={this.props.chart_bins} handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={this.props.all_results} f={f} bin_size={bin_size}/></div>
                 <div style={rc}>{main_panel}</div>
             </div>
+          */}
             <div style={rw}>
-            <Chart q=this.props.q f="some f" show_nth_tickmark="12" belowchart="50" height="300" width="900" keys={chart_bins} q_counts={binned_counts_q} f_counts={binned_counts_f}/>
+            <Chart q={this.props.q} f="some f" show_nth_tickmark="24" belowchart="50" height="300" width="900" keys={chart_bins} q_counts={q_data} f_counts={binned_counts_f}/>
             </div>
        </div>);
   }
