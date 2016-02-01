@@ -20,17 +20,23 @@ _.forEach(_.range(2002, 2012), function(yr) {
 
 var binned_counts_q = [];
 
-var binned_counts_f = [];
+var f_counts = [];
+var q_counts = [];
 
 _.forEach(chart_bins, function(value, key) { 
-  binned_counts_q.push(Math.floor((Math.random() * 100) + 1));
+  q_counts.push(Math.floor((Math.random() * 100) + 1));
 });
 
 _.forEach(binned_counts_q, function(value, key) { 
-  binned_counts_f.push(Math.floor((Math.random() * value) + 1));
+  f_counts.push(Math.floor((Math.random() * value) + 1));
 });
 
+_.forEach(chart_bins, function(value, key) { 
+  q_counts.push(Math.floor((Math.random() * 100) + 1));
+});
+
+
 ReactDOM.render(
-  <Chart q="some q" f="some f" show_nth_tickmark="12" belowchart="50" height="300" width="900" keys={chart_bins} q_counts={binned_counts_q} f_counts={binned_counts_f}/>,
+  <Chart q="some q" f="some f" show_nth_tickmark="12" belowchart="50" height="300" width="900" keys={chart_bins} q_counts={binned_counts_q} f_counts={f_counts}/>,
   document.getElementById('example')
 );
