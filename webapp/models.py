@@ -56,24 +56,16 @@ def filter_results_with_binary_dataframe(results, facet, df):
     return hits
 
 
-@lrudecorator(100)
-def results_to_pubdates(results):
-    '''
-    Start w/ search results. filter based on params. get a doclist back.
-    '''
-    return tuple([datetime.datetime.strptime(get_doc_metadata(r)["pubdate"], "%Y-%m-%d") for r in results])
-
-
 @memory.cache
-def results_to_doclist(results, q, f, aliases):
+def results_to_doclist(results, q, f, corpus, aliases):
     '''
     Start w/ search results. filter based on params. get a doclist back.
     '''
-    metadata = [get_doc_metadata(r) for r in results]
+    metadata = [get_doc_metadata(r, corpus) for r in results]
     q_pubdates = [parse(h["pubdate"]) for h in metadata]
     df = make_dataframe(q, [f], results, q_pubdates, aliases)
     results = filter_results_with_binary_dataframe(results, f, df)
-    fdoc_list = Models.get_doclist(results, q, f, aliases=aliases)
+    fdoc_list = Models.get_doclist(results, q, f, corpus, aliases=aliases)
     return fdoc_list
 
 
@@ -86,8 +78,16 @@ def get_pubdates_for_ngram(ngram_str):
     dates = row[0]
     return set(datetime.datetime.strptime(date, "%Y-%m-%d") for date in dates)
 
-def get_doc_metadata(docid):
-    row = session.connection().execute("select data from doc_metadata where docid=%s", docid).fetchone()
+
+def getcorpusid(corpus):
+    go = lambda *args: session.connection().execute(*args)
+    for i in go("select corpusid from corpora where corpusname='{}'".format(corpus)):
+        return i[0]
+
+
+def get_doc_metadata(docid, corpus):
+    corpusid = getcorpusid(corpus)
+    row = session.connection().execute("select data from doc_metadata where docid=%s and corpusid=%s", docid, corpusid).fetchone()
     return row[0]
 
 def get_keys(q_pubdates, bin):
@@ -232,13 +232,13 @@ class Models(object):
 
 
     @staticmethod
-    def get_doclist(results, q, f, aliases=None):
+    def get_doclist(results, q, f, corpus, aliases=None):
         doc_results = []
 
         # AH: assuming the order of results is not changed since coming out from IR system
         for whoosh_index, r in enumerate(results):
-            d = get_doc_metadata(r)
-            pubdate = datetime.datetime.strptime(d["pubdate"], "%Y-%m-%d")
+            d = get_doc_metadata(r, corpus)
+            pubdate = datetime.datetime.strptime(d["pubdate"], "%Y-%m-%d") #TODO: use the index
             doc_results.append({
                 'search_engine_index': whoosh_index,
                 'pubdate': d['pubdate'].encode("ascii", "ignore"),
@@ -247,18 +247,18 @@ class Models(object):
                 'year': pubdate.year,
                 'month': pubdate.month,
                 'day': pubdate.day,
-                'snippet': Models.get_snippet(r, q, f, aliases=aliases).encode("ascii", "ignore")
+                'snippet': Models.get_snippet(r, corpus, q, f, aliases=aliases).encode("ascii", "ignore")
             })
         return doc_results
 
 
     @staticmethod
-    def get_snippet(docid, q, f=None, aliases=None, nchar=200):
+    def get_snippet(docid, corpus, q, f=None, aliases=None, nchar=200):
 
         f_aliases = set() if aliases is None else set(aliases)
         if f is not None:
             f_aliases.add(f)
-        hsents = get_snippet2(docid, q, f_aliases, 
+        hsents = get_snippet2(docid, corpus, q, f_aliases, 
                 taginfo=dict(
                     q_ltag='<span style="font-weight:bold;color:#0028a3">',
                     q_rtag='</span>',

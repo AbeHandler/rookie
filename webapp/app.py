@@ -8,7 +8,7 @@ import datetime
 import json
 import itertools
 from dateutil.parser import parse
-from webapp.models import results_to_pubdates, results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, filter_results_with_binary_dataframe
+from webapp.models import results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, filter_results_with_binary_dataframe
 from flask import Flask
 from flask import request
 from facets.query_sparse import get_facets_for_q, load_all_data_structures
@@ -54,9 +54,9 @@ def get_doc_list():
 
     results = Models.get_results(params)
 
-    doc_list = results_to_doclist(results, params.q, params.f, aliases=tuple([])) #TODO aliases
+    doc_list = results_to_doclist(results, params.q, params.f, params.corpus, aliases=tuple([])) #TODO aliases
 
-    q_pubdates = results_to_pubdates(results)
+    q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][r] for r in results]
     binsize = "month"
     df = make_dataframe(params.q, [params.f], results, q_pubdates, aliases=[])
     df = bin_dataframe(df, binsize)
@@ -90,10 +90,10 @@ def medviz():
     dlstart = time.time()
 
     # a docllist is results + metadata/snippets
-    doc_list = Models.get_doclist(results, params.q, params.f)
+    doc_list = Models.get_doclist(results, params.q, params.f, params.corpus)
     print "doclist time = {}".format(time.time() - dlstart)
 
-    q_pubdates = results_to_pubdates(results)
+    q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][r] for r in results]
 
     binsize = "month"
 

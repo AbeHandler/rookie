@@ -81,7 +81,7 @@ def get_snippet1(docid, q, f_aliases=None):
 
 ############################
 
-def get_snippet2(docid, q, f_aliases=None, taginfo=None):
+def get_snippet2(docid, corpus, q, f_aliases=None, taginfo=None):
     """
     returns list of "highlighted sentence" dictionaries.
     supply taginfo in accordance with docs in hilite()
@@ -98,7 +98,7 @@ def get_snippet2(docid, q, f_aliases=None, taginfo=None):
     """
 
     from webapp.models import get_doc_metadata
-    d = get_doc_metadata(docid)
+    d = get_doc_metadata(docid, corpus)
     hsents = {'has_q':[], 'has_f':[]}
     for sentnum,toktext in enumerate(d['sentences']):
         hsent = hilite(toktext, q, f_aliases, taginfo=taginfo)
