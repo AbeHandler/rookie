@@ -277,7 +277,11 @@ def get_facets_for_q(q, results, n_facets, structures):
     # TODO binning
     # Get raw facets by tfidf score 
     startTime = time.time()
-    raw_results = get_raw_facets(results, xrange(2002, 2012), structures)
+
+    min_yr = min(structures["pubdates"][r].year for r in results)
+    max_yr = max(structures["pubdates"][r].year for r in results)
+
+    raw_results = get_raw_facets(results, xrange(min_yr, max_yr), structures)
     print "getting facets took {}".format(time.time() - startTime)
     
     # Get all of the possible facets

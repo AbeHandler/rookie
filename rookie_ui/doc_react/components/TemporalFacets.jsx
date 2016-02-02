@@ -42,19 +42,8 @@ module.exports = React.createClass({
     count_in_range: function(f, start, end){
         let sum = 0;
         let q_data = this.props.q_data;
-        let vars = this.props.vars;
-        _.each(this.props.bins, function(item, key){
-            if (item != "x"){
-                let m = moment(item);
-                if (m >= start & m < end){
-                    if (f != -1){
-                        sum += vars[f][key];
-                    }else{
-                        sum += q_data[key];
-                    }
-                }
-            }
-        });
+        let vars = this.props.f_counts; // todo this is given
+        return 0;
         return sum;
     },
 

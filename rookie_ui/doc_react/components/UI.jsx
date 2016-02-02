@@ -54,8 +54,6 @@ module.exports = React.createClass({
     //the user just clicked a month facet, e
 
     //if the month is already selected... unselect it
-    console.log(e);
-    console.log(this.state);
     if (this.state.mo_start == e && this.state.mo_end == e){
       this.setState({mo_start: 1});
       this.setState({mo_end: 12});
@@ -137,7 +135,7 @@ module.exports = React.createClass({
         max = moment("05-01-2010", "MM-DD-YYYY"); //TODO: hardcoded for Lens corpus
     }
     //TODO: if no results, this fails
-    return {f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview", promoted_l_facet: -1};
+    return {f_counts:[], f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview", promoted_l_facet: -1};
   },
 
   linguisticFacetHoverIn: function(e){
@@ -187,8 +185,7 @@ module.exports = React.createClass({
               cache: true,
               success: function(d) {
                 let tmp = this.state.vars;
-                tmp[e] = d["facet_datas"][e];
-                this.setState({vars: tmp, promoted_l_facet: e, f: e, f_list: d["doclist"]}, this.check_mode);
+                this.setState({f_counts: d["facet_datas"][e], promoted_l_facet: e, f: e, f_list: d["doclist"]}, this.check_mode);
               }.bind(this),
               error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -205,12 +202,12 @@ module.exports = React.createClass({
     return tmp;
   },
 
-      getDuration: function(){
-        let start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
-        let end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
-        var duration = moment.duration(end.diff(start));
-        return duration;
-    },
+  getDuration: function(){
+    let start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
+    let end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
+    var duration = moment.duration(end.diff(start));
+    return duration;
+  },
 
   render: function() {
     let f = this.state.f;
@@ -288,18 +285,35 @@ module.exports = React.createClass({
 
     let chart_bins = this.props.chart_bins;
 
+    let search_style = {
+      fontWeight: "bold",
+      color: "#0028a3"
+    };
+    let f_couts = this.state.f_counts;
+    console.log("rendering");
+    console.log(f_couts);
     return(
         <div>
+            <Chart f_counts={f_couts} q={this.props.q} f={this.state.f} show_nth_tickmark="24" belowchart="50" height="200" width={this.props.width} keys={chart_bins} q_counts={q_data}/>
+            
+            <div id="controls" className="row">
+              <div>
+                <div className="small-10 columns">
+                  <input onChange={handleMoUI} style={search_style} type="text" value={this.props.q} placeholder={this.props.q}></input>
+                </div>
+                <div className="small-2 columns">
+                  <a href="#" className="button postfix" id="search_button">Search</a>
+                </div>
+              </div>
+
+            </div>
             <div><Status ndocs={docs.length} f={this.state.f} mode={this.state.mode} q={this.props.q} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end}/></div>
             <GlobalFacetList n_results={this.props.all_results.length} hovered={this.state.hovered} handleHoverIn={this.linguisticFacetHoverIn} handleHoverOut={this.linguisticFacetHoverOut} active={f} onClick={this.handleLinguisticFacetClick} items={items}/>
-            {/*
             <div style={rw} >
-                <div style={lc}><TemporalFacets n_results={this.props.all_results.length} vars={this.state.vars} q_data={this.props.q_data} bins={this.props.chart_bins} handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={this.props.all_results} f={f} bin_size={bin_size}/></div>
+                <div style={lc}><TemporalFacets n_results={this.props.all_results.length} f_counts={this.state.f_counts} q_data={this.props.q_data} bins={this.props.chart_bins} handleMo={handleMoUI} height={this.props.height} show_months={show_months} rw_height={row_height} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} handleBinClick={this.handleBinClick} docs={this.props.all_results} f={f} bin_size={bin_size}/></div>
                 <div style={rc}>{main_panel}</div>
             </div>
-          */}
             <div style={rw}>
-            <Chart q={this.props.q} f="some f" show_nth_tickmark="24" belowchart="50" height="300" width="900" keys={chart_bins} q_counts={q_data} f_counts={binned_counts_f}/>
             </div>
        </div>);
   }

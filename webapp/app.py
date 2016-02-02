@@ -68,7 +68,7 @@ def get_doc_list():
     chart_bins = get_keys(q_pubdates, binsize)
 
     facet_datas = {}
-    facet_datas[params.f] = [str(params.f)] + [get_val_from_df(params.f, key, df, binsize) for key in chart_bins]
+    facet_datas[params.f] = [get_val_from_df(params.f, key, df, binsize) for key in chart_bins]
 
 
     return json.dumps({"doclist":doc_list, "facet_datas":facet_datas})
