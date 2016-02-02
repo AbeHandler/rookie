@@ -28,7 +28,7 @@ module.exports = React.createClass({
     if (this.props.n_results == 0){
       return <div></div>;
     }
-    return (<div>
+    return (<span>
         {this.props.items.map(function(item, i) {
           //TODO: no logic in render
           let selected = selectedCheck(this.props.items[i]);
@@ -37,6 +37,6 @@ module.exports = React.createClass({
             <GlobalFacetButton hovered={hovered} handleHoverOut={this.handleHoverOut} handleHoverIn={this.handleHoverIn} selected={selected} data={item.data} name={item} onClick={this.handleClick} key={i}/>
           );
         }, this)}
-      </div>);
+      </span>);
   }
 });

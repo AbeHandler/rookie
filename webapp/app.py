@@ -83,7 +83,7 @@ def medviz():
     results = Models.get_results(params)
 
     fstart = time.time()
-    binned_facets = get_facets_for_q(params.q, results, 9, load_all_data_structures(params.corpus))
+    binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
     print "facet time = {}".format(time.time() - fstart)
 
     #for f in facets:
@@ -95,7 +95,8 @@ def medviz():
     dlstart = time.time()
 
     # a docllist is results + metadata/snippets
-    doc_list = Models.get_doclist(results, params.q, params.f, params.corpus)
+    # doc_list = Models.get_doclist(results, params.q, params.f, params.corpus)
+    doc_list = []
     print "doclist time = {}".format(time.time() - dlstart)
 
     q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][r] for r in results]
@@ -114,8 +115,7 @@ def medviz():
 
     chart_bins = get_keys(q_pubdates, binsize)
 
-    if binsize == "month":
-        q_data = [get_val_from_df(params.q, key, df, binsize) for key in chart_bins]
+    q_data = [get_val_from_df(params.q, key, df, binsize) for key in chart_bins]
 
     facet_datas = {}
 
@@ -132,7 +132,14 @@ def medviz():
     print "thread time = {}".format(time.time() - ftime)
 
     print "all time = {}".format(time.time() - start)
-    return views.get_q_response_med(params, doc_list, facet_datas, chart_bins, q_data, len(results), binsize, display_bins, binned_facets['g'], params.corpus)
+
+    stuff_ui_needs = {}
+    stuff_ui_needs["total_docs_for_q"] = len(results)
+    facets = {}
+    for f in binned_facets['g']:
+        facets[f] = [get_val_from_df(f, key, df, binsize) for key in chart_bins]
+    stuff_ui_needs["facet_datas"] = facets;
+    return views.get_q_response_med(params, doc_list, facet_datas, chart_bins, q_data, len(results), binsize, display_bins, binned_facets['g'], params.corpus, stuff_ui_needs)
 
 
 if __name__ == '__main__':

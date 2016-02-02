@@ -119,8 +119,8 @@ module.exports = React.createClass({
             return <Bar width={bar_width} q={q} f={f} key={get_key("f", i)} type="f" color="red" get_height={get_height} height_scale={height_scale} value={value} i={i} set_X={set_X} lateral_scale={lateral_scale} lateralize={lateralize} get_y_offset={get_y_offset}/>
         })}
 
-        <line onMouseDown={this.toggle_drag_start} x1={this.state.x_l} y1="0" x2={this.state.x_l} y2={this.props.height / 2} stroke="black" strokeWidth="10"/>
-        <line onMouseDown={this.toggle_drag_start_r} x1={this.state.x_r} y1="0" x2={this.state.x_r} y2={this.props.height / 2} stroke="black" strokeWidth="10"/>
+        <line onMouseDown={this.toggle_drag_start} x1={this.state.x_l} y1={this.props.height / 4} x2={this.state.x_l} y2={this.props.height * .75} stroke="black" strokeWidth="10"/>
+        <line onMouseDown={this.toggle_drag_start_r} x1={this.state.x_r} y1={this.props.height / 4} x2={this.state.x_r} y2={this.props.height * .75} stroke="black" strokeWidth="10"/>
         </svg>
         <Axis show_nth_tickmark="24" q={this.props.q} keys={this.props.keys} lateral_scale={lateral_scale} height="50" width={this.props.width} q_counts={this.props.q_counts} lateralize={lateralize}/>
         </div>

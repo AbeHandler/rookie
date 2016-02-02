@@ -64,11 +64,11 @@ module.exports = React.createClass({
         };
 
         if (this.props.f != -1 & this.props.mode == "docs"){
-            return <div> <span>{status_start}</span> <span style={q_style}>{this.props.q}</span> and <span style={f_style}>{this.props.f}</span> {temporal} </div>
+            return <span><span>{status_start}</span> <span style={q_style}>{this.props.q}</span> and <span style={f_style}>{this.props.f}</span> {temporal} </span>
         }else if (this.props.mode == "docs") {
-            return <div> <span>{status_start}</span> <span style={q_style}>{this.props.q}</span> {temporal} related to: </div>
+            return <span><span>{status_start}</span> <span style={q_style}>{this.props.q}</span> {temporal} related to: </span>
         } else {
-            return <div> <span>{status_start}</span> <span style={q_style}>{this.props.q}</span> related to: </div>
+            return <span><span>{status_start}</span> <span style={q_style}>{this.props.q}</span> related to: </span>
         }
     }
 });

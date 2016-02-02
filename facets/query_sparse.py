@@ -274,6 +274,9 @@ def get_facets_for_q(q, results, n_facets, structures):
 
     facet_results = defaultdict(list) # results per bin. output.
 
+    if len(results) == 0:
+        return facet_results
+
     # TODO binning
     # Get raw facets by tfidf score 
     startTime = time.time()

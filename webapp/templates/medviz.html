@@ -10,11 +10,13 @@ var all_results = {{doc_list | safe}};
 var binned_facets = {{binned_facets | safe}};
 var q_data = {{q_datas | safe}};
 var all_results = {{doc_list | safe}};
-var g_facets = {{g_facets | safe}};
+var global_facets = {{g_facets | safe}};
 var chart_bins = {{chart_bins | safe}};
 var f_counts = {{f_counts | safe}};
 var corpus = "{{corpus}}";
 var query = "{{query}}";
+var total_docs_for_q = {{stuff_ui_needs["total_docs_for_q"]}}
+var facet_datas = {{stuff_ui_needs["facet_datas"] | safe}}
 
 </script>
 
@@ -26,19 +28,6 @@ var query = "{{query}}";
 </head>
 
 <body>
-
-<div id="controls" class="row">
-
-  <div>
-    <div class="small-10 columns">
-      <input id="search_bar" type="text" class="small-12 columns" value="{{query}}" placeholder="{{query}}"></input>
-    </div>
-    <div class="small-2 columns">
-      <a href="#" class="button postfix" id="search_button">Search</a>
-    </div>
-  </div>
-
-</div>
 
 <div class="small-12 columns">
 <div id="example"></div>
