@@ -14,6 +14,6 @@ var cache = {};
 var width = $(document).width() - 50;
 
 ReactDOM.render(
-  <UI facet_datas={facet_datas} total_docs_for_q={total_docs_for_q} corpus={corpus} chart_bins={chart_bins} q_data={q_data} datas={global_facets} width={width} q={query} binned_facets={binned_facets} all_results={all_results}/>,
+  <UI first_story_pubdate={first_story_pubdate} last_story_pubdate={last_story_pubdate} facet_datas={facet_datas} total_docs_for_q={total_docs_for_q} corpus={corpus} chart_bins={chart_bins} q_data={q_data} datas={global_facets} width={width} q={query} binned_facets={binned_facets} all_results={all_results}/>,
   document.getElementById('example')
 );

@@ -13,7 +13,9 @@ var TemporalFacets = require('./TemporalFacets.jsx');
 var DocViewer = require('./DocViewer.jsx');
 var Status = require('./Status.jsx');
 var Chart = require('./Chart.jsx');
-var SparklineTile = require('./SparklineTile.jsx');
+var ChartTitle = require('./ChartTitle.jsx');
+var SparklineGrid = require('./SparklineGrid.jsx');
+
 
 module.exports = React.createClass({
 
@@ -291,11 +293,7 @@ module.exports = React.createClass({
       color: "#0028a3"
     };
     let f_couts = this.state.f_counts;
-    let sparkline_datas = [100, 200, 100, 200, 100, 200];
-    let sparkline_tile = {
-      width: this.props.width,
-      height: 50
-    }
+
     return(
         <div>
             
@@ -310,22 +308,13 @@ module.exports = React.createClass({
               </div>
 
             </div>
-            {_.keys(this.props.facet_datas).map(function(value, i){
-                 return(
-                    <div key={i} style={sparkline_tile}>
-                    <SparklineTile facet={value} width="300" height="50" datas={facet_datas[value]}/>
-                    </div>
-                  );
-              })
-            }
+             <ChartTitle ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end}/>
+             <Chart f_counts={f_couts} q={this.props.q} f={this.state.f} show_nth_tickmark="12" belowchart="50" height="150" width={this.props.width} keys={chart_bins} q_counts={q_data}/>
 
+             <Status  {...this.props}/>
             <div>
-            <Status ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end}/>
-            <GlobalFacetList n_results={total_docs_for_q} hovered={this.state.hovered} handleHoverIn={this.linguisticFacetHoverIn} handleHoverOut={this.linguisticFacetHoverOut} active={f} onClick={this.handleLinguisticFacetClick} items={items}/>
+            <SparklineGrid col_no={3} width={this.props.width} tileheight={50} facet_datas={this.props.facet_datas}/>
             </div>
-
-            <div>Mentions of {this.props.q}</div>
-            <Chart f_counts={f_couts} q={this.props.q} f={this.state.f} show_nth_tickmark="24" belowchart="50" height="200" width={this.props.width} keys={chart_bins} q_counts={q_data}/>
 
             {/*
             <div style={rw} >

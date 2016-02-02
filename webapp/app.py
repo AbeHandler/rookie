@@ -138,7 +138,13 @@ def medviz():
     facets = {}
     for f in binned_facets['g']:
         facets[f] = [get_val_from_df(f, key, df, binsize) for key in chart_bins]
-    stuff_ui_needs["facet_datas"] = facets;
+    stuff_ui_needs["facet_datas"] = facets
+    
+    min_str = min(load_all_data_structures(params.corpus)["pubdates"][r] for r in results)
+    max_str = max(load_all_data_structures(params.corpus)["pubdates"][r] for r in results)
+
+    stuff_ui_needs["first_story_pubdate"] = min_str.strftime("%Y-%m-%d")
+    stuff_ui_needs["last_story_pubdate"] = max_str.strftime("%Y-%m-%d")
     return views.get_q_response_med(params, doc_list, facet_datas, chart_bins, q_data, len(results), binsize, display_bins, binned_facets['g'], params.corpus, stuff_ui_needs)
 
 

@@ -20,7 +20,7 @@ var paths = {
 };
 
 gulp.task('css', function() {
-  return gulp.src('css/*')
+  return gulp.src(['css/*', 'node_modules/fixed-data-table/dist/fixed-data-table.css'])
     .pipe(sourcemaps.init())
     .pipe(rename({suffix: '.min'}))
     .pipe(cssnano())

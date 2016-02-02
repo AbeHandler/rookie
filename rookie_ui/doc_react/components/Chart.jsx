@@ -108,12 +108,10 @@ module.exports = React.createClass({
           */}
         <rect y="0" x={this.state.x_l} opacity=".3" height={this.props.height} width={this.get_w(this.state.x_l, this.state.x_r)} strokeWidth="4" fill="grey" />
 
-
         {this.props.q_counts.map(function(value, i){
              return <Bar set_X={set_X} width={bar_width} q={q} f={f} key={get_key("q", i)} color="blue" get_height={get_height} height_scale={height_scale} value={value} i={i} lateral_scale={lateral_scale} lateralize={lateralize} get_y_offset={get_y_offset}/>
           })
         }
-
 
         {this.props.f_counts.map(function(value, i){
             return <Bar width={bar_width} q={q} f={f} key={get_key("f", i)} type="f" color="red" get_height={get_height} height_scale={height_scale} value={value} i={i} set_X={set_X} lateral_scale={lateral_scale} lateralize={lateralize} get_y_offset={get_y_offset}/>
