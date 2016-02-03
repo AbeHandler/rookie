@@ -44,7 +44,7 @@ module.exports = React.createClass({
     },
 
     getStatusStart: function (){
-        return "Found " + this.props.ndocs + " " + this.getStoryPhrase() + " for ";
+        return "Subjects related to ";
     },
 
     render: function() {
@@ -64,11 +64,11 @@ module.exports = React.createClass({
         };
 
         if (this.props.f != -1 & this.props.mode == "docs"){
-            return <span><span>{status_start}</span> <span style={q_style}>{this.props.q}</span> and <span style={f_style}>{this.props.f}</span> {temporal} </span>
+            return <span><span>{status_start}</span> <span style={q_style}>{this.props.q}</span> and <span style={f_style}>{this.props.f}</span> {temporal}: </span>
         }else if (this.props.mode == "docs") {
-            return <span><span>{status_start}</span> <span style={q_style}>{this.props.q}</span> {temporal} related to: </span>
+            return <span><span>{status_start}</span> <span style={q_style}>{this.props.q}</span> {temporal}: </span>
         } else {
-            return <span><span>{status_start}</span> <span style={q_style}>{this.props.q}</span> related to: </span>
+            return <span><span>{status_start}</span> <span style={q_style}>{this.props.q}</span>: </span>
         }
     }
 });

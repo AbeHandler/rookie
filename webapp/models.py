@@ -57,16 +57,16 @@ def filter_results_with_binary_dataframe(results, facet, df):
 
 
 @memory.cache
-def results_to_doclist(results, q, f, corpus, aliases):
+def results_to_doclist(results, q, f, corpus, pubdates, aliases):
     '''
     Start w/ search results. filter based on params. get a doclist back.
     '''
     metadata = [get_doc_metadata(r, corpus) for r in results]
-    q_pubdates = [parse(h["pubdate"]) for h in metadata]
+    q_pubdates = [pubdates[r] for r in results]
     df = make_dataframe(q, [f], results, q_pubdates, aliases)
     results = filter_results_with_binary_dataframe(results, f, df)
     fdoc_list = Models.get_doclist(results, q, f, corpus, aliases=aliases)
-    return fdoc_list
+    return [pubdates[r] for r in results], fdoc_list
 
 
 def get_pubdates_for_ngram(ngram_str):

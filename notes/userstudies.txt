@@ -1,0 +1,11 @@
+between subjects -- one group uses A, other uses B
+within subjects -- both use both
+
+http://openclassroom.stanford.edu/MainFolder/VideoPage.php?course=HCI&video=GoalsTasksDetails&speed=100
+
+articulate the goals of the study == > what parts do I want feedback on? what are design alternatives?
+
+have a concrete plan. have a specific task. have a script? 
+
+record the session. have people record what they are thinking. then do a debrief.
+

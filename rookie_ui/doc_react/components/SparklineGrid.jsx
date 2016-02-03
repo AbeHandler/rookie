@@ -25,9 +25,13 @@ module.exports = React.createClass({
     let l_col = {
       width: "33%",
       float: "left",
-      borderRightColor: "black",
-      borderRightWidth: "1",
-      borderRightStyle: "solid"
+      borderLeftColor: "grey",
+      borderLeftWidth: "1",
+      borderLeftStyle: "solid"
+    }
+    let l_col_no_border = {
+      width: "33%",
+      float: "left"
     }
     let full = {
       width: "100%"
@@ -35,48 +39,18 @@ module.exports = React.createClass({
     let col_width = this.props.width / this.props.col_no;
     let col_range = _.range(3);
     let facet_datas = this.props.facet_datas;
+    let q_data = this.props.q_data;
+    let clickTile = this.props.clickTile;
     return (
           <div style={full}>
             {col_range.map(function(value, i){
-                   return <div style={l_col} key={i}>
+                   return <div style={i == 0 ? l_col_no_border : l_col} key={i}>
                    {chunks[value].map(function(k1, v1){
-                      return <SparklineTile key={k1} facet={k1} width={col_width} height="45" datas={facet_datas[k1]}/>
+                      return <SparklineTile clickTile={clickTile} key={k1} facet={k1} width={col_width} height="45" q_data={q_data} f_datas={facet_datas[k1]}/>
                     })}
                    </div>
                 })
               }
-            {/*
-            <div style={l_col}>
-              {_.keys(this.props.facet_datas).map(function(value, i){
-                   return(
-                      <div key={i} style={sparkline_tile}>
-                      <SparklineTile facet={value} width={col_width} height="45" datas={facet_datas[value]}/>
-                      </div>
-                    );
-                })
-              }
-            </div>
-            <div style={l_col}>
-              {_.keys(this.props.facet_datas).map(function(value, i){
-                   return(
-                      <div key={i} style={sparkline_tile}>
-                      <SparklineTile facet={value} width={col_width} height="45" datas={facet_datas[value]}/>
-                      </div>
-                    );
-                })
-              }
-            </div>
-            <div style={l_col}>
-              {_.keys(this.props.facet_datas).map(function(value, i){
-                   return(
-                      <div key={i} style={sparkline_tile}>
-                      <SparklineTile facet={value} width={col_width} height="45" datas={facet_datas[value]}/>
-                      </div>
-                    );
-                })
-              }
-            </div>
-          */}
           </div>
     );
   }

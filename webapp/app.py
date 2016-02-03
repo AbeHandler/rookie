@@ -52,14 +52,11 @@ def get_doc_list():
 
     params = Models.get_parameters(request)
 
-    print "u r here"
-    print request
-    print request.args
-    print params.corpus
-
     results = Models.get_results(params)
 
-    doc_list = results_to_doclist(results, params.q, params.f, params.corpus, aliases=tuple([])) #TODO aliases
+    print len(results)
+
+    filtered_pubdates, doc_list = results_to_doclist(results, params.q, params.f, params.corpus, load_all_data_structures(params.corpus)["pubdates"], aliases=tuple([])) #TODO aliases
 
     q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][r] for r in results]
     binsize = "month"
@@ -70,8 +67,10 @@ def get_doc_list():
     facet_datas = {}
     facet_datas[params.f] = [get_val_from_df(params.f, key, df, binsize) for key in chart_bins]
 
+    min_filtered = min(filtered_pubdates).strftime("%Y-%m-%d")
+    max_filtered = max(filtered_pubdates).strftime("%Y-%m-%d")
 
-    return json.dumps({"doclist":doc_list, "facet_datas":facet_datas})
+    return json.dumps({"doclist":doc_list, "facet_datas":facet_datas, "min_filtered": min_filtered, "max_filtered": max_filtered})
 
 
 @app.route('/', methods=['GET'])
@@ -143,6 +142,8 @@ def medviz():
     min_str = min(load_all_data_structures(params.corpus)["pubdates"][r] for r in results)
     max_str = max(load_all_data_structures(params.corpus)["pubdates"][r] for r in results)
 
+    print min_str.strftime("%Y-%m-%d")
+    print max_str.strftime("%Y-%m-%d")
     stuff_ui_needs["first_story_pubdate"] = min_str.strftime("%Y-%m-%d")
     stuff_ui_needs["last_story_pubdate"] = max_str.strftime("%Y-%m-%d")
     return views.get_q_response_med(params, doc_list, facet_datas, chart_bins, q_data, len(results), binsize, display_bins, binned_facets['g'], params.corpus, stuff_ui_needs)
