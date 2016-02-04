@@ -80,14 +80,6 @@ module.exports = React.createClass({
     return _.max(momentresults);
   },
 
-  show_month_bins: function(start, end){
-    if (end.diff(start, 'days') < 366){
-        return true;
-    }else{
-        return false;
-    }
-  },
-
   getInitialState(){
     //Notes.
     //1) convention: -1 == null
@@ -105,14 +97,6 @@ module.exports = React.createClass({
     }
     //TODO: if no results, this fails
     return {f_counts:[], f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview", promoted_l_facet: -1};
-  },
-
-  linguisticFacetHoverIn: function(e){
-    this.setState({hovered: e});
-  },
-
-  linguisticFacetHoverOut: function(e){
-    this.setState({hovered: -1});
   },
 
   resultsToDocs: function(results){
@@ -143,7 +127,15 @@ module.exports = React.createClass({
 
   },
 
-
+  set_date: function (date, start_end) {
+    let d = moment(date);
+    if (start_end == "start"){
+      this.setState({yr_start: d.format("YYYY"), mo_start: d.format("MM"), dy_start: d.format("DD")});
+    }
+    if (start_end == "end"){
+      this.setState({yr_end: d.format("YYYY"), mo_end: d.format("MM"), dy_end: d.format("DD")});
+    }
+  },
 
   get_global_facets: function(){
     let tmp = this.props.datas; //fixed global facets
@@ -212,43 +204,14 @@ module.exports = React.createClass({
 
     let uiMonthHandler = this.handleMo;
     let b_f_click = this.handleLinguisticFacetClick;
-    {/*
-    if (this.state.mode != "overview") {      
-      main_panel = <div style={y_scroll}>
-                    <BinnedLinguisticFacets hovered={this.state.hovered} handleHoverOut={this.linguisticFacetHoverOut} handleHoverIn={this.linguisticFacetHoverIn} hovered={this.state.hovered} bin_size="year" handleMo={uiMonthHandler} f={f} handleBinClick={b_f_click} bins={selected_binned_facets}/>
-                    
-                   </div>;
-    } else if (docs.length == 0){
-      main_panel = <div></div>;
-    } else {
-      //status = "Found " + this.props.all_results.length + " results for " + this.props.q + " related to:"
-      main_panel = <BinnedLinguisticFacets hovered={this.state.hovered} handleHoverOut={this.linguisticFacetHoverOut} handleHoverIn={this.linguisticFacetHoverIn} hovered={this.state.hovered} rw_height={row_height} bin_size="year" handleMo={uiMonthHandler} handleBinClick={b_f_click} handleBinDocsZoom={this.handleBinDocsZoom} f={f} handleF={this.handleF} bins={binned_facets}/>;
-    }
-    */}
+
     let rw = {
         width: "100%",
     };
 
     let start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
     let end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
-    let show_months = this.show_month_bins(start, end);
-    let left_col_width = 10;
-    let lc = {
-        width: left_col_width.toString() + "%",
-        borderRight: "1px solid gray",
-        marginRight:"1%",
-        float: "left",
-        height: this.props.height,
-        textAlign: "center"
-    };
-    if (docs.length == 0){
-      lc.borderRight = "1px solid white"
-    };
-    let rc = {
-        width: (100 - left_col_width - 1).toString() + "%",
-        float: "left",
-        height: this.props.height
-    };
+
     let handleMoUI = this.handleMo;
     let items = this.get_global_facets();
 
@@ -260,11 +223,12 @@ module.exports = React.createClass({
       fontWeight: "bold",
       color: "#0028a3"
     };
+
     let f_couts = this.state.f_counts;
     if (this.state.mode != "docs"){
       main_panel = <div>
                     <Status ndocs={this.props.total_docs_for_q} {...this.props}/>
-                    <SparklineGrid clickTile={this.clickTile} q_data={q_data} col_no={3} width={this.props.width} tileheight={50} facet_datas={this.props.facet_datas}/>
+                    <SparklineGrid {...this.props} clickTile={this.clickTile} q_data={q_data} col_no={3} width={this.props.width} facet_datas={this.props.facet_datas}/>
                    </div>
     } else { 
       main_panel = <DocViewer f={this.state.f} handleBinClick={this.handleBinClick} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>
@@ -283,7 +247,7 @@ module.exports = React.createClass({
 
             </div>
              <ChartTitle ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end}/>
-             <Chart dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end} {...this.props} f_data={f_couts} show_nth_tickmark="12" belowchart="50" height="150" width={this.props.width} keys={chart_bins} datas={q_data}/>
+             <Chart set_date={this.set_date} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end} {...this.props} f_data={f_couts} show_nth_tickmark="12" belowchart="50" height={this.props.width / this.props.w_h_ratio} width={this.props.width} keys={chart_bins} datas={q_data}/>
             <div>
               {main_panel}
             </div>
