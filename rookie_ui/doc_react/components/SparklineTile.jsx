@@ -7,8 +7,6 @@ var React = require('react');
 var d3 = require('d3');
 var _ = require('lodash');
 
-var Axis = require('./Axis.jsx');
-var Bar = require('./Bar.jsx');
 var Sparkline = require('./Sparkline.jsx');
 
 module.exports = React.createClass({

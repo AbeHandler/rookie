@@ -23,61 +23,8 @@ module.exports = React.createClass({
     if (this.state.f != -1){
         this.setState({mode: "docs"});
     }else{
-        //f is not selected
-        if (this.t_not_selected()){
-            this.setState({mode: "overview"});
-        }else{
-            this.setState({mode: "docs"});
-        }
+        this.setState({mode: "overview"});
     }
-  },
-  
-  t_not_selected: function(){
-    let min = this.get_min(this.props.all_results);
-    let max = this.get_max(this.props.all_results);
-    let t_start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
-    let t_end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
-    if (min.format("MM-DD-YYY") == t_start.format("MM-DD-YYY") & max.format("MM-DD-YYY") == t_end.format("MM-DD-YYY")){
-        return true;
-    }
-    return false;
-  },
-
-  thiryDaysHath: function(e){
-    if (_.includes([9, 11, 4, 6], e)){
-        return 30;
-    } else if (e == 2){
-        return 28;
-    } else {
-        return 31;
-    }
-  },
-
-  handleT: function(e){
-    let year = e.x.getFullYear();
-    let month = e.x.getMonth() + 1;
-    let day = e.x.getDay();
-    this.setState({yr_start: year, mo_start:month, dy_start:1, yr_end: year, mo_end:month, dy_end:this.thiryDaysHath(month)}, this.check_mode);
-  },
-
-  handleBinDocsZoom: function(e, zoom_level){
-    if (zoom_level == "year"){
-        this.setState({yr_start: e, mo_start:"01", dy_start:"1", yr_end: e, mo_end:"12", dy_end:"31"}, this.check_mode);
-    }
-  },
-
-  get_min: function(results){
-    let momentresults = _.map(results, function(n){
-      return moment(n.pubdate);
-    });
-    return _.min(momentresults);
-  },
-
-  get_max: function(results){
-    let momentresults = _.map(results, function(n){
-      return moment(n.pubdate);
-    });
-    return _.max(momentresults);
   },
 
   getInitialState(){
@@ -88,8 +35,10 @@ module.exports = React.createClass({
     let max;
     min = moment(this.props.first_story_pubdate, "YYYY-MM-DD"); 
     max = moment(this.props.last_story_pubdate, "YYYY-MM-DD");
+    let start = min.format("YYYY-MM-DD");
+    let end = max.format("YYYY-MM-DD");
     //TODO: if no results, this fails
-    return {f_counts:[], f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview", promoted_l_facet: -1};
+    return {start:start, end:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview", promoted_l_facet: -1};
   },
 
   resultsToDocs: function(results){
@@ -121,28 +70,13 @@ module.exports = React.createClass({
   },
 
   set_date: function (date, start_end) {
-    let d = moment(date);
+    let d = moment(date).format("YYYY-MM-DD");
     if (start_end == "start"){
-      this.setState({yr_start: d.format("YYYY"), mo_start: d.format("MM"), dy_start: d.format("DD")});
+      this.setState({start:d, s_state: s_state, yr_start: d.format("YYYY"), mo_start: d.format("MM"), dy_start: d.format("DD")});
     }
     if (start_end == "end"){
-      this.setState({yr_end: d.format("YYYY"), mo_end: d.format("MM"), dy_end: d.format("DD")});
+      this.setState({end:d, yr_end: d.format("YYYY"), mo_end: d.format("MM"), dy_end: d.format("DD")});
     }
-  },
-
-  get_global_facets: function(){
-    let tmp = this.props.datas; //fixed global facets
-    if (this.state.promoted_l_facet != -1 & !_.includes(this.props.datas, this.state.promoted_l_facet)){
-      tmp.push(this.state.promoted_l_facet);
-    }
-    return tmp;
-  },
-
-  getDuration: function(){
-    let start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
-    let end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
-    var duration = moment.duration(end.diff(start));
-    return duration;
   },
 
   clickTile: function (e) {
@@ -194,17 +128,6 @@ module.exports = React.createClass({
     });
     let yr_start = this.state.yr_start;
     let selected_binned_facets;
-    let duration = this.getDuration();
-    //TODO: this is logic-y and should not go in render
-    if (this.state.yr_start == this.state.yr_end && this.state.mo_end == 12 && this.state.mo_start == 1 && this.state.f == -1){
-      selected_binned_facets = _.filter(binned_facets, function(o) { 
-        return o.key == yr_start;
-      });
-    }else if(duration.days() < 360){
-        selected_binned_facets = [];
-    }else{
-      selected_binned_facets = binned_facets;
-    }
 
     let row_height = Math.floor(this.props.height/binned_facets.length);
 
@@ -221,7 +144,6 @@ module.exports = React.createClass({
     let end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
 
     let handleMoUI = this.handleMo;
-    let items = this.get_global_facets();
 
     var binned_counts_f = this.props.binned_counts_f;
 

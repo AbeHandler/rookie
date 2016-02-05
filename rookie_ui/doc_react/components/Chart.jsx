@@ -8,7 +8,6 @@ var d3 = require('d3');
 var _ = require('lodash');
 
 var Axis = require('./Axis.jsx');
-var Bar = require('./Bar.jsx');
 
 module.exports = React.createClass({
 
@@ -66,15 +65,6 @@ module.exports = React.createClass({
     
   },
 
-  get_height: function(i, scale){
-    return scale(i);
-  },
-
-  get_y_offset: function(i, scale){
-    let height = this.get_height(i, scale);
-    return this.props.height - scale(i);
-  },
-
   toggle_drag_start: function(e){
     this.setState({drag_l : true});
   },
@@ -100,7 +90,6 @@ module.exports = React.createClass({
     let width = this.props.width;
     let lateralize = this.lateralize;
     let get_height = this.get_height;
-    let get_y_offset = this.get_y_offset;
     let lateral_scale = this.get_x_scale();
     let height_scale = this.get_y_scale();
     let set_X = this.set_X;
