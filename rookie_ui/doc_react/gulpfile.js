@@ -13,6 +13,9 @@ var ReactDOM = require('react-dom');
 var Sparklines = require('react-sparklines').Sparklines;
 var SparklinesLine = require('react-sparklines').SparklinesLine;
 var SparklinesSpots = require('react-sparklines').SparklinesSpots;
+var selenium = require('selenium-standalone');
+
+var seleniumServer; // ref for killing it
 
 
 var paths = {
@@ -51,6 +54,34 @@ gulp.task('b', ['css', 'sass'], function() {
            stream: true
         }));
 });
+
+
+
+var webdriver = require('gulp-webdriver');
+
+
+gulp.task('e2e', ['selenium'], function() {
+  return gulp.src('wdio.conf.js')
+    .pipe(webdriver());
+});
+
+gulp.task('selenium', function(done) {
+  selenium.install({logger: console.log}, function(){
+    selenium.start(function(err, child){
+      if (err) { 
+        console.log("eleeee");
+        return done(err);
+      }
+      seleniumServer = child;
+      done();
+    });
+  });
+});
+
+gulp.task('test', ['e2e'], function(){
+  seleniumServer.kill();
+});
+
 
 // Start browserSync server
 gulp.task('browserSync', function() {

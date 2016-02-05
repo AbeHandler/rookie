@@ -18,20 +18,6 @@ from webapp import IP, ROOKIE_JS, ROOKIE_CSS
 from webapp.models import get_doc_metadata
 import threading
 
-def worker(results, params, f, aliases):
-    """Starts prepping doclist to go fast on facet click"""
-    results_to_doclist(results, params.q, f, aliases=tuple([])) #TODO aliases
-    print "cached {}".format(f),
-    #TODO: lots of repeating code here and in POST and GET methods below
-
-    return
-
-def manager(results, params, all_facets, aliases):
-    """Starts prepping doclist to go fast on facet click"""
-    for f in all_facets:
-        t = threading.Thread(target=worker, args=(results, params, f, aliases))
-        t.start()
-    return
 
 app = Flask(__name__)
 
@@ -77,7 +63,13 @@ def get_doc_list():
 def medviz():
 
     start = time.time()
-    params = Models.get_parameters(request)
+    try:
+        params = Models.get_parameters(request)
+    except AttributeError:
+        return "<html><title>End-to-End Testing</title><html>"
+
+    if params.q is None:
+        return "<html>sdf<html>"
 
     results = Models.get_results(params)
 
