@@ -1,11 +1,12 @@
 "use strict";
 /*
-Status message showing q,f,t
+Chart title
 */
 
 var React = require('react');
 var _ = require('lodash');
 var moment = require('moment');
+var ClickableQF = require('./ClickableQF.jsx');
 
 module.exports = React.createClass({
   
@@ -52,20 +53,15 @@ module.exports = React.createClass({
             
         let temporal = this.getTemporalStatus();
 
-        let q_style = {
-            "fontWeight": "bold",
-            "color": "#0028a3"
-        };
-          
-        let f_style = {
-            "fontWeight": "bold",
-            "color": "#b33125"
-        };
-
+        let q_color = "#0028a3";
+        let f_color = "#b33125";
+        let f = this.props.f;
+        let show = (f != -1 & f != undefined);
+        console.log(f);
         if (this.props.f != -1){
-            return <span><span>{status_start}</span> <span style={q_style}>{this.props.q}</span> and <span style={f_style}>{this.props.f}</span> {temporal} </span>
+            return <span><span>{status_start}</span><ClickableQF showX={show} xHandler={this.props.qX} color={q_color} text={this.props.q}/> and <ClickableQF showX={true} color={f_color} text={this.props.f}/> {temporal} </span>
         } else {
-            return <span><span>{status_start}</span> <span style={q_style}>{this.props.q}</span> {temporal} </span>
+            return <span><span>{status_start}</span><ClickableQF showX={show} xHandler={this.props.qX} color={q_color} text={this.props.q}/> {temporal} </span>
         }
     }
 });

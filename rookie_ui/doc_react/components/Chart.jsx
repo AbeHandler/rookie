@@ -129,7 +129,7 @@ module.exports = React.createClass({
         <line onMouseDown={this.toggle_drag_start} x1={x_l} y1={this.props.height / 4} x2={x_l} y2={this.props.height * .75} stroke="black" strokeWidth="10"/>
         <line onMouseDown={this.toggle_drag_start_r} x1={x_r} y1={this.props.height / 4} x2={x_r} y2={this.props.height * .75} stroke="black" strokeWidth="10"/>
         </svg>
-        <Axis show_nth_tickmark="24" q={this.props.q} keys={this.props.keys} lateral_scale={lateral_scale} height="50" width={this.props.width} q_counts={this.props.q_data} lateralize={lateralize}/>
+        <Axis show_nth_tickmark="12" q={this.props.q} keys={this.props.keys} lateral_scale={lateral_scale} height="50" width={this.props.width} q_counts={this.props.q_data} lateralize={lateralize}/>
         </div>
           
     );

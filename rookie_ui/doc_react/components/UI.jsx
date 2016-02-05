@@ -84,17 +84,10 @@ module.exports = React.createClass({
     //Notes.
     //1) convention: -1 == null
     //2) keeping track of y/mo/dy is annoying but react won't allow object as prop
-    //3) there can be exactly 1 linguistic facet from a bin (as opposed to global) that is
-    //   promoted up to global at one time. stored in state.promoted_l_facet
     let min;
     let max;
-    if (this.props.all_results.length > 0){
-        min = this.get_min(this.props.all_results);
-        max = this.get_max(this.props.all_results);      
-    } else{
-        min = moment(this.props.first_story_pubdate, "YYYY-MM-DD"); 
-        max = moment(this.props.last_story_pubdate, "YYYY-MM-DD");
-    }
+    min = moment(this.props.first_story_pubdate, "YYYY-MM-DD"); 
+    max = moment(this.props.last_story_pubdate, "YYYY-MM-DD");
     //TODO: if no results, this fails
     return {f_counts:[], f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview", promoted_l_facet: -1};
   },
@@ -170,9 +163,16 @@ module.exports = React.createClass({
         });
   },
 
+  qX: function(){
+    if (this.state.f != -1){
+      location.href='?q=' + this.state.f +'&corpus=' + this.props.corpus;
+    }
+  },
+
   render: function() {
     let f = this.state.f;
     let q = this.props.q;
+    let qX = this.qX;
     let bin_size = "year"; //default binsize
     // docs = those that match q, f & t. all_results = what comes from browser.
     let docs = this.resultsToDocs(this.props.all_results);
@@ -225,13 +225,19 @@ module.exports = React.createClass({
     };
 
     let f_couts = this.state.f_counts;
-    if (this.state.mode != "docs"){
+    if (this.state.mode != "docs" & this.props.total_docs_for_q > 0){
       main_panel = <div>
-                    <Status ndocs={this.props.total_docs_for_q} {...this.props}/>
+                    <Status qX={qX} ndocs={this.props.total_docs_for_q} {...this.props}/>
                     <SparklineGrid {...this.props} clickTile={this.clickTile} q_data={q_data} col_no={3} width={this.props.width} facet_datas={this.props.facet_datas}/>
                    </div>
     } else { 
       main_panel = <DocViewer f={this.state.f} handleBinClick={this.handleBinClick} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>
+    }
+    let chart;
+    if (this.props.total_docs_for_q > 0){
+      chart = <Chart qX={qX} set_date={this.set_date} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end} {...this.props} f_data={f_couts} show_nth_tickmark="12" belowchart="50" height={this.props.width / this.props.w_h_ratio} width={this.props.width} keys={chart_bins} datas={q_data}/>
+    }else{
+      chart = "";
     }
     return(
         <div>
@@ -246,8 +252,8 @@ module.exports = React.createClass({
               </div>
 
             </div>
-             <ChartTitle ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end}/>
-             <Chart set_date={this.set_date} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end} {...this.props} f_data={f_couts} show_nth_tickmark="12" belowchart="50" height={this.props.width / this.props.w_h_ratio} width={this.props.width} keys={chart_bins} datas={q_data}/>
+             <ChartTitle qX={qX} ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end}/>
+             {chart}
             <div>
               {main_panel}
             </div>

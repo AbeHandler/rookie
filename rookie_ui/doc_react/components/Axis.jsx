@@ -30,11 +30,14 @@ module.exports = React.createClass({
     let lateralize = this.props.lateralize;
     let to_date = this.i_to_date;
     let lateral_scale = this.props.lateral_scale;
+    let keys = this.props.keys;
+    let ticks = lateral_scale.ticks(d3.time.year);
+    let format = lateral_scale.tickFormat();
     return (
         <svg height={this.props.height} width={this.props.width}>
         <line x1="0" y1="10" x2={this.props.width} y2="10" stroke="black" strokeWidth="3"/>
-        {this.props.q_counts.map(function(object, i){
-            return <text key={i} x={lateralize(i, lateral_scale)} y="25" fill="black">{to_date(i)}</text>
+        {ticks.map(function(object, i){
+            return <text key={i} x={lateralize(object, lateral_scale)} y="25" fill="black">{format(object)}</text>
         })}
         </svg>
     );

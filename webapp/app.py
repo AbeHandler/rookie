@@ -54,9 +54,9 @@ def get_doc_list():
 
     results = Models.get_results(params)
 
-    print len(results)
-
+    fstart = time.time()
     filtered_pubdates, doc_list = results_to_doclist(results, params.q, params.f, params.corpus, load_all_data_structures(params.corpus)["pubdates"], aliases=tuple([])) #TODO aliases
+    print "building doclist time = {}".format(time.time() - fstart)
 
     q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][r] for r in results]
     binsize = "month"
@@ -90,13 +90,6 @@ def medviz():
     #    alias_table[params.q][f] = aliases[f]
 
     aliases = [] # TODO
-
-    dlstart = time.time()
-
-    # a docllist is results + metadata/snippets
-    # doc_list = Models.get_doclist(results, params.q, params.f, params.corpus)
-    doc_list = []
-    print "doclist time = {}".format(time.time() - dlstart)
 
     q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][r] for r in results]
 
@@ -139,14 +132,16 @@ def medviz():
         facets[f] = [get_val_from_df(f, key, df, binsize) for key in chart_bins]
     stuff_ui_needs["facet_datas"] = facets
     
-    min_str = min(load_all_data_structures(params.corpus)["pubdates"][r] for r in results)
-    max_str = max(load_all_data_structures(params.corpus)["pubdates"][r] for r in results)
+    try:
+        min_str = min(load_all_data_structures(params.corpus)["pubdates"][r] for r in results)
+        max_str = max(load_all_data_structures(params.corpus)["pubdates"][r] for r in results)
+        stuff_ui_needs["first_story_pubdate"] = min_str.strftime("%Y-%m-%d")
+        stuff_ui_needs["last_story_pubdate"] = max_str.strftime("%Y-%m-%d")
+    except ValueError:
+        stuff_ui_needs["first_story_pubdate"] = ""
+        stuff_ui_needs["last_story_pubdate"] = ""
 
-    print min_str.strftime("%Y-%m-%d")
-    print max_str.strftime("%Y-%m-%d")
-    stuff_ui_needs["first_story_pubdate"] = min_str.strftime("%Y-%m-%d")
-    stuff_ui_needs["last_story_pubdate"] = max_str.strftime("%Y-%m-%d")
-    return views.get_q_response_med(params, doc_list, facet_datas, chart_bins, q_data, len(results), binsize, display_bins, binned_facets['g'], params.corpus, stuff_ui_needs)
+    return views.get_q_response_med(params, facet_datas, chart_bins, q_data, len(results), binsize, binned_facets['g'], params.corpus, stuff_ui_needs)
 
 
 if __name__ == '__main__':
