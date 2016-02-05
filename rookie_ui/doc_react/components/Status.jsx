@@ -59,9 +59,9 @@ module.exports = React.createClass({
         let f_color = "#b33125";
         let f = this.props.f;
         let show = (f != -1 & f != undefined);
-        console.log(f);
+        console.log(this.props.fX);
         if (this.props.f != -1 & this.props.mode == "docs"){
-            return <span><span>{status_start}</span> <ClickableQF showX={show} xHandler={this.props.qX} color={q_color} text={this.props.q}/> and <span style={f_style}>{this.props.f}</span> {temporal}: </span>
+            return <span><span>{status_start}</span> <ClickableQF showX={show} xHandler={this.props.qX} color={q_color} text={this.props.q}/> and <ClickableQF color={f_color} text={this.props.f} xHandler={this.props.fX}/> {temporal}: </span>
         }else if (this.props.mode == "docs") {
             return <span><span>{status_start}</span> <ClickableQF showX={show} xHandler={this.props.qX} color={q_color} text={this.props.q}/> {temporal}: </span>
         } else {

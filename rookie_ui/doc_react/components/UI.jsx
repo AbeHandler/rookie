@@ -169,6 +169,14 @@ module.exports = React.createClass({
     }
   },
 
+  fX: function(){
+    let min;
+    let max;
+    min = moment(this.props.first_story_pubdate, "YYYY-MM-DD"); 
+    max = moment(this.props.last_story_pubdate, "YYYY-MM-DD");
+    this.setState({f: -1, mode:"overview", yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD")});
+  },
+
   render: function() {
     let f = this.state.f;
     let q = this.props.q;
@@ -227,7 +235,7 @@ module.exports = React.createClass({
     let f_couts = this.state.f_counts;
     if (this.state.mode != "docs" & this.props.total_docs_for_q > 0){
       main_panel = <div>
-                    <Status qX={qX} ndocs={this.props.total_docs_for_q} {...this.props}/>
+                    <Status fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} {...this.props}/>
                     <SparklineGrid {...this.props} clickTile={this.clickTile} q_data={q_data} col_no={3} width={this.props.width} facet_datas={this.props.facet_datas}/>
                    </div>
     } else { 
@@ -252,7 +260,7 @@ module.exports = React.createClass({
               </div>
 
             </div>
-             <ChartTitle qX={qX} ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end}/>
+             <ChartTitle fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end}/>
              {chart}
             <div>
               {main_panel}

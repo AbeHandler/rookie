@@ -17,12 +17,12 @@ module.exports = React.createClass({
         };
         let x_script;
         let x_handler = this.props.xHandler;
+        console.log(x_handler);
         if (this.props.showX){
             x_script = <sup onClick={x_handler} style={x_style}>X</sup>
         }else{
             x_script = ""
         }
-        console.log(this.props);
         return (
             <span style={text_style}>
                 {this.props.text}{x_script}

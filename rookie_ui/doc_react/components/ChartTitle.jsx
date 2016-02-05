@@ -59,7 +59,7 @@ module.exports = React.createClass({
         let show = (f != -1 & f != undefined);
         console.log(f);
         if (this.props.f != -1){
-            return <span><span>{status_start}</span><ClickableQF showX={show} xHandler={this.props.qX} color={q_color} text={this.props.q}/> and <ClickableQF showX={true} color={f_color} text={this.props.f}/> {temporal} </span>
+            return <span><span>{status_start}</span><ClickableQF showX={show} xHandler={this.props.qX} color={q_color} text={this.props.q}/> and <ClickableQF showX={true} xHandler={this.props.fX} color={f_color} text={this.props.f}/> {temporal} </span>
         } else {
             return <span><span>{status_start}</span><ClickableQF showX={show} xHandler={this.props.qX} color={q_color} text={this.props.q}/> {temporal} </span>
         }
