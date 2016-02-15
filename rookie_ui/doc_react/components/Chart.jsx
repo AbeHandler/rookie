@@ -43,8 +43,10 @@ module.exports = React.createClass({
 
 
   getInitialState: function() {
-    let d1 = new Date(this.props.yr_start, this.props.mo_start, this.props.dy_start);
-    let d2 = new Date(this.props.yr_end, this.props.mo_end, this.props.dy_end);
+    let d1 = new Date(this.props.first_story_pubdate);
+    let d2 = new Date(this.props.last_story_pubdate);
+    let global_start = new Date(this.props.glboal_start);
+    let global_end = new Date(this.props.global_end);
     let scale = this.get_x_scale();
     let x_l = scale(d1);
     let x_r = scale(d2);
@@ -88,23 +90,19 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    let width = this.props.width;
     let lateralize = this.lateralize;
-    let get_height = this.get_height;
     let lateral_scale = this.get_x_scale();
     let height_scale = this.get_y_scale();
     let set_X = this.set_X;
-    let q = this.props.q;
     let f = this.props.f;
     let bar_width = this.get_bar_width();
     let ps = this.get_path_string(this.props.q_data);
     let fs = "";
-    let d1 = new Date(_.first(this.props.keys));
-    let d2 = new Date(_.last(this.props.keys));
-    console.log("convert to keys todo");
+    console.log(this.props);
     let scale = this.get_x_scale();
-    let x_l = scale(d1);
-    let x_r = scale(d2);
+    let x_l = lateral_scale(new Date(_.first(this.props.keys)));
+    let x_r = lateral_scale(new Date(_.last(this.props.keys)));
+    console.log("convert to keys todo");
     if (this.props.f_data.length > 0){
       fs = this.get_path_string(this.props.f_data);
     }
@@ -116,6 +114,8 @@ module.exports = React.createClass({
     if (this.state.drag_l == true){
       stroke_color_l = "red";
     }
+    let start_pos = scale(new Date(this.props.start_selected));
+    let end_pos = scale(new Date(this.props.end_selected));
     return (
 
         <div onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={this.toggle_drag_stop} onMouseUp={this.toggle_drag_stop}>
@@ -123,10 +123,10 @@ module.exports = React.createClass({
         <path d={ps} fill="#0028a3" opacity=".25" stroke="grey"/>
         <path d={fs} fill="rgb(179, 49, 37)" opacity=".75" stroke="black"/>
 
-        <rect y="0" x={x_l} opacity=".2" height={this.props.height} width={this.get_w(x_l, x_r)} strokeWidth="4" fill="grey" />  
+        <rect y="0" x={start_pos} opacity=".2" height={this.props.height} width={this.get_w(start_pos, end_pos)} strokeWidth="4" fill="grey" />  
 
-        <line onMouseDown={this.toggle_drag_start} x1={x_l} y1={this.props.height / 4} x2={x_l} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="10"/>
-        <line onMouseDown={this.toggle_drag_start_r} x1={x_r} y1={this.props.height / 4} x2={x_r} y2={this.props.height * .75} stroke={stroke_color_r} strokeWidth="10"/>
+        <line onMouseDown={this.toggle_drag_start} x1={start_pos} y1={this.props.height / 4} x2={start_pos} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="20"/>
+        <line onMouseDown={this.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 4} x2={end_pos} y2={this.props.height * .75} stroke={stroke_color_r} strokeWidth="20"/>
         </svg>
         <Axis show_nth_tickmark="12" q={this.props.q} keys={this.props.keys} lateral_scale={lateral_scale} height="50" width={this.props.width} q_counts={this.props.q_data} lateralize={lateralize}/>
         </div>

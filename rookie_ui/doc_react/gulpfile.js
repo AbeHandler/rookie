@@ -10,9 +10,8 @@ var rename = require('gulp-rename');
 var sourcemaps = require('gulp-sourcemaps');
 var React = require('react');
 var ReactDOM = require('react-dom');
-var Sparklines = require('react-sparklines').Sparklines;
-var SparklinesLine = require('react-sparklines').SparklinesLine;
-var SparklinesSpots = require('react-sparklines').SparklinesSpots;
+
+//var watchify = require('watchify');
 var selenium = require('selenium-standalone');
 
 var seleniumServer; // ref for killing selenium server

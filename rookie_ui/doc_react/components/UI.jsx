@@ -35,12 +35,12 @@ module.exports = React.createClass({
     //2) keeping track of y/mo/dy is annoying but react won't allow object as prop
     let min;
     let max;
-    min = moment(this.props.first_story_pubdate, "YYYY-MM-DD"); 
-    max = moment(this.props.last_story_pubdate, "YYYY-MM-DD");
+    min = moment(_.first(this.props.chart_bins), "YYYY-MM-DD"); 
+    max = moment(_.last(this.props.chart_bins), "YYYY-MM-DD");
     let start = min.format("YYYY-MM-DD");
     let end = max.format("YYYY-MM-DD");
     //TODO: if no results, this fails
-    return {start:start, end:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview"};
+    return {start_selected:start, end_selected:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview"};
   },
 
   resultsToDocs: function(results){
@@ -73,12 +73,11 @@ module.exports = React.createClass({
 
   set_date: function (date, start_end) {
     let d = moment(date).format("YYYY-MM-DD");
-    console.log(d);
     if (start_end == "start"){
-      this.setState({start:d});
+      this.setState({start_selected:d});
     }
     if (start_end == "end"){
-      this.setState({end:d});
+      this.setState({end_selected:d});
     }
   },
 
@@ -143,9 +142,6 @@ module.exports = React.createClass({
         width: "100%",
     };
 
-    let start = moment(this.state.yr_start + "-" + this.state.mo_start + "-" + this.state.dy_start);
-    let end = moment(this.state.yr_end + "-" + this.state.mo_end + "-" + this.state.dy_end);
-
     let handleMoUI = this.handleMo;
 
     var binned_counts_f = this.props.binned_counts_f;
@@ -168,10 +164,11 @@ module.exports = React.createClass({
     }
     let chart;
     if (this.props.total_docs_for_q > 0){
-      chart = <Chart qX={qX} set_date={this.set_date} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio} width={this.props.width} keys={chart_bins} datas={q_data}/>
+      chart = <Chart qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio} width={this.props.width} keys={chart_bins} datas={q_data}/>
     }else{
       chart = "";
     }
+
     return(
         <div>
             <QueryBar corpus={this.props.corpus}/>

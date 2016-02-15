@@ -41,6 +41,7 @@
     "selenium-standalone": "^4.9.0",
     "slash": "^1.0.0",
     "vinyl": "^1.1.0",
+    "watchify": "^3.7.0",
     "wdio-mocha-framework": "^0.2.9",
     "win-spawn": "^2.0.0"
   },
