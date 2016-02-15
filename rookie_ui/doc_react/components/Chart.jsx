@@ -114,11 +114,13 @@ module.exports = React.createClass({
     }
     let start_pos = scale(new Date(this.props.start_selected));
     let end_pos = scale(new Date(this.props.end_selected));
-    if (start_pos < x_scale(new Date(this.props.first_story_pubdate))){
-        start_pos = x_scale(new Date(this.props.first_story_pubdate));
+    console.log(start_pos);
+    console.log(end_pos);
+    if (start_pos < scale(_.first(this.props.keys))){
+        start_pos = scale(_.first(this.props.keys));
     }
-    if (end_pos > x_scale(new Date(this.props.last_story_pubdate))){
-        end_pos = x_scale(new Date(this.props.last_story_pubdate));
+    if (end_pos > this.props.width){
+        end_pos = scale(new Date(_.last(this.props.keys)));
     }
     return (
 
