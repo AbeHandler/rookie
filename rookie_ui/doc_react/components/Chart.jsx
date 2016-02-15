@@ -6,14 +6,15 @@ Chart.jsx
 var React = require('react');
 var d3 = require('d3');
 var _ = require('lodash');
+var moment = require('moment');
 
 var Axis = require('./Axis.jsx');
 
 module.exports = React.createClass({
 
     get_x_scale: function(){
-      let str = new Date(this.props.keys[0]);
-      let end = new Date(this.props.keys[this.props.keys.length-1]);
+      let str = new Date(_.first(this.props.keys));
+      let end = new Date(_.last(this.props.keys));
       return d3.time.scale()
                             .domain([str, end])
                             .range([0, this.props.width]);
@@ -47,7 +48,7 @@ module.exports = React.createClass({
     let scale = this.get_x_scale();
     let x_l = scale(d1);
     let x_r = scale(d2);
-    return {cache: {}, lscale: -1, x_l: x_l, x_r: x_r, y_r: 100, drag_l: false, drag_r: false};
+    return {x_l: x_l, x_r: x_r, drag_l: false, drag_r: false};
   },
 
   lateralize: function (i, lateral_scale) {
@@ -98,13 +99,22 @@ module.exports = React.createClass({
     let bar_width = this.get_bar_width();
     let ps = this.get_path_string(this.props.q_data);
     let fs = "";
-    let d1 = new Date(this.props.yr_start, this.props.mo_start, this.props.dy_start);
-    let d2 = new Date(this.props.yr_end, this.props.mo_end, this.props.dy_end);
+    let d1 = new Date(_.first(this.props.keys));
+    let d2 = new Date(_.last(this.props.keys));
+    console.log("convert to keys todo");
     let scale = this.get_x_scale();
     let x_l = scale(d1);
     let x_r = scale(d2);
     if (this.props.f_data.length > 0){
       fs = this.get_path_string(this.props.f_data);
+    }
+    let stroke_color_r = "black";
+    if (this.state.drag_r == true){
+      stroke_color_r = "red";
+    }
+    let stroke_color_l = "black";
+    if (this.state.drag_l == true){
+      stroke_color_l = "red";
     }
     return (
 
@@ -115,8 +125,8 @@ module.exports = React.createClass({
 
         <rect y="0" x={x_l} opacity=".2" height={this.props.height} width={this.get_w(x_l, x_r)} strokeWidth="4" fill="grey" />  
 
-        <line onMouseDown={this.toggle_drag_start} x1={x_l} y1={this.props.height / 4} x2={x_l} y2={this.props.height * .75} stroke="black" strokeWidth="10"/>
-        <line onMouseDown={this.toggle_drag_start_r} x1={x_r} y1={this.props.height / 4} x2={x_r} y2={this.props.height * .75} stroke="black" strokeWidth="10"/>
+        <line onMouseDown={this.toggle_drag_start} x1={x_l} y1={this.props.height / 4} x2={x_l} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="10"/>
+        <line onMouseDown={this.toggle_drag_start_r} x1={x_r} y1={this.props.height / 4} x2={x_r} y2={this.props.height * .75} stroke={stroke_color_r} strokeWidth="10"/>
         </svg>
         <Axis show_nth_tickmark="12" q={this.props.q} keys={this.props.keys} lateral_scale={lateral_scale} height="50" width={this.props.width} q_counts={this.props.q_data} lateralize={lateralize}/>
         </div>

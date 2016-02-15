@@ -4,13 +4,13 @@
 var React = require('react');
 var $ = require('jQuery');
 var Navbar = require('react-bootstrap/lib/Navbar');
-var Input = require('react-bootstrap/lib/Input');
 var Button = require('react-bootstrap/lib/Button');
+var Input = require('./Input.jsx');
 
 module.exports = React.createClass({
 
-  pop: function(e){
-    alert(e);
+  submitter: function(){
+    location.href= '?q='+this.state.value + '&corpus=' + this.props.corpus;
   },
 
   getInitialState: function() {
@@ -19,16 +19,17 @@ module.exports = React.createClass({
     };
   },
 
-
-  handleChange: function() {
-    // This could also be done using ReactLink:
-    // http://facebook.github.io/react/docs/two-way-binding-helpers.html
-    console.log(this.refs.input.getValue());
+  changeHandler: function(e) {
     this.setState({
-      value: this.refs.input.getValue()
+      value: e
     });
   },
 
+  handleKeyPress: function(e){
+    if (e.which == 13){ //enter key
+      this.submitter();
+    }
+  },
 
   render: function() {
     let demo = "one";
@@ -43,14 +44,14 @@ module.exports = React.createClass({
     let pstyle = {
       width:p_w
     }
-    let onClicker = this.pop;;
+    let submitter = this.submitter;
+    let changeHandler = this.changeHandler;
     return (
-      <Navbar>
+      <Navbar onKeyPress={(e)=> this.handleKeyPress(e)}>
           <Navbar.Collapse>
             <Navbar.Form pullLeft style={qstyle}>
-              <Input hasFeedback handleChange={this.handleChange} value={this.state.value} style={pstyle} type="text" placeholder="Search"/>
-              {' '}
-              <Button type="submit">Submit</Button>
+              <Input changeHandler={changeHandler}/>
+              <Button onClick={submitter} type="submit">Submit</Button>
             </Navbar.Form>
           </Navbar.Collapse>
         </Navbar>

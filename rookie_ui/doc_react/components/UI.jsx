@@ -15,6 +15,8 @@ var Status = require('./Status.jsx');
 var Chart = require('./Chart.jsx');
 var ChartTitle = require('./ChartTitle.jsx');
 var SparklineGrid = require('./SparklineGrid.jsx');
+var QueryBar = require('./QueryBar.jsx');
+//var ExampleInput = require('./ExampleInput.jsx')
 
 
 module.exports = React.createClass({
@@ -38,7 +40,7 @@ module.exports = React.createClass({
     let start = min.format("YYYY-MM-DD");
     let end = max.format("YYYY-MM-DD");
     //TODO: if no results, this fails
-    return {start:start, end:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview", promoted_l_facet: -1};
+    return {start:start, end:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview"};
   },
 
   resultsToDocs: function(results){
@@ -71,11 +73,12 @@ module.exports = React.createClass({
 
   set_date: function (date, start_end) {
     let d = moment(date).format("YYYY-MM-DD");
+    console.log(d);
     if (start_end == "start"){
-      this.setState({start:d, s_state: s_state, yr_start: d.format("YYYY"), mo_start: d.format("MM"), dy_start: d.format("DD")});
+      this.setState({start:d});
     }
     if (start_end == "end"){
-      this.setState({end:d, yr_end: d.format("YYYY"), mo_end: d.format("MM"), dy_end: d.format("DD")});
+      this.setState({end:d});
     }
   },
 
@@ -165,23 +168,13 @@ module.exports = React.createClass({
     }
     let chart;
     if (this.props.total_docs_for_q > 0){
-      chart = <Chart qX={qX} set_date={this.set_date} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end} {...this.props} f_data={f_couts} show_nth_tickmark="12" belowchart="50" height={this.props.width / this.props.w_h_ratio} width={this.props.width} keys={chart_bins} datas={q_data}/>
+      chart = <Chart qX={qX} set_date={this.set_date} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio} width={this.props.width} keys={chart_bins} datas={q_data}/>
     }else{
       chart = "";
     }
     return(
         <div>
-            <div id="controls" className="row">
-              <div>
-                <div className="small-10 columns">
-                  <input onChange={handleMoUI} style={search_style} type="text" value={this.props.q} placeholder={this.props.q}></input>
-                </div>
-                <div className="small-2 columns">
-                  <a href="#" className="button postfix" id="search_button">Search</a>
-                </div>
-              </div>
-
-            </div>
+            <QueryBar corpus={this.props.corpus}/>
              <ChartTitle fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end}/>
              {chart}
             <div>

@@ -15,15 +15,17 @@ var SparklinesLine = require('react-sparklines').SparklinesLine;
 var SparklinesSpots = require('react-sparklines').SparklinesSpots;
 var selenium = require('selenium-standalone');
 
-var seleniumServer; // ref for killing it
+var seleniumServer; // ref for killing selenium server
 
+//dont understand how browserify's bundler works so using this other one too. Prob could be joined
+var bundle = require('gulp-bundle-assets'); 
 
 var paths = {
   scripts: ['components/*','main.js']
 };
 
 gulp.task('css', function() {
-  return gulp.src(['css/*', 'node_modules/fixed-data-table/dist/fixed-data-table.css'])
+  return gulp.src(['css/*'])
     .pipe(sourcemaps.init())
     .pipe(rename({suffix: '.min'}))
     .pipe(cssnano())
@@ -92,6 +94,6 @@ gulp.task('browserSync', function() {
   })
 })
 
-gulp.task('w', ['browserSync'], function() {
+gulp.task('w', function() {
   gulp.watch(paths.scripts, ['b']);
 });
