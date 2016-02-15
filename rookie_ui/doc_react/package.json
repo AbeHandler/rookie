@@ -31,6 +31,8 @@
     "gulp-streamify": "^1.0.2",
     "gulp-util": "^3.0.7",
     "gulp-webdriver": "^1.0.3",
+    "gutil": "^1.6.4",
+    "lodash.assign": "^4.0.2",
     "mkdirp": "^0.5.1",
     "mocha": "^2.4.5",
     "mocha-generators": "^1.2.0",
@@ -41,6 +43,7 @@
     "selenium-standalone": "^4.9.0",
     "slash": "^1.0.0",
     "vinyl": "^1.1.0",
+    "vinyl-buffer": "^1.0.0",
     "watchify": "^3.7.0",
     "wdio-mocha-framework": "^0.2.9",
     "win-spawn": "^2.0.0"

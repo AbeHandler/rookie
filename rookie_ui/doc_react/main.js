@@ -2,9 +2,6 @@
 "use strict";
 var React = require('react');
 var ReactDOM = require('react-dom');
-var _ = require('lodash');
-var moment = require('moment');
-global.$ = global.jQuery = require('jquery');
 
 var UI = require('./components/UI.jsx');
 

@@ -45,8 +45,6 @@ module.exports = React.createClass({
   getInitialState: function() {
     let d1 = new Date(this.props.first_story_pubdate);
     let d2 = new Date(this.props.last_story_pubdate);
-    let global_start = new Date(this.props.glboal_start);
-    let global_end = new Date(this.props.global_end);
     let scale = this.get_x_scale();
     let x_l = scale(d1);
     let x_r = scale(d2);
@@ -97,12 +95,12 @@ module.exports = React.createClass({
     let f = this.props.f;
     let bar_width = this.get_bar_width();
     let ps = this.get_path_string(this.props.q_data);
-    let fs = "";
-    console.log(this.props);
+
     let scale = this.get_x_scale();
     let x_l = lateral_scale(new Date(_.first(this.props.keys)));
     let x_r = lateral_scale(new Date(_.last(this.props.keys)));
-    console.log("convert to keys todo");
+
+    let fs = "";
     if (this.props.f_data.length > 0){
       fs = this.get_path_string(this.props.f_data);
     }
@@ -116,6 +114,12 @@ module.exports = React.createClass({
     }
     let start_pos = scale(new Date(this.props.start_selected));
     let end_pos = scale(new Date(this.props.end_selected));
+    if (start_pos < x_scale(new Date(this.props.first_story_pubdate))){
+        start_pos = x_scale(new Date(this.props.first_story_pubdate));
+    }
+    if (end_pos > x_scale(new Date(this.props.last_story_pubdate))){
+        end_pos = x_scale(new Date(this.props.last_story_pubdate));
+    }
     return (
 
         <div onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={this.toggle_drag_stop} onMouseUp={this.toggle_drag_stop}>
