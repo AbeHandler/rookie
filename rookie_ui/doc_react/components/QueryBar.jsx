@@ -5,6 +5,9 @@ var React = require('react');
 var $ = require('jQuery');
 var Navbar = require('react-bootstrap/lib/Navbar');
 var Button = require('react-bootstrap/lib/Button');
+var Grid = require('react-bootstrap/lib/Grid');
+var Row = require('react-bootstrap/lib/Row');
+var Col = require('react-bootstrap/lib/Col');
 var Input = require('./Input.jsx');
 
 module.exports = React.createClass({
@@ -42,19 +45,20 @@ module.exports = React.createClass({
       width: "100%"
     }
     let pstyle = {
-      width:p_w
+      width:p_w,
+      backgroundColor: "blue"
     }
     let submitter = this.submitter;
     let changeHandler = this.changeHandler;
     return (
-      <Navbar onKeyPress={(e)=> this.handleKeyPress(e)}>
-          <Navbar.Collapse>
-            <Navbar.Form pullLeft style={qstyle}>
-              <Input changeHandler={changeHandler}/>
-              <Button onClick={submitter} type="submit">Submit</Button>
-            </Navbar.Form>
-          </Navbar.Collapse>
-        </Navbar>
+      <Navbar style={qstyle} onKeyPress={(e)=> this.handleKeyPress(e)}>
+        <Grid>
+          <Row className="show-grid">
+            <Col xs={10} md={10}><Input style={{pstyle}} changeHandler={changeHandler}/></Col>
+            <Col xs={2} md={2}><Button onClick={submitter} type="submit">Submit</Button></Col>
+          </Row>
+        </Grid>
+      </Navbar>
     )
   }
 

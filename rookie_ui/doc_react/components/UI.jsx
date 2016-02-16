@@ -16,6 +16,7 @@ var Chart = require('./Chart.jsx');
 var ChartTitle = require('./ChartTitle.jsx');
 var SparklineGrid = require('./SparklineGrid.jsx');
 var QueryBar = require('./QueryBar.jsx');
+var $ = require('jquery');
 //var ExampleInput = require('./ExampleInput.jsx')
 
 
@@ -160,7 +161,7 @@ module.exports = React.createClass({
                     <SparklineGrid {...this.props} clickTile={this.clickTile} q_data={q_data} col_no={3} width={this.props.width} facet_datas={this.props.facet_datas}/>
                    </div>
     } else { 
-      main_panel = <DocViewer f={this.state.f} handleBinClick={this.handleBinClick} yr_start={this.state.yr_start} mo_start={this.state.mo_start} dy_start={this.state.dy_start} yr_end={this.state.yr_end} mo_end={this.state.mo_end} dy_end={this.state.dy_end} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>
+      main_panel = <DocViewer f={this.state.f} handleBinClick={this.handleBinClick} start_selected={this.state.start_selected} end_selected={this.state.end_selected} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>
     }
     let chart;
     if (this.props.total_docs_for_q > 0){

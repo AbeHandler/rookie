@@ -9,14 +9,14 @@ var _ = require('lodash');
 var moment = require('moment');
 
 module.exports = React.createClass({
-    
-    handleBinDocsZoom: function(e){
-        this.props.handleBinDocsZoom(e, this.props.bin_size);
-    },
 
     render: function(){
-        let binsize = this.props.bin_size;
-        let docs = _.sortBy(this.props.docs, function(d){
+        
+        let docs = _.filter(this.props.docs, function(d) { 
+            return moment(d.pubdate) > moment(this.props.start_selected, "YYYY-MM-DD") && 
+                   moment(d.pubdate) < moment(this.props.end_selected, "YYYY-MM-DD")
+        }, this);
+        docs = _.sortBy(docs, function(d){
             return moment(d.pubdate);
         });
         if (docs.length < 1){
@@ -27,14 +27,7 @@ module.exports = React.createClass({
            return {__html: doc.snippet};
         };
         let props = this.props;
-        var isSelected = function(key, binsize) {
-           if (binsize == "year" & props.yr_start.toString() == props.yr_end.toString()){
-                if (props.yr_start.toString() == key){
-                    return true;
-                }
-           }
-           return false;
-        };
+
         let rowStyle = {
             width:"100%",
             overflow:"hidden"

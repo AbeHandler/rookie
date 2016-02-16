@@ -114,8 +114,6 @@ module.exports = React.createClass({
     }
     let start_pos = scale(new Date(this.props.start_selected));
     let end_pos = scale(new Date(this.props.end_selected));
-    console.log(start_pos);
-    console.log(end_pos);
     if (start_pos < scale(_.first(this.props.keys))){
         start_pos = scale(_.first(this.props.keys));
     }
