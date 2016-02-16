@@ -48,7 +48,7 @@ module.exports = React.createClass({
     let scale = this.get_x_scale();
     let x_l = scale(d1);
     let x_r = scale(d2);
-    return {x_l: x_l, x_r: x_r, drag_l: false, drag_r: false};
+    return {x_l: x_l, x_r: x_r, drag_l: false, drag_r: false, mouse_to_r_d: -1, mouse_to_l_d: -1};
   },
 
   lateralize: function (i, lateral_scale) {
@@ -57,13 +57,31 @@ module.exports = React.createClass({
 
   set_X: function(e_pageX, lateral_scale) {
     let p = lateral_scale.invert(e_pageX);
-    if (this.state.drag_l == true){
+    if (this.state.drag_l == true && this.state.drag_r == false){
       this.props.set_date(p, "start");
     }
-    if (this.state.drag_r == true){
+    if (this.state.drag_r == true && this.state.drag_l == false){
       this.props.set_date(p, "end");
     }
-    
+    if (this.state.drag_r == true && this.state.drag_r == true){
+      //set distance from mouse position to edges
+      console.log("i think measure the distance to edges on mouse down");
+      console.log("then on move, maintain the edges as far away from mouse as when clicd");    
+      let lateral_scale = this.get_x_scale();
+      let start_pos = lateral_scale(new Date(this.props.start_selected));
+      let end_pos = lateral_scale(new Date(this.props.end_selected));
+      if (this.state.mouse_to_r_d == -1 && this.state.mouse_to_l_d == -1){
+        let rd = end_pos - e_pageX; //end position minus mouse position = right distance
+        let ld = e_pageX - start_pos;
+        this.setState({mouse_to_r_d: rd, mouse_to_l_d: ld});
+      }
+      this.props.set_date(lateral_scale.invert(e_pageX + this.state.mouse_to_r_d), "end");
+      this.props.set_date(lateral_scale.invert(e_pageX - this.state.mouse_to_l_d), "start");
+    }
+  },
+
+  toggle_rect: function(e){
+    this.setState({drag_l : true, drag_r : true});
   },
 
   toggle_drag_start: function(e){
@@ -75,8 +93,8 @@ module.exports = React.createClass({
   },
 
   toggle_drag_stop: function(e){
-    this.setState({drag_l : false});
-    this.setState({drag_r : false});
+    this.setState({drag_l : false, mouse_to_r_d: -1, mouse_to_l_d: -1});
+    this.setState({drag_r : false, mouse_to_r_d: -1, mouse_to_l_d: -1});
   },
 
   get_w: function(l, r){
@@ -96,7 +114,6 @@ module.exports = React.createClass({
     let bar_width = this.get_bar_width();
     let ps = this.get_path_string(this.props.q_data);
 
-    let scale = this.get_x_scale();
     let x_l = lateral_scale(new Date(_.first(this.props.keys)));
     let x_r = lateral_scale(new Date(_.last(this.props.keys)));
 
@@ -112,13 +129,13 @@ module.exports = React.createClass({
     if (this.state.drag_l == true){
       stroke_color_l = "red";
     }
-    let start_pos = scale(new Date(this.props.start_selected));
-    let end_pos = scale(new Date(this.props.end_selected));
-    if (start_pos < scale(_.first(this.props.keys))){
-        start_pos = scale(_.first(this.props.keys));
+    let start_pos = lateral_scale(new Date(this.props.start_selected));
+    let end_pos = lateral_scale(new Date(this.props.end_selected));
+    if (start_pos < lateral_scale(_.first(this.props.keys))){
+        start_pos = lateral_scale(_.first(this.props.keys));
     }
     if (end_pos > this.props.width){
-        end_pos = scale(new Date(_.last(this.props.keys)));
+        end_pos = lateral_scale(new Date(_.last(this.props.keys)));
     }
     return (
 
@@ -127,7 +144,7 @@ module.exports = React.createClass({
         <path d={ps} fill="#0028a3" opacity=".25" stroke="grey"/>
         <path d={fs} fill="rgb(179, 49, 37)" opacity=".75" stroke="black"/>
 
-        <rect y="0" x={start_pos} opacity=".2" height={this.props.height} width={this.get_w(start_pos, end_pos)} strokeWidth="4" fill="grey" />  
+        <rect onMouseDown={this.toggle_rect} y="0" x={start_pos} opacity=".2" height={this.props.height} width={this.get_w(start_pos, end_pos)} strokeWidth="4" fill="grey" />  
 
         <line onMouseDown={this.toggle_drag_start} x1={start_pos} y1={this.props.height / 4} x2={start_pos} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="20"/>
         <line onMouseDown={this.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 4} x2={end_pos} y2={this.props.height * .75} stroke={stroke_color_r} strokeWidth="20"/>
