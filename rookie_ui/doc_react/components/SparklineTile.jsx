@@ -9,8 +9,18 @@ var _ = require('lodash');
 
 var Sparkline = require('./Sparkline.jsx');
 
+var ReactDOM = require('react-dom');
+
 module.exports = React.createClass({
 
+  componentDidMount: function () {
+     var width = ReactDOM.findDOMNode(this).offsetWidth /2;
+     this.setState({w: width});
+  },
+
+  getInitialState: function() {
+    return {w: 0};
+  },
 
   handleClick: function(){
     this.props.clickTile(this.props.facet);
@@ -45,14 +55,15 @@ module.exports = React.createClass({
       paddingLeft: "10%",
       color:"#621b14"
     }
-
+    let w = this.state.w;
+    let h = w / this.props.w_h_ratio;
     return (
           <div onClick={this.handleClick} style={big_w}>
             <div style={l_style}>
             <div style={facet_title_style}>{this.props.facet}</div>
             </div>
             <div style={r_style}>
-            <Sparkline q_data={this.props.q_data} f_data={this.props.f_datas} width={100} height={100}/>
+            <Sparkline q_data={this.props.q_data} f_data={this.props.f_datas} width={w} height={h}/>
             </div>
           </div>
     );

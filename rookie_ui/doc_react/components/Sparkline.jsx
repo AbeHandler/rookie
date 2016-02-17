@@ -4,6 +4,7 @@ var React = require('react');
 var d3 = require('d3');
 var _ = require('lodash');
 
+
 module.exports = React.createClass({
 
     get_path_string: function(input_data){
@@ -22,7 +23,7 @@ module.exports = React.createClass({
             output = output + " L " + x_scale(i) + " " + diff;
         }
         output = output + "L " + x_scale(input_data.length - 1) + " " + bottom;
-        return output; // + "L 5 30 L 10 40 L 15 30 L 20 20 L 25 40 L 25 50 Z";
+        return output; 
     },
 
     render: function(){
