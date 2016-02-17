@@ -41,8 +41,9 @@ module.exports = React.createClass({
     max = moment(_.last(this.props.chart_bins), "YYYY-MM-DD");
     let start = min.format("YYYY-MM-DD");
     let end = max.format("YYYY-MM-DD");
+
     //TODO: if no results, this fails
-    return {start_selected:start, end_selected:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview"};
+    return {all_results: [], start_selected:start, end_selected:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview"};
   },
 
   resultsToDocs: function(results){
@@ -115,13 +116,38 @@ module.exports = React.createClass({
     this.setState({f: -1, mode:"overview", yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD")});
   },
 
+  turnOnDocMode: function(){
+    if (this.state.f == -1){
+        let url = "/get_doclist?q=" + this.props.q + "&corpus=" + this.props.corpus;
+        $.ajax({
+              url: url,
+              dataType: 'json',
+              cache: true,
+              success: function(d) {
+                console.log(d);
+                let tmp = this.state.vars;
+                let max_filtered = moment(d["max_filtered"], "YYYY-MM-DD");
+                let min_filtered = moment(d["min_filtered"], "YYYY-MM-DD");
+                this.setState({dy_end: max_filtered.format("DD"), dy_start: min_filtered.format("DD"), mo_end: max_filtered.format("MM"), mo_start: min_filtered.format("MM"), yr_start: min_filtered.format("YYYY"), yr_end: max_filtered.format("YYYY"),f: -1, mode: "docs", all_results: d["doclist"], f_counts: []});
+              }.bind(this),
+              error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+              }.bind(this)
+        });
+    }else{
+      this.setState({mode:"docs"});
+    }
+  },
+
   render: function() {
     let f = this.state.f;
     let q = this.props.q;
     let qX = this.qX;
     let bin_size = "year"; //default binsize
     // docs = those that match q, f & t. all_results = what comes from browser.
-    let docs = this.resultsToDocs(this.props.all_results);
+    let docs = this.resultsToDocs(this.state.all_results);
+    console.log(this.state);
+    console.log(docs);
 
     let y_scroll = {
         overflowY: "scroll",
@@ -162,7 +188,7 @@ module.exports = React.createClass({
                     <SparklineGrid {...this.props} clickTile={this.clickTile} q_data={q_data} col_no={3} facet_datas={this.props.facet_datas}/>
                    </Panel>
     } else { 
-      main_panel = <DocViewer f={this.state.f} handleBinClick={this.handleBinClick} start_selected={this.state.start_selected} end_selected={this.state.end_selected} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>
+      main_panel = <DocViewer f={this.state.f} handleBinClick={this.handleBinClick} start_selected={this.state.start_selected} end_selected={this.state.end_selected} all_results={this.state.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>
     }
     let chart;
     if (this.props.total_docs_for_q > 0){
@@ -175,7 +201,7 @@ module.exports = React.createClass({
         <div>
             <QueryBar corpus={this.props.corpus}/>
              <Panel>
-             <ChartTitle fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end}/>
+             <ChartTitle turnOnDocMode={this.turnOnDocMode} fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q}/>
              </Panel>
              {chart}
             <div>

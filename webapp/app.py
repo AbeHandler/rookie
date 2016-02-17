@@ -8,7 +8,7 @@ import datetime
 import json
 import itertools
 from dateutil.parser import parse
-from webapp.models import results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, filter_results_with_binary_dataframe
+from webapp.models import results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, filter_results_with_binary_dataframe, results_min_max
 from flask import Flask
 from flask import request
 from facets.query_sparse import get_facets_for_q, load_all_data_structures
@@ -33,8 +33,25 @@ cache = pylru.lrucache(1000)
 
 # AH: TODO check w/ brendan.
 
+@app.route("/get_doclist", methods=['GET'])
+def get_doclist():
+    '''
+    Just post for Q's doclist
+    '''
+    params = Models.get_parameters(request)
+
+    results = Models.get_results(params)
+    
+    out = Models.get_doclist(results, params.q, None, params.corpus, aliases=[])
+
+    pubdates = load_all_data_structures(params.corpus)["pubdates"]
+    
+    minmax = results_min_max(results, pubdates)
+
+    return json.dumps({"doclist":out, "min_filtered": minmax["min"], "max_filtered": minmax["max"]})
+
 @app.route("/get_docs", methods=['GET'])
-def get_doc_list():
+def get_docs():
 
     params = Models.get_parameters(request)
 

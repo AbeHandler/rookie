@@ -9,13 +9,6 @@ var moment = require('moment');
 var ClickableQF = require('./ClickableQF.jsx');
 
 module.exports = React.createClass({
-  
-    getDuration: function(){
-        let start = moment(this.props.yr_start + "-" + this.props.mo_start + "-" + this.props.dy_start);
-        let end = moment(this.props.yr_end + "-" + this.props.mo_end + "-" + this.props.dy_end);
-        var duration = moment.duration(end.diff(start));
-        return duration;
-    },
 
     getStoryPhrase: function (argument) {
         if ((this.props.ndocs) == 1) {
@@ -26,30 +19,12 @@ module.exports = React.createClass({
     },
 
     getTemporalStatus: function (){
-        let duration = this.getDuration();
-        if (parseInt(this.props.dy_start) === 1 & parseInt(this.props.mo_start) === 1 & this.props.dy_end == "31" & this.props.mo_end == "12"){
-            return " in " + this.props.yr_start;
-        } else if (Math.floor(duration.asDays()) < 32 & Math.floor(duration.asDays()) > 28){
-            let end = moment(this.props.mo_end + "-" + this.props.dy_end + "-" + this.props.yr_end, "MM-DD-YYYY");
-            return " in " + end.format("MMM YYYY");
-        } else if (Math.floor(duration.asDays()) > 364 & Math.floor(duration.asDays()) < 366){
-            return " in " + start.format("YYYY");
-        } else {
-            return ""; //should not fire
-        }
-    },
-
-    getStatusWithF: function (){
-
-    },
-
-    getStatusStart: function (){
-        return "Found " + this.props.ndocs + " " + this.getStoryPhrase() + " for ";
+        console.log("redo this using moment(start, YYYY-DD, true).isValid etc");
     },
 
     render: function() {
 
-        let status_start = this.getStatusStart();
+        let status_start = <span>Found {this.props.ndocs} <span onClick={this.props.turnOnDocMode} style={{textDecoration: "underline"}}>{this.getStoryPhrase()}</span> for </span>;
             
         let temporal = this.getTemporalStatus();
 

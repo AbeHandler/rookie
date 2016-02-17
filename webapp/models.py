@@ -55,6 +55,11 @@ def filter_results_with_binary_dataframe(results, facet, df):
         assert h in results
     return hits
 
+def results_min_max(results, pubdates):
+    q_pubdates = [pubdates[r] for r in results]
+    min_filtered = min(q_pubdates).strftime("%Y-%m-%d")
+    max_filtered = max(q_pubdates).strftime("%Y-%m-%d")
+    return {"min": min_filtered, "max": max_filtered}
 
 @memory.cache
 def results_to_doclist(results, q, f, corpus, pubdates, aliases):
