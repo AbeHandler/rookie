@@ -52,7 +52,7 @@ module.exports = React.createClass({
             <div style={facet_title_style}>{this.props.facet}</div>
             </div>
             <div style={r_style}>
-            <Sparkline q_data={this.props.q_data} f_data={this.props.f_datas} width={width} height={height}/>
+            <Sparkline q_data={this.props.q_data} f_data={this.props.f_datas} width={100} height={100}/>
             </div>
           </div>
     );

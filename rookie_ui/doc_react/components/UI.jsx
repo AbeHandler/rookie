@@ -17,6 +17,7 @@ var ChartTitle = require('./ChartTitle.jsx');
 var SparklineGrid = require('./SparklineGrid.jsx');
 var QueryBar = require('./QueryBar.jsx');
 var $ = require('jquery');
+var Panel = require('react-bootstrap/lib/Panel');
 //var ExampleInput = require('./ExampleInput.jsx')
 
 
@@ -156,10 +157,10 @@ module.exports = React.createClass({
 
     let f_couts = this.state.f_counts;
     if (this.state.mode != "docs" & this.props.total_docs_for_q > 0){
-      main_panel = <div>
+      main_panel = <Panel>
                     <Status fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} {...this.props}/>
-                    <SparklineGrid {...this.props} clickTile={this.clickTile} q_data={q_data} col_no={3} width={this.props.width} facet_datas={this.props.facet_datas}/>
-                   </div>
+                    <SparklineGrid {...this.props} clickTile={this.clickTile} q_data={q_data} col_no={3} facet_datas={this.props.facet_datas}/>
+                   </Panel>
     } else { 
       main_panel = <DocViewer f={this.state.f} handleBinClick={this.handleBinClick} start_selected={this.state.start_selected} end_selected={this.state.end_selected} all_results={this.props.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>
     }
@@ -173,7 +174,9 @@ module.exports = React.createClass({
     return(
         <div>
             <QueryBar corpus={this.props.corpus}/>
+             <Panel>
              <ChartTitle fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q} dy_start={this.state.dy_start} dy_end={this.state.dy_end} mo_start={this.state.mo_start} mo_end={this.state.mo_end} yr_start={this.state.yr_start} yr_end={this.state.yr_end}/>
+             </Panel>
              {chart}
             <div>
               {main_panel}
