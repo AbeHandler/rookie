@@ -4,23 +4,41 @@ Chart.jsx
 */
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var d3 = require('d3');
 var _ = require('lodash');
 var moment = require('moment');
 
 var Axis = require('./Axis.jsx');
 
+var Panel = require('react-bootstrap/lib/Panel');
+var Row = require('react-bootstrap/lib/Row');
+var Col = require('react-bootstrap/lib/Col');
+
 module.exports = React.createClass({
 
-    get_x_scale: function(){
+  componentDidMount: function () {
+     var width = ReactDOM.findDOMNode(this).offsetWidth - 30;
+     this.setState({w: width});
+  },
+
+  get_x_scale: function(){
       let str = new Date(_.first(this.props.keys));
       let end = new Date(_.last(this.props.keys));
-      return d3.time.scale()
+      try{
+          return d3.time.scale()
                             .domain([str, end])
-                            .range([0, this.props.width]);
-    },
+                            .range([0, this.state.w]);
+      } catch(e){
+          return d3.time.scale()
+                            .domain([str, end])
+                            .range([0, 0]); //has not loaded yet
+      }
+
+  },
 
     get_y_scale: function(){
+      let h = this.state.w / this.props.w_h_ratio;
       return d3.scale.linear()
                             .domain([0, _.max(this.props.datas)])
                             .range([0, this.props.height])
@@ -48,7 +66,7 @@ module.exports = React.createClass({
     let scale = this.get_x_scale();
     let x_l = scale(d1);
     let x_r = scale(d2);
-    return {x_l: x_l, x_r: x_r, drag_l: false, drag_r: false, mouse_to_r_d: -1, mouse_to_l_d: -1};
+    return {w: 0, x_l: x_l, x_r: x_r, drag_l: false, drag_r: false, mouse_to_r_d: -1, mouse_to_l_d: -1};
   },
 
   lateralize: function (i, lateral_scale) {
@@ -57,16 +75,8 @@ module.exports = React.createClass({
 
   set_X: function(e_pageX, lateral_scale) {
     let p = lateral_scale.invert(e_pageX);
-    if (this.state.drag_l == true && this.state.drag_r == false){
-      this.props.set_date(p, "start");
-    }
-    if (this.state.drag_r == true && this.state.drag_l == false){
-      this.props.set_date(p, "end");
-    }
-    if (this.state.drag_r == true && this.state.drag_r == true){
-      //set distance from mouse position to edges
-      console.log("i think measure the distance to edges on mouse down");
-      console.log("then on move, maintain the edges as far away from mouse as when clicd");    
+    if (this.state.drag_r == true && this.state.drag_l == true){
+      //set distance from mouse position to edges  
       let lateral_scale = this.get_x_scale();
       let start_pos = lateral_scale(new Date(this.props.start_selected));
       let end_pos = lateral_scale(new Date(this.props.end_selected));
@@ -77,6 +87,10 @@ module.exports = React.createClass({
       }
       this.props.set_date(lateral_scale.invert(e_pageX + this.state.mouse_to_r_d), "end");
       this.props.set_date(lateral_scale.invert(e_pageX - this.state.mouse_to_l_d), "start");
+    } else if (this.state.drag_r == true && this.state.drag_l == false){
+      this.props.set_date(p, "end");
+    } else if (this.state.drag_l == true && this.state.drag_r == false){
+      this.props.set_date(p, "start");
     }
   },
 
@@ -102,7 +116,7 @@ module.exports = React.createClass({
   },
 
   get_bar_width: function(){
-    return this.props.width / this.props.datas.length;
+    return this.state.w / this.props.datas.length;
   },
 
   render: function() {
@@ -134,13 +148,15 @@ module.exports = React.createClass({
     if (start_pos < lateral_scale(_.first(this.props.keys))){
         start_pos = lateral_scale(_.first(this.props.keys));
     }
-    if (end_pos > this.props.width){
+    if (end_pos > this.state.w){
         end_pos = lateral_scale(new Date(_.last(this.props.keys)));
     }
     return (
 
-        <div onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={this.toggle_drag_stop} onMouseUp={this.toggle_drag_stop}>
-        <svg width={this.props.width} height={this.props.height}>
+        <Panel onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={this.toggle_drag_stop} onMouseUp={this.toggle_drag_stop}>
+        <Row>
+        <Col xs={12}>
+        <svg width={this.state.w} height={this.props.height}>
         <path d={ps} fill="#0028a3" opacity=".25" stroke="grey"/>
         <path d={fs} fill="rgb(179, 49, 37)" opacity=".75" stroke="black"/>
 
@@ -149,8 +165,10 @@ module.exports = React.createClass({
         <line onMouseDown={this.toggle_drag_start} x1={start_pos} y1={this.props.height / 4} x2={start_pos} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="20"/>
         <line onMouseDown={this.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 4} x2={end_pos} y2={this.props.height * .75} stroke={stroke_color_r} strokeWidth="20"/>
         </svg>
-        <Axis show_nth_tickmark="12" q={this.props.q} keys={this.props.keys} lateral_scale={lateral_scale} height="50" width={this.props.width} q_counts={this.props.q_data} lateralize={lateralize}/>
-        </div>
+        <Axis show_nth_tickmark="12" q={this.props.q} keys={this.props.keys} lateral_scale={lateral_scale} height="50" width={this.state.w} q_counts={this.props.q_data} lateralize={lateralize}/>
+        </Col>
+        </Row>
+        </Panel>
           
     );
   }

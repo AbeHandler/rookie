@@ -9,14 +9,6 @@ var _ = require('lodash');
 var moment = require('moment');
 
 module.exports = React.createClass({
-  
-  shouldComponentUpdate: function(nextProps, nextState){
-     if(_.isEqual(nextProps.q, this.props.q)){
-      return false;
-     }else{
-      return true;
-     }
-  },
 
   i_to_date: function(i){
     if (i % this.props.show_nth_tickmark == 0){

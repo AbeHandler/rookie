@@ -7,7 +7,7 @@ var UI = require('./components/UI.jsx');
 
 var cache = {};
 
-var width = document.body.clientWidth - 50;
+var width = document.body.clientWidth;
 
 var w_h_ratio = 9;  // width % height for sparkline or chart. used to set aspect ratio
 

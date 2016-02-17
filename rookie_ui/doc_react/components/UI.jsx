@@ -165,7 +165,7 @@ module.exports = React.createClass({
     }
     let chart;
     if (this.props.total_docs_for_q > 0){
-      chart = <Chart qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio} width={this.props.width} keys={chart_bins} datas={q_data}/>
+      chart = <Chart qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
     }else{
       chart = "";
     }

@@ -130,5 +130,5 @@ gulp.task('browserSync', function() {
 })
 
 gulp.task('w', function() {
-  gulp.watch(paths.scripts, ['b']);
+  gulp.watch(paths.scripts, ['js']);
 });
