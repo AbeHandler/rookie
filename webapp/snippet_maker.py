@@ -3,17 +3,27 @@ import datetime
 # import ipdb
 import itertools
 import time
-from webapp.classes import Sentence, Document
+#from webapp.classes import Sentence, Document
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import desc
-from webapp.classes import CONNECTION_STRING
+from webapp import CONNECTION_STRING
 
 start_time = time.time()
 engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
 print "[*] building the session took {}".format(start_time - time.time())
+
+def timeit(func):
+    @functools.wraps(func)
+    def newfunc(*args, **kwargs):
+        startTime = time.time()
+        func(*args, **kwargs)
+        elapsedTime = time.time() - startTime
+        print('function [{}] finished in {} ms'.format(
+            func.__name__, int(elapsedTime * 1000)))
+    return newfunc
 
 def get_q_and_f(docid, q, f):
     #return session.query(Sentence).filter_by(articleid=docid).order_by(Sentence.sentence_no.desc()).limit(2).all()

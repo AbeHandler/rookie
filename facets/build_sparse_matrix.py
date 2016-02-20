@@ -74,7 +74,7 @@ def count_facets():
             counter += 1
             if counter % 1000 == 0:
                 sys.stdout.write("...%s" % counter); sys.stdout.flush()
-            ngram = get_doc_metadata(docid)["ngrams"]
+            ngram = get_doc_metadata(docid, args.corpus)["ngrams"]
             for n in ngram:
                 ngram_count[n] += 1        
 
@@ -117,14 +117,14 @@ def build_matrix(docids, ok_ngrams):
     for dinex, docid in enumerate(docids):
         if dinex % 1000 == 0:
             sys.stdout.write("...%s" % dinex); sys.stdout.flush()
-        pubdate = datetime.datetime.strptime(get_doc_metadata(docid)["pubdate"], '%Y-%m-%d')
+        pubdate = datetime.datetime.strptime(get_doc_metadata(docid, args.corpus)["pubdate"], '%Y-%m-%d')
         pubdates[docid] = pubdate
-        ngram = set([str(j) for j in get_doc_metadata(docid)["ngrams"] if j in ok_ngrams])
+        ngram = set([str(j) for j in get_doc_metadata(docid, args.corpus)["ngrams"] if j in ok_ngrams])
         docid = int(docid)
         ngrams_in_doc = {}
         for n in ngram:
             ngrams_in_doc[ngram_to_slot[n]] = 1
-            string_to_pubdate_index[n].append(get_doc_metadata(docid)["pubdate"])
+            string_to_pubdate_index[n].append(get_doc_metadata(docid, args.corpus)["pubdate"])
             ngram_counter[n] += 1
         go("""INSERT INTO count_vectors (docid, CORPUSID, data) VALUES (%s, %s, %s)""", dinex, int(CORPUSID), ujson.dumps(ngrams_in_doc))
     session.commit()
@@ -150,10 +150,6 @@ def filter(input, n):
 
 if __name__ == '__main__':
     all_facets = count_facets()
-    options = [1, 5,10,15,20,25]
-    print ""
-    for n in options:
-        ngram = filter(all_facets, n)
-        print "Found {} ngrams with a filter of {}".format(len(ngram), n)
-    build_matrix(ALLDOCIDS, filter(all_facets, 10))
+    ngram = filter(all_facets, 5)
+    build_matrix(ALLDOCIDS, ngram)
 

@@ -240,7 +240,11 @@ def load(index_location, processed_location):
         for line in raw:
             line_json = ujson.loads(line)
             headline = line_json["headline"]
-            pubdate = parse(line_json["pubdate"])
+            try:
+                pubdate = parse(line_json["pubdate"])
+            except:
+                tm = line_json["pubdate"].split("T")[0].strip('"') # wierdness i phone tweets
+                pubdate = parse(tm)
             procesed_text = line_json["text"]
             try:
                 url = line_json["url"]

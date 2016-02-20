@@ -52,7 +52,7 @@ function bundle() {
     .pipe(sourcemaps.init({loadMaps: true})) // loads map from browserify file
        // Add transformation tasks to the pipeline here.
     .pipe(sourcemaps.write('.')) // writes .map file
-    .pipe(gulp.dest('../../webapp/static/js/'));
+    .pipe(gulp.dest('../webapp/static/js/'));
 }
 
 gulp.task('js', bundle); // so you can run `gulp js` to build the file
@@ -66,7 +66,7 @@ gulp.task('css', function() {
     .pipe(cssnano())
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('app/css'))
-    .pipe(gulp.dest('../../webapp/static/css'));
+    .pipe(gulp.dest('../webapp/static/css'));
 });
 
 gulp.task('sass', function() {
@@ -74,7 +74,7 @@ gulp.task('sass', function() {
     .pipe(rename({suffix: '.min'}))
     .pipe(cssnano())
     .pipe(gulp.dest('app/css'))
-    .pipe(gulp.dest('../../webapp/static/css'));
+    .pipe(gulp.dest('../webapp/static/css'));
 });
 
 gulp.task('b', ['css', 'sass'], function() {
@@ -85,7 +85,7 @@ gulp.task('b', ['css', 'sass'], function() {
         .pipe(source('bundle.js'))
         // Start piping stream to tasks!
         .pipe(gulp.dest('app/js'))
-        .pipe(gulp.dest('../../webapp/static/js'))
+        .pipe(gulp.dest('../webapp/static/js'))
         // Reloading the stream
         .pipe(browserSync.reload({
            stream: true

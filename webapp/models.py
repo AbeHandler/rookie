@@ -16,7 +16,7 @@ from tempfile import mkdtemp
 from whoosh.qparser import QueryParser
 from dateutil.relativedelta import relativedelta
 from webapp.snippet_maker import get_snippet2
-from webapp.classes import CONNECTION_STRING
+from webapp import CONNECTION_STRING
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -61,7 +61,6 @@ def results_min_max(results, pubdates):
     max_filtered = max(q_pubdates).strftime("%Y-%m-%d")
     return {"min": min_filtered, "max": max_filtered}
 
-@memory.cache
 def results_to_doclist(results, q, f, corpus, pubdates, aliases):
     '''
     Start w/ search results. filter based on params. get a doclist back.
@@ -71,7 +70,8 @@ def results_to_doclist(results, q, f, corpus, pubdates, aliases):
     df = make_dataframe(q, [f], results, q_pubdates, aliases)
     results = filter_results_with_binary_dataframe(results, f, df)
     fdoc_list = Models.get_doclist(results, q, f, corpus, aliases=aliases)
-    return [pubdates[r] for r in results], fdoc_list
+    filtered_pubdates = [pubdates[r] for r in results]
+    return filtered_pubdates, fdoc_list
 
 
 def get_pubdates_for_ngram(ngram_str):
@@ -94,6 +94,7 @@ def get_doc_metadata(docid, corpus):
     corpusid = getcorpusid(corpus)
     row = session.connection().execute("select data from doc_metadata where docid=%s and corpusid=%s", docid, corpusid).fetchone()
     return row[0]
+
 
 def get_keys(q_pubdates, bin):
     '''
@@ -213,13 +214,6 @@ class Models(object):
         except:
             output.f = None
     
-        # TODO : no idea what this argument does. AH 1.31.16
-        try:
-            output.zoom = request.args.get('zoom')
-        except:
-            output.zoom = "year" # default zoom to a year
-
-        # TODO : no idea what this argument does. AH 1.31.16
         try:
             output.corpus = request.args.get('corpus')
         except:
@@ -240,6 +234,7 @@ class Models(object):
     def get_doclist(results, q, f, corpus, aliases=None):
         doc_results = []
 
+        start = time.time()
         # AH: assuming the order of results is not changed since coming out from IR system
         for whoosh_index, r in enumerate(results):
             d = get_doc_metadata(r, corpus)
@@ -254,6 +249,7 @@ class Models(object):
                 'day': pubdate.day,
                 'snippet': Models.get_snippet(r, corpus, q, f, aliases=aliases).encode("ascii", "ignore")
             })
+        print "this took {}".format(time.time() - start)
         return doc_results
 
 

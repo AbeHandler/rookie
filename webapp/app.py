@@ -57,9 +57,9 @@ def get_docs():
 
     results = Models.get_results(params)
 
-    fstart = time.time()
-    filtered_pubdates, doc_list = results_to_doclist(results, params.q, params.f, params.corpus, load_all_data_structures(params.corpus)["pubdates"], aliases=tuple([])) #TODO aliases
-    print "building doclist time = {}".format(time.time() - fstart)
+    pds = load_all_data_structures(params.corpus)["pubdates"]
+
+    filtered_pubdates, doc_list = results_to_doclist(results, params.q, params.f, params.corpus, pds, aliases=tuple([])) #TODO aliases
 
     q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][r] for r in results]
     binsize = "month"

@@ -32,7 +32,7 @@ import whoosh.query
 '''build connection to db'''
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from webapp.classes import CONNECTION_STRING
+from webapp import CONNECTION_STRING
 engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
