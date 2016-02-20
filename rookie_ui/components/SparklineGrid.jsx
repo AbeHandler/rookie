@@ -31,7 +31,7 @@ module.exports = React.createClass({
                    return <Row key={i} style={{height:50}} className="show-grid">
                    {chunks[value].map(function(k1, v1){
                       return <Col xs={4}>
-                              <SparklineTile clickTile={clickTile} key={k1} facet={k1} w_h_ratio={w_h_ratio} q_data={q_data} f_datas={facet_datas[k1]}/>
+                              <SparklineTile style={{height:50}} clickTile={clickTile} key={k1} facet={k1} w_h_ratio={w_h_ratio} q_data={q_data} f_datas={facet_datas[k1]}/>
                               </Col>
                     })}
                    </Row>

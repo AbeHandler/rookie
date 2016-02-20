@@ -53,7 +53,9 @@ module.exports = React.createClass({
     let facet_title_style = {
       paddingTop: "10%",
       paddingLeft: "10%",
-      color:"#621b14"
+      color:"#621b14",
+      textOverflow:"clip",
+      whiteSpace: "nowrap"
     }
     let w = this.state.w;
     let h = w / this.props.w_h_ratio;
