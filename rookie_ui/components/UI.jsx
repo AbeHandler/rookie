@@ -40,7 +40,7 @@ module.exports = React.createClass({
     max = moment(_.last(this.props.chart_bins), "YYYY-MM-DD");
     let start = min.format("YYYY-MM-DD");
     let end = max.format("YYYY-MM-DD");
-    return {chart_mode: "intro", all_results: [], start_selected:start, end_selected:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview"};
+    return {chart_mode: "intro", all_results: [], start_selected:start, end_selected:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, mode:"overview"};
   },
 
   resultsToDocs: function(results){
@@ -94,15 +94,16 @@ module.exports = React.createClass({
 
   clickTile: function (e) {
     let url = "/get_docs?q=" + this.props.q + "&f=" + e + "&corpus=" + this.props.corpus;
+        console.log("sss");
+        let minbin = _.head(this.props.chart_bins);
+        let maxbin = _.last(this.props.chart_bins)
         $.ajax({
               url: url,
               dataType: 'json',
               cache: true,
               success: function(d) {
                 let tmp = this.state.vars;
-                let max_filtered = moment(d["max_filtered"], "YYYY-MM-DD");
-                let min_filtered = moment(d["min_filtered"], "YYYY-MM-DD");
-                this.setState({dy_end: max_filtered.format("DD"), dy_start: min_filtered.format("DD"), mo_end: max_filtered.format("MM"), mo_start: min_filtered.format("MM"), yr_start: min_filtered.format("YYYY"), yr_end: max_filtered.format("YYYY"),f: e, mode: "docs", f_list: d["doclist"], f_counts: facet_datas[e]}, this.check_mode);
+                this.setState({start_selected: minbin, end_selected: maxbin, f: e, mode: "docs", f_list: d["doclist"], f_counts: facet_datas[e]}, this.check_mode);
               }.bind(this),
               error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -119,9 +120,9 @@ module.exports = React.createClass({
   fX: function(){
     let min;
     let max;
-    min = moment(this.props.first_story_pubdate, "YYYY-MM-DD"); 
-    max = moment(this.props.last_story_pubdate, "YYYY-MM-DD");
-    this.setState({f: -1, mode:"overview", yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD")});
+    min = moment(this.props.first_story_pubdate, "YYYY-MM-DD").format("YYYY-MM-DD"); 
+    max = moment(this.props.last_story_pubdate, "YYYY-MM-DD").format("YYYY-MM-DD");
+    this.setState({f: -1, mode:"overview", start_selected: min, end_selected: max});
   },
 
   turnOnDocMode: function(){
@@ -135,7 +136,7 @@ module.exports = React.createClass({
                 let tmp = this.state.vars;
                 let max_filtered = moment(d["max_filtered"], "YYYY-MM-DD");
                 let min_filtered = moment(d["min_filtered"], "YYYY-MM-DD");
-                this.setState({dy_end: max_filtered.format("DD"), dy_start: min_filtered.format("DD"), mo_end: max_filtered.format("MM"), mo_start: min_filtered.format("MM"), yr_start: min_filtered.format("YYYY"), yr_end: max_filtered.format("YYYY"),f: -1, mode: "docs", all_results: d["doclist"], f_counts: []});
+                this.setState({start_selected: min_filtered.format("YYYY-MM-dd"), end_selected: max_filtered.format("YYYY-MM-dd"), f: -1, mode: "docs", all_results: d["doclist"], f_counts: []});
               }.bind(this),
               error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -161,7 +162,6 @@ module.exports = React.createClass({
     let binned_facets = _.sortBy(this.props.binned_facets, function(item) {
         return parseInt(item.key);
     });
-    let yr_start = this.state.yr_start;
     let selected_binned_facets;
 
     let row_height = Math.floor(this.props.height/binned_facets.length);
