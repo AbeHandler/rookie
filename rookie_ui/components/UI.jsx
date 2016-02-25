@@ -49,15 +49,6 @@ module.exports = React.createClass({
     }
     let start = moment(this.state.mo_start + "-" + this.state.dy_start + "-" +  this.state.yr_start, "MM-DD-YYYY");
     let end = moment(this.state.mo_end + "-" + this.state.dy_end + "-" +  this.state.yr_end, "MM-DD-YYYY");
-    let tmp = _.filter(results, function(value, key) {
-        //dates come from server as YYYY-MM-DD
-        if (moment(value.pubdate, "YYYY-MM-DD").format("YYYY") == "2014"){
-          if (moment(value.pubdate, "YYYY-MM-DD").format("MM") == "06"){        
-            return true;
-          }
-        }
-        return false;
-    });
     let out_results =  _.filter(results, function(value, key) {
         //dates come from server as YYYY-MM-DD
         if (moment(value.pubdate, "YYYY-MM-DD").isAfter(start) || moment(value.pubdate, "YYYY-MM-DD").isSame(start)){
@@ -72,8 +63,23 @@ module.exports = React.createClass({
   },
 
   toggle_rect: function (p) {
-    console.log(p);
-    this.setState({chart_mode:"rectangle"});
+    let m = moment(p.toString());
+    var f = moment(this.props.last_story_pubdate);
+    var l = moment(this.props.first_story_pubdate);
+    let diff = moment.duration(f.diff(l, 'days') / 10, 'days');
+    let start = m.clone();
+    let end = m.clone();
+    start.subtract(diff);
+    end.add(diff);
+    let min = moment(_.first(this.props.chart_bins), "YYYY-MM-DD"); 
+    let max = moment(_.last(this.props.chart_bins), "YYYY-MM-DD");
+    if (start < min) {
+       start = min;
+    }
+    if (end > max) {
+       end = max;
+    }
+    this.setState({chart_mode:"rectangle", start_selected:start, end_selected: end});
   },
 
   set_date: function (date, start_end) {
@@ -126,7 +132,6 @@ module.exports = React.createClass({
               dataType: 'json',
               cache: true,
               success: function(d) {
-                console.log(d);
                 let tmp = this.state.vars;
                 let max_filtered = moment(d["max_filtered"], "YYYY-MM-DD");
                 let min_filtered = moment(d["min_filtered"], "YYYY-MM-DD");
@@ -148,8 +153,6 @@ module.exports = React.createClass({
     let bin_size = "year"; //default binsize
     // docs = those that match q, f & t. all_results = what comes from browser.
     let docs = this.resultsToDocs(this.state.all_results);
-    console.log(this.state);
-    console.log(docs);
 
     let y_scroll = {
         overflowY: "scroll",
@@ -190,7 +193,7 @@ module.exports = React.createClass({
     let chart;
     if (this.props.total_docs_for_q > 0){
       if (this.state.chart_mode != "intro"){
-        chart = <Chart chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
+        chart = <Chart toggle_rect={this.toggle_rect} chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
       }else{
         chart = <IntroChart toggle_rect={this.toggle_rect} qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
       }
