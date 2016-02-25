@@ -10,6 +10,7 @@ var moment = require('moment');
 var DocViewer = require('./DocViewer.jsx');
 var Status = require('./Status.jsx');
 var Chart = require('./Chart.jsx');
+var IntroChart = require('./IntroChart.jsx');
 var ChartTitle = require('./ChartTitle.jsx');
 var SparklineGrid = require('./SparklineGrid.jsx');
 var QueryBar = require('./QueryBar.jsx');
@@ -39,9 +40,7 @@ module.exports = React.createClass({
     max = moment(_.last(this.props.chart_bins), "YYYY-MM-DD");
     let start = min.format("YYYY-MM-DD");
     let end = max.format("YYYY-MM-DD");
-
-    //TODO: if no results, this fails
-    return {all_results: [], start_selected:start, end_selected:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview"};
+    return {chart_mode: "intro", all_results: [], start_selected:start, end_selected:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, yr_start:min.format("YYYY"), mo_start:min.format("MM"), dy_start:min.format("DD"), yr_end:max.format("YYYY"), mo_end:max.format("MM"), dy_end:max.format("DD"), mode:"overview"};
   },
 
   resultsToDocs: function(results){
@@ -70,6 +69,11 @@ module.exports = React.createClass({
     });
     return out_results; 
 
+  },
+
+  toggle_rect: function (p) {
+    console.log(p);
+    this.setState({chart_mode:"rectangle"});
   },
 
   set_date: function (date, start_end) {
@@ -174,11 +178,6 @@ module.exports = React.createClass({
 
     let chart_bins = this.props.chart_bins;
 
-    let search_style = {
-      fontWeight: "bold",
-      color: "#0028a3"
-    };
-
     let f_couts = this.state.f_counts;
     if (this.state.mode != "docs" & this.props.total_docs_for_q > 0){
       main_panel = <Panel>
@@ -190,7 +189,12 @@ module.exports = React.createClass({
     }
     let chart;
     if (this.props.total_docs_for_q > 0){
-      chart = <Chart qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
+      if (this.state.chart_mode != "intro"){
+        chart = <Chart chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
+      }else{
+        chart = <IntroChart toggle_rect={this.toggle_rect} qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
+      }
+      
     }else{
       chart = "";
     }

@@ -23,9 +23,14 @@ getInitialState() {
   },
 
   render() {
+    let qstyle = {
+      fontWeight: "bold",
+      color: "#0028a3"
+    };
     return (
       <Input
         type="text"
+        style={qstyle}
         value={this.state.value}
         placeholder="Enter text"
         ref="input"

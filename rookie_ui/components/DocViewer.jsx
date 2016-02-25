@@ -7,6 +7,7 @@ var React = require('react');
 var Story = require('./Story.jsx');
 var _ = require('lodash');
 var moment = require('moment');
+var Panel = require('react-bootstrap/lib/Panel');
 
 module.exports = React.createClass({
 
@@ -33,11 +34,11 @@ module.exports = React.createClass({
             overflow:"hidden"
         };
         return(
-            <div style={rowStyle}>
+            <Panel style={rowStyle}>
                 {docs.map(function(doc, n) {
                     return <div key={n} style={rowStyle}><Story story={doc}/></div>;
                 })}
-           </div>
+           </Panel>
         );
        }
 });
