@@ -47,8 +47,8 @@ module.exports = React.createClass({
     if (this.state.f != -1){
         results = this.state.f_list; 
     }
-    let start = moment(this.state.mo_start + "-" + this.state.dy_start + "-" +  this.state.yr_start, "MM-DD-YYYY");
-    let end = moment(this.state.mo_end + "-" + this.state.dy_end + "-" +  this.state.yr_end, "MM-DD-YYYY");
+    let start = moment(this.state.start_selected, "YYYY-MM-DD");
+    let end = moment(this.state.end_selected, "YYYY-MM-DD");
     let out_results =  _.filter(results, function(value, key) {
         //dates come from server as YYYY-MM-DD
         if (moment(value.pubdate, "YYYY-MM-DD").isAfter(start) || moment(value.pubdate, "YYYY-MM-DD").isSame(start)){
