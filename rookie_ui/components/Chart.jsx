@@ -119,15 +119,8 @@ module.exports = React.createClass({
     return this.state.w / this.props.datas.length;
   },
 
-  report_click: function(e_pageX, lateral_scale) {
-    let p = lateral_scale.invert(e_pageX);
-    this.props.toggle_rect(p);
-  },
-
-
   render: function() {
     let lateralize = this.lateralize;
-    let report_click = this.report_click;
     let lateral_scale = this.get_x_scale();
     let height_scale = this.get_y_scale();
     let set_X = this.set_X;
@@ -158,10 +151,11 @@ module.exports = React.createClass({
     if (end_pos > this.state.w){
         end_pos = lateral_scale(new Date(_.last(this.props.keys)));
     }
+    console.log(this.props.chart_mode);
     let opacity = ".2";
     return (
 
-        <Panel onClick={(e)=> report_click(e.pageX, lateral_scale)} onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={this.toggle_drag_stop} onMouseUp={this.toggle_drag_stop}>
+        <Panel onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={this.toggle_drag_stop} onMouseUp={this.toggle_drag_stop}>
         <Row>
         <Col xs={12}>
         <svg width={this.state.w} height={this.props.height}>
