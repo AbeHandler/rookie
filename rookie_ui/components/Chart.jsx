@@ -9,7 +9,7 @@ var d3 = require('d3');
 var _ = require('lodash');
 var moment = require('moment');
 
-var Axis = require('./Axis.jsx');
+var XAxis = require('./XAxis.jsx');
 
 var Panel = require('react-bootstrap/lib/Panel');
 var Row = require('react-bootstrap/lib/Row');
@@ -28,7 +28,7 @@ module.exports = React.createClass({
       try{
           return d3.time.scale()
                             .domain([str, end])
-                            .range([0, this.state.w]);
+                            .range([0, this.state.w - this.props.y_axis_width]);
       } catch(e){
           return d3.time.scale()
                             .domain([str, end])
@@ -119,6 +119,7 @@ module.exports = React.createClass({
     this.props.validClickEnd(p);
   },
 
+  //TODO: lambda refactor
   get_w: function(l, r){
     return r - l;
   },
@@ -166,12 +167,16 @@ module.exports = React.createClass({
         end_pos = lateral_scale(new Date(_.last(this.props.keys)));
     }
     let opacity = ".2";
+    let chart_width = this.state.w - this.props.y_axis_width - 5;
     return (
 
         <Panel onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={this.kill_drag} onMouseUp={e =>  this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseDown={e => this.props.validClickTimer(e)} >
         <Row>
         <Col xs={12}>
-        <svg width={this.state.w} height={this.props.height}>
+        <svg width={this.props.y_axis_width} height={this.props.height}>
+        <rect height={this.props.height} y="0" x="0" width={this.props.y_axis_width}/>
+        </svg>
+        <svg width={chart_width} height={this.props.height}>
         <path d={ps} fill="#0028a3" opacity=".25" stroke="grey"/>
         <path d={fs} fill="rgb(179, 49, 37)" opacity=".75" stroke="black"/>
 
@@ -181,7 +186,7 @@ module.exports = React.createClass({
         <line onMouseDown={this.toggle_drag_start} x1={start_pos} y1={this.props.height / 4} x2={start_pos} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="20"/>
         <line onMouseDown={this.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 4} x2={end_pos} y2={this.props.height * .75} stroke={stroke_color_r} strokeWidth="20"/>
         </svg>
-        <Axis show_nth_tickmark="12" q={this.props.q} keys={this.props.keys} lateral_scale={lateral_scale} height="50" width={this.state.w} q_counts={this.props.q_data} lateralize={lateralize}/>
+        <div style={{width: this.props.y_axis_width, float: "left"}}></div><XAxis style={{float: "left"}} show_nth_tickmark="12" q={this.props.q} keys={this.props.keys} lateral_scale={lateral_scale} height="50" width={chart_width} q_counts={this.props.q_data} lateralize={lateralize}/>
         </Col>
         </Row>
         </Panel>
