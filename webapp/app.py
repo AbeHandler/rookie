@@ -7,6 +7,7 @@ import time
 import datetime
 import json
 import itertools
+from flask.ext.compress import Compress
 from dateutil.parser import parse
 from webapp.models import results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, filter_results_with_binary_dataframe, results_min_max
 from flask import Flask
@@ -20,6 +21,7 @@ import threading
 
 
 app = Flask(__name__)
+Compress(app)
 
 views = Views(IP, ROOKIE_JS, ROOKIE_CSS)
 
