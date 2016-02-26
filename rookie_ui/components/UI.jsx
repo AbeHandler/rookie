@@ -40,7 +40,7 @@ module.exports = React.createClass({
     max = moment(_.last(this.props.chart_bins), "YYYY-MM-DD");
     let start = min.format("YYYY-MM-DD");
     let end = max.format("YYYY-MM-DD");
-    return {chart_mode: "intro", all_results: [], start_selected:start, end_selected:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, mode:"overview"};
+    return {valid_click: true, click_tracker: -1, chart_mode: "intro", all_results: [], start_selected:start, end_selected:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, mode:"overview"};
   },
 
   resultsToDocs: function(results){
@@ -62,24 +62,56 @@ module.exports = React.createClass({
 
   },
 
-  toggle_rect: function (p) {
+  validClickTimer: function(){
+    let start = +new Date();
+    console.log("starting click timer");
+    this.setState({click_tracker: start});
+  },
+
+  validClickEnd: function(e){
+    let valid_click = true;
+    if (this.state.click_tracker != -1){
+      let d = +new Date() - this.state.click_tracker;
+      let valid = true;
+      console.log("the click duration was" + d);
+      if (d > 250){
+        console.log("setting valid to false");
+        valid = false;
+      }
+      console.log("calling toggle rect");
+      this.setState({click_tracker: -1, valid_click: valid}, this.toggle_rect(e, valid));
+    }else{
+      console.log("click tracker undefined");
+      this.setState({click_tracker: -1, valid_click: true});
+    }
+  },
+
+  toggle_rect: function (p, valid) {
+    console.log("handling click event. valid click?");
+    console.log(valid);
     let m = moment(p.toString());
-    var f = moment(this.props.last_story_pubdate);
-    var l = moment(this.props.first_story_pubdate);
-    let diff = moment.duration(f.diff(l, 'days') / 10, 'days');
-    let start = m.clone();
-    let end = m.clone();
-    start.subtract(diff);
-    end.add(diff);
-    let min = moment(_.first(this.props.chart_bins), "YYYY-MM-DD"); 
-    let max = moment(_.last(this.props.chart_bins), "YYYY-MM-DD");
-    if (start < min) {
-       start = min;
-    }
-    if (end > max) {
-       end = max;
-    }
-    this.setState({chart_mode:"rectangle", start_selected:start, end_selected: end});
+    if (valid != false){
+        console.log("this is a valid click");
+        var f = moment(this.props.last_story_pubdate);
+        var l = moment(this.props.first_story_pubdate);
+        let diff = moment.duration(f.diff(l, 'days') / 10, 'days');
+        let start = m.clone();
+        let end = m.clone();
+        start.subtract(diff);
+        end.add(diff);
+        let min = moment(_.first(this.props.chart_bins), "YYYY-MM-DD"); 
+        let max = moment(_.last(this.props.chart_bins), "YYYY-MM-DD");
+        if (start < min) {
+           start = min;
+        }
+        if (end > max) {
+           end = max;
+        }
+        this.setState({chart_mode:"rectangle", start_selected:start, end_selected: end});
+        }
+      else{
+        console.log("not a valid click");
+      }
   },
 
   set_date: function (date, start_end) {
@@ -94,7 +126,6 @@ module.exports = React.createClass({
 
   clickTile: function (e) {
     let url = "/get_docs?q=" + this.props.q + "&f=" + e + "&corpus=" + this.props.corpus;
-        console.log("sss");
         let minbin = _.head(this.props.chart_bins);
         let maxbin = _.last(this.props.chart_bins)
         $.ajax({
@@ -193,7 +224,7 @@ module.exports = React.createClass({
     let chart;
     if (this.props.total_docs_for_q > 0){
       if (this.state.chart_mode != "intro"){
-        chart = <Chart toggle_rect={this.toggle_rect} chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
+        chart = <Chart validClickEnd={this.validClickEnd} validClickTimer={this.validClickTimer} toggle_rect={this.toggle_rect} chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
       }else{
         chart = <IntroChart toggle_rect={this.toggle_rect} qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
       }

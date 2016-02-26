@@ -102,13 +102,21 @@ module.exports = React.createClass({
     this.setState({drag_l : true});
   },
 
-  toggle_drag_start_r: function(e){
+  toggle_drag_start_r: function(e, lateral_scale){
     this.setState({drag_r : true});
   },
 
-  toggle_drag_stop: function(e){
+  kill_drag: function(){
     this.setState({drag_l : false, mouse_to_r_d: -1, mouse_to_l_d: -1});
     this.setState({drag_r : false, mouse_to_r_d: -1, mouse_to_l_d: -1});
+  },
+
+  toggle_drag_stop: function(e, lateral_scale){
+    let p = lateral_scale.invert(e);
+    this.setState({drag_l : false, mouse_to_r_d: -1, mouse_to_l_d: -1});
+    this.setState({drag_r : false, mouse_to_r_d: -1, mouse_to_l_d: -1});
+    console.log("toggle drag stop");
+    this.props.validClickEnd(p);
   },
 
   get_w: function(l, r){
@@ -119,12 +127,18 @@ module.exports = React.createClass({
     return this.state.w / this.props.datas.length;
   },
 
+  report_click: function(e_pageX, lateral_scale) {
+    let p = lateral_scale.invert(e_pageX);
+    this.props.toggle_rect(p);
+  },
+
   render: function() {
     let lateralize = this.lateralize;
     let lateral_scale = this.get_x_scale();
     let height_scale = this.get_y_scale();
     let set_X = this.set_X;
     let f = this.props.f;
+    let report_click = this.report_click;
     let bar_width = this.get_bar_width();
     let ps = this.get_path_string(this.props.q_data);
 
@@ -151,11 +165,10 @@ module.exports = React.createClass({
     if (end_pos > this.state.w){
         end_pos = lateral_scale(new Date(_.last(this.props.keys)));
     }
-    console.log(this.props.chart_mode);
     let opacity = ".2";
     return (
 
-        <Panel onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={this.toggle_drag_stop} onMouseUp={this.toggle_drag_stop}>
+        <Panel onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={this.kill_drag} onMouseUp={e =>  this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseDown={e => this.props.validClickTimer(e)} >
         <Row>
         <Col xs={12}>
         <svg width={this.state.w} height={this.props.height}>
