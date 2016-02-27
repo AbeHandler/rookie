@@ -8,7 +8,7 @@ var ReactDOM = require('react-dom');
 var d3 = require('d3');
 var _ = require('lodash');
 var moment = require('moment');
-
+var YAxis = require('./YAxis.jsx');
 var XAxis = require('./XAxis.jsx');
 
 var Panel = require('react-bootstrap/lib/Panel');
@@ -168,15 +168,14 @@ module.exports = React.createClass({
     }
     let opacity = ".2";
     let chart_width = this.state.w - this.props.y_axis_width - 5;
+    let max = _.max(this.props.datas);
     return (
 
         <Panel onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={this.kill_drag} onMouseUp={e =>  this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseDown={e => this.props.validClickTimer(e)} >
         <Row>
         <Col xs={12}>
-        <svg width={this.props.y_axis_width} height={this.props.height}>
-        <rect height={this.props.height} y="0" x="0" width={this.props.y_axis_width}/>
-        </svg>
-        <svg width={chart_width} height={this.props.height}>
+        <YAxis max={max} height={this.props.height} y_axis_width={this.props.y_axis_width}/>
+	<svg width={chart_width} height={this.props.height}>
         <path d={ps} fill="#0028a3" opacity=".25" stroke="grey"/>
         <path d={fs} fill="rgb(179, 49, 37)" opacity=".75" stroke="black"/>
 

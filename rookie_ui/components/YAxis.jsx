@@ -1,6 +1,6 @@
 'use strict';
 /*
-Axis.jsx
+YAxis.jsx
 */
 
 var React = require('react');
@@ -10,28 +10,21 @@ var moment = require('moment');
 
 module.exports = React.createClass({
 
-  i_to_date: function(i){
-    if (i % this.props.show_nth_tickmark == 0){
-      return moment(this.props.keys[i], "YYYY-M-D").format("MMM YYYY");
-    } else{
-      return "";
-    }
-  },
-
   render: function() {
-    let lateralize = this.props.lateralize;
-    let to_date = this.i_to_date;
-    let lateral_scale = this.props.lateral_scale;
-    let keys = this.props.keys;
-    let ticks = lateral_scale.ticks(d3.time.year);
-    let format = lateral_scale.tickFormat();
+    let xp = this.props.y_axis_width / 2;
+    console.log(this.props.max);
+    console.log(typeof this.props.max);
+    let scale = d3.scale.linear().domain(_.range(this.props.max + 1)).range(_.range(this.props.height));
+    console.log(scale);
+    let ticks = scale.ticks();
+    console.log(ticks);
     return (
-        <svg height={this.props.height} width={this.props.width}>
-        <line x1="0" y1="10" x2={this.props.width} y2="10" stroke="black" strokeWidth="3"/>
-        {ticks.map(function(object, i){
-            return <text key={i} x={lateralize(object, lateral_scale)} y="25" fill="black">{format(object)}</text>
-        })}
-        </svg>
-    );
-  }
+         <svg width={this.props.y_axis_width} height={this.props.height}>
+          <line x1={xp} y1="0" x2={xp} y2={this.props.height} stroke="black" strokeWidth="3" />
+	       {ticks.map(function(object, i){                           
+            return <text key={i} x="4" y={scale(i)} fill="black">{object}</text>
+            })}      
+    	  </svg>
+	       )
+	}
 });
