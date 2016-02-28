@@ -3,11 +3,7 @@ import socket
 import os
 
 
-LENS_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/lens.css'
-BANNER_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/banner.css'
-
 LOG_PATH = "log/experiment.log"
-
 
 configs = [i.replace("\n", "") for i in open(".rookie.pwd", "r")]
 
@@ -28,9 +24,6 @@ else:
     ROOKIE_CSS = "https://s3-us-west-2.amazonaws.com/rookie2/css/"
     PG_HOST = os.environ.get('PG_PORT_5432_TCP_ADDR','localhost')
 
-ROOKIE_PW = "rookie"
-if socket.gethostname() == "hobbes":
-    ROOKIE_PW = os.environ.get('ROOKIE_PW')
 
 if socket.gethostname() == 'dewey':
     files_location = "/Users/ahandler/research/rookie/"

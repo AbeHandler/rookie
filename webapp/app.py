@@ -88,7 +88,6 @@ def main():
 
         fstart = time.time()
         binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
-        print "facet time = {}".format(time.time() - fstart)
 
         #for f in facets:
         #    cache[params.q + "##" + f] = aliases[f]
@@ -100,12 +99,8 @@ def main():
 
         binsize = "month"
 
-        print "early time = {}".format(time.time() - start)
-
-        dfstart = time.time()
         df = make_dataframe(params.q, binned_facets["g"], results, q_pubdates, aliases)
         df = bin_dataframe(df, binsize)
-        print "making + binning df = {}".format(time.time() - dfstart)
 
         chart_bins = get_keys(q_pubdates, binsize)
         
@@ -119,9 +114,7 @@ def main():
                 display_bins.append({"key": key, "facets": binned_facets[key]})
 
         ftime = time.time()
-        print "thread time = {}".format(time.time() - ftime)
 
-        print "all time = {}".format(time.time() - start)
 
         stuff_ui_needs["total_docs_for_q"] = len(results)
         facets = {}
@@ -138,7 +131,6 @@ def main():
             stuff_ui_needs["last_story_pubdate"] = ""
     except:
         with open('log/error.txt', 'a') as f:
-            traceback.print_exc(file=f)
     stuff_ui_needs["corpus"] = params.corpus
     stuff_ui_needs["query"] = params.q
     return views.get_q_response_med(params, q_data, len(results), binned_facets['g'], stuff_ui_needs)

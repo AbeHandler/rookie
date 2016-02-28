@@ -239,7 +239,6 @@ class Models(object):
                 'day': pubdate.day,
                 'snippet': Models.get_snippet(r, corpus, q, f, aliases=aliases).encode("ascii", "ignore")
             })
-        print "this took {}".format(time.time() - start)
         return doc_results
 
 

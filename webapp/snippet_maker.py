@@ -13,7 +13,6 @@ start_time = time.time()
 engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
-print "[*] building the session took {}".format(start_time - time.time())
 
 def timeit(func):
     @functools.wraps(func)
