@@ -8,6 +8,12 @@ BANNER_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/banner.css'
 
 LOG_PATH = "log/experiment.log"
 
+
+configs = [i.replace("\n", "") for i in open(".rookie.pwd", "r")]
+
+ROOKIE_USER = [i.split("=")[1] for i in configs if "USER" in i].pop()
+ROOKIE_PW = [i.split("=")[1] for i in configs if "PASSWORD" in i].pop()
+
 # http://stackoverflow.com/questions/166506/finding-local-ip-addresses-using-pythons-stdlib
 if socket.gethostname() == "dewey":
     CORPUS_LOC = "data/lens_processed/"
@@ -44,7 +50,7 @@ else:
 
 
 CONNECTION_STRING = 'postgresql://%s:%s@%s:5432/%s' % (
-     'rookie', # user
+     ROOKIE_USER,
      ROOKIE_PW, # pw
      PG_HOST,
      'rookie', # db

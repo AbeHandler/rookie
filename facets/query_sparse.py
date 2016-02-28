@@ -4,21 +4,12 @@ Queries whoosh and builds facets for query
 from __future__ import division
 from pylru import lrudecorator
 from webapp.models import query
-import bottleneck
-from webapp.models import get_doc_metadata
-from dateutil.parser import parse
 from whoosh.index import open_dir
 from collections import defaultdict
 import operator
-import ujson
-import joblib
-import numpy as np
-import ipdb
 import datetime
 import time
-import itertools
 import cPickle as pickle
-import sys
 import argparse
 from Levenshtein import distance
 

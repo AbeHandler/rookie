@@ -144,7 +144,7 @@ def medviz():
             stuff_ui_needs["first_story_pubdate"] = ""
             stuff_ui_needs["last_story_pubdate"] = ""
     except:
-        with open('log/log.txt', 'a') as f:
+        with open('log/error.txt', 'a') as f:
             traceback.print_exc(file=f)
     stuff_ui_needs["corpus"] = params.corpus
     stuff_ui_needs["query"] = params.q
