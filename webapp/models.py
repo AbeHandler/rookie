@@ -4,12 +4,7 @@ Application logic for webapp should be in here
 import datetime
 import time
 import pandas as pd
-import ujson
-import ipdb
-import os
-import cPickle as pickle
 from dateutil.parser import parse
-from pylru import lrudecorator
 from joblib import Memory
 from whoosh.index import open_dir
 from tempfile import mkdtemp
@@ -25,25 +20,18 @@ def query(qry_string, corpus):
     '''
     Query whoosh
     '''
-    print qry_string
-    print corpus
     index = open_dir("indexes/{}/".format(corpus))
     query_parser = QueryParser("content", schema=index.schema)
     qry = query_parser.parse(qry_string)
     with index.searcher() as srch:
         results_a = srch.search(qry, limit=None)
         out = [a.get("path").replace("/", "") for a in results_a]
-    #print "[*] querying took {}".format(start_time - time.time())
     return out
 
-cachedir = mkdtemp()
-
-memory = Memory(cachedir=cachedir, verbose=0)
 
 engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
-
 
 
 def filter_results_with_binary_dataframe(results, facet, df):
@@ -95,6 +83,13 @@ def get_doc_metadata(docid, corpus):
     row = session.connection().execute("select data from doc_metadata where docid=%s and corpusid=%s", docid, corpusid).fetchone()
     return row[0]
 
+def get_delta(bin):
+    if bin == "month": # TODO
+        return relativedelta(months=+1)
+    elif bin == "year":
+        return relativedelta(years=+1)
+    elif bin == "day":
+        return relativedelta(days=+1)
 
 def get_keys(q_pubdates, bin):
     '''
@@ -104,20 +99,15 @@ def get_keys(q_pubdates, bin):
         start = min(q_pubdates)
         stop = max(q_pubdates)
     except ValueError: # this means pubdates == []
-        return [] # being pythonic and leaping before looking
+        return [] # but being pythonic and leaping before looking
     output = []
     counter = start
     assert bin in ["year", "month", "day"]
-    if bin == "month": # TODO
-        delta = relativedelta(months=+1)
-    elif bin == "year":
-        delta = relativedelta(years=+1)
-    elif bin == "day":
-        delta = relativedelta(days=+1)
+    
     while counter <= stop:
         if bin == "month":
-            output.append(str(counter.year) + "-" + str(counter.month))
-            counter = counter + delta
+            output.append(counter.strftime("%Y-%m"))
+            counter = counter + get_delta(bin)
     return output
  
 
@@ -143,7 +133,7 @@ def get_val_from_df(val_key, dt_key, df, binsize="month"):
     '''
     :param val_key: a facet
     :param dt_key: a date string. usually, YYYY-M. formatted 2014-5
-    :param df:  a dataframe
+    :param df: a dataframe
     :param binsize: ignored for now. needed for dateparsing in try methods
     :return:
     '''
@@ -254,7 +244,7 @@ class Models(object):
 
 
     @staticmethod
-    def get_snippet(docid, corpus, q, f=None, aliases=None, nchar=200):
+    def get_snippet(docid, corpus, q, f=None, aliases=None):
 
         f_aliases = set() if aliases is None else set(aliases)
         if f is not None:

@@ -1,7 +1,9 @@
-import ipdb
 from flask import render_template
 
 class Views(object):
+    '''
+    The views for Rookie
+    '''
 
     def __init__(self, IP, ROOKIE_JS, ROOKIE_CSS):
         '''
@@ -12,9 +14,9 @@ class Views(object):
         self.rookie_css = ROOKIE_CSS
 
 
-    def get_q_response_med(self, params, q_and_t, chart_bins, q_datas, len_results, binsize, g_facets, corpus, stuff_ui_needs):
+    def get_q_response_med(self, params, q_and_t, chart_bins, q_datas, len_results, g_facets, corpus, stuff_ui_needs):
         '''
-        return medviz view
+        return main view
         '''
         if self.ip == "localhost":
             baseurl = "http://localhost:5000/"
@@ -28,8 +30,6 @@ class Views(object):
             q_datas=q_datas,
             g_facets=g_facets,
             len_results=len_results,
-            detail=binsize,
-            len_keys=len(chart_bins),
             corpus=corpus,
             stuff_ui_needs=stuff_ui_needs,
             IP=self.ip,

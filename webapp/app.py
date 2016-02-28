@@ -1,16 +1,14 @@
+#!./venv/bin/python
 '''
 The main web app for rookie
 '''
-import ipdb
-import pylru
+
 import time
 import json
-import itertools
 import traceback
 from flask.ext.compress import Compress
 from webapp.models import results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, results_min_max
-from flask import Flask
-from flask import request
+from flask import Flask, request
 from facets.query_sparse import get_facets_for_q, load_all_data_structures
 from webapp.views import Views
 from webapp.models import Models
@@ -23,8 +21,6 @@ app = Flask(__name__)
 Compress(app)
 
 views = Views(IP, ROOKIE_JS, ROOKIE_CSS)
-
-cache = pylru.lrucache(1000)
 
 # BTO: this is problematic. assumes shared memory for all request processes.
 # flask individual file reloading breaks this assumption. so does certain types of python parallelism.
@@ -153,7 +149,7 @@ def medviz():
         with open('log/log.txt', 'a') as f:
             traceback.print_exc(file=f)
 
-    return views.get_q_response_med(params, facet_datas, chart_bins, q_data, len(results), binsize, binned_facets['g'], params.corpus, stuff_ui_needs)
+    return views.get_q_response_med(params, facet_datas, chart_bins, q_data, len(results), binned_facets['g'], params.corpus, stuff_ui_needs)
 
 
 if __name__ == '__main__':
