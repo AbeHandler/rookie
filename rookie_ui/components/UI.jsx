@@ -93,7 +93,7 @@ module.exports = React.createClass({
   },
 
   clickTile: function (e) {
-    let url = "/get_docs?q=" + this.props.q + "&f=" + e + "&corpus=" + this.props.corpus;
+    let url = this.props.base_url + "get_docs?q=" + this.props.q + "&f=" + e + "&corpus=" + this.props.corpus;
         let minbin = _.head(this.props.chart_bins);
         let maxbin = _.last(this.props.chart_bins)
         $.ajax({
@@ -112,7 +112,7 @@ module.exports = React.createClass({
 
   qX: function(){
     if (this.state.f != -1){
-      location.href='?q=' + this.state.f +'&corpus=' + this.props.corpus;
+      location.href= this.props.base_url + '?q=' + this.state.f +'&corpus=' + this.props.corpus;
     }
   },
 
@@ -126,7 +126,7 @@ module.exports = React.createClass({
 
   turnOnDocMode: function(){
     if (this.state.f == -1){
-        let url = "/get_doclist?q=" + this.props.q + "&corpus=" + this.props.corpus;
+        let url = this.props.base_url + "get_doclist?q=" + this.props.q + "&corpus=" + this.props.corpus;
         $.ajax({
               url: url,
               dataType: 'json',

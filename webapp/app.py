@@ -12,7 +12,7 @@ from flask import Flask, request
 from facets.query_sparse import get_facets_for_q, load_all_data_structures
 from webapp.views import Views
 from webapp.models import Models
-from webapp import IP, ROOKIE_JS, ROOKIE_CSS
+from webapp import IP, ROOKIE_JS, ROOKIE_CSS, BASE_URL
 from webapp.models import get_doc_metadata
 
 
@@ -20,7 +20,7 @@ from webapp.models import get_doc_metadata
 app = Flask(__name__)
 Compress(app)
 
-views = Views(IP, ROOKIE_JS, ROOKIE_CSS)
+views = Views(IP, ROOKIE_JS, ROOKIE_CSS, BASE_URL)
 
 # BTO: this is problematic. assumes shared memory for all request processes.
 # flask individual file reloading breaks this assumption. so does certain types of python parallelism.
@@ -88,10 +88,6 @@ def main():
 
         fstart = time.time()
         binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
-
-        #for f in facets:
-        #    cache[params.q + "##" + f] = aliases[f]
-        #    alias_table[params.q][f] = aliases[f]
 
         aliases = [] # TODO
         stuff_ui_needs = {}

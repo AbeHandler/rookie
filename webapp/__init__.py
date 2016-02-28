@@ -17,9 +17,11 @@ if socket.gethostname() == "dewey":
     PG_HOST = "localhost"
     ROOKIE_JS = "static/js/"
     ROOKIE_CSS = "static/css/"
+    BASE_URL = "/"
 else:
+    BASE_URL = "http://hobbes.cs.umass.edu/~ahandler/www/rookie/main.cgi/"
     CORPUS_LOC = "/home/ubuntu/data/lens_processed/"
-    IP = "54.213.128.229"
+    IP = "localhost"
     ROOKIE_JS = "https://s3-us-west-2.amazonaws.com/rookie2/js/"
     ROOKIE_CSS = "https://s3-us-west-2.amazonaws.com/rookie2/css/"
     PG_HOST = os.environ.get('PG_PORT_5432_TCP_ADDR','localhost')
