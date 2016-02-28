@@ -114,8 +114,6 @@ def medviz():
 
         q_data = [get_val_from_df(params.q, key, df, binsize) for key in chart_bins]
 
-        facet_datas = {}
-
         chart_bins = [k + "-1" for k in chart_bins] # hacky addition of date to keys
 
         display_bins = []
@@ -148,8 +146,9 @@ def medviz():
     except:
         with open('log/log.txt', 'a') as f:
             traceback.print_exc(file=f)
-
-    return views.get_q_response_med(params, facet_datas, chart_bins, q_data, len(results), binned_facets['g'], params.corpus, stuff_ui_needs)
+    stuff_ui_needs["corpus"] = params.corpus
+    stuff_ui_needs["query"] = params.q
+    return views.get_q_response_med(params, chart_bins, q_data, len(results), binned_facets['g'], stuff_ui_needs)
 
 
 if __name__ == '__main__':

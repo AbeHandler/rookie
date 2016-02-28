@@ -14,7 +14,7 @@ class Views(object):
         self.rookie_css = ROOKIE_CSS
 
 
-    def get_q_response_med(self, params, q_and_t, chart_bins, q_datas, len_results, g_facets, corpus, stuff_ui_needs):
+    def get_q_response_med(self, params, chart_bins, q_datas, len_results, g_facets, stuff_ui_needs):
         '''
         return main view
         '''
@@ -24,13 +24,10 @@ class Views(object):
             baseurl = "" #TODO: why this should be blank for an IP address?
         response = render_template(
             'medviz.html',
-            query=params.q,
-            f_counts=q_and_t,
             chart_bins=chart_bins,
             q_datas=q_datas,
             g_facets=g_facets,
             len_results=len_results,
-            corpus=corpus,
             stuff_ui_needs=stuff_ui_needs,
             IP=self.ip,
             baseurl=baseurl,

@@ -9,9 +9,8 @@
 var q_data = {{q_datas | safe}};
 var global_facets = {{g_facets | safe}};
 var chart_bins = {{chart_bins | safe}};
-var f_counts = {{f_counts | safe}};
-var corpus = "{{corpus}}";
-var query = "{{query}}";
+var corpus = '{{stuff_ui_needs["corpus"]}}';
+var query = '{{stuff_ui_needs["query"]}}';
 var total_docs_for_q = {{stuff_ui_needs["total_docs_for_q"]}}
 var facet_datas = {{stuff_ui_needs["facet_datas"] | safe}}
 var first_story_pubdate = '{{stuff_ui_needs["first_story_pubdate"] | safe}}'
