@@ -34,7 +34,6 @@ def getcorpusid(corpus):
         return i[0]
 
 def load_sparse_vector_data_structures(corpus):
-    print "loading all sparse vectors"
     corpusid = getcorpusid(corpus)
     output = {}
     results = session.connection().execute("select * from count_vectors where corpusid='{}'".format(corpusid))
@@ -136,18 +135,10 @@ def heuristic_cleanup(output, proposed_new_facet, structures, q, aliases=default
             if s_check(facet, proposed_new_facet, dist):
                 append = False
             elif (len(proposed_new_facet) > len(facet)):
-                #print "proposed"
-                #print dfs[decoder[proposed_new_facet]]
-                #print "new"
-                #print dfs[decoder[proposed_new_facet]]
                 debug_print("replacing {} with {}".format(output[index], proposed_new_facet))
                 output[index] = proposed_new_facet
                 append = False
         if get_jaccard(proposed_new_facet, facet) > .5:
-            #print "proposed"
-            #print [decoder[proposed_new_facet]]
-            #print "new"
-            #print [decoder[proposed_new_facet]]
             if len(proposed_new_facet) > len(facet):
                 debug_print("replacing {} with {}".format(output[index], proposed_new_facet))
                 output[index] = proposed_new_facet
@@ -276,12 +267,10 @@ def get_facets_for_q(q, results, n_facets, structures):
     max_yr = max(structures["pubdates"][r].year for r in results)
 
     raw_results = get_raw_facets(results, xrange(min_yr, max_yr), structures)
-    print "getting facets took {}".format(time.time() - startTime)
     
     # Get all of the possible facets
     startTime = time.time()
     ok_facets = get_all_facets(raw_results, structures, "ngram", q)
-    print "cleaning up took {}".format(time.time() - startTime)
     for t_bin in raw_results: # for each bin
         facet_results[t_bin] = get_facets_for_bin(raw_results[t_bin], structures, ok_facets, n_facets)
 
