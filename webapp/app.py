@@ -74,7 +74,7 @@ def get_docs():
 
 
 @app.route('/', methods=['GET'])
-def medviz():
+def main():
 
     try:
         start = time.time()
@@ -83,8 +83,6 @@ def medviz():
         except AttributeError:
             return "<html><title>End-to-End Testing</title><html>"
 
-        if params.q is None:
-            return "<html>sdf<html>"
 
         results = Models.get_results(params)
 
@@ -97,7 +95,7 @@ def medviz():
         #    alias_table[params.q][f] = aliases[f]
 
         aliases = [] # TODO
-
+        stuff_ui_needs = {}
         q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][r] for r in results]
 
         binsize = "month"
@@ -108,38 +106,33 @@ def medviz():
         df = make_dataframe(params.q, binned_facets["g"], results, q_pubdates, aliases)
         df = bin_dataframe(df, binsize)
         print "making + binning df = {}".format(time.time() - dfstart)
-        
 
         chart_bins = get_keys(q_pubdates, binsize)
-
+        
         q_data = [get_val_from_df(params.q, key, df, binsize) for key in chart_bins]
 
         chart_bins = [k + "-1" for k in chart_bins] # hacky addition of date to keys
-
+        stuff_ui_needs["keys"] = chart_bins
         display_bins = []
         for key in binned_facets:
             if key != "g":
                 display_bins.append({"key": key, "facets": binned_facets[key]})
 
         ftime = time.time()
-        #m = threading.Thread(target=manager, args=(results, params, all_facets, aliases))
-        #m.start()
         print "thread time = {}".format(time.time() - ftime)
 
         print "all time = {}".format(time.time() - start)
 
-        stuff_ui_needs = {}
         stuff_ui_needs["total_docs_for_q"] = len(results)
         facets = {}
         for f in binned_facets['g']:
             facets[f] = [get_val_from_df(f, key, df, binsize) for key in chart_bins]
         stuff_ui_needs["facet_datas"] = facets
+	try:
         
-        try:
-            min_str = min(load_all_data_structures(params.corpus)["pubdates"][r] for r in results)
-            max_str = max(load_all_data_structures(params.corpus)["pubdates"][r] for r in results)
-            stuff_ui_needs["first_story_pubdate"] = min_str.strftime("%Y-%m-%d")
-            stuff_ui_needs["last_story_pubdate"] = max_str.strftime("%Y-%m-%d")
+            dminmax = results_min_max(results, load_all_data_structures(params.corpus)["pubdates"]) 
+	    stuff_ui_needs["first_story_pubdate"] = dminmax["min"]
+            stuff_ui_needs["last_story_pubdate"] = dminmax["max"] 
         except ValueError:
             stuff_ui_needs["first_story_pubdate"] = ""
             stuff_ui_needs["last_story_pubdate"] = ""
@@ -148,7 +141,7 @@ def medviz():
             traceback.print_exc(file=f)
     stuff_ui_needs["corpus"] = params.corpus
     stuff_ui_needs["query"] = params.q
-    return views.get_q_response_med(params, chart_bins, q_data, len(results), binned_facets['g'], stuff_ui_needs)
+    return views.get_q_response_med(params, q_data, len(results), binned_facets['g'], stuff_ui_needs)
 
 
 if __name__ == '__main__':
