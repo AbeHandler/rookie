@@ -121,18 +121,21 @@ def main():
         for f in binned_facets['g']:
             facets[f] = [get_val_from_df(f, key, df, binsize) for key in chart_bins]
         stuff_ui_needs["facet_datas"] = facets
-	try:
-        
-            dminmax = results_min_max(results, load_all_data_structures(params.corpus)["pubdates"]) 
-	    stuff_ui_needs["first_story_pubdate"] = dminmax["min"]
+
+        dminmax = results_min_max(results, load_all_data_structures(params.corpus)["pubdates"]) 
+	    
+        try:
+            stuff_ui_needs["first_story_pubdate"] = dminmax["min"]
             stuff_ui_needs["last_story_pubdate"] = dminmax["max"] 
         except ValueError:
             stuff_ui_needs["first_story_pubdate"] = ""
             stuff_ui_needs["last_story_pubdate"] = ""
+        stuff_ui_needs["corpus"] = params.corpus
+        stuff_ui_needs["query"] = params.q
     except:
         with open('log/error.txt', 'a') as f:
-    stuff_ui_needs["corpus"] = params.corpus
-    stuff_ui_needs["query"] = params.q
+            traceback.print_exc(file=f)
+    
     return views.get_q_response_med(params, q_data, len(results), binned_facets['g'], stuff_ui_needs)
 
 
