@@ -6,7 +6,7 @@ import os
 LENS_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/lens.css'
 BANNER_CSS = 'http://s3-us-west-2.amazonaws.com/rookielens/css/banner.css'
 
-LOG_PATH = "experiment.log"
+LOG_PATH = "log/experiment.log"
 
 # http://stackoverflow.com/questions/166506/finding-local-ip-addresses-using-pythons-stdlib
 if socket.gethostname() == "dewey":
