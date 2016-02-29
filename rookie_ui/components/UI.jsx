@@ -82,14 +82,14 @@ module.exports = React.createClass({
     if (start_end == "start"){
       let end = moment(this.state.end_selected, "YYYY-MM-DD");
       let min = moment(this.props.chart_bins[0]);
-      console.log(min);
       if ((d < end) &  (d>min)){
         this.setState({start_selected:d.format("YYYY-MM-DD")});
       }
     }
     if (start_end == "end"){
       let start = moment(this.state.start_selected, "YYYY-MM-DD");
-      if (d > start){
+      let max = moment(this.props.chart_bins[this.props.chart_bins.length -1]);
+      if (d > start & d< max){
          this.setState({end_selected:d.format("YYYY-MM-DD")});
       }
     }
@@ -99,7 +99,8 @@ module.exports = React.createClass({
     let s = moment(start_date);
     let e = moment(end_date);
     let min = moment(this.props.chart_bins[0]);
-    if (s < e  & s > min) {
+    let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
+    if (s < e  & s > min & e < max) {
       this.setState({start_selected:s.format("YYYY-MM-DD"), end_selected:e.format("YYYY-MM-DD")});
     }
   },

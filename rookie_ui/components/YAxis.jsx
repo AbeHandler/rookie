@@ -16,8 +16,12 @@ module.exports = React.createClass({
     var scale = d3.scale.linear()
 	    .domain([0,this.props.max])
 	    .range([0,yend]);
-    let ticks = scale.ticks(); //_.range(this.props.max);
-    let height = this.props.height;
+    let ticks;
+    if (this.props.max<7){
+	ticks = scale.ticks(this.props.max);
+    }else{
+	ticks = scale.ticks(); //_.range(this.props.max);
+    }let height = this.props.height;
     return (
          <svg width={this.props.y_axis_width} height={this.props.height}>
           <line x1={xp} y1="0" x2={xp} y2={this.props.height} stroke="black" strokeWidth="3" />
