@@ -83,12 +83,18 @@ module.exports = React.createClass({
   },
 
   set_date: function (date, start_end) {
-    let d = moment(date).format("YYYY-MM-DD");
+    let d = moment(date);
     if (start_end == "start"){
-      this.setState({start_selected:d});
+      let end = moment(this.state.end_selected, "YYYY-MM-DD");
+      if (d < end){
+        this.setState({start_selected:moment(date).format("YYYY-MM-DD")});
+      }
     }
     if (start_end == "end"){
-      this.setState({end_selected:d});
+      let start = moment(this.state.start_selected, "YYYY-MM-DD");
+      if (d > start){
+         this.setState({end_selected:moment(date).format("YYYY-MM-DD")});
+      }
     }
   },
 
