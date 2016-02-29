@@ -18,18 +18,13 @@ var Col = require('react-bootstrap/lib/Col');
 
 module.exports = React.createClass({
 
-  componentDidMount: function () {
-     var width = ReactDOM.findDOMNode(this).offsetWidth - 30;
-     this.setState({w: width});
-  },
-
   get_x_scale: function(){
       let str = new Date(_.first(this.props.keys));
       let end = new Date(_.last(this.props.keys));
       try{
           return d3.time.scale()
                             .domain([str, end])
-                            .range([0, this.state.w - this.props.y_axis_width]);
+                            .range([0, this.props.w - this.props.y_axis_width]);
       } catch(e){
           return d3.time.scale()
                             .domain([str, end])
@@ -39,7 +34,7 @@ module.exports = React.createClass({
   },
 
     get_y_scale: function(){
-      let h = this.state.w / this.props.w_h_ratio;
+      let h = this.props.w / this.props.w_h_ratio;
       return d3.scale.linear()
                             .domain([0, _.max(this.props.datas)])
                             .range([0, this.props.height])
@@ -100,7 +95,7 @@ module.exports = React.createClass({
     }
 
     let rc = this.report_click;
-    let chart_width = this.state.w - this.props.y_axis_width - 5;
+    let chart_width = this.props.w - this.props.y_axis_width - 5;
     let max = _.max(this.props.datas);
     return (
 

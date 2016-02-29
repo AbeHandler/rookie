@@ -4,6 +4,7 @@ Main Rookie UI
 */
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var _ = require('lodash');
 var moment = require('moment');
 
@@ -30,6 +31,16 @@ module.exports = React.createClass({
     }
   },
 
+  set_width: function(){
+    var width = ReactDOM.findDOMNode(this).offsetWidth;
+    this.setState({width: width});
+  },
+
+  componentDidMount: function () {
+    this.set_width();
+    window.addEventListener("resize", this.set_width);
+  },
+
   getInitialState(){
     //Notes.
     //1) convention: -1 == null
@@ -37,7 +48,7 @@ module.exports = React.createClass({
     let max = moment(_.last(this.props.chart_bins), "YYYY-MM-DD");
     let start = min.format("YYYY-MM-DD");
     let end = max.format("YYYY-MM-DD");
-    return {click_tracker: -1, chart_mode: "intro", all_results: [], start_selected:start, end_selected:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, mode:"overview"};
+    return {width: 0, click_tracker: -1, chart_mode: "intro", all_results: [], start_selected:start, end_selected:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, mode:"overview"};
   },
 
   resultsToDocs: function(results){
@@ -233,9 +244,9 @@ module.exports = React.createClass({
     let chart;
     if (this.props.total_docs_for_q > 0){
       if (this.state.chart_mode != "intro"){
-        chart = <Chart y_axis_width={this.props.y_axis_width} mode={this.state.mode} validClickEnd={this.validClickEnd} validClickTimer={this.validClickTimer} toggle_rect={this.toggle_rect} chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} set_dates={this.set_dates} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
+        chart = <Chart w={this.state.width - this.props.y_axis_width - 5} y_axis_width={this.props.y_axis_width} mode={this.state.mode} validClickEnd={this.validClickEnd} validClickTimer={this.validClickTimer} toggle_rect={this.toggle_rect} chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} set_dates={this.set_dates} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.state.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
       }else{
-        chart = <IntroChart y_axis_width={this.props.y_axis_width} mode={this.state.mode} toggle_rect={this.toggle_rect} qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
+        chart = <IntroChart w={this.state.width - this.props.y_axis_width - 5} y_axis_width={this.props.y_axis_width} mode={this.state.mode} toggle_rect={this.toggle_rect} qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.state.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
       }
       
     }else{
