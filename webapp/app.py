@@ -128,11 +128,13 @@ def main():
             stuff_ui_needs["last_story_pubdate"] = ""
         stuff_ui_needs["corpus"] = params.corpus
         stuff_ui_needs["query"] = params.q
+        stuff_ui_needs["q_data"] = q_data
+        stuff_ui_needs["global_facets"] = binned_facets['g']
     except:
         with open('log/error.txt', 'a') as f:
             traceback.print_exc(file=f)
     
-    return views.get_q_response_med(params, q_data, len(results), binned_facets['g'], stuff_ui_needs)
+    return views.get_q_response_med(params, stuff_ui_needs)
 
 
 if __name__ == '__main__':

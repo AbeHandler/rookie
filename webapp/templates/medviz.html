@@ -6,8 +6,8 @@
 
 <script type="text/javascript">
 
-var q_data = {{q_datas | safe}};
-var global_facets = {{g_facets | safe}};
+var q_data = {{stuff_ui_needs["q_data"] | safe}};
+var global_facets = {{stuff_ui_needs["global_facets"] | safe}};
 var chart_bins = {{stuff_ui_needs["keys"] | safe}};
 var corpus = '{{stuff_ui_needs["corpus"]}}';
 var query = '{{stuff_ui_needs["query"]}}';
