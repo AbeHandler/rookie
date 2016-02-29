@@ -83,17 +83,12 @@ module.exports = React.createClass({
     return r - l;
   },
 
-  get_bar_width: function(){
-    return this.state.w / this.props.datas.length;
-  },
-
   render: function() {
     let lateralize = this.lateralize;
     let lateral_scale = this.get_x_scale();
     let height_scale = this.get_y_scale();
     let report_click = this.report_click;
     let f = this.props.f;
-    let bar_width = this.get_bar_width();
     let ps = this.get_path_string(this.props.q_data);
 
     let x_l = lateral_scale(new Date(_.first(this.props.keys)));

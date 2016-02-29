@@ -119,15 +119,6 @@ module.exports = React.createClass({
     this.props.validClickEnd(p);
   },
 
-  //TODO: lambda refactor
-  get_w: function(l, r){
-    return r - l;
-  },
-
-  get_bar_width: function(){
-    return this.state.w / this.props.datas.length;
-  },
-
   report_click: function(e_pageX, lateral_scale) {
     let p = lateral_scale.invert(e_pageX);
     this.props.toggle_rect(p);
@@ -140,7 +131,6 @@ module.exports = React.createClass({
     let set_X = this.set_X;
     let f = this.props.f;
     let report_click = this.report_click;
-    let bar_width = this.get_bar_width();
     let ps = this.get_path_string(this.props.q_data);
 
     let x_l = lateral_scale(new Date(_.first(this.props.keys)));
@@ -180,7 +170,7 @@ module.exports = React.createClass({
         <path d={fs} fill="rgb(179, 49, 37)" opacity=".75" stroke="black"/>
 
 
-        <rect onMouseDown={this.toggle_rect} y="0" x={start_pos} opacity={opacity} height={this.props.height} width={this.get_w(start_pos, end_pos)} strokeWidth="4" fill="grey" />  
+        <rect onMouseDown={this.toggle_rect} y="0" x={start_pos} opacity={opacity} height={this.props.height} width={end_pos - start_pos} strokeWidth="4" fill="grey" />  
         
         <line onMouseDown={this.toggle_drag_start} x1={start_pos} y1={this.props.height / 4} x2={start_pos} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="20"/>
         <line onMouseDown={this.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 4} x2={end_pos} y2={this.props.height * .75} stroke={stroke_color_r} strokeWidth="20"/>
