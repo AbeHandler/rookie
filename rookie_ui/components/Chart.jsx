@@ -64,9 +64,7 @@ module.exports = React.createClass({
     let d1 = new Date(this.props.first_story_pubdate);
     let d2 = new Date(this.props.last_story_pubdate);
     let scale = this.get_x_scale();
-    let x_l = scale(d1);
-    let x_r = scale(d2);
-    return {w: 0, x_l: x_l, x_r: x_r, drag_l: false, drag_r: false, mouse_to_r_d: -1, mouse_to_l_d: -1};
+    return {w: 0, x_l: scale(d1), x_r: scale(d2), drag_l: false, drag_r: false, mouse_to_r_d: -1, mouse_to_l_d: -1};
   },
 
   lateralize: function (i, lateral_scale) {
@@ -93,33 +91,22 @@ module.exports = React.createClass({
     }
   },
 
-  toggle_rect: function(e){
+  toggle_rect: function(){
     this.setState({drag_l : true, drag_r : true});
   },
 
-  toggle_drag_start: function(e){
+  toggle_drag_start_l: function(){
     this.setState({drag_l : true});
   },
 
-  toggle_drag_start_r: function(e, lateral_scale){
+  toggle_drag_start_r: function(){
     this.setState({drag_r : true});
   },
 
-  kill_drag: function(){
-    this.setState({drag_l : false, mouse_to_r_d: -1, mouse_to_l_d: -1});
-    this.setState({drag_r : false, mouse_to_r_d: -1, mouse_to_l_d: -1});
-  },
-
   toggle_drag_stop: function(e, lateral_scale){
-    let p = lateral_scale.invert(e);
-    this.setState({drag_l : false, mouse_to_r_d: -1, mouse_to_l_d: -1});
-    this.setState({drag_r : false, mouse_to_r_d: -1, mouse_to_l_d: -1});
-    console.log("toggle drag stop");
-    this.props.validClickEnd(p);
-  },
-  report_click: function(e_pageX, lateral_scale) {
-    let p = lateral_scale.invert(e_pageX);
-    this.props.toggle_rect(p);
+    this.setState({drag_l : false, mouse_to_r_d: -1, mouse_to_l_d: -1,
+                   drag_r : false, mouse_to_r_d: -1, mouse_to_l_d: -1});
+    this.props.validClickEnd(lateral_scale.invert(e));
   },
   
   render: function() {
@@ -127,11 +114,7 @@ module.exports = React.createClass({
     let lateral_scale = this.get_x_scale();
     let height_scale = this.get_y_scale();
     let set_X = this.set_X;
-    let report_click = this.report_click;
     let ps = this.get_path_string(this.props.q_data);
-
-    let x_l = lateral_scale(new Date(_.first(this.props.keys)));
-    let x_r = lateral_scale(new Date(_.last(this.props.keys)));
 
     let fs = "";
     if (this.props.f_data.length > 0){
@@ -153,23 +136,21 @@ module.exports = React.createClass({
     if (end_pos > this.state.w){
         end_pos = lateral_scale(new Date(_.last(this.props.keys)));
     }
-    let opacity = ".2";
-    let chart_width = this.state.w - this.props.y_axis_width - 5;
     let max = _.max(this.props.datas);
     return (
 
-        <Panel onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={this.kill_drag} onMouseUp={e =>  this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseDown={e => this.props.validClickTimer(e)} >
+        <Panel onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={e=>this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseUp={e =>  this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseDown={e => this.props.validClickTimer(e)} >
         <Row>
         <Col xs={12}>
         <YAxis max={max} height={this.props.height} y_axis_width={this.props.y_axis_width}/>
-	      <svg width={chart_width} height={this.props.height}>
+	      <svg width={this.state.w - this.props.y_axis_width - 5} height={this.props.height}>
         <path d={ps} fill="#0028a3" opacity=".25" stroke="grey"/>
         <path d={fs} fill="rgb(179, 49, 37)" opacity=".75" stroke="black"/>
 
 
-        <rect onMouseDown={this.toggle_rect} y="0" x={start_pos} opacity={opacity} height={this.props.height} width={end_pos - start_pos} strokeWidth="4" fill="grey" />  
+        <rect onMouseDown={this.toggle_rect} y="0" x={start_pos} opacity={".2"} height={this.props.height} width={end_pos - start_pos} strokeWidth="4" fill="grey" />  
         
-        <line onMouseDown={this.toggle_drag_start} x1={start_pos} y1={this.props.height / 4} x2={start_pos} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="20"/>
+        <line onMouseDown={this.toggle_drag_start_l} x1={start_pos} y1={this.props.height / 4} x2={start_pos} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="20"/>
         <line onMouseDown={this.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 4} x2={end_pos} y2={this.props.height * .75} stroke={stroke_color_r} strokeWidth="20"/>
         </svg>
         <div style={{width: this.props.y_axis_width - 2, float: "left"}}>&nbsp;</div><XAxis style={{float: "left"}} show_nth_tickmark="12" q={this.props.q} keys={this.props.keys} lateral_scale={lateral_scale} height="50" width={chart_width} q_counts={this.props.q_data} lateralize={lateralize}/>

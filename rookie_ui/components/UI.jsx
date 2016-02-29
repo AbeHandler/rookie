@@ -227,7 +227,8 @@ module.exports = React.createClass({
                     <SparklineGrid {...this.props} clickTile={this.clickTile} q_data={q_data} col_no={3} facet_datas={this.props.facet_datas}/>
                    </Panel>
     } else { 
-      main_panel = <div><TemporalStatus start_selected={this.state.start_selected} end_selected={this.state.end_selected}/><DocViewer f={this.state.f} handleBinClick={this.handleBinClick} start_selected={this.state.start_selected} end_selected={this.state.end_selected} all_results={this.state.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/></div>
+      let docviewer = <DocViewer f={this.state.f} handleBinClick={this.handleBinClick} start_selected={this.state.start_selected} end_selected={this.state.end_selected} all_results={this.state.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>
+      main_panel = <div><TemporalStatus start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>{docviewer}</div>
     }
     let chart;
     if (this.props.total_docs_for_q > 0){
