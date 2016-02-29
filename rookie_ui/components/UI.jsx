@@ -243,10 +243,11 @@ module.exports = React.createClass({
     }
     let chart;
     if (this.props.total_docs_for_q > 0){
+      let buffer = 5;
       if (this.state.chart_mode != "intro"){
-        chart = <Chart w={this.state.width - this.props.y_axis_width - 5} y_axis_width={this.props.y_axis_width} mode={this.state.mode} validClickEnd={this.validClickEnd} validClickTimer={this.validClickTimer} toggle_rect={this.toggle_rect} chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} set_dates={this.set_dates} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.state.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
+        chart = <Chart w={this.state.width - this.props.y_axis_width - buffer} buffer={buffer} y_axis_width={this.props.y_axis_width} mode={this.state.mode} validClickEnd={this.validClickEnd} validClickTimer={this.validClickTimer} toggle_rect={this.toggle_rect} chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} set_dates={this.set_dates} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.state.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
       }else{
-        chart = <IntroChart w={this.state.width - this.props.y_axis_width - 5} y_axis_width={this.props.y_axis_width} mode={this.state.mode} toggle_rect={this.toggle_rect} qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.state.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
+        chart = <IntroChart w={this.state.width - this.props.y_axis_width - buffer} buffer={buffer} y_axis_width={this.props.y_axis_width} mode={this.state.mode} toggle_rect={this.toggle_rect} qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.state.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
       }
       
     }else{

@@ -67,7 +67,7 @@ module.exports = React.createClass({
   },
 
   set_X: function(e_pageX, lateral_scale) {
-    let p = lateral_scale.invert(e_pageX);
+    let p = lateral_scale.invert(e_pageX - this.props.y_axis_width - this.props.buffer);
     if (this.state.drag_r == true && this.state.drag_l == true){
       //set distance from mouse position to edges  
       let lateral_scale = this.get_x_scale();
