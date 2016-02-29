@@ -7,9 +7,10 @@ import time
 import json
 import traceback
 from flask.ext.compress import Compress
-from webapp.models import results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, results_min_max
+from webapp.models import results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, results_min_max, get_stuff_ui_needs
 from flask import Flask, request
-from facets.query_sparse import get_facets_for_q, load_all_data_structures
+
+from facets.query_sparse import load_all_data_structures
 from webapp.views import Views
 from webapp.models import Models
 from webapp import IP, ROOKIE_JS, ROOKIE_CSS, BASE_URL
@@ -75,66 +76,8 @@ def get_docs():
 
 @app.route('/', methods=['GET'])
 def main():
-
-    try:
-        start = time.time()
-        try:
-            params = Models.get_parameters(request)
-        except AttributeError:
-            return "<html><title>End-to-End Testing</title><html>"
-
-
-        results = Models.get_results(params)
-
-        fstart = time.time()
-        binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
-
-        aliases = [] # TODO
-        stuff_ui_needs = {}
-        q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][r] for r in results]
-
-        binsize = "month"
-
-        df = make_dataframe(params.q, binned_facets["g"], results, q_pubdates, aliases)
-        df = bin_dataframe(df, binsize)
-
-        chart_bins = get_keys(q_pubdates, binsize)
-        
-        q_data = [get_val_from_df(params.q, key, df, binsize) for key in chart_bins]
-
-        chart_bins = [k + "-1" for k in chart_bins] # hacky addition of date to keys
-        stuff_ui_needs["keys"] = chart_bins
-        display_bins = []
-        for key in binned_facets:
-            if key != "g":
-                display_bins.append({"key": key, "facets": binned_facets[key]})
-
-        ftime = time.time()
-
-
-        stuff_ui_needs["total_docs_for_q"] = len(results)
-        facets = {}
-        for f in binned_facets['g']:
-            facets[f] = [get_val_from_df(f, key, df, binsize) for key in chart_bins]
-        stuff_ui_needs["facet_datas"] = facets
-
-        dminmax = results_min_max(results, load_all_data_structures(params.corpus)["pubdates"]) 
-	    
-        try:
-            stuff_ui_needs["first_story_pubdate"] = dminmax["min"]
-            stuff_ui_needs["last_story_pubdate"] = dminmax["max"] 
-        except ValueError:
-            stuff_ui_needs["first_story_pubdate"] = ""
-            stuff_ui_needs["last_story_pubdate"] = ""
-        stuff_ui_needs["corpus"] = params.corpus
-        stuff_ui_needs["query"] = params.q
-        stuff_ui_needs["q_data"] = q_data
-        stuff_ui_needs["global_facets"] = binned_facets['g']
-    except:
-        with open('log/error.txt', 'a') as f:
-            traceback.print_exc(file=f)
-    
-    return views.get_q_response_med(params, stuff_ui_needs)
+    params = Models.get_parameters(request)
+    return views.handle_query(get_stuff_ui_needs(params))
 
 
 if __name__ == '__main__':

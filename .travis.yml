@@ -6,8 +6,9 @@ install:
 - pip install -r requirements.txt
 before_script:
 - export PYTHONPATH=$PYTHONPATH:$(pwd)
-- mkdir logs
-- touch logs/rookie.log
+- mkdir log
+- touch log/error.txt
+- touch log/experiment.log
 script:
 - coverage run tests/test_document.py
 after_success:

@@ -14,7 +14,7 @@ class Views(object):
         self.rookie_css = ROOKIE_CSS
         self.base_url = BASE_URL
 
-    def get_q_response_med(self, params, stuff_ui_needs):
+    def handle_query(self, stuff_ui_needs):
         '''
         return main view
         '''

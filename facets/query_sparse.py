@@ -3,7 +3,6 @@ Queries whoosh and builds facets for query
 '''
 from __future__ import division
 from pylru import lrudecorator
-from webapp.models import query
 from whoosh.index import open_dir
 from collections import defaultdict
 import operator
@@ -277,6 +276,8 @@ def get_facets_for_q(q, results, n_facets, structures):
     return facet_results
 
 if __name__ == '__main__':
+
+    from webapp.models import query
     parser = argparse.ArgumentParser(description='parser')
     parser.add_argument("-v", action="store_true", default=False, help="verbose")
     parser.add_argument('-q', '--query', dest='query')
