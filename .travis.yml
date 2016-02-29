@@ -10,6 +10,6 @@ before_script:
 - touch log/error.txt
 - touch log/experiment.log
 script:
-- coverage run tests/test_document.py
+- coverage run tests/test_backend.py
 after_success:
 - coveralls
