@@ -98,6 +98,15 @@ module.exports = React.createClass({
     }
   },
 
+  set_dates: function (start_date, end_date) {
+    let s = moment(start_date);
+    let e = moment(end_date);
+    console.log("Set dates");
+    if (s < e) {
+      this.setState({start_selected:s.format("YYYY-MM-DD"), end_selected:e.format("YYYY-MM-DD")});
+    }
+  },
+
   clickTile: function (e) {
     let url = this.props.base_url + "get_docs?q=" + this.props.q + "&f=" + e + "&corpus=" + this.props.corpus;
         let minbin = _.head(this.props.chart_bins);
@@ -225,7 +234,7 @@ module.exports = React.createClass({
     let chart;
     if (this.props.total_docs_for_q > 0){
       if (this.state.chart_mode != "intro"){
-        chart = <Chart y_axis_width={this.props.y_axis_width} mode={this.state.mode} validClickEnd={this.validClickEnd} validClickTimer={this.validClickTimer} toggle_rect={this.toggle_rect} chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
+        chart = <Chart y_axis_width={this.props.y_axis_width} mode={this.state.mode} validClickEnd={this.validClickEnd} validClickTimer={this.validClickTimer} toggle_rect={this.toggle_rect} chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} set_dates={this.set_dates} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
       }else{
         chart = <IntroChart y_axis_width={this.props.y_axis_width} mode={this.state.mode} toggle_rect={this.toggle_rect} qX={qX} set_date={this.set_date} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.props.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
       }

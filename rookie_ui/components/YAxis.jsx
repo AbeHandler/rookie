@@ -18,7 +18,6 @@ module.exports = React.createClass({
 	    .range([0,yend]);
     let ticks = scale.ticks(); //_.range(this.props.max);
     let height = this.props.height;
-    console.log(ticks);
     return (
          <svg width={this.props.y_axis_width} height={this.props.height}>
           <line x1={xp} y1="0" x2={xp} y2={this.props.height} stroke="black" strokeWidth="3" />

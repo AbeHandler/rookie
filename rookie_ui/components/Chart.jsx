@@ -85,8 +85,7 @@ module.exports = React.createClass({
         let ld = e_pageX - start_pos;
         this.setState({mouse_to_r_d: rd, mouse_to_l_d: ld});
       }
-      this.props.set_date(lateral_scale.invert(e_pageX + this.state.mouse_to_r_d), "end");
-      this.props.set_date(lateral_scale.invert(e_pageX - this.state.mouse_to_l_d), "start");
+      this.props.set_dates(lateral_scale.invert(e_pageX - this.state.mouse_to_l_d), lateral_scale.invert(e_pageX + this.state.mouse_to_r_d));
     } else if (this.state.drag_r == true && this.state.drag_l == false){
       this.props.set_date(p, "end");
     } else if (this.state.drag_l == true && this.state.drag_r == false){
@@ -118,18 +117,16 @@ module.exports = React.createClass({
     console.log("toggle drag stop");
     this.props.validClickEnd(p);
   },
-
   report_click: function(e_pageX, lateral_scale) {
     let p = lateral_scale.invert(e_pageX);
     this.props.toggle_rect(p);
   },
-
+  
   render: function() {
     let lateralize = this.lateralize;
     let lateral_scale = this.get_x_scale();
     let height_scale = this.get_y_scale();
     let set_X = this.set_X;
-    let f = this.props.f;
     let report_click = this.report_click;
     let ps = this.get_path_string(this.props.q_data);
 
