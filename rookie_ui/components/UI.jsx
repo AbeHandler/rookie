@@ -33,14 +33,11 @@ module.exports = React.createClass({
   getInitialState(){
     //Notes.
     //1) convention: -1 == null
-    //2) keeping track of y/mo/dy is annoying but react won't allow object as prop
-    let min;
-    let max;
-    min = moment(_.first(this.props.chart_bins), "YYYY-MM-DD"); 
-    max = moment(_.last(this.props.chart_bins), "YYYY-MM-DD");
+    let min = moment(_.first(this.props.chart_bins), "YYYY-MM-DD"); 
+    let max = moment(_.last(this.props.chart_bins), "YYYY-MM-DD");
     let start = min.format("YYYY-MM-DD");
     let end = max.format("YYYY-MM-DD");
-    return {valid_click: true, click_tracker: -1, chart_mode: "intro", all_results: [], start_selected:start, end_selected:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, mode:"overview"};
+    return {click_tracker: -1, chart_mode: "intro", all_results: [], start_selected:start, end_selected:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, mode:"overview"};
   },
 
   resultsToDocs: function(results){
@@ -64,21 +61,19 @@ module.exports = React.createClass({
 
   validClickTimer: function(){
     let start = +new Date();
-    console.log("starting click timer");
     this.setState({click_tracker: start});
   },
 
   validClickEnd: function(e){
-    let valid_click = true;
     if (this.state.click_tracker != -1){
       let d = +new Date() - this.state.click_tracker;
       let valid = true;
       if (d > 250){
         valid = false;
       }
-      this.setState({click_tracker: -1, valid_click: valid}, this.toggle_rect(e, valid));
+      this.setState({click_tracker: -1}, this.toggle_rect(e, valid));
     }else{
-      this.setState({click_tracker: -1, valid_click: true});
+      this.setState({click_tracker: -1});
     }
   },
 
@@ -86,14 +81,16 @@ module.exports = React.createClass({
     let d = moment(date);
     if (start_end == "start"){
       let end = moment(this.state.end_selected, "YYYY-MM-DD");
-      if (d < end){
-        this.setState({start_selected:moment(date).format("YYYY-MM-DD")});
+      let min = moment(this.props.chart_bins[0]);
+      console.log(min);
+      if ((d < end) &  (d>min)){
+        this.setState({start_selected:d.format("YYYY-MM-DD")});
       }
     }
     if (start_end == "end"){
       let start = moment(this.state.start_selected, "YYYY-MM-DD");
       if (d > start){
-         this.setState({end_selected:moment(date).format("YYYY-MM-DD")});
+         this.setState({end_selected:d.format("YYYY-MM-DD")});
       }
     }
   },
@@ -101,8 +98,8 @@ module.exports = React.createClass({
   set_dates: function (start_date, end_date) {
     let s = moment(start_date);
     let e = moment(end_date);
-    console.log("Set dates");
-    if (s < e) {
+    let min = moment(this.props.chart_bins[0]);
+    if (s < e  & s > min) {
       this.setState({start_selected:s.format("YYYY-MM-DD"), end_selected:e.format("YYYY-MM-DD")});
     }
   },
