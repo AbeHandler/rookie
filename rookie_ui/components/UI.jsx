@@ -66,16 +66,24 @@ module.exports = React.createClass({
 
   },
 
+  /**
+  * This function will fire on mousedown if chart is in rectangle mode
+  * starts the click timer
+  */
   validClickTimer: function(){
     let start = +new Date();
     this.setState({click_tracker: start});
   },
 
+  /**
+  * This function will fire on mouseup if chart is in rectangle mode
+  * determines what to do based on if it is a valid click
+  */
   validClickEnd: function(e){
     this.setState({drag_l: false, drag_r: false});
     if (this.state.click_tracker != -1){
       let d = +new Date() - this.state.click_tracker;
-      let valid = true;
+      let valid = true; //TODO: move the rect on click
       if (d > 250){
         valid = false;
       }
@@ -85,14 +93,23 @@ module.exports = React.createClass({
     }
   },
 
+  /**
+  * The chart will now have drag_l is true
+  */
   toggle_drag_start_l: function(){
     this.setState({drag_l : true});
   },
 
+  /**
+  * The chart will now have drag_r is true
+  */
   toggle_drag_start_r: function(){
     this.setState({drag_r : true});
   },
 
+  /**
+  * Set one of the dates: a start or end
+  */
   set_date: function (date, start_end) {
     let d = moment(date);
     if (start_end == "start"){
@@ -111,6 +128,9 @@ module.exports = React.createClass({
     }
   },
 
+  /**
+  * Set both dates at once: start and end
+  */
   set_dates: function (start_date, end_date) {
     let s = moment(start_date);
     let e = moment(end_date);
@@ -121,6 +141,9 @@ module.exports = React.createClass({
     }
   },
 
+  /**
+  * A clickhandler for sparkline time
+  */
   clickTile: function (e) {
     let url = this.props.base_url + "get_docs?q=" + this.props.q + "&f=" + e + "&corpus=" + this.props.corpus;
         let minbin = _.head(this.props.chart_bins);
@@ -139,12 +162,18 @@ module.exports = React.createClass({
         });
   },
 
+  /**
+  * A handler for when user clicks the X by Q. Requery with F equal to Q
+  */
   qX: function(){
     if (this.state.f != -1){
       location.href= this.props.base_url + '?q=' + this.state.f +'&corpus=' + this.props.corpus;
     }
   },
 
+  /**
+  * A handler for when user clicks the X by F. Adjust state so f=-1
+  */
   fX: function(){
     let min;
     let max;
@@ -153,6 +182,9 @@ module.exports = React.createClass({
     this.setState({f: -1, mode:"overview", start_selected: min, end_selected: max});
   },
 
+  /**
+  * The UI starts in intro mode, which has sparklines. This turns on doc mode
+  */
   turnOnDocMode: function(){
     if (this.state.f == -1){
         let url = this.props.base_url + "get_doclist?q=" + this.props.q + "&corpus=" + this.props.corpus;
@@ -173,6 +205,9 @@ module.exports = React.createClass({
     }
   },
 
+  /**
+  * The chart starts with no rectangle. This turns it on.
+  */
   toggle_rect: function (p, valid) {
     let m = moment(p.toString());
     if (valid != false){
@@ -204,14 +239,24 @@ module.exports = React.createClass({
       }
   },
 
+  /**
+  * Handle key press in the whole UI.
+
+  TODO: QueryBar.jsx has its own click handler for enter key. should probably be moved here
+  */
   handleKeyDown: function(e){
     if (this.state.start_selected != -1 && this.state.end_selected != -1){
+      let new_end, new_start;
+      let granularity = "weeks"; //TODO: this won't scale if span changes
       if(e.keyIdentifier == "Right"){
-        console.log("add 1 date to start and end");
+        new_start = moment(this.state.start_selected).add(1, granularity).format("YYYY-MM-DD");
+        new_end = moment(this.state.end_selected).add(1, granularity).format("YYYY-MM-DD");
       }
       if(e.keyIdentifier == "Left"){
-        console.log("add -1 date to start and end");
-      }       
+        new_start = moment(this.state.start_selected).subtract(1, granularity).format("YYYY-MM-DD");
+        new_end = moment(this.state.end_selected).subtract(1, granularity).format("YYYY-MM-DD");
+      }
+      this.setState({start_selected:new_start, end_selected: new_end})    
     }
   },
 
@@ -238,10 +283,6 @@ module.exports = React.createClass({
 
     let uiMonthHandler = this.handleMo;
     let b_f_click = this.handleLinguisticFacetClick;
-
-    let rw = {
-        width: "100%",
-    };
 
     let handleMoUI = this.handleMo;
 
