@@ -80,7 +80,6 @@ module.exports = React.createClass({
       }
       this.props.set_dates(lateral_scale.invert(e_pageX - this.state.mouse_to_l_d), lateral_scale.invert(e_pageX + this.state.mouse_to_r_d));
     } else if (this.props.drag_r == true && this.props.drag_l == false){
-      console.log("aqui");
       this.props.set_date(p, "end");
     } else if (this.props.drag_l == true && this.props.drag_r == false){
       this.props.set_date(p, "start");
@@ -91,7 +90,7 @@ module.exports = React.createClass({
   * This function will fire when a user clicks the rectangle between the black bars
   */
   toggle_rect: function(){
-    this.setState({drag_l : true, drag_r : true});
+    this.props.toggle_both_drags_start();
   },
 
 
@@ -108,17 +107,9 @@ module.exports = React.createClass({
     }
   },
 
-  toggle_drag_start_l: function(){
-    this.setState({drag_l : true});
-  },
-
-  toggle_drag_start_r: function(){
-    this.setState({drag_r : true});
-  },
-
   toggle_drag_stop: function(e, lateral_scale){
-    this.setState({drag_l : false, mouse_to_r_d: -1, mouse_to_l_d: -1,
-                   drag_r : false, mouse_to_r_d: -1, mouse_to_l_d: -1});
+    this.setState({ mouse_to_r_d: -1, mouse_to_l_d: -1,
+                    mouse_to_r_d: -1, mouse_to_l_d: -1});
     this.props.validClickEnd(lateral_scale.invert(e));
   },
   
@@ -154,10 +145,9 @@ module.exports = React.createClass({
     let rec, l_left, l_right; 
     if (this.props.chart_mode == "rectangle"){
       rec = <rect onMouseDown={this.toggle_rect} y="0" x={start_pos} opacity={".2"} height={this.props.height} width={end_pos - start_pos} strokeWidth="4" fill="grey" />  
-      l_left = <line onMouseDown={this.toggle_drag_start_l} x1={start_pos} y1={this.props.height / 4} x2={start_pos} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="20"/>
-      l_right = <line onMouseDown={this.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 4} x2={end_pos} y2={this.props.height * .75} stroke={stroke_color_r} strokeWidth="20"/>
+      l_left = <line onMouseDown={this.props.toggle_drag_start_l} x1={start_pos} y1={this.props.height / 4} x2={start_pos} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="20"/>
+      l_right = <line onMouseDown={this.props.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 4} x2={end_pos} y2={this.props.height * .75} stroke={stroke_color_r} strokeWidth="20"/>
     }
-    console.log(this.state);
     return (
 
         <Panel onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={e=>this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseUp={e =>  this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseDown={e => this.handle_mouse_down(e, lateral_scale)} >

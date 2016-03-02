@@ -75,6 +75,7 @@ module.exports = React.createClass({
   },
 
   validClickEnd: function(e){
+    this.setState({drag_l: false, drag_r: false});
     if (this.state.click_tracker != -1){
       let d = +new Date() - this.state.click_tracker;
       let valid = true;
@@ -85,6 +86,14 @@ module.exports = React.createClass({
     }else{
       this.setState({click_tracker: -1});
     }
+  },
+
+  toggle_drag_start_l: function(){
+    this.setState({drag_l : true});
+  },
+
+  toggle_drag_start_r: function(){
+    this.setState({drag_r : true});
   },
 
   set_date: function (date, start_end) {
@@ -99,7 +108,7 @@ module.exports = React.createClass({
     if (start_end == "end"){
       let start = moment(this.state.start_selected, "YYYY-MM-DD");
       let max = moment(this.props.chart_bins[this.props.chart_bins.length -1]);
-      if (d > start & d< max){
+      if (d > start & d < max){
          this.setState({end_selected:d.format("YYYY-MM-DD")});
       }
     }
@@ -169,7 +178,6 @@ module.exports = React.createClass({
 
   toggle_rect: function (p, valid) {
     let m = moment(p.toString());
-    console.log(valid);
     if (valid != false){
         var f = moment(this.props.last_story_pubdate);
         var l = moment(this.props.first_story_pubdate);
@@ -245,7 +253,7 @@ module.exports = React.createClass({
     let chart;
     if (this.props.total_docs_for_q > 0){
       let buffer = 5;
-      chart = <Chart drag_l={this.state.drag_l} drag_r={this.state.drag_r} w={this.state.width - this.props.y_axis_width - buffer} buffer={buffer} y_axis_width={this.props.y_axis_width} mode={this.state.mode} validClickEnd={this.validClickEnd} validClickTimer={this.validClickTimer} toggle_rect={this.toggle_rect} chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} set_dates={this.set_dates} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.state.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
+      chart = <Chart toggle_both_drags_start={() => this.setState({drag_l: true, drag_r: true}) } toggle_drag_start_l={this.toggle_drag_start_l} toggle_drag_start_r={this.toggle_drag_start_r} drag_l={this.state.drag_l} drag_r={this.state.drag_r} w={this.state.width - this.props.y_axis_width - buffer} buffer={buffer} y_axis_width={this.props.y_axis_width} mode={this.state.mode} validClickEnd={this.validClickEnd} validClickTimer={this.validClickTimer} toggle_rect={this.toggle_rect} chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} set_dates={this.set_dates} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.state.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
       
     }else{
       chart = "";
