@@ -8,9 +8,9 @@ import ipdb
 import csv
 import re
 from datetime import datetime
-from stanford_corenlp_pywrapper import sockwrap
 from bs4 import BeautifulSoup
 
+from stanford_corenlp_pywrapper import CoreNLP
 domainlimiter = "thelensnola"
 
 
@@ -29,12 +29,14 @@ def get_links(full_text):
     return output
 
 
+
 def get_pub_date(soup):
     time = soup.select("time")[0]
     time = time.attrs["datetime"].split("T")[0]
     year, month, day = [int(y) for y in time.split("-")]
     pubdate = str(datetime(year, month, day))
     return pubdate
+
 
 
 def process_story(html):
@@ -64,10 +66,22 @@ def process_story(html):
         print 'OSError'
         return {}
 
+
+def get_page(url):
+    headers = {'User-Agent': "Abe Handler: urllib2"}
+    req = urllib2.Request(url, headers=headers)
+    con = urllib2.urlopen(req)
+    html = con.read()
+    return html
+
+
 try:
-    os.remove("corpora/lens/raw/all.extract")
-except UnicodeError:
+    os.remove("corpora/lens/raw/all.json")
+except OSError:
     pass
+
+proc = CoreNLP("pos", corenlp_jars=["/Users/ahandler/research/nytweddings/stanford-corenlp-full-2015-04-20/*"])
+
 
 files = glob.glob("corpora/lens/raw/html/lens_processed/*")
 print len(files)
@@ -76,10 +90,10 @@ for f in files:
         html = "\n".join(inf.readlines())
         structured_story = process_story(html)
         if len(structured_story.keys()) > 0:
-            with open("corpora/lens/raw/all.extract", "a") as outf:
+            with open("corpora/lens/raw/all.json", "a") as outf:
                 outwriter = csv.writer(outf, delimiter='\t', quotechar='"')
                 try:
-                    outwriter.writerow(["", structured_story["pubdate"], "","", structured_story["headline"], structured_story["text"].replace("\n", ""), structured_story["url"]])
+                    outwriter.writerow(["", structured_story["pubdate"], "","", structured_story["headline"], proc.parse_doc(structured_story["text"]), structured_story["url"]])
                 except UnicodeEncodeError:
                     print "unicode error"
                     pass

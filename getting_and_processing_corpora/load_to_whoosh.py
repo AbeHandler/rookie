@@ -4,7 +4,6 @@ This module loads documents into whoosh and creates a sentence index
 from whoosh.index import create_in
 from whoosh.fields import Schema, TEXT, ID
 from whoosh import writing
-from webapp.classes import IncomingFile
 from collections import defaultdict
 from webapp import processed_location
 import ipdb
@@ -22,7 +21,7 @@ from dateutil.parser import parse
 '''build connection to db'''
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from webapp.classes import CONNECTION_STRING
+from webapp import CONNECTION_STRING
 engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -256,6 +255,8 @@ def load(index_location, processed_location):
                                   for j in doc.ngrams]
             sentences = [" ".join([j.raw for j in i.tokens]) \
                          for i in doc.sentences]
+            if "records" in headline and "Nagin" in headline and "era" in headline:
+                ipdb.set_trace()
             if len(headline) > 0 and len(full_text) > 0:
                 writer.add_document(title=headline, path=u"/" + str(s_counter), content=full_text)
                 per_doc_json_blob = {'headline': headline, 'pubdate': pubdate.strftime('%Y-%m-%d'), 'ngrams': ngrams, "url": url, "sentences": sentences}
