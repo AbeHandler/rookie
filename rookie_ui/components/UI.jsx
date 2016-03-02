@@ -38,16 +38,13 @@ module.exports = React.createClass({
   componentDidMount: function () {
     this.set_width();
     window.addEventListener("resize", this.set_width);
+    window.addEventListener("keydown", this.handleKeyDown);
   },
 
   getInitialState(){
     //Notes.
     //1) convention: -1 == null
-    let min = moment(_.first(this.props.chart_bins), "YYYY-MM-DD"); 
-    let max = moment(_.last(this.props.chart_bins), "YYYY-MM-DD");
-    let start = min.format("YYYY-MM-DD");
-    let end = max.format("YYYY-MM-DD");
-    return {drag_r: false, drag_l:false, width: 0, click_tracker: -1, chart_mode: "intro", all_results: [], start_selected:start, end_selected:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, mode:"overview"};
+    return {drag_r: false, drag_l:false, width: 0, click_tracker: -1, chart_mode: "intro", all_results: [], start_selected:-1, end_selected:-1, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, mode:"overview"};
   },
 
   resultsToDocs: function(results){
@@ -202,8 +199,20 @@ module.exports = React.createClass({
       else{
         if (this.state.chart_mode != "rectangle"){
           this.setState({chart_mode:"rectangle", drag_r: true, mode: "docs", start_selected:m.format("YYYY-MM-DD"), end_selected: m.format("YYYY-MM-DD")});
+          this.turnOnDocMode();
         }
       }
+  },
+
+  handleKeyDown: function(e){
+    if (this.state.start_selected != -1 && this.state.end_selected != -1){
+      if(e.keyIdentifier == "Right"){
+        console.log("add 1 date to start and end");
+      }
+      if(e.keyIdentifier == "Left"){
+        console.log("add -1 date to start and end");
+      }       
+    }
   },
 
   render: function() {
@@ -258,6 +267,7 @@ module.exports = React.createClass({
     }else{
       chart = "";
     }
+
 
     return(
         <div>
