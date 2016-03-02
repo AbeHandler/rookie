@@ -59,7 +59,7 @@ module.exports = React.createClass({
     let d1 = new Date(this.props.first_story_pubdate);
     let d2 = new Date(this.props.last_story_pubdate);
     let scale = this.get_x_scale();
-    return {w: 0, x_l: scale(d1), x_r: scale(d2), drag_l: false, drag_r: false, mouse_to_r_d: -1, mouse_to_l_d: -1};
+    return {w: 0, x_l: scale(d1), x_r: scale(d2), drag_l: this.props.drag_l, drag_r: this.props.drag_r, mouse_to_r_d: -1, mouse_to_l_d: -1};
   },
 
   lateralize: function (i, lateral_scale) {
@@ -68,7 +68,7 @@ module.exports = React.createClass({
 
   set_X: function(e_pageX, lateral_scale) {
     let p = lateral_scale.invert(e_pageX - this.props.y_axis_width - this.props.buffer);
-    if (this.state.drag_r == true && this.state.drag_l == true){
+    if (this.props.drag_r == true && this.props.drag_l == true){
       //set distance from mouse position to edges  
       let lateral_scale = this.get_x_scale();
       let start_pos = lateral_scale(new Date(this.props.start_selected));
@@ -79,9 +79,10 @@ module.exports = React.createClass({
         this.setState({mouse_to_r_d: rd, mouse_to_l_d: ld});
       }
       this.props.set_dates(lateral_scale.invert(e_pageX - this.state.mouse_to_l_d), lateral_scale.invert(e_pageX + this.state.mouse_to_r_d));
-    } else if (this.state.drag_r == true && this.state.drag_l == false){
+    } else if (this.props.drag_r == true && this.props.drag_l == false){
+      console.log("aqui");
       this.props.set_date(p, "end");
-    } else if (this.state.drag_l == true && this.state.drag_r == false){
+    } else if (this.props.drag_l == true && this.props.drag_r == false){
       this.props.set_date(p, "start");
     }
   },
@@ -103,7 +104,7 @@ module.exports = React.createClass({
     if (this.props.chart_mode == "rectangle"){
       this.props.validClickTimer(e);
     }else{
-      this.props.toggle_rect(lateral_scale.invert(e.pageX), false);
+      this.props.toggle_rect(lateral_scale.invert(e.pageX - this.props.y_axis_width - this.props.buffer), false);
     }
   },
 
@@ -133,11 +134,11 @@ module.exports = React.createClass({
       fs = this.get_path_string(this.props.f_data);
     }
     let stroke_color_r = "black";
-    if (this.state.drag_r == true){
+    if (this.props.drag_r == true){
       stroke_color_r = "red";
     }
     let stroke_color_l = "black";
-    if (this.state.drag_l == true){
+    if (this.props.drag_l == true){
       stroke_color_l = "red";
     }
     let start_pos = lateral_scale(new Date(this.props.start_selected));
@@ -156,6 +157,7 @@ module.exports = React.createClass({
       l_left = <line onMouseDown={this.toggle_drag_start_l} x1={start_pos} y1={this.props.height / 4} x2={start_pos} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="20"/>
       l_right = <line onMouseDown={this.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 4} x2={end_pos} y2={this.props.height * .75} stroke={stroke_color_r} strokeWidth="20"/>
     }
+    console.log(this.state);
     return (
 
         <Panel onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={e=>this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseUp={e =>  this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseDown={e => this.handle_mouse_down(e, lateral_scale)} >

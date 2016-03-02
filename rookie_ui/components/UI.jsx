@@ -11,7 +11,6 @@ var moment = require('moment');
 var DocViewer = require('./DocViewer.jsx');
 var Status = require('./Status.jsx');
 var Chart = require('./Chart.jsx');
-var IntroChart = require('./IntroChart.jsx');
 var ChartTitle = require('./ChartTitle.jsx');
 var SparklineGrid = require('./SparklineGrid.jsx');
 var QueryBar = require('./QueryBar.jsx');
@@ -48,7 +47,7 @@ module.exports = React.createClass({
     let max = moment(_.last(this.props.chart_bins), "YYYY-MM-DD");
     let start = min.format("YYYY-MM-DD");
     let end = max.format("YYYY-MM-DD");
-    return {width: 0, click_tracker: -1, chart_mode: "intro", all_results: [], start_selected:start, end_selected:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, mode:"overview"};
+    return {drag_r: false, drag_l:false, width: 0, click_tracker: -1, chart_mode: "intro", all_results: [], start_selected:start, end_selected:end, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, mode:"overview"};
   },
 
   resultsToDocs: function(results){
@@ -170,6 +169,7 @@ module.exports = React.createClass({
 
   toggle_rect: function (p, valid) {
     let m = moment(p.toString());
+    console.log(valid);
     if (valid != false){
         var f = moment(this.props.last_story_pubdate);
         var l = moment(this.props.first_story_pubdate);
@@ -192,9 +192,9 @@ module.exports = React.createClass({
           }
         }
       else{
-        console.log("subtract 1/1000 of total days from start_selected");
-        console.log("drag_l and drag_l need to get knowledge from UI");
-        this.setState({chart_mode:"rectangle", mode: "docs", start_selected:m.format("YYYY-MM-DD"), end_selected: m.format("YYYY-MM-DD")});
+        if (this.state.chart_mode != "rectangle"){
+          this.setState({chart_mode:"rectangle", drag_r: true, mode: "docs", start_selected:m.format("YYYY-MM-DD"), end_selected: m.format("YYYY-MM-DD")});
+        }
       }
   },
 
@@ -245,7 +245,7 @@ module.exports = React.createClass({
     let chart;
     if (this.props.total_docs_for_q > 0){
       let buffer = 5;
-      chart = <Chart w={this.state.width - this.props.y_axis_width - buffer} buffer={buffer} y_axis_width={this.props.y_axis_width} mode={this.state.mode} validClickEnd={this.validClickEnd} validClickTimer={this.validClickTimer} toggle_rect={this.toggle_rect} chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} set_dates={this.set_dates} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.state.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
+      chart = <Chart drag_l={this.state.drag_l} drag_r={this.state.drag_r} w={this.state.width - this.props.y_axis_width - buffer} buffer={buffer} y_axis_width={this.props.y_axis_width} mode={this.state.mode} validClickEnd={this.validClickEnd} validClickTimer={this.validClickTimer} toggle_rect={this.toggle_rect} chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} set_dates={this.set_dates} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.state.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
       
     }else{
       chart = "";
