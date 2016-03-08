@@ -86,13 +86,6 @@ module.exports = React.createClass({
     }
   },
 
-  /**
-  * This function will fire when a user clicks the rectangle between the black bars
-  */
-  toggle_rect: function(){
-    this.props.toggle_both_drags_start();
-  },
-
 
   /**
   * This function will fire on mousedown
@@ -101,18 +94,45 @@ module.exports = React.createClass({
   */
   handle_mouse_down: function(e, lateral_scale){
     if (this.props.chart_mode == "rectangle"){
-      this.props.validClickTimer(e);
+      this.props.validClickTimer();
     }else{
       this.props.toggle_rect(lateral_scale.invert(e.pageX - this.props.y_axis_width - this.props.buffer), false);
     }
   },
 
-  toggle_drag_stop: function(e, lateral_scale){
+  toggle_drag_stop: function(e_pageX, lateral_scale){
     this.setState({ mouse_to_r_d: -1, mouse_to_l_d: -1,
                     mouse_to_r_d: -1, mouse_to_l_d: -1});
-    this.props.validClickEnd(lateral_scale.invert(e));
+    this.props.validClickEnd(lateral_scale.invert(e_pageX - this.props.y_axis_width - this.props.buffer));
   },
   
+  /**
+  * This function will fire on mousedown
+  * @param {e_pageX} x location 
+  * @param {lateral_scale} d3 scale
+  */
+  handle_mouse_up_in_rect_mode: function(e_pageX, lateral_scale){
+    this.setState({ mouse_to_r_d: -1, mouse_to_l_d: -1,
+                    mouse_to_r_d: -1, mouse_to_l_d: -1});
+    this.props.handle_mouse_up_in_rect_mode(e_pageX - this.props.y_axis_width - this.props.buffer, lateral_scale);
+  },
+
+  get_stroke_color_r: function(){
+    let stroke_color_r = "black";
+    if (this.props.drag_r == true){
+      stroke_color_r = "red";
+    }
+    return stroke_color_r;
+  },
+
+  get_stroke_color_l: function(){
+    let stroke_color_l = "black";
+    if (this.props.drag_l == true){
+      stroke_color_l = "red";
+    }
+    return stroke_color_l;
+  },
+
   render: function() {
     let lateralize = this.lateralize;
     let lateral_scale = this.get_x_scale();
@@ -124,14 +144,8 @@ module.exports = React.createClass({
     if (this.props.f_data.length > 0){
       fs = this.get_path_string(this.props.f_data);
     }
-    let stroke_color_r = "black";
-    if (this.props.drag_r == true){
-      stroke_color_r = "red";
-    }
-    let stroke_color_l = "black";
-    if (this.props.drag_l == true){
-      stroke_color_l = "red";
-    }
+    let stroke_color_r = this.get_stroke_color_r();
+    let stroke_color_l = this.get_stroke_color_l();
     let start_pos = lateral_scale(new Date(this.props.start_selected));
     let end_pos = lateral_scale(new Date(this.props.end_selected));
     if (start_pos < lateral_scale(_.first(this.props.keys))){
@@ -142,15 +156,20 @@ module.exports = React.createClass({
     }
     let chart_width = this.props.w - this.props.y_axis_width - 5; 
     let max = _.max(this.props.datas);
-    let rec, l_left, l_right; 
+    let rec, l_left, l_right, handle_mouseup; 
     if (this.props.chart_mode == "rectangle"){
-      rec = <rect onMouseDown={this.toggle_rect} y="0" x={start_pos} opacity={".2"} height={this.props.height} width={end_pos - start_pos} strokeWidth="4" fill="grey" />  
+      rec = <rect onMouseDown={this.props.toggle_both_drags_start} y="0" x={start_pos} opacity={".2"} height={this.props.height} width={end_pos - start_pos} strokeWidth="4" fill="grey" />  
       l_left = <line onMouseDown={this.props.toggle_drag_start_l} x1={start_pos} y1={this.props.height / 4} x2={start_pos} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="20"/>
       l_right = <line onMouseDown={this.props.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 4} x2={end_pos} y2={this.props.height * .75} stroke={stroke_color_r} strokeWidth="20"/>
     }
+    if (this.props.drag_r == false && this.props.drag_l == false && this.props.chart_mode == "rectangle"){
+      handle_mouseup = this.handle_mouse_up_in_rect_mode;
+    }else{
+      handle_mouseup = this.toggle_drag_stop;
+    }
     return (
 
-        <Panel onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={e=>this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseUp={e =>  this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseDown={e => this.handle_mouse_down(e, lateral_scale)} >
+        <Panel onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={e=>this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseUp={e => handle_mouseup(e.pageX, lateral_scale)} onMouseDown={e => this.handle_mouse_down(e, lateral_scale)} >
         <Row>
         <Col xs={12}>
         <YAxis max={max} height={this.props.height} y_axis_width={this.props.y_axis_width}/>

@@ -76,10 +76,32 @@ module.exports = React.createClass({
   },
 
   /**
+  * This function will fire on mouseup if neither bar is clicked
+  * @param {e_pageX} e_pageX location
+  * @param {lateral_scale} d3 scale 
+  * @param {pix_buffer} y-axis width + chart buffer. buffer is set in render method of UI.jsx
+  */
+  handle_mouse_up_in_rect_mode: function(e_pageX_adjusted, lateral_scale){
+    console.log("6789");
+    let end = moment(this.state.end_selected, "YYYY-MM-DD");
+    let start = moment(this.state.start_selected, "YYYY-MM-DD");
+    let days_diff = start.diff(end, 'days');
+    let half_of_span = Math.abs(Math.floor(days_diff/2));
+    let clicked_here = moment(lateral_scale.invert(e_pageX_adjusted));
+    clicked_here.subtract(half_of_span, 'days');
+    let new_start = clicked_here.format("YYYY-MM-DD");
+    clicked_here.add(half_of_span, 'days');
+    clicked_here.add(half_of_span, 'days');
+    let new_end = clicked_here.format("YYYY-MM-DD");
+    console.log("to do fix offsets from width of rect");
+    this.setState({start_selected:new_start,end_selected:clicked_here.format("YYYY-MM-DD")});
+  },
+
+  /**
   * This function will fire on mouseup if chart is in rectangle mode
   * determines what to do based on if it is a valid click
   */
-  validClickEnd: function(e){
+  validClickEnd: function(e_page_X_adjusted){
     this.setState({drag_l: false, drag_r: false});
     if (this.state.click_tracker != -1){
       let d = +new Date() - this.state.click_tracker;
@@ -87,7 +109,7 @@ module.exports = React.createClass({
       if (d > 250){
         valid = false;
       }
-      this.setState({click_tracker: -1}, this.toggle_rect(e, valid));
+      this.setState({click_tracker: -1}, this.toggle_rect(e_page_X_adjusted, valid));
     }else{
       this.setState({click_tracker: -1});
     }
@@ -211,12 +233,11 @@ module.exports = React.createClass({
   toggle_rect: function (p, valid) {
     let m = moment(p.toString());
     if (valid != false){
-        var f = moment(this.props.last_story_pubdate);
-        var l = moment(this.props.first_story_pubdate);
-        let diff = moment.duration(f.diff(l, 'days') / 10, 'days');
+        let e = moment(this.state.end_selected);
+        let s = moment(this.state.start_selected);
+        let diff = moment.duration(e - s);
         let start = m.clone();
         let end = m.clone();
-        start.subtract(diff);
         end.add(diff);
         let min = moment(_.first(this.props.chart_bins), "YYYY-MM-DD"); 
         let max = moment(_.last(this.props.chart_bins), "YYYY-MM-DD");
@@ -225,7 +246,7 @@ module.exports = React.createClass({
         }
         if (end > max) {
            end = max;
-        }
+        } 
         this.setState({chart_mode:"rectangle", mode: "docs", start_selected:start, end_selected: end});
           if (this.state.f == -1){
               this.turnOnDocMode();
@@ -248,15 +269,17 @@ module.exports = React.createClass({
     if (this.state.start_selected != -1 && this.state.end_selected != -1){
       let new_end, new_start;
       let granularity = "weeks"; //TODO: this won't scale if span changes
-      if(e.keyIdentifier == "Right"){
-        new_start = moment(this.state.start_selected).add(1, granularity).format("YYYY-MM-DD");
-        new_end = moment(this.state.end_selected).add(1, granularity).format("YYYY-MM-DD");
-      }
-      if(e.keyIdentifier == "Left"){
-        new_start = moment(this.state.start_selected).subtract(1, granularity).format("YYYY-MM-DD");
-        new_end = moment(this.state.end_selected).subtract(1, granularity).format("YYYY-MM-DD");
-      }
-      this.setState({start_selected:new_start, end_selected: new_end})    
+      if (e.keyIdentifier == "Right" || e.keyIdentifier == "Left"){
+        if(e.keyIdentifier == "Right"){
+          new_start = moment(this.state.start_selected).add(1, granularity).format("YYYY-MM-DD");
+          new_end = moment(this.state.end_selected).add(1, granularity).format("YYYY-MM-DD");
+        }
+        if(e.keyIdentifier == "Left"){
+          new_start = moment(this.state.start_selected).subtract(1, granularity).format("YYYY-MM-DD");
+          new_end = moment(this.state.end_selected).subtract(1, granularity).format("YYYY-MM-DD");
+        }
+        this.setState({start_selected:new_start, end_selected: new_end});
+      } 
     }
   },
 
@@ -303,7 +326,7 @@ module.exports = React.createClass({
     let chart;
     if (this.props.total_docs_for_q > 0){
       let buffer = 5;
-      chart = <Chart toggle_both_drags_start={() => this.setState({drag_l: true, drag_r: true}) } toggle_drag_start_l={this.toggle_drag_start_l} toggle_drag_start_r={this.toggle_drag_start_r} drag_l={this.state.drag_l} drag_r={this.state.drag_r} w={this.state.width - this.props.y_axis_width - buffer} buffer={buffer} y_axis_width={this.props.y_axis_width} mode={this.state.mode} validClickEnd={this.validClickEnd} validClickTimer={this.validClickTimer} toggle_rect={this.toggle_rect} chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} set_dates={this.set_dates} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.state.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
+      chart = <Chart handle_mouse_up_in_rect_mode={this.handle_mouse_up_in_rect_mode} toggle_both_drags_start={() => this.setState({drag_l: true, drag_r: true}) } toggle_drag_start_l={this.toggle_drag_start_l} toggle_drag_start_r={this.toggle_drag_start_r} drag_l={this.state.drag_l} drag_r={this.state.drag_r} w={this.state.width - this.props.y_axis_width - buffer} buffer={buffer} y_axis_width={this.props.y_axis_width} mode={this.state.mode} validClickEnd={this.validClickEnd} validClickTimer={this.validClickTimer} toggle_rect={this.toggle_rect} chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} set_dates={this.set_dates} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.state.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
       
     }else{
       chart = "";
