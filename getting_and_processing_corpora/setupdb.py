@@ -1,7 +1,7 @@
 '''build connection to db'''
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from webapp.classes import CONNECTION_STRING
+from webapp import CONNECTION_STRING
 engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -12,6 +12,7 @@ go("create table corpora (corpusid integer not null primary key, corpusname char
 go("create table count_vectors (docid integer, corpusid integer not null, data jsonb)")
 go("insert into corpora values (1, 'lens')")
 go("insert into corpora values (2, 'gawk')")
-go("CREATE index on doc_metadata column (docid)") # i think these are all the important indexes. added them manually
-go("CREATE index on count_vectors column (docid)")
-go("CREATE index on count_vectors column (corpusid)")
+go("CREATE index on doc_metadata (docid)") # i think these are all the important indexes. added them manually
+go("CREATE index on count_vectors (docid)")
+go("CREATE index on count_vectors (corpusid)")
+session.commit()

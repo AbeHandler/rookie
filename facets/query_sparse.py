@@ -302,6 +302,7 @@ if __name__ == '__main__':
 
     CORPUS_ID = getcorpusid(CORPUS)
     RESULTZ = query(args.query, args.corpus)
+    print RESULTZ
     structures = load_all_data_structures(CORPUS)
     startTime = time.time()
     facets = get_facets_for_q(args.query, RESULTZ, 9, structures)
