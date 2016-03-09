@@ -17,12 +17,17 @@ def main():
     parser.add_argument('--corpus',
                         help='the thing in the middle of corpus/{}/raw',
                         required=True)
-    parser.parse_args()
+    args = parser.parse_args()
 
     engine = create_engine(CONNECTION_STRING)
     ession = sessionmaker(bind=engine)
     session = ession()
     txt = "select * from doc_metadata"
-    print [dp.parse(i[1]["pubdate"]) for i in session.execute(txt)]
-
+    mind = min([dp.parse(i[1]["pubdate"]) for i in session.execute(txt)])
+    maxd = max([dp.parse(i[1]["pubdate"]) for i in session.execute(txt)])
+    strg = "update corpora set first_story ='" + mind.strftime("%Y-%m-%d") + "' where corpusname='" + args.corpus + "'"
+    session.execute(strg)
+    strg2 = "update corpora set last_story ='" + maxd.strftime("%Y-%m-%d") + "' where corpusname='" + args.corpus + "'"
+    session.execute(strg2)
+    session.commit()
 main()
