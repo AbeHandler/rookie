@@ -3,7 +3,6 @@ Create a sparse matrix for every doc showing what ngrams it has.
 
 These should be very small b.c gonna try to fit them all in memory
 '''
-from webapp.classes import IncomingFile
 from collections import defaultdict
 from pylru import lrudecorator
 from joblib import Memory
@@ -36,7 +35,7 @@ memory = Memory(cachedir=cachedir, verbose=1)
 '''build connection to db'''
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from webapp.classes import CONNECTION_STRING
+from webapp import CONNECTION_STRING
 engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -76,7 +75,7 @@ def count_facets():
                 sys.stdout.write("...%s" % counter); sys.stdout.flush()
             ngram = get_doc_metadata(docid, args.corpus)["ngrams"]
             for n in ngram:
-                ngram_count[n] += 1        
+                ngram_count[n] += 1
 
         except UnicodeError:
             print "error"
@@ -137,7 +136,7 @@ def build_matrix(docids, ok_ngrams):
     pickle.dump(df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams)), open("indexes/{}/ngram_df.p".format(args.corpus), "wb" ))
 
     pickle.dump(np.log(NDOCS / df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams))), open("indexes/{}/ngram_idf.p".format(args.corpus), "wb" ))
-    
+
     pickle.dump(dict(string_to_pubdate_index), open("indexes/{}/string_to_pubdate_index.p".format(args.corpus), "wb" ))
 
 

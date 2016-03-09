@@ -213,7 +213,7 @@ def create_pubdate_index(metadata):
         dates = sorted(set(dates))
         go(u"""INSERT INTO ngram_pubdates (ngram, pubdates, CORPUSID) VALUES (%s, %s, %s)""",
                 ngram, ujson.dumps(dates), CORPUSID)
-        
+
     print "\nindexing"
     go("create index on ngram_pubdates (ngram)")
     print "pubdate index built over %s terms" % (go("select count(1) from ngram_pubdates").fetchone()[0])
@@ -245,6 +245,7 @@ def load(index_location, processed_location):
                 tm = line_json["pubdate"].split("T")[0].strip('"') # wierdness i phone tweets
                 pubdate = parse(tm)
             procesed_text = line_json["text"]
+
             try:
                 url = line_json["url"]
             except KeyError:
@@ -255,8 +256,6 @@ def load(index_location, processed_location):
                                   for j in doc.ngrams]
             sentences = [" ".join([j.raw for j in i.tokens]) \
                          for i in doc.sentences]
-            if "records" in headline and "Nagin" in headline and "era" in headline:
-                ipdb.set_trace()
             if len(headline) > 0 and len(full_text) > 0:
                 writer.add_document(title=headline, path=u"/" + str(s_counter), content=full_text)
                 per_doc_json_blob = {'headline': headline, 'pubdate': pubdate.strftime('%Y-%m-%d'), 'ngrams': ngrams, "url": url, "sentences": sentences}

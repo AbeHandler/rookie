@@ -55,6 +55,9 @@ def process_story(html):
         h.body_width = 0
         h.ignore_links = True
         full_text = h.handle(full_text)
+        headline = soup.select(".entry-title")[0].text
+        #if "another" in headline and "more" in headline and "building" in headline:
+        #    ipdb.set_trace()
         return {"pubdate": get_pub_date(soup), "headline": soup.select(".entry-title")[0].text, "text": full_text, "url": url}
     except ValueError:
         print 'ValueError'
@@ -80,8 +83,6 @@ try:
 except OSError:
     pass
 
-proc = CoreNLP("pos", corenlp_jars=["/Users/ahandler/research/nytweddings/stanford-corenlp-full-2015-04-20/*"])
-
 
 files = glob.glob("corpora/lens/raw/html/lens_processed/*")
 print len(files)
@@ -90,10 +91,10 @@ for f in files:
         html = "\n".join(inf.readlines())
         structured_story = process_story(html)
         if len(structured_story.keys()) > 0:
-            with open("corpora/lens/raw/all.json", "a") as outf:
+            with open("corpora/lens/raw/all.extract", "a") as outf:
                 outwriter = csv.writer(outf, delimiter='\t', quotechar='"')
                 try:
-                    outwriter.writerow(["", structured_story["pubdate"], "","", structured_story["headline"], proc.parse_doc(structured_story["text"]), structured_story["url"]])
+                    outwriter.writerow(["", structured_story["pubdate"], "","", structured_story["headline"], structured_story["text"].replace("\n", " "), structured_story["url"]])
                 except UnicodeEncodeError:
                     print "unicode error"
                     pass
