@@ -147,6 +147,7 @@ module.exports = React.createClass({
       let x_date = x_scale.invert(x_loc - this.props.y_axis_width - this.props.buffer);
       let x_scaled = x_scale(moment(x_date).startOf("month")); 
       let y_loc = this.props.height /2;
+      console.log(this.refs);
       //note: you need to render the component in all cases
       return <rect y={y_loc} opacity={opacity} x={x_scaled} height="10" width="23" fill="grey"/>
    },
@@ -191,7 +192,7 @@ module.exports = React.createClass({
         <Row>
         <Col xs={12}>
         <YAxis max={max} height={this.props.height} y_axis_width={this.props.y_axis_width}/>
-	      <svg width={this.props.w - this.props.y_axis_width - 5} height={this.props.height}>
+	      <svg ref="chart" width={this.props.w - this.props.y_axis_width - 5} height={this.props.height}>
         <path onMouseLeave={e=>this.setState({mouse_x:-1, mouse_y:-1})} onMouseMove={e =>this.setState({mouse_x:e.pageX, mouse_y:e.pageY})} d={ps} fill="#0028a3" opacity=".25" stroke="grey"/>
         <path d={fs} fill="rgb(179, 49, 37)" opacity=".75" stroke="black"/>
         {tooltip}

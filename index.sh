@@ -7,6 +7,7 @@ dropdb 'rookie' --if-exists
 createdb -O rookie rookie
 py getting_and_processing_corpora/setupdb.py
 # python webapp/classes.py
+py getting_and_processing_corpora/fill_min_max_pubdates.py --corpus lens
 python getting_and_processing_corpora/load_to_whoosh.py --corpus lens
 python getting_and_processing_corpora/load_to_whoosh.py --corpus gawk
 python facets/build_sparse_matrix.py --corpus lens

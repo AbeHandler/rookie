@@ -2,6 +2,7 @@
 Application logic for webapp should be in here
 '''
 import datetime
+import ipdb
 import time
 import pandas as pd
 from dateutil.parser import parse
@@ -103,7 +104,6 @@ def results_to_doclist(results, q, f, corpus, pubdates, aliases):
     '''
     Start w/ search results. filter based on params. get a doclist back.
     '''
-    metadata = [get_doc_metadata(r, corpus) for r in results]
     q_pubdates = [pubdates[r] for r in results]
     df = make_dataframe(q, [f], results, q_pubdates, aliases)
     results = filter_results_with_binary_dataframe(results, f, df)

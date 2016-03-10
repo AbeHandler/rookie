@@ -8,6 +8,7 @@ from collections import defaultdict
 import csv
 import os
 import sys
+import re
 from itertools import tee, izip, islice, chain
 csv.field_size_limit(sys.maxsize)
 import ipdb
@@ -261,6 +262,8 @@ def load(index_location, processed_location):
                 '''
                 toks = [(j.raw, j.token_no, j.char_offset) for j in tokens]
                 raw = " ".join([j.raw for j in tokens])
+                raw = re.sub(' \.',".", raw)
+                raw = re.sub(' \,',",", raw)
                 return {"as_string": raw, "as_tokens": toks}
 
             sentences = [make_dict(i.tokens) for i in doc.sentences]
