@@ -1,9 +1,5 @@
 import re,os,json
-import datetime
-# import ipdb
-import itertools
 import time
-#from webapp.classes import Sentence, Document
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import desc
@@ -37,12 +33,12 @@ def get_q_or_f(docid, q, f):
 def get_q(docid, q):
     #return session.query(Sentence).filter_by(articleid=docid).order_by(Sentence.sentence_no.desc()).limit(2).all()
     return session.query(Sentence).filter_by(articleid=docid).filter(Sentence.text.ilike("%" + q + "%")).order_by(Sentence.sentence_no.desc()).limit(2).all()
-    
-    
+
+
 def get_anything(docid):
     #return session.query(Sentence).filter_by(articleid=docid).order_by(Sentence.sentence_no.desc()).limit(2).all()
     return session.query(Sentence).filter_by(articleid=docid).order_by(Sentence.sentence_no.desc()).limit(2).all()
-    
+
 
 def find_sentences_q(docid, q):
     sentences = []
@@ -110,7 +106,7 @@ def get_snippet2(docid, corpus, q, f_aliases=None, taginfo=None):
     d = get_doc_metadata(docid, corpus)
     hsents = {'has_q':[], 'has_f':[]}
     for sentnum,toktext in enumerate(d['sentences']):
-        hsent = hilite(toktext, q, f_aliases, taginfo=taginfo)
+        hsent = hilite(toktext["as_string"], q, f_aliases, taginfo=taginfo)
         hsent['sentnum'] = sentnum
 
         if hsent['has_q'] and hsent['has_f']:
@@ -154,7 +150,7 @@ def q_regex(q):
     return qregex
 
 def hilite(text, q, f_aliases=None, taginfo=None):
-    """e.g. 
+    """e.g.
     taginfo=dict(
         q_ltag = "<span style='color:blue'>, q_rtag = "</span>",
         f_ltag = "<span style='color:red'>, f_rtag = "</span>")
@@ -214,7 +210,7 @@ def runf(q,f,q_docids,aliases):
     from experiment.models import get_doc_metadata, Models
     aliases = set([f] + list(aliases))
 
-    print 
+    print
     f_docids = Models.f_occurs_filter(q_docids, facet=f, aliases=aliases)
     print
     print "-----------------------------------------"
