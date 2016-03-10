@@ -254,7 +254,7 @@ def load(index_location, processed_location):
             full_text = doc.full_text
             ngrams = [unicode(" ".join(i.raw for i in j)) \
                                   for j in doc.ngrams]
-            sentences = [" ".join([j.raw for j in i.tokens]) \
+            sentences = [(" ".join([j.raw for j in i.tokens]), [(j.raw, j.token_no) for j in i.tokens])\
                          for i in doc.sentences]
             if len(headline) > 0 and len(full_text) > 0:
                 writer.add_document(title=headline, path=u"/" + str(s_counter), content=full_text)

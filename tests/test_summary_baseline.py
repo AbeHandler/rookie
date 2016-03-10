@@ -19,7 +19,7 @@ class TestStuff(unittest.TestCase):
         results = query("Mitch Landrieu", "lens")
         sss = prepare_sentences(results, params.q, params.f)
         sd = [i for i in sss if i["has_q"]]
-        print sd
+        #print sd
         self.assertTrue(len(sents) > 0)
 
     def test_draw(self):

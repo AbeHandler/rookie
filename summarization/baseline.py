@@ -25,6 +25,7 @@ def prepare_sentences(results, query, facet):
     for result in results:
         print result
         md = get_doc_metadata(result, CORPUS)
+        print md["sentences"]
         for sentnum, toktext in enumerate(md['sentences']):
             hsent = hilite(toktext, query, facet, taginfo=TAGINFO)
             hsent["sentnum"] = sentnum
