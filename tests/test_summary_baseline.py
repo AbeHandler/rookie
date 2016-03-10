@@ -3,8 +3,9 @@ Unit tests for the summary baseline
 """
 
 import unittest
-from webapp.models import query
-from summarization.baseline import get_sentences_for_query
+from webapp.models import query, Parameters
+from summarization.baseline import prepare_sentences
+
 
 class TestStuff(unittest.TestCase):
     '''
@@ -12,7 +13,12 @@ class TestStuff(unittest.TestCase):
     '''
 
     def test_get_sentences_for_query(self):
-        self.assertEqual("a query yields sentences", 3)
+        params = Parameters()
+        params.q = "Mitch Landrieu"
+        params.corpus = "lens"
+        results = query("Mitch Landrieu", "lens")
+        sents = prepare_sentences(results, params.q, params.f)
+        self.assertTrue(len(sents) > 0)
 
     def test_draw(self):
         self.assertEqual("returns the middle sentence from a pile", 4)
