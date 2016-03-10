@@ -23,6 +23,7 @@ module.exports = React.createClass({
     let to_date = this.i_to_date;
     let lateral_scale = this.props.lateral_scale;
     let keys = this.props.keys;
+    console.log(keys);
     let ticks = lateral_scale.ticks(d3.time.year);
     let format = lateral_scale.tickFormat();
     return (

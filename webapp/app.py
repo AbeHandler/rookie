@@ -7,7 +7,7 @@ import time
 import json
 import traceback
 from flask.ext.compress import Compress
-from webapp.models import results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, results_min_max, get_stuff_ui_needs
+from webapp.models import results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, corpus_min_max, get_stuff_ui_needs
 from flask import Flask, request
 
 from facets.query_sparse import load_all_data_structures
@@ -39,14 +39,14 @@ def get_doclist():
     params = Models.get_parameters(request)
 
     results = Models.get_results(params)
-    
+
     out = Models.get_doclist(results, params.q, None, params.corpus, aliases=[])
 
     pubdates = load_all_data_structures(params.corpus)["pubdates"]
-    
-    minmax = results_min_max(results, pubdates)
 
-    return json.dumps({"doclist":out, "min_filtered": minmax["min"], "max_filtered": minmax["max"]})
+    minmax = corpus_min_max(params.corpus)
+
+    return json.dumps({"doclist":out, "min_filtered": minmax["min"].strftime("%Y-%m-%d"), "max_filtered": minmax["max"].strftime("%Y-%m-%d")})
 
 @app.route("/get_docs", methods=['GET'])
 def get_docs():
@@ -63,7 +63,7 @@ def get_docs():
     binsize = "month"
     df = make_dataframe(params.q, [params.f], results, q_pubdates, aliases=[])
     df = bin_dataframe(df, binsize)
-    chart_bins = get_keys(q_pubdates, binsize)
+    chart_bins = get_keys(params.corpus)
 
     facet_datas = {}
     facet_datas[params.f] = [get_val_from_df(params.f, key, df, binsize) for key in chart_bins]

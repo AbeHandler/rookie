@@ -82,7 +82,6 @@ module.exports = React.createClass({
   * @param {pix_buffer} y-axis width + chart buffer. buffer is set in render method of UI.jsx
   */
   handle_mouse_up_in_rect_mode: function(e_pageX_adjusted, lateral_scale){
-    console.log("6789");
     let end = moment(this.state.end_selected, "YYYY-MM-DD");
     let start = moment(this.state.start_selected, "YYYY-MM-DD");
     let days_diff = start.diff(end, 'days');

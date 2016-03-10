@@ -20,6 +20,7 @@ module.exports = React.createClass({
   get_x_scale: function(){
       let str = new Date(_.first(this.props.keys));
       let end = new Date(_.last(this.props.keys));
+
       try{
           return d3.time.scale()
                             .domain([str, end])
@@ -56,8 +57,8 @@ module.exports = React.createClass({
 
 
   getInitialState: function() {
-    let d1 = new Date(this.props.first_story_pubdate);
-    let d2 = new Date(this.props.last_story_pubdate);
+    let d1 = new Date(this.props.keys[0]);
+    let d2 = new Date(this.props.keys[this.props.keys.length -1]);
     let scale = this.get_x_scale();
     return {w: 0, x_l: scale(d1), x_r: scale(d2), drag_l: this.props.drag_l, drag_r: this.props.drag_r, mouse_to_r_d: -1, mouse_to_l_d: -1};
   },

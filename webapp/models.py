@@ -5,9 +5,7 @@ import datetime
 import time
 import pandas as pd
 from dateutil.parser import parse
-from joblib import Memory
 from whoosh.index import open_dir
-from tempfile import mkdtemp
 from whoosh.qparser import QueryParser
 from dateutil.relativedelta import relativedelta
 from webapp.snippet_maker import get_snippet2
@@ -17,15 +15,15 @@ from sqlalchemy.orm import sessionmaker
 from facets.query_sparse import get_facets_for_q, load_all_data_structures
 import traceback
 
+ENGINE = create_engine(CONNECTION_STRING)
+SESS = sessionmaker(bind=ENGINE)
+SESSION = SESS()
 
 def get_stuff_ui_needs(params):
     try:
-        start = time.time()
-
 
         results = Models.get_results(params)
 
-        fstart = time.time()
         binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
 
         aliases = [] # TODO
@@ -37,31 +35,28 @@ def get_stuff_ui_needs(params):
         df = make_dataframe(params.q, binned_facets["g"], results, q_pubdates, aliases)
         df = bin_dataframe(df, binsize)
 
-        chart_bins = get_keys(q_pubdates, binsize)
-        
-        q_data = [get_val_from_df(params.q, key, df, binsize) for key in chart_bins]
+        keys = get_keys(params.corpus)
 
-        chart_bins = [k + "-1" for k in chart_bins] # hacky addition of date to keys
-        stuff_ui_needs["keys"] = chart_bins
+        q_data = [get_val_from_df(params.q, key, df, binsize) for key in keys]
+
+        stuff_ui_needs["keys"] = [k + "-01" for k in keys]
         display_bins = []
         for key in binned_facets:
             if key != "g":
                 display_bins.append({"key": key, "facets": binned_facets[key]})
 
-        ftime = time.time()
-
 
         stuff_ui_needs["total_docs_for_q"] = len(results)
         facets = {}
-        for f in binned_facets['g']:
-            facets[f] = [get_val_from_df(f, key, df, binsize) for key in chart_bins]
+        for fac in binned_facets['g']:
+            facets[fac] = [get_val_from_df(fac, key, df, binsize) for key in keys]
         stuff_ui_needs["facet_datas"] = facets
 
-        dminmax = results_min_max(results, load_all_data_structures(params.corpus)["pubdates"]) 
-        
+        dminmax = corpus_min_max(params.corpus)
+
         try:
             stuff_ui_needs["first_story_pubdate"] = dminmax["min"]
-            stuff_ui_needs["last_story_pubdate"] = dminmax["max"] 
+            stuff_ui_needs["last_story_pubdate"] = dminmax["max"]
         except ValueError:
             stuff_ui_needs["first_story_pubdate"] = ""
             stuff_ui_needs["last_story_pubdate"] = ""
@@ -87,11 +82,6 @@ def query(qry_string, corpus):
     return out
 
 
-engine = create_engine(CONNECTION_STRING)
-Session = sessionmaker(bind=engine)
-session = Session()
-
-
 def filter_results_with_binary_dataframe(results, facet, df):
     '''
     take a binary dataframe indicating which facets occur
@@ -101,15 +91,13 @@ def filter_results_with_binary_dataframe(results, facet, df):
         assert h in results
     return hits
 
-def results_min_max(results, pubdates):
-    q_pubdates = [pubdates[r] for r in results]
-    try:
-        min_filtered = min(q_pubdates).strftime("%Y-%m-%d")
-        max_filtered = max(q_pubdates).strftime("%Y-%m-%d")
-    except ValueError:
-        min_filtered = ""
-        max_filtered = ""
-    return {"min": min_filtered, "max": max_filtered}
+def corpus_min_max(corpus):
+    """get the min/max pubdates for a corpus"""
+    res = SESSION.connection().execute(
+            u"SELECT * FROM corpora WHERE corpusname=%s",
+            corpus)
+    res2 = [r for r in res][0]
+    return {"min": res2[2], "max": res2[3]}
 
 def results_to_doclist(results, q, f, corpus, pubdates, aliases):
     '''
@@ -126,7 +114,7 @@ def results_to_doclist(results, q, f, corpus, pubdates, aliases):
 
 def get_pubdates_for_ngram(ngram_str):
     """used to be PI[ngram_str]"""
-    res = session.connection().execute(
+    res = SESSION.connection().execute(
             u"SELECT pubdates FROM ngram_pubdates WHERE ngram=%s",
             ngram_str)
     row = res.fetchone()
@@ -135,43 +123,38 @@ def get_pubdates_for_ngram(ngram_str):
 
 
 def getcorpusid(corpus):
-    go = lambda *args: session.connection().execute(*args)
+    '''
+    Get corpus id for corpus name
+    '''
+    go = lambda *args: SESSION.connection().execute(*args)
     for i in go("select corpusid from corpora where corpusname='{}'".format(corpus)):
         return i[0]
 
 
 def get_doc_metadata(docid, corpus):
+    '''
+    Just query db for function metatdata
+    '''
     corpusid = getcorpusid(corpus)
-    row = session.connection().execute("select data from doc_metadata where docid=%s and corpusid=%s", docid, corpusid).fetchone()
+    row = SESSION.connection().execute("select data from doc_metadata where docid=%s and corpusid=%s", docid, corpusid).fetchone()
     return row[0]
 
-def get_delta(bin):
-    if bin == "month": # TODO
-        return relativedelta(months=+1)
-    elif bin == "year":
-        return relativedelta(years=+1)
-    elif bin == "day":
-        return relativedelta(days=+1)
 
-def get_keys(q_pubdates, bin):
+def get_keys(corpus):
     '''
     Returns a set of date keys between a start and stop date. bin = size of step
     '''
-    try:
-        start = min(q_pubdates)
-        stop = max(q_pubdates)
-    except ValueError: # this means pubdates == []
-        return [] # but being pythonic and leaping before looking
+    min_max = corpus_min_max(corpus)
+    start = min_max["min"]
+    stop =  min_max["max"]
     output = []
     counter = start
-    assert bin in ["year", "month", "day"]
-    
+
     while counter <= stop:
-        if bin == "month":
-            output.append(counter.strftime("%Y-%m"))
-            counter = counter + get_delta(bin)
+        output.append(counter.strftime("%Y-%m"))
+        counter = counter + relativedelta(months=+1)
     return output
- 
+
 
 class Parameters(object):
 
@@ -265,11 +248,11 @@ class Models(object):
             output.f = request.args.get('f')
         except:
             output.f = None
-    
+
         try:
             output.corpus = request.args.get('corpus')
         except:
-            output.corpus = "corpus" # default zoom to a year
+            output.corpus = "corpus"
 
         return output
 
@@ -310,7 +293,7 @@ class Models(object):
         f_aliases = set() if aliases is None else set(aliases)
         if f is not None:
             f_aliases.add(f)
-        hsents = get_snippet2(docid, corpus, q, f_aliases, 
+        hsents = get_snippet2(docid, corpus, q, f_aliases,
                 taginfo=dict(
                     q_ltag='<span style="font-weight:bold;color:#0028a3">',
                     q_rtag='</span>',
