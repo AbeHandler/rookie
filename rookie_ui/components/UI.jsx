@@ -17,7 +17,6 @@ var QueryBar = require('./QueryBar.jsx');
 var TemporalStatus = require('./TemporalStatus.jsx');
 var $ = require('jquery');
 var Panel = require('react-bootstrap/lib/Panel');
-//var ExampleInput = require('./ExampleInput.jsx')
 
 
 module.exports = React.createClass({
@@ -311,7 +310,10 @@ module.exports = React.createClass({
     var binned_counts_f = this.props.binned_counts_f;
 
     let chart_bins = this.props.chart_bins;
-
+    let temporal_status = <TemporalStatus start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>
+    if (this.props.total_docs_for_q == 0){
+        temporal_status = "";
+    }
     let f_couts = this.state.f_counts;
     if (this.state.mode != "docs" & this.props.total_docs_for_q > 0){
       main_panel = <Panel>
@@ -320,7 +322,7 @@ module.exports = React.createClass({
                    </Panel>
     } else { 
       let docviewer = <DocViewer f={this.state.f} handleBinClick={this.handleBinClick} start_selected={this.state.start_selected} end_selected={this.state.end_selected} all_results={this.state.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>
-      main_panel = <div><TemporalStatus start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>{docviewer}</div>
+      main_panel = <div>{temporal_status}{docviewer}</div>
     }
     let chart;
     if (this.props.total_docs_for_q > 0){
