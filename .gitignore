@@ -25,6 +25,8 @@ react_svg_chart/app/js/bundle.js
 rookie_ui/doc_react/node_modules/*
 rookie_ui/doc_react/app/*
 webapp/static/js/bundle.js
+.rope*
+*.swp
 articles/*
 rookie/doc_react/.sass-cache/
 indexes/*

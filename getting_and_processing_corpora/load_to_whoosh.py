@@ -10,7 +10,7 @@ import os
 import sys
 from itertools import tee, izip, islice, chain
 csv.field_size_limit(sys.maxsize)
-
+import ipdb
 import ujson
 import argparse
 from dateutil.parser import parse
@@ -89,12 +89,13 @@ class Sentence(object):
         tokens = json_sentence['tokens']
         lemmas = json_sentence['lemmas']
         poses = json_sentence['pos']
+        char_offsets = json_sentence['char_offsets']
         assert len(tokens) == len(lemmas)
         assert len(poses) == len(lemmas)
         assert len(tokens) == len(poses)
         sentence_tokens = []
         for i in range(0, len(tokens)):
-            t = Token(tokens[i], poses[i], lemmas[i], i, sentence_no)
+            t = Token(tokens[i], poses[i], lemmas[i], char_offsets[i], i, sentence_no)
             sentence_tokens.append(t)
         self.tokens = sentence_tokens
         self.ngrams = self.get_ngrams()
@@ -141,7 +142,7 @@ class N_Grammer(object):
 
 class Token(object):
 
-    def __init__(self, raw_token, pos, lemma_form, token_no, sentence_no):
+    def __init__(self, raw_token, pos, lemma_form, char_offset, token_no, sentence_no):
         '''
         Initialize w/ the json output
         '''
@@ -151,6 +152,7 @@ class Token(object):
         self.lemma_form = lemma_form
         self.token_no = token_no
         self.sentence_no = sentence_no
+        self.char_offset = char_offset
 
     def abreviated_pos(self):
         if self.is_adjective():
@@ -257,7 +259,7 @@ def load(index_location, processed_location):
                 '''
                 Make a token dictionary to store as json
                 '''
-                toks = [(j.raw, j.token_no) for j in tokens]
+                toks = [(j.raw, j.token_no, j.char_offset) for j in tokens]
                 raw = " ".join([j.raw for j in tokens])
                 return {"as_string": raw, "as_tokens": toks}
 

@@ -106,6 +106,7 @@ def get_snippet2(docid, corpus, q, f_aliases=None, taginfo=None):
     d = get_doc_metadata(docid, corpus)
     hsents = {'has_q':[], 'has_f':[]}
     for sentnum,toktext in enumerate(d['sentences']):
+        ipdb.set_trace()
         hsent = hilite(toktext["as_string"], q, f_aliases, taginfo=taginfo)
         hsent['sentnum'] = sentnum
 
