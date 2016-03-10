@@ -17,7 +17,9 @@ class TestStuff(unittest.TestCase):
         params.q = "Mitch Landrieu"
         params.corpus = "lens"
         results = query("Mitch Landrieu", "lens")
-        sents = prepare_sentences(results, params.q, params.f)
+        sss = prepare_sentences(results, params.q, params.f)
+        sd = [i for i in sss if i["has_q"]]
+        print sd
         self.assertTrue(len(sents) > 0)
 
     def test_draw(self):
