@@ -60,7 +60,9 @@ module.exports = React.createClass({
     let d1 = new Date(this.props.keys[0]);
     let d2 = new Date(this.props.keys[this.props.keys.length -1]);
     let scale = this.get_x_scale();
-    return {w: 0, x_l: scale(d1), x_r: scale(d2), drag_l: this.props.drag_l, drag_r: this.props.drag_r, mouse_to_r_d: -1, mouse_to_l_d: -1};
+    let mouse_x = -1;
+    let mouse_y = -1
+    return {w: 0, mouse_x: mouse_x, mouse_y: mouse_y, x_l: scale(d1), x_r: scale(d2), drag_l: this.props.drag_l, drag_r: this.props.drag_r, mouse_to_r_d: -1, mouse_to_l_d: -1};
   },
 
   lateralize: function (i, lateral_scale) {
@@ -134,6 +136,21 @@ module.exports = React.createClass({
     return stroke_color_l;
   },
 
+  get_tooltip: function(){
+      let x_loc = this.state.mouse_x;// - this.props.y_axis_width - this.props.buffer;
+      let y_scale = this.get_y_scale();
+      let x_scale = this.get_x_scale();
+      let opacity=1;
+      if (this.state.mouse_x == -1){
+        opacity=0;
+      }
+      let x_date = x_scale.invert(x_loc - this.props.y_axis_width - this.props.buffer);
+      let x_scaled = x_scale(moment(x_date).startOf("month")); 
+      let y_loc = this.props.height /2;
+      //note: you need to render the component in all cases
+      return <rect y={y_loc} opacity={opacity} x={x_scaled} height="10" width="23" fill="grey"/>
+   },
+
   render: function() {
     let lateralize = this.lateralize;
     let lateral_scale = this.get_x_scale();
@@ -168,15 +185,16 @@ module.exports = React.createClass({
     }else{
       handle_mouseup = this.toggle_drag_stop;
     }
+    let tooltip = this.get_tooltip();
     return (
-
         <Panel onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={e=>this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseUp={e => handle_mouseup(e.pageX, lateral_scale)} onMouseDown={e => this.handle_mouse_down(e, lateral_scale)} >
         <Row>
         <Col xs={12}>
         <YAxis max={max} height={this.props.height} y_axis_width={this.props.y_axis_width}/>
 	      <svg width={this.props.w - this.props.y_axis_width - 5} height={this.props.height}>
-        <path d={ps} fill="#0028a3" opacity=".25" stroke="grey"/>
+        <path onMouseLeave={e=>this.setState({mouse_x:-1, mouse_y:-1})} onMouseMove={e =>this.setState({mouse_x:e.pageX, mouse_y:e.pageY})} d={ps} fill="#0028a3" opacity=".25" stroke="grey"/>
         <path d={fs} fill="rgb(179, 49, 37)" opacity=".75" stroke="black"/>
+        {tooltip}
         {rec}
         {l_left}
         {l_right}
