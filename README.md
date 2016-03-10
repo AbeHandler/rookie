@@ -8,11 +8,7 @@ Imagine you are a new reporter just assigned to a beat. Or a community activist 
 
 This project began at [The Lens](http://www.thelensnola.org "The Lens") with [support](http://www.knightfoundation.org/grants/201550791/ "support") from the Knight foundation.
 
-#### Tests and coverage
-
-[![Build Status](https://travis-ci.org/AbeHandler/rookie.svg?branch=master)](https://travis-ci.org/AbeHandler/rookie) [![Coverage Status](https://coveralls.io/repos/AbeHandler/rookie/badge.svg?branch=master&service=github)](https://coveralls.io/github/AbeHandler/rookie?branch=master)
-
-#### Indexing
+#### Getting and processing corpora
 
 1. Preprocessing: Rookie holds raw corpora in `corpora/[corpusname]/raw/all.extract`. It assumes that all.extract stores all.extract is a tsv with the pubdate in position 1, the text in position 5 and the headline in position 4. Like this: `NA\t1-1-2000\tNA\tNA\tHEADLINE\tTEXT`. An optional url goes in position 6.
 2. Core NLP: Rookie processes corpora in `corpora/[corpusname]/raw/all.extract` by running them through @brenocon 's corenlp pipeline. Use `python getting_and_processing_corpora/corpus_proc.py --nlpjar path/to/corenlp --corpus corpusname`
