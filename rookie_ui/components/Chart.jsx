@@ -151,7 +151,8 @@ module.exports = React.createClass({
       let dates = _.map(this.props.keys, function(o, i){return moment(o)});
       for (let i = 0; i < dates.length; i++) { 
           if(dates[i].year() == x_moment.year() && dates[i].month() == x_moment.month()){
-              console.log(this.props.q_data[i]);
+              let diff = this.props.height - parseFloat(y_scale(this.props.q_data[i]));
+              y_loc = diff;
           }
       }
       //note: you need to render the component in all cases for react. hence opacity=0
