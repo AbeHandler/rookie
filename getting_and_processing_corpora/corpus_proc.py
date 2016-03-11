@@ -18,6 +18,10 @@ try:
 except:
     pass
 
+def un_html_ify(text):
+    """weird offset issues w/ core nlp. seems easiest to just replace"""
+    return text.replace("&amp;", "&")
+
 with open ("corpora/" + args.corpus + "/raw/all.extract") as raw:
     count = 0
     for line in csv.reader(raw, delimiter="\t"):
@@ -25,11 +29,15 @@ with open ("corpora/" + args.corpus + "/raw/all.extract") as raw:
         out = {}
         pubdate = line[1]
         headline = line[4]
-        text = proc.parse_doc(line[5])
+        text = proc.parse_doc(un_html_ify(line[5]))
         try:
             url = line[6]
         except:
             url = "unknown"
+        #import ipdb
+        #if url == "http://thelensnola.org/2013/03/01/councilwoman-agrees-that-sheriff-needs-another-building-for-more-prisoners/":
+        #   ipdb.set_trace()   
+         
         out["pubdate"] = pubdate
         out["headline"] = headline
         out["text"] = text

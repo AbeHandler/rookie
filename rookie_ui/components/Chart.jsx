@@ -156,7 +156,10 @@ module.exports = React.createClass({
           }
       }
       //note: you need to render the component in all cases for react. hence opacity=0
-      return <rect y={y_loc} opacity={opacity} x={x_scaled} height="10" width="23" fill="grey"/>
+      return <g>
+              <rect y={y_loc} opacity={opacity} x={x_scaled} height="10" width="23" fill="grey"/>
+              <text y={y_loc + 30} opacity={opacity} x={x_scaled} height="10" width="23" fill="grey">hello, summarization</text>
+             </g>
    },
 
   render: function() {

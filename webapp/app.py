@@ -3,7 +3,6 @@
 The main web app for rookie
 '''
 
-import time
 import json
 import traceback
 from flask.ext.compress import Compress

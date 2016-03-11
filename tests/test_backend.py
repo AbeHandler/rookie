@@ -11,8 +11,6 @@ class TestStringMethods(unittest.TestCase):
           p.q = "sdkl.ietmvrslektuvmsldv"
           p.corpus = "lens"
           return p
-      ipdb.set_trace()
-      print get_stuff_ui_needs(params())["corpus"]
       self.assertEqual(get_stuff_ui_needs(params())["corpus"], 'lens')
 
   def test_get_doc_metadata(self):

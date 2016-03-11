@@ -8,7 +8,7 @@ from collections import defaultdict
 import csv
 import os
 import sys
-import re
+import ctypes
 from itertools import tee, izip, islice, chain
 csv.field_size_limit(sys.maxsize)
 import ipdb
@@ -261,9 +261,22 @@ def load(index_location, processed_location):
                 Make a token dictionary to store as json
                 '''
                 toks = [(j.raw, j.token_no, j.char_offset) for j in tokens]
-                raw = " ".join([j.raw for j in tokens])
-                raw = re.sub(' \.',".", raw)
-                raw = re.sub(' \,',",", raw)
+                
+                def make_raw(toks):
+                    """create a raw string that preserves token offsets"""
+                    f_char_offset = toks[0][2][0]
+                    l_char_offset = toks[len(toks)-1][2][1]
+                    # make an empty string of appropriate length
+                    output = " " * (l_char_offset-f_char_offset)
+                    mutable = ctypes.create_string_buffer(output)
+                    # fill it in w/ token offests.
+                    # this annoyance preserves offsets of slicing downstream
+                    for tok in toks:
+                        print tok
+                        mutable[tok[2][0] - f_char_offset:tok[2][1]-f_char_offset]=str(tok[0])
+                    return mutable.value
+
+                raw = make_raw(toks)
                 return {"as_string": raw, "as_tokens": toks}
 
             sentences = [make_dict(i.tokens) for i in doc.sentences]

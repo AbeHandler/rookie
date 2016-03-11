@@ -74,15 +74,6 @@ def get_snippet_pg(docid, q, f=None):
     sentences.sort(key=lambda x:x.sentence_no)
     return sentences
 
-def get_snippet1(docid, q, f_aliases=None):
-    """wrap get_snippet_bg to conform to the new api"""
-    assert f_aliases is None or len(f_aliases) <= 1, "singleton for f_aliases please"
-    f = list(f_aliases)[0] if f_aliases else None
-    snippet_sentobjs = get_snippet_pg(docid, q=q, f=f)
-    hsents = [hilite(sent.text, q=q, f_aliases=f_aliases) for sent in snippet_sentobjs]
-    for sentobj,h in zip(snippet_sentobjs,hsents):
-        h['sentnum'] = sentobj.sentence_no
-    return hsents
 
 ############################
 
@@ -108,7 +99,6 @@ def get_snippet2(docid, corpus, q, f_aliases=None, taginfo=None):
     for sentnum,toktext in enumerate(d['sentences']):
         hsent = hilite(toktext["as_string"], q, f_aliases, taginfo=taginfo)
         hsent['sentnum'] = sentnum
-
         if hsent['has_q'] and hsent['has_f']:
             return [hsent]
 
