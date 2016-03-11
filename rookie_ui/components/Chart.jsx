@@ -147,7 +147,7 @@ module.exports = React.createClass({
       let x_date = x_scale.invert(x_loc - this.props.y_axis_width - this.props.buffer);
       let x_scaled = x_scale(moment(x_date).startOf("month")); 
       let y_loc = this.props.height /2;
-      console.log(this.refs);
+      console.log("find the bin for x. put the tooltip where the y is");
       //note: you need to render the component in all cases
       return <rect y={y_loc} opacity={opacity} x={x_scaled} height="10" width="23" fill="grey"/>
    },
