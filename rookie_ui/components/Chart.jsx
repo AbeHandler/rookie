@@ -1,4 +1,3 @@
-'use strict';
 /*
 Chart.jsx
 */
@@ -145,10 +144,17 @@ module.exports = React.createClass({
         opacity=0;
       }
       let x_date = x_scale.invert(x_loc - this.props.y_axis_width - this.props.buffer);
-      let x_scaled = x_scale(moment(x_date).startOf("month")); 
+      let x_moment = moment(x_date);
+      x_moment.startOf("month");
+      let x_scaled = x_scale(x_moment);
       let y_loc = this.props.height /2;
-      console.log("find the bin for x. put the tooltip where the y is");
-      //note: you need to render the component in all cases
+      let dates = _.map(this.props.keys, function(o, i){return moment(o)});
+      for (let i = 0; i < dates.length; i++) { 
+          if(dates[i].year() == x_moment.year() && dates[i].month() == x_moment.month()){
+              console.log(this.props.q_data[i]);
+          }
+      }
+      //note: you need to render the component in all cases for react. hence opacity=0
       return <rect y={y_loc} opacity={opacity} x={x_scaled} height="10" width="23" fill="grey"/>
    },
 
