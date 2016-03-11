@@ -272,8 +272,10 @@ def load(index_location, processed_location):
                     # fill it in w/ token offests.
                     # this annoyance preserves offsets of slicing downstream
                     for tok in toks:
-                        print tok
-                        mutable[tok[2][0] - f_char_offset:tok[2][1]-f_char_offset]=str(tok[0])
+                        try:
+                            mutable[tok[2][0] - f_char_offset:tok[2][1]-f_char_offset]=str(tok[0])
+                        except: #TODO @brenocon what is this???
+                            mutable[tok[2][0] - f_char_offset:tok[2][1]-f_char_offset] = " " * len(mutable[tok[2][0] - f_char_offset:tok[2][1]-f_char_offset])
                     return mutable.value
 
                 raw = make_raw(toks)

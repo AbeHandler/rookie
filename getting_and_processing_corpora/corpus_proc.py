@@ -20,7 +20,7 @@ except:
 
 def un_html_ify(text):
     """weird offset issues w/ core nlp. seems easiest to just replace"""
-    return text.replace("&amp;", "&")
+    return text.replace("&amp;", "&").replace(u"-LSB-", "")
 
 with open ("corpora/" + args.corpus + "/raw/all.extract") as raw:
     count = 0
