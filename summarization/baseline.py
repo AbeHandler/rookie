@@ -73,9 +73,9 @@ def select_mid(sentences):
 
 def summarize_helper(results, sentences, sum_params, char_budget):
     """a recursive helper"""
-    print "budget {}".format(char_budget)
     has_q = [sent for sent in sentences if sent["has_q"] == True]
     if len(sentences) == 0:
+        print "throw away {}".format(char_budget)
         return ""
     if len(has_q) > 0:
         mid = select_mid(has_q)
@@ -83,22 +83,14 @@ def summarize_helper(results, sentences, sum_params, char_budget):
         mid = select_mid(sentences)
     output = pluck_tokens(sum_params["q"], mid, sum_params["n_buffer_toks"])
     if len(output) > char_budget:
-        print "output too long"
-        print "throwing away {} chars".format(char_budget)
+        print "throw away {}".format(char_budget)
         return ""
-    else:
-        print "output accepted"
     char_budget = (char_budget - len(output))/ 2
     if char_budget < 0: 
         char_budget = 0
     #the greater than or less than means that only one sentence is allowed per pubdate. short fix for infinite recursion
     left = summarize_helper(results, [sent for sent in sentences if sent["pubdate"] < mid["pubdate"]], sum_params, char_budget)
     right = summarize_helper(results, [sent for sent in sentences if sent["pubdate"] > mid["pubdate"]], sum_params, char_budget)
-    print left
-    print right
-    print output
-    print "len left {}".format(len(left))
-    print "len right {}".format(len(right))
     
     return left + "..." + output + right 
           
