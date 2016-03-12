@@ -156,10 +156,10 @@ module.exports = React.createClass({
           }
       }
       //note: you need to render the component in all cases for react. hence opacity=0
-      return <g>
+      return <svg height="50" width="50" fill="grey" opacity=".5">
               <rect y={y_loc} opacity={opacity} x={x_scaled} height="10" width="23" fill="grey"/>
-              <text y={y_loc + 30} opacity={opacity} x={x_scaled} height="10" width="23" fill="grey">hello, summarization</text>
-             </g>
+              <text y={y_loc} opacity={opacity} x={x_scaled} height="10" width="23" fill="grey">hello, summarization</text>
+             </svg>
    },
 
   render: function() {

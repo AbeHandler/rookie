@@ -44,24 +44,47 @@ def get_offsets(word, raw_text):
     except AttributeError: #could not find word
         return (0, 0)
 
-def pluck_tokens(term, sentence, f_term=None):
+def pluck_tokens(term, sentence, n_buffer_chars, f_term=None):
     """get tokens that contain q + buffer"""
     token_offset = get_offsets(term, sentence["as_string"])
-    # token stucture = (string, token_no, offset in doc) => ex. [u'Sheriffs', 0, [5798, 5806]]
+    if token_offset[0] == token_offset[1] == 0:
+        return []
+    #token stucture = (string, token_no, offset in doc) => ex. [u'Sheriffs', 0, [5798, 5806]]
     # the start_offset is the char_offset of the first token in the sentence.
     # corenlp gives perdoc offets
     start_offset_docwide = [token[2] for token in sentence["tokens"] if token[1] == 0].pop()[0]
     tok_offset_start = start_offset_docwide + token_offset[0]
     tok_offset_end = start_offset_docwide + token_offset[1]
-    print token_offset
-    print sentence["as_string"]
-    import ipdb
-    ipdb.set_trace()
-    print sentence["as_string"][token_offset[0]:token_offset[1]]
-    return [tok for tok in sentence["tokens"] if
-            tok[2][0] > tok_offset_start and tok[2][1] < tok_offset_end]
+    #indexing from token_start, hence tok[2][0] b/c regex might match midway thru token
+    kernel = [tok[1] for tok in sentence["tokens"] if
+              tok[2][0] >= tok_offset_start and tok[2][0] <= tok_offset_end]
+    #kernel is the tokens that contain q
+    end_tok = (len(sentence["tokens"]) - 1
+               if max(kernel) + n_buffer_chars -1 > len(sentence["tokens"])
+               else max(kernel) + n_buffer_chars)
+    start_tok = 0 if min(kernel) - n_buffer_chars < 0 else min(kernel) - n_buffer_chars
+    return " ".join(i[0] for i in sentence["tokens"][start_tok:end_tok])
 
 def select_mid(sentences):
     """return the middle sentence by time"""
     sentences = sorted(sentences, key=lambda sent: sent["pubdate"])
     return sentences[int(math.floor(len(sentences)/2))] # mid item in the list
+
+def summarize_helper(results, sentences, sum_params):
+    """a recursive helper"""
+    has_q = [sent for sent in sentences if sent["has_q"] == True]
+    if len(has_q) > 0:
+        mid = select_mid(has_q)
+    else:
+        mid = select_mid(sentences)
+    output = pluck_tokens(sum_params["query"], mid, sum_params["n_buffer_chars"])
+    return (summarize_helper(results, [sent for sent in sentences if sent["pubdate"] < mid["pubdate"]], sum_params) + 
+           output + 
+           summarize_helper(results, [sent for sent in sentences if sent["pubdate"] >= mid["pubdate"]], sum_params))
+
+
+# TODO this will loop forever if charbudget is too low
+def summarize(results, params):
+    """the baseline algorithm"""
+    sentences = prepare_sentences(results, params["query"], params["facet"])
+    return summarize_helper(results, sentences, params)

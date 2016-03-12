@@ -5,7 +5,7 @@ Unit tests for the summary baseline
 import unittest
 from webapp.models import query, Parameters
 from summarization.baseline import * 
-
+BUFFERCHARS = 4
 
 def params_setup():
     '''get some params for q'''
@@ -33,8 +33,8 @@ class TestStuff(unittest.TestCase):
         results = query(params.q, params.corpus)
         sents = prepare_sentences(results, params.q, params.f)
         sent = select_mid([sen for sen in sents if sen["has_q"] == False])
-        offsets = pluck_tokens(params.q, sent)
-        self.assertEqual(len(offsets), 0)
+        blank_to = pluck_tokens(params.q, sent, BUFFERCHARS)
+        self.assertEqual(len(blank_to), 0)
 
     def test_nonempty_token_span(self):
         """test mid way cut"""
@@ -42,9 +42,8 @@ class TestStuff(unittest.TestCase):
         results = query(params.q, params.corpus)
         sents = prepare_sentences(results, params.q, params.f)
         sent = select_mid([sen for sen in sents if sen["has_q"] == True])
-        print sent["as_string"]
-        offsets = pluck_tokens(params.q, sent)
-        self.assertEqual(len(offsets), 1)
+        summary = pluck_tokens(params.q, sent, BUFFERCHARS)
+        self.assertTrue(len(summary) > len(params.q))
 
     def test_full_algo(self):
         """test full algo"""
