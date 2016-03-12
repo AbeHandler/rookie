@@ -18,7 +18,7 @@ class TestStuff(unittest.TestCase):
     '''
     Tests
     '''
-
+    '''
     def test_get_sentences_for_query(self):
         """test get sentences"""
         params = params_setup()
@@ -44,9 +44,12 @@ class TestStuff(unittest.TestCase):
         sent = select_mid([sen for sen in sents if sen["has_q"] == True])
         summary = pluck_tokens(params.q, sent, BUFFERCHARS)
         self.assertTrue(len(summary) > len(params.q))
-
+    '''
     def test_full_algo(self):
         """test full algo"""
+        params = params_setup()
+        results = query(params.q, params.corpus)
+        print len(summarize(results, {"char_budget": 200, "n_buffer_toks":4, "q":params.q, "f": params.f}))
         self.assertEqual("the whole", "thing works")
 
 if __name__ == '__main__':

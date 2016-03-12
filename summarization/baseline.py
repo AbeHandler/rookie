@@ -1,6 +1,7 @@
 '''
 baseline summary algorithm
 '''
+from __future__ import division
 from webapp.snippet_maker import hilite
 from webapp.models import get_doc_metadata
 from dateutil import parser
@@ -48,7 +49,7 @@ def pluck_tokens(term, sentence, n_buffer_chars, f_term=None):
     """get tokens that contain q + buffer"""
     token_offset = get_offsets(term, sentence["as_string"])
     if token_offset[0] == token_offset[1] == 0:
-        return []
+        return ""
     #token stucture = (string, token_no, offset in doc) => ex. [u'Sheriffs', 0, [5798, 5806]]
     # the start_offset is the char_offset of the first token in the sentence.
     # corenlp gives perdoc offets
@@ -70,21 +71,41 @@ def select_mid(sentences):
     sentences = sorted(sentences, key=lambda sent: sent["pubdate"])
     return sentences[int(math.floor(len(sentences)/2))] # mid item in the list
 
-def summarize_helper(results, sentences, sum_params):
+def summarize_helper(results, sentences, sum_params, char_budget):
     """a recursive helper"""
+    print "budget {}".format(char_budget)
     has_q = [sent for sent in sentences if sent["has_q"] == True]
+    if len(sentences) == 0:
+        return ""
     if len(has_q) > 0:
         mid = select_mid(has_q)
     else:
         mid = select_mid(sentences)
-    output = pluck_tokens(sum_params["query"], mid, sum_params["n_buffer_chars"])
-    return (summarize_helper(results, [sent for sent in sentences if sent["pubdate"] < mid["pubdate"]], sum_params) + 
-           output + 
-           summarize_helper(results, [sent for sent in sentences if sent["pubdate"] >= mid["pubdate"]], sum_params))
+    output = pluck_tokens(sum_params["q"], mid, sum_params["n_buffer_toks"])
+    if len(output) > char_budget:
+        print "output too long"
+        print "throwing away {} chars".format(char_budget)
+        return ""
+    else:
+        print "output accepted"
+    char_budget = (char_budget - len(output))/ 2
+    if char_budget < 0: 
+        char_budget = 0
+    #the greater than or less than means that only one sentence is allowed per pubdate. short fix for infinite recursion
+    left = summarize_helper(results, [sent for sent in sentences if sent["pubdate"] < mid["pubdate"]], sum_params, char_budget)
+    right = summarize_helper(results, [sent for sent in sentences if sent["pubdate"] > mid["pubdate"]], sum_params, char_budget)
+    print left
+    print right
+    print output
+    print "len left {}".format(len(left))
+    print "len right {}".format(len(right))
+    
+    return left + "..." + output + right 
+          
 
 
 # TODO this will loop forever if charbudget is too low
 def summarize(results, params):
     """the baseline algorithm"""
-    sentences = prepare_sentences(results, params["query"], params["facet"])
-    return summarize_helper(results, sentences, params)
+    sentences = prepare_sentences(results, params["q"], params["f"])
+    return summarize_helper(results, sentences, params, params["char_budget"])
