@@ -27,9 +27,10 @@ var base_url = "{{base_url}}"
 <body>
 
 <!--https://blog.mastykarz.nl/measuring-the-length-of-a-string-in-pixels-using-javascript/-->
+<!--absolute position needed or it messes up layout-->
 <div id="ruler"></div> 
 <style type="text/css">
-#ruler{ visibility: hidden;}
+#ruler{ visibility: hidden; overflow-y: scroll; position: absolute;top: 80px;right: 100px;}
 </style>
 <script>
 String.prototype.visualHeight = function()  

@@ -72,7 +72,7 @@ module.exports = React.createClass({
         };
         let markup = this.markup;
         return(
-            <Panel style={{backgroundColor: "green", overflowY: "hidden", height: this.props.height, overflow: "hidden"}}>
+            <Panel style={{backgroundColor: "white", overflowY: "hidden", height: this.props.height, overflow: "hidden"}}>
                 {docs.map(function(doc, n) {
                     return <div key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/>;
                 })}
