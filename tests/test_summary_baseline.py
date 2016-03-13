@@ -10,7 +10,7 @@ BUFFERCHARS = 4
 def params_setup():
     '''get some params for q'''
     params = Parameters()
-    params.q = "Mitch Landrieu"
+    params.q = "charter school"
     params.corpus = "lens"
     return params
 
@@ -49,7 +49,7 @@ class TestStuff(unittest.TestCase):
         """test full algo"""
         params = params_setup()
         results = query(params.q, params.corpus)
-        print len(summarize(results, {"char_budget": 800, "n_buffer_toks":4, "q":params.q, "f": params.f}))
+        print summarize(results, {"char_budget": 800, "n_buffer_toks":4, "q":params.q, "f": params.f})
         self.assertEqual("the whole", "thing works")
 
 if __name__ == '__main__':
