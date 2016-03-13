@@ -27,16 +27,16 @@ var base_url = "{{base_url}}"
 <body>
 
 <!--https://blog.mastykarz.nl/measuring-the-length-of-a-string-in-pixels-using-javascript/-->
-<span id="ruler"></span> 
+<div id="ruler"></div> 
 <style type="text/css">
-#ruler{ visibility: hidden; white-space: nowrap; }
+#ruler{ visibility: hidden;}
 </style>
 <script>
-String.prototype.visualLength = function()  
+String.prototype.visualHeight = function()  
 {
     var ruler = document.getElementById("ruler");
     ruler.innerHTML = this;
-    return ruler.offsetWidth;
+    return ruler.offsetHeight;
 }
 </script>
 

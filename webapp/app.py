@@ -66,7 +66,8 @@ def get_docs():
     params = Models.get_parameters(request)
 
     results = Models.get_results(params)
-
+    pds = load_all_data_structures(params.corpus)["pubdates"]
+    filtered_pubdates, doc_list = results_to_doclist(results, params.q, params.f, params.corpus, pds, aliases=tuple([]))
     q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][r] for r in results]
     binsize = "month"
     df = make_dataframe(params.q, [params.f], results, q_pubdates, aliases=[])
