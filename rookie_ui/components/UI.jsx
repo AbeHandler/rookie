@@ -165,7 +165,7 @@ module.exports = React.createClass({
   * A clickhandler for sparkline time
   */
   clickTile: function (e) {
-    let url = this.props.base_url + "get_docs?q=" + this.props.q + "&f=" + e + "&corpus=" + this.props.corpus;
+    let url = this.props.base_url + "get_sents?q=" + this.props.q + "&f=" + e + "&corpus=" + this.props.corpus;
         let minbin = _.head(this.props.chart_bins);
         let maxbin = _.last(this.props.chart_bins)
         $.ajax({
@@ -174,7 +174,7 @@ module.exports = React.createClass({
               cache: true,
               success: function(d) {
                 let tmp = this.state.vars;
-                this.setState({start_selected: minbin, end_selected: maxbin, f: e, mode: "docs", f_list: d["doclist"], f_counts: facet_datas[e]}, this.check_mode);
+                this.setState({start_selected: minbin, end_selected: maxbin, f: e, mode: "docs", f_list: d, f_counts: facet_datas[e]}, this.check_mode);
               }.bind(this),
               error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -214,7 +214,7 @@ module.exports = React.createClass({
               cache: true,
               success: function(d) {
                 let tmp = this.state.vars;
-                this.setState({f: -1, mode: "docs", all_results: d["doclist"], f_counts: []});
+                this.setState({f: -1, mode: "docs", all_results: d, f_counts: []});
               }.bind(this),
               error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());

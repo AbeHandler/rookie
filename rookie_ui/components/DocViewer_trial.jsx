@@ -25,6 +25,7 @@ module.exports = React.createClass({
         let counter = 0;
         let render = [];
         let ht = 0;
+        console.log(this.props.f);
         if (docs.length > 0){
             let docs = _.filter(this.props.docs, function(d) { 
                 return moment(d.pubdate) > moment(this.props.start_selected, "YYYY-MM-DD") && 
@@ -33,6 +34,12 @@ module.exports = React.createClass({
             docs = _.sortBy(docs, function(d){
                 return moment(d.pubdate);
             });
+            docs = _.filter(docs, function(d){
+                return d.snippet.has_q;
+            });
+            for (let i = 0; i < docs.length; i++) {
+                console.log(docs[i].snippet.has_f);
+            }
             let span = moment.duration(moment(this.props.end_selected, "YYYY-MM-DD").diff(moment(this.props.start_selected, "YYYY-MM-DD")));
             let expected = this.props.height / 35; //most are 20 or 40 px tall ish
             let every_n = Math.floor(docs.length / expected);

@@ -84,10 +84,10 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
         hsent = hilite(toktext["as_string"], q, f_aliases, taginfo=taginfo)
         hsent['sentnum'] = sentnum
         if hsent['has_q'] and hsent['has_f']:
-            return [hsent]
+            #import ipdb; ipdb.set_trace()
+            return hsent
 
         if hsent['has_q']:
-            #import ipdb; ipdb.set_trace()
             hsents['has_q'].append(hsent)
         if hsent['has_f']:
             hsents['has_f'].append(hsent)
@@ -102,8 +102,8 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
         if not any(x['sentnum'] == cand['sentnum'] for x in selection):
             selection.append(cand)
 
-    if len(selection) == 0:
-        return selection
+    if len(selection) == 0: # default to first sentence
+        return {"has_q": False, "has_f": False, "sentnum": 1, "hsent": hilite(d['sentences'][0]["as_string"], q, f_aliases, taginfo=taginfo)}
 
     selection.sort(key=lambda x: x['sentnum'])
     return selection[0]

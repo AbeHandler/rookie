@@ -16,7 +16,6 @@ from webapp import IP, ROOKIE_JS, ROOKIE_CSS, BASE_URL
 from webapp.models import get_doc_metadata
 
 
-
 app = Flask(__name__)
 Compress(app)
 
@@ -34,6 +33,7 @@ views = Views(IP, ROOKIE_JS, ROOKIE_CSS, BASE_URL)
 def get_doclist():
     '''
     Just post for Q's doclist
+    SHOULD BE DEPRECETED FOR GET_SENTS 3/13
     '''
     params = Models.get_parameters(request)
 
@@ -55,9 +55,18 @@ def get_sents():
 
     results = Models.get_results(params)
 
-    out = Models.get_sent_list(results, params.q, None, params.corpus, aliases=[])
+    #import ipdb; ipdb.set_trace()
 
-    return json.dumps({"doclist":out})
+    out = Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[])
+     
+    for l in out:
+        try:
+            a = l["snippet"]["has_f"]
+        except TypeError:
+            import ipdb; ipdb.set_trace()
+            print "miss"
+
+    return json.dumps(out)
 
 
 @app.route("/get_docs", methods=['GET'])

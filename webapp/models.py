@@ -166,7 +166,6 @@ class Parameters(object):
         self.f = None
         self.startdate = None
         self.enddate = None
-        self.zoom = None # 1.31.16 what does this do? TODO. AH.
         self.corpus = None
 
     def __repr__(self):
@@ -337,6 +336,7 @@ class Models(object):
         f_aliases = set() if aliases is None else set(aliases)
         if f is not None:
             f_aliases.add(f)
+        #import ipdb; ipdb.set_trace()
         return get_snippet3(docid, corpus, q, f_aliases,
                             taginfo=dict(
                                     q_ltag='<span style="font-weight:bold;color:#0028a3">',
