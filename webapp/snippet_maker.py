@@ -61,6 +61,54 @@ def get_snippet2(docid, corpus, q, f_aliases=None, taginfo=None):
     selection.sort(key=lambda x: x['sentnum'])
     return selection
 
+def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
+    """
+    returns single "highlighted sentence" dictionary.
+    supply taginfo in accordance with docs in hilite()
+
+    algorithm
+    where "F-containing" means any alias of the facet (including the facet itself),
+
+    if there is a sentence with both Q and an F: return just it as the snippet.
+    else
+    select the first Q-containing sentence (if any)
+    select the first F-containing sentence (if any)
+    sort those (at most two) sentences.
+    return the top most
+    """
+
+    from webapp.models import get_doc_metadata
+    d = get_doc_metadata(docid, corpus)
+    hsents = {'has_q':[], 'has_f':[]}
+    for sentnum, toktext in enumerate(d['sentences']):
+        hsent = hilite(toktext["as_string"], q, f_aliases, taginfo=taginfo)
+        hsent['sentnum'] = sentnum
+        if hsent['has_q'] and hsent['has_f']:
+            return [hsent]
+
+        if hsent['has_q']:
+            #import ipdb; ipdb.set_trace()
+            hsents['has_q'].append(hsent)
+        if hsent['has_f']:
+            hsents['has_f'].append(hsent)
+
+    selection = []
+
+    if hsents['has_q']:
+        selection.append(hsents['has_q'][0])
+    if hsents['has_f']:
+        cand = hsents['has_f'][0]
+        # this condition shouldnt be possible assuming the shortcut break in the first Q&F
+        if not any(x['sentnum'] == cand['sentnum'] for x in selection):
+            selection.append(cand)
+
+    if len(selection) == 0:
+        return selection
+
+    selection.sort(key=lambda x: x['sentnum'])
+    return selection[0]
+
+
 # regex matching system: always have groups
 # (thing being matched)(right)
 

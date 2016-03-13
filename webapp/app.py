@@ -41,11 +41,24 @@ def get_doclist():
 
     out = Models.get_doclist(results, params.q, None, params.corpus, aliases=[])
 
-    pubdates = load_all_data_structures(params.corpus)["pubdates"]
-
     minmax = corpus_min_max(params.corpus)
 
     return json.dumps({"doclist":out, "min_filtered": minmax["min"].strftime("%Y-%m-%d"), "max_filtered": minmax["max"].strftime("%Y-%m-%d")})
+
+
+@app.route("/get_sents", methods=['GET'])
+def get_sents():
+    '''
+    Just post for Q's doclist
+    '''
+    params = Models.get_parameters(request)
+
+    results = Models.get_results(params)
+
+    out = Models.get_sent_list(results, params.q, None, params.corpus, aliases=[])
+
+    return json.dumps({"doclist":out})
+
 
 @app.route("/get_docs", methods=['GET'])
 def get_docs():
@@ -53,10 +66,6 @@ def get_docs():
     params = Models.get_parameters(request)
 
     results = Models.get_results(params)
-
-    pds = load_all_data_structures(params.corpus)["pubdates"]
-
-    filtered_pubdates, doc_list = results_to_doclist(results, params.q, params.f, params.corpus, pds, aliases=tuple([])) #TODO aliases
 
     q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][r] for r in results]
     binsize = "month"
@@ -67,10 +76,7 @@ def get_docs():
     facet_datas = {}
     facet_datas[params.f] = [get_val_from_df(params.f, key, df, binsize) for key in chart_bins]
 
-    min_filtered = min(filtered_pubdates).strftime("%Y-%m-%d")
-    max_filtered = max(filtered_pubdates).strftime("%Y-%m-%d")
-
-    return json.dumps({"doclist":doc_list, "facet_datas":facet_datas, "min_filtered": min_filtered, "max_filtered": max_filtered})
+    return json.dumps({"doclist":doc_list, "facet_datas":facet_datas, "min_filtered": None, "max_filtered": None})
 
 
 @app.route('/', methods=['GET'])

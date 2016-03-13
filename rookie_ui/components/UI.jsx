@@ -8,7 +8,7 @@ var ReactDOM = require('react-dom');
 var _ = require('lodash');
 var moment = require('moment');
 
-var DocViewer = require('./DocViewer.jsx');
+var DocViewer = require('./DocViewer_trial.jsx');
 var Status = require('./Status.jsx');
 var Chart = require('./Chart.jsx');
 var ChartTitle = require('./ChartTitle.jsx');
@@ -207,7 +207,7 @@ module.exports = React.createClass({
   */
   turnOnDocMode: function(){
     if (this.state.f == -1){
-        let url = this.props.base_url + "get_doclist?q=" + this.props.q + "&corpus=" + this.props.corpus;
+        let url = this.props.base_url + "get_sents?q=" + this.props.q + "&corpus=" + this.props.corpus;
         $.ajax({
               url: url,
               dataType: 'json',

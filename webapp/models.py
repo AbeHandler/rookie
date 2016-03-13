@@ -9,7 +9,7 @@ from dateutil.parser import parse
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser
 from dateutil.relativedelta import relativedelta
-from webapp.snippet_maker import get_snippet2
+from webapp.snippet_maker import get_snippet2, get_snippet3
 from webapp import CONNECTION_STRING
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -286,6 +286,24 @@ class Models(object):
             })
         return doc_results
 
+    @staticmethod
+    def get_sent_list(results, q, f, corpus, aliases=None):
+        """returns a list of sentences for interactive summarization.
+           each doc gives 1 sentence 
+           TODO: tokens? pos?
+        """
+        sent_results = []
+
+        # AH: assuming the order of results is not changed since coming out from IR system
+        for whoosh_index, r in enumerate(results):
+            d = get_doc_metadata(r, corpus)
+            sent_results.append({
+                'search_engine_index_doc': whoosh_index,
+                'pubdate': d['pubdate'].encode("ascii", "ignore"),
+                'url': d['url'].encode("ascii", "ignore"),
+                'snippet': Models.get_sent(r, corpus, q, f, aliases=aliases)
+            })
+        return [i for i in sent_results if len(i["snippet"]) > 0 ] #filter nulls
 
     @staticmethod
     def get_snippet(docid, corpus, q, f=None, aliases=None):
@@ -311,3 +329,18 @@ class Models(object):
         dist = hsents[1]['sentnum'] - hsents[0]['sentnum']
         sep = " " if dist == 1 else " ... "
         return hsents[0]['htext'] + sep + hsents[1]['htext']
+
+
+    @staticmethod
+    def get_sent(docid, corpus, q, f=None, aliases=None):
+        """similar to get_snipppet but gives a 1 sentence snippet instead of 2"""
+        f_aliases = set() if aliases is None else set(aliases)
+        if f is not None:
+            f_aliases.add(f)
+        return get_snippet3(docid, corpus, q, f_aliases,
+                            taginfo=dict(
+                                    q_ltag='<span style="font-weight:bold;color:#0028a3">',
+                                    q_rtag='</span>',
+                                    f_ltag='<span style="font-weight:bold;color:#b33125">',
+                                    f_rtag='</span>',)
+                            )
