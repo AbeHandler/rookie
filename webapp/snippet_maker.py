@@ -38,6 +38,7 @@ def get_snippet2(docid, corpus, q, f_aliases=None, taginfo=None):
             return [hsent]
 
         if hsent['has_q']:
+            #import ipdb; ipdb.set_trace()
             hsents['has_q'].append(hsent)
         if hsent['has_f']:
             hsents['has_f'].append(hsent)
