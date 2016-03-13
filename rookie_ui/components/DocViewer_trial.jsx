@@ -16,8 +16,7 @@ module.exports = React.createClass({
         return {__html: dt + " | " + doc.snippet.htext};
     },
 
-    render: function(){
-        
+    get_docs_to_render: function(){
         let docs = _.filter(this.props.docs, function(d) { 
             return moment(d.pubdate) > moment(this.props.start_selected, "YYYY-MM-DD") && 
                    moment(d.pubdate) < moment(this.props.end_selected, "YYYY-MM-DD")
@@ -25,6 +24,13 @@ module.exports = React.createClass({
         docs = _.sortBy(docs, function(d){
             return moment(d.pubdate);
         });
+        console.log("asdfasdfasdf".visualLength());
+        return docs;
+    },
+
+    render: function(){
+        
+        let docs = this.get_docs_to_render();
         if (docs.length < 1){
             return <div></div>;
         }
@@ -37,8 +43,9 @@ module.exports = React.createClass({
             overflow:"hidden"
         };
         let markup = this.markup;
+        console.log(this.props.height);
         return(
-            <Panel ref={(c) => console.log(c.getDOMNode().scrollWidth)} style={rowStyle}>
+            <Panel style={{backgroundColor: "green", height: this.props.height, overflow: "hidden"}}>
                 {docs.map(function(doc, n) {
                     return <div key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/>;
                 })}
