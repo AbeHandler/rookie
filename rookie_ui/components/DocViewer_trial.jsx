@@ -11,8 +11,7 @@ var Panel = require('react-bootstrap/lib/Panel');
 module.exports = React.createClass({
 
     shouldComponentUpdate: function(nextProps, nextState) {
-          return nextProps.start_selected !== this.props.start_selected &&
-                 nextProps.end_selected !== this.props.end_selected;
+      return nextProps.all_results != this.props.all_results || nextProps.start_selected != this.props.start_selected || nextProps.end_selected != this.props.end_selected || nextProps.mode != this.props.mode;   
     },
  
     markup: function(doc) {

@@ -194,6 +194,9 @@ module.exports = React.createClass({
           nstories = nstories.toString() + " story";
       }
       let tooltip_height = 50;
+      if (y_loc > 75){  //stop tooltip from falling too low
+        y_loc = 75; 
+      }
       return <svg>
               <g>
               <rect x={x_scaled} rx="5" ry="5" y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width="90" fill="white"/>
@@ -237,6 +240,9 @@ module.exports = React.createClass({
           fstories = fstories.toString() + " story";
       }
       let tooltip_height = 75;
+      if (y_loc > 50){  //stop tooltip from falling too low
+        y_loc = 50; 
+      }
       return <svg>
               <g>
               <rect rx="5" ry="5" x={x_scaled} y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width="90" fill="white"/>
@@ -302,7 +308,7 @@ module.exports = React.createClass({
 	      <svg ref="chart" width={this.props.w - this.props.y_axis_width - 5} height={this.props.height}>
         <path onMouseLeave={e=>this.setState({mouse_x:-1, mouse_y:-1})} onMouseMove={e =>this.setState({mouse_x:e.pageX, mouse_y:e.pageY})} d={ps} fill="#0028a3" opacity=".25" stroke="grey"/>
         <path d={hilite} fill="rgb(57, 57, 37)" opacity=".6" stroke="black"/>
-        <path d={fs} fill="rgb(179, 49, 37)" opacity=".6" stroke="black"/>
+        <path onMouseLeave={e=>this.setState({mouse_x:-1, mouse_y:-1})} onMouseMove={e =>this.setState({mouse_x:e.pageX, mouse_y:e.pageY})} d={fs} fill="rgb(179, 49, 37)" opacity=".6" stroke="black"/>
         {tooltip}
         {rec}
         {l_left}
