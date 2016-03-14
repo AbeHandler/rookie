@@ -20,36 +20,48 @@ module.exports = React.createClass({
         return dt + " | " + doc.snippet.htext;
     },
 
+    /**
+    * Find the next sentence to render. Don't decide if it will fit yet
+    */
+    find_next: function(docs){
+       let qf = _.filter(docs, function(d){
+                   return d.snippet.has_q && d.snippet.has_f;
+              }); 
+       if (qf.length > 0){
+            let out = qf[Math.floor(Math.random() * docs.length)];
+            return out;
+       }
+       let q_or_f = _.filter(docs, function(d){return d.snippet.has_q || d.snippet.has_f});
+       if (q_or_f.length > 0){
+           let out = q_or_f[Math.floor(Math.random() * q_or_f.length)];
+           return out;
+       }
+       return docs[Math.floor(Math.random() * docs.length)];
+    },
+
     get_docs_to_render: function(){
         let docs = this.props.docs;
-        let counter = 0;
-        let render = [];
-        let ht = 0;
-        console.log(this.props.f);
-        if (docs.length > 0){
-            let docs = _.filter(this.props.docs, function(d) { 
+        docs = _.filter(docs, function(d) { 
                 return moment(d.pubdate) > moment(this.props.start_selected, "YYYY-MM-DD") && 
                        moment(d.pubdate) < moment(this.props.end_selected, "YYYY-MM-DD")
-            }, this);
-            docs = _.sortBy(docs, function(d){
-                return moment(d.pubdate);
-            });
-            docs = _.filter(docs, function(d){
-                return d.snippet.has_q;
-            });
-            for (let i = 0; i < docs.length; i++) {
-                console.log(docs[i].snippet.has_f);
-            }
-            let span = moment.duration(moment(this.props.end_selected, "YYYY-MM-DD").diff(moment(this.props.start_selected, "YYYY-MM-DD")));
-            let expected = this.props.height / 35; //most are 20 or 40 px tall ish
-            let every_n = Math.floor(docs.length / expected);
-            let picker = 0;
-            while (ht < this.props.height && counter < docs.length){ //pretty hack-y. but apparently this is a weakness in react
-                ht += this.fake_markup(docs[picker]).visualHeight();
+        }, this);
+
+        let render = [];
+        let ht = 0; //height 
+        if (docs.length > 0){
+            while (ht < this.props.height && docs.length > 0){ //pretty hack-y. but apparently this is a weakness in react
+                let picked = this.find_next(docs);
+                console.log("docs len=" + docs.length);
+                console.log(picked.docid);
+                console.log(docs);
+                _.remove(docs, function(doc) {
+                    return doc.docid == picked.docid;
+                });
+                console.log("docs len aftr=" + docs.length);
+                console.log(docs.length);
+                ht += this.fake_markup(picked).visualHeight();
                 if (ht < this.props.height){          
-                    render.push(docs[picker]);
-                    counter += 1;
-                    picker += every_n;
+                    render.push(picked);
                 }
             }   
         }
@@ -65,7 +77,10 @@ module.exports = React.createClass({
 
     render: function(){
         
-        let docs = this.get_docs_to_render();
+        let docs;
+
+        docs = this.get_docs_to_render();
+        
         if (docs.length < 1){
             return <div></div>;
         }

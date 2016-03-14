@@ -52,20 +52,8 @@ def get_sents():
     Just post for Q's doclist
     '''
     params = Models.get_parameters(request)
-
     results = Models.get_results(params)
-
-    #import ipdb; ipdb.set_trace()
-
     out = Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[])
-     
-    for l in out:
-        try:
-            a = l["snippet"]["has_f"]
-        except TypeError:
-            import ipdb; ipdb.set_trace()
-            print "miss"
-
     return json.dumps(out)
 
 

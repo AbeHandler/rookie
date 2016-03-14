@@ -288,7 +288,7 @@ class Models(object):
     @staticmethod
     def get_sent_list(results, q, f, corpus, aliases=None):
         """returns a list of sentences for interactive summarization.
-           each doc gives 1 sentence 
+           each doc gives 1 sentence (at least for now)
            TODO: tokens? pos?
         """
         sent_results = []
@@ -297,6 +297,7 @@ class Models(object):
         for whoosh_index, r in enumerate(results):
             d = get_doc_metadata(r, corpus)
             sent_results.append({
+                'docid':r,
                 'search_engine_index_doc': whoosh_index,
                 'pubdate': d['pubdate'].encode("ascii", "ignore"),
                 'url': d['url'].encode("ascii", "ignore"),
