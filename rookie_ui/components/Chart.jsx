@@ -166,7 +166,7 @@ module.exports = React.createClass({
     return stroke_color_l;
   },
 
-  get_tooltip: function(){
+  get_tooltip_q: function(){
       let x_loc = this.state.mouse_x;// - this.props.y_axis_width - this.props.buffer;
       let y_scale = this.get_y_scale();
       let x_scale = this.get_x_scale();
@@ -185,7 +185,7 @@ module.exports = React.createClass({
           if(dates[i].year() == x_moment.year() && dates[i].month() == x_moment.month()){
               let diff = this.props.height - parseFloat(y_scale(this.props.q_data[i]));
               y_loc = diff;
-              nstories = q_data[i];
+              nstories = this.props.q_data[i];
           }
       }
       if (nstories > 1){
@@ -196,10 +196,66 @@ module.exports = React.createClass({
       let tooltip_height = 50;
       return <svg>
               <g>
-              <rect x={x_scaled} y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width="85" fill="white"/>
+              <rect x={x_scaled} rx="5" ry="5" y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width="90" fill="white"/>
               <rect x={x_scaled + 5} y={y_loc + 30} height="10" width="10" opacity=".25" fill="#0028a3"/>
               <text x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan>{x_moment.format("MMM. YYYY")}</tspan><tspan x={x_scaled + 20} y={y_loc + 40}>{nstories}</tspan></text></g>
              </svg>
+   },
+
+    get_tooltip_q_and_f: function(){
+      let x_loc = this.state.mouse_x;// - this.props.y_axis_width - this.props.buffer;
+      let y_scale = this.get_y_scale();
+      let x_scale = this.get_x_scale();
+      let opacity=1;
+      if (this.state.mouse_x == -1){
+        opacity=0;
+      }
+      let x_date = x_scale.invert(x_loc - this.props.y_axis_width - this.props.buffer);
+      let x_moment = moment(x_date);
+      x_moment.startOf("month");
+      let x_scaled = x_scale(x_moment);
+      let y_loc = this.props.height /2;
+      let dates = _.map(this.props.keys, function(o, i){return moment(o)});
+      let nstories = "";
+      let fstories = "";
+      for (let i = 0; i < dates.length; i++) { 
+          if(dates[i].year() == x_moment.year() && dates[i].month() == x_moment.month()){
+              let diff = this.props.height - parseFloat(y_scale(this.props.q_data[i]));
+              y_loc = diff;
+              nstories = this.props.q_data[i];
+              fstories = this.props.f_data[i];
+          }
+      }
+      if (nstories > 1){
+          nstories = nstories.toString() + " stories";
+      }else if (nstories == 1){
+          nstories = nstories.toString() + " story";
+      }
+      if (fstories > 1 || fstories == 0){
+          fstories = fstories.toString() + " stories";
+      }else if (fstories == 1){
+          fstories = fstories.toString() + " story";
+      }
+      let tooltip_height = 75;
+      return <svg>
+              <g>
+              <rect rx="5" ry="5" x={x_scaled} y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width="90" fill="white"/>
+              <rect x={x_scaled + 5} y={y_loc + 30} height="10" width="10" opacity=".25" fill="#0028a3"/>
+              <rect x={x_scaled + 5} y={y_loc + 50} height="10" width="10" opacity="1" fill="rgb(179, 49, 37)"/>
+              <text x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan>{x_moment.format("MMM. YYYY")}</tspan>
+              <tspan x={x_scaled + 20} y={y_loc + 40}>{nstories}</tspan>
+              <tspan x={x_scaled + 20} y={y_loc + 60}>{fstories}</tspan>
+              </text>
+              </g>
+             </svg>
+   },
+
+   get_tooltip: function(){
+      if (this.props.f != -1){
+        return this.get_tooltip_q_and_f();
+      }else{
+        return this.get_tooltip_q();
+      }
    },
 
   render: function() {
