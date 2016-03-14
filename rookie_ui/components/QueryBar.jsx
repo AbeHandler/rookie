@@ -41,9 +41,6 @@ module.exports = React.createClass({
       width: "100%"
     }
     let p_w = $(document).width() * .8;
-    let qstyle = {
-      width: "100%"
-    }
     let pstyle = {
       width:p_w,
       backgroundColor: "blue"
@@ -51,10 +48,10 @@ module.exports = React.createClass({
     let submitter = this.submitter;
     let changeHandler = this.changeHandler;
     return (
-      <Navbar style={qstyle} onKeyPress={(e)=> this.handleKeyPress(e)}>
+      <Navbar style={{width: "100%"}} onKeyPress={(e)=> this.handleKeyPress(e)}>
         <Grid>
           <Row className="show-grid">
-            <Col xs={10} md={10}><Input style={{pstyle}} changeHandler={changeHandler}/></Col>
+            <Col xs={10} md={10}><Input q={this.props.q} style={{pstyle}} changeHandler={changeHandler}/></Col>
             <Col xs={2} md={2}><Button onClick={submitter} type="submit">Submit</Button></Col>
           </Row>
         </Grid>

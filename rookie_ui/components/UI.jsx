@@ -338,7 +338,7 @@ module.exports = React.createClass({
 
     return(
         <div>
-            <QueryBar corpus={this.props.corpus}/>
+            <QueryBar q={this.props.q} corpus={this.props.corpus}/>
              <Panel>
              <ChartTitle turnOnDocMode={this.turnOnDocMode} fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q}/>
              </Panel>

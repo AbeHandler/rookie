@@ -9,7 +9,7 @@ module.exports = React.createClass({
 
 getInitialState() {
     return {
-      value: ''
+      value: this.props.q
     };
   },
 
