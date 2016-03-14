@@ -54,6 +54,41 @@ module.exports = React.createClass({
         return output; // + "L 5 30 L 10 40 L 15 30 L 20 20 L 25 40 L 25 50 Z";
     },
 
+    get_path_hilite: function(input_datas){
+
+      let x_loc = this.state.mouse_x;// - this.props.y_axis_width - this.props.buffer;
+      let y_scale = this.get_y_scale();
+      let x_scale = this.get_x_scale();
+      let opacity=1;
+      if (this.state.mouse_x == -1){
+        opacity=0;
+      }
+      let x_date = x_scale.invert(x_loc - this.props.y_axis_width - this.props.buffer);
+      let x_moment = moment(x_date);
+      x_moment.startOf("month");
+      let x_scaled = x_scale(x_moment);
+      let y_loc = this.props.height /2;
+      let dates = _.map(this.props.keys, function(o, i){return moment(o)});
+      let nstories = "";
+      let j = 0;
+      for (let i = 0; i < dates.length; i++) { 
+          if(dates[i].year() == x_moment.year() && dates[i].month() == x_moment.month()){
+              j = i;
+          }
+      }
+
+      let bottom = this.props.height;
+      let output = "";
+      for (let i = 0; i < input_datas.length; i++) {
+        let diff = this.props.height - parseFloat(y_scale(input_datas[i]));
+        if (i == j){
+           output = "M " + x_scale(new Date(this.props.keys[i])) + " "  +  bottom + " ";
+           output = output + " L " + x_scale(new Date(this.props.keys[i])) + " " + diff;
+        }
+      }
+      output = output + "L " + x_scale(new Date(this.props.keys[j])) + " " + bottom;
+      return output; // + "L 5 30 L 10 40 L 15 30 L 20 20 L 25 40 L 25 50 Z";
+    },
 
   getInitialState: function() {
     let d1 = new Date(this.props.keys[0]);
@@ -149,17 +184,23 @@ module.exports = React.createClass({
       let x_scaled = x_scale(x_moment);
       let y_loc = this.props.height /2;
       let dates = _.map(this.props.keys, function(o, i){return moment(o)});
+      let nstories = "";
       for (let i = 0; i < dates.length; i++) { 
           if(dates[i].year() == x_moment.year() && dates[i].month() == x_moment.month()){
               let diff = this.props.height - parseFloat(y_scale(this.props.q_data[i]));
               y_loc = diff;
+              nstories = q_data[i];
           }
       }
+      if (nstories > 1){
+          nstories = nstories.toString() + " stories";
+      }else if (nstories == 1){
+          nstories = nstories.toString() + " story";
+      }
       //note: you need to render the component in all cases for react. hence opacity=0
-      return <svg height="50" width="50" fill="grey" opacity=".5">
-              <rect y={y_loc} opacity={opacity} x={x_scaled} height="10" width="23" fill="grey"/>
-              <text y={y_loc} opacity={opacity} x={x_scaled} height="10" width="23" fill="grey">hello, summarization</text>
-             </svg>
+      return <g>
+              <text x={x_scaled} y={y_loc} opacity={opacity} height="10" width="23" fill="grey">{nstories}</text>
+             </g>
    },
 
   render: function() {
@@ -197,6 +238,7 @@ module.exports = React.createClass({
       handle_mouseup = this.toggle_drag_stop;
     }
     let tooltip = this.get_tooltip();
+    let hilite = this.get_path_hilite(this.props.q_data);
     return (
         <Panel onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={e=>this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseUp={e => handle_mouseup(e.pageX, lateral_scale)} onMouseDown={e => this.handle_mouse_down(e, lateral_scale)} >
         <Row>
@@ -204,7 +246,8 @@ module.exports = React.createClass({
         <YAxis max={max} height={this.props.height} y_axis_width={this.props.y_axis_width}/>
 	      <svg ref="chart" width={this.props.w - this.props.y_axis_width - 5} height={this.props.height}>
         <path onMouseLeave={e=>this.setState({mouse_x:-1, mouse_y:-1})} onMouseMove={e =>this.setState({mouse_x:e.pageX, mouse_y:e.pageY})} d={ps} fill="#0028a3" opacity=".25" stroke="grey"/>
-        <path d={fs} fill="rgb(179, 49, 37)" opacity=".75" stroke="black"/>
+        <path d={hilite} fill="rgb(57, 57, 37)" opacity=".6" stroke="black"/>
+        <path d={fs} fill="rgb(179, 49, 37)" opacity=".6" stroke="black"/>
         {tooltip}
         {rec}
         {l_left}

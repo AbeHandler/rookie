@@ -10,6 +10,11 @@ var Panel = require('react-bootstrap/lib/Panel');
 
 module.exports = React.createClass({
 
+    shouldComponentUpdate: function(nextProps, nextState) {
+          return nextProps.start_selected !== this.props.start_selected &&
+                 nextProps.end_selected !== this.props.end_selected;
+    },
+ 
     markup: function(doc) {
         let dt = moment(doc.pubdate, "YYYY-MM-DD").format("MM.DD.YYYY");
         return {__html: dt + " | " + doc.snippet.htext};
@@ -28,7 +33,7 @@ module.exports = React.createClass({
                    return d.snippet.has_q && d.snippet.has_f;
               }); 
        if (qf.length > 0){
-            let out = qf[Math.floor(Math.random() * docs.length)];
+            let out = qf[Math.floor(Math.random() * qf.length)];
             return out;
        }
        let q_or_f = _.filter(docs, function(d){return d.snippet.has_q || d.snippet.has_f});
@@ -51,14 +56,9 @@ module.exports = React.createClass({
         if (docs.length > 0){
             while (ht < this.props.height && docs.length > 0){ //pretty hack-y. but apparently this is a weakness in react
                 let picked = this.find_next(docs);
-                console.log("docs len=" + docs.length);
-                console.log(picked.docid);
-                console.log(docs);
                 _.remove(docs, function(doc) {
                     return doc.docid == picked.docid;
                 });
-                console.log("docs len aftr=" + docs.length);
-                console.log(docs.length);
                 ht += this.fake_markup(picked).visualHeight();
                 if (ht < this.props.height){          
                     render.push(picked);
