@@ -193,12 +193,12 @@ module.exports = React.createClass({
       }else if (nstories == 1){
           nstories = nstories.toString() + " story";
       }
-      //note: you need to render the component in all cases for react. hence opacity=0
+      let tooltip_height = 50;
       return <svg>
               <g>
-              <rect x={x_scaled} y={y_loc} opacity={opacity} height="150" width="100" fill="blue"/>
-              <rect x={x_scaled} y={y_loc} height="10" width="10" fill="green"/>
-              <text x={x_scaled + 12} y={y_loc + 30} opacity={opacity} height="10" width="23" fill="black"><tspan>{nstories}</tspan><tspan x={x_scaled + 12} y={y_loc + 50}>{nstories}</tspan></text></g>
+              <rect x={x_scaled} y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width="85" fill="white"/>
+              <rect x={x_scaled + 5} y={y_loc + 30} height="10" width="10" opacity=".25" fill="#0028a3"/>
+              <text x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan>{x_moment.format("MMM. YYYY")}</tspan><tspan x={x_scaled + 20} y={y_loc + 40}>{nstories}</tspan></text></g>
              </svg>
    },
 
