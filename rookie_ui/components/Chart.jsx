@@ -189,16 +189,16 @@ module.exports = React.createClass({
           }
       }
       if (nstories > 1){
-          nstories = x_moment.format("MMM. YYYY") + nstories.toString() + " stories";
+          nstories = nstories.toString() + " stories";
       }else if (nstories == 1){
-          nstories = x_moment.format("MMM. YYYY") + nstories.toString() + " story";
+          nstories = nstories.toString() + " story";
       }
       //note: you need to render the component in all cases for react. hence opacity=0
       return <svg>
               <g>
-              <rect x={x_scaled} y={y_loc} opacity={opacity} height="100" width="100" fill="blue"/>
-              <rect x={x_scaled + 10} y={y_loc} height="10" width="10" fill="green"/>
-              <text x={x_scaled} y={y_loc + 30} opacity={opacity} height="10" width="23" fill="black">{nstories}</text></g>
+              <rect x={x_scaled} y={y_loc} opacity={opacity} height="150" width="100" fill="blue"/>
+              <rect x={x_scaled} y={y_loc} height="10" width="10" fill="green"/>
+              <text x={x_scaled + 12} y={y_loc + 30} opacity={opacity} height="10" width="23" fill="black"><tspan>{nstories}</tspan><tspan x={x_scaled + 12} y={y_loc + 50}>{nstories}</tspan></text></g>
              </svg>
    },
 
