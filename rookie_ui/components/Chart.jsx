@@ -79,15 +79,11 @@ module.exports = React.createClass({
 
       let bottom = this.props.height;
       let output = "";
-      for (let i = 0; i < input_datas.length; i++) {
-        let diff = this.props.height - parseFloat(y_scale(input_datas[i]));
-        if (i == j){
-           output = "M " + x_scale(new Date(this.props.keys[i])) + " "  +  bottom + " ";
-           output = output + " L " + x_scale(new Date(this.props.keys[i])) + " " + diff;
-        }
-      }
+      let diff = this.props.height - parseFloat(y_scale(input_datas[j]));
+      output = "M " + x_scale(new Date(this.props.keys[j])) + " "  +  bottom + " ";
+      output = output + " L " + x_scale(new Date(this.props.keys[j])) + " " + diff;
       output = output + "L " + x_scale(new Date(this.props.keys[j])) + " " + bottom;
-      return output; // + "L 5 30 L 10 40 L 15 30 L 20 20 L 25 40 L 25 50 Z";
+      return output;
     },
 
   getInitialState: function() {
@@ -193,14 +189,17 @@ module.exports = React.createClass({
           }
       }
       if (nstories > 1){
-          nstories = nstories.toString() + " stories";
+          nstories = x_moment.format("MMM. YYYY") + nstories.toString() + " stories";
       }else if (nstories == 1){
-          nstories = nstories.toString() + " story";
+          nstories = x_moment.format("MMM. YYYY") + nstories.toString() + " story";
       }
       //note: you need to render the component in all cases for react. hence opacity=0
-      return <g>
-              <text x={x_scaled} y={y_loc} opacity={opacity} height="10" width="23" fill="grey">{nstories}</text>
-             </g>
+      return <svg>
+              <g>
+              <rect x={x_scaled} y={y_loc} opacity={opacity} height="100" width="100" fill="blue"/>
+              <rect x={x_scaled + 10} y={y_loc} height="10" width="10" fill="green"/>
+              <text x={x_scaled} y={y_loc + 30} opacity={opacity} height="10" width="23" fill="black">{nstories}</text></g>
+             </svg>
    },
 
   render: function() {
