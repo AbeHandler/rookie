@@ -13,6 +13,7 @@ go("create table count_vectors (docid integer, corpusid integer not null, data j
 go("insert into corpora values (1, 'lens')")
 go("insert into corpora values (2, 'gawk')")
 go("CREATE index on doc_metadata (docid)") # i think these are all the important indexes. added them manually
+go("CREATE index on doc_metadata (corpusid)")
 go("CREATE index on count_vectors (docid)")
 go("CREATE index on count_vectors (corpusid)")
 session.commit()

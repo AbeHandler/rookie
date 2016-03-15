@@ -64,7 +64,7 @@ def count_facets():
     ngram_count = defaultdict(int)
 
     counter = 0
-    print "looping over all docis to count ngrams"
+    print "looping over all docids to count ngrams"
 
     for docid in ALLDOCIDS:
         try:
@@ -113,12 +113,14 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
 
     unigram_to_slot = {n: i for (i, n) in enumerate(all_unigrams)}
     
-    pickle.dump(ngram_to_slot, open("indexes/{}/unigram_key.p".format(args.corpus), "wb" ))
+    pickle.dump(unigram_to_slot, open("indexes/{}/unigram_key.p".format(args.corpus), "wb" ))
     pickle.dump(ngram_to_slot, open("indexes/{}/ngram_key.p".format(args.corpus), "wb" ))
 
     ngram_counter = defaultdict(int)
 
     pubdates = {}
+
+    docid_n_sentences = defaultdict(int)
 
     ngrams_sentences = defaultdict(lambda : defaultdict(list))
     for dinex, docid in enumerate(docids):
@@ -130,6 +132,7 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
 
         docid = int(docid)
         sents = get_doc_metadata(docid, args.corpus)["sentences"]
+        docid_n_sentences[docid] = len(sents)
         for s_no, sent in enumerate(sents):
             for sent_unigram in sent["unigrams"]:
                 try:
@@ -148,6 +151,8 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
     pickle.dump(default_to_regular(ngrams_sentences), open("indexes/{}/docs_sentences_ngrams.p".format(args.corpus), "wb" ))
 
     NDOCS = len(docids)
+
+    pickle.dump(docid_n_sentences, open("indexes/{}/how_many_sents_in_doc.p".format(args.corpus), "wb" ))
 
     pickle.dump(pubdates, open("indexes/{}/pubdates_xpress.p".format(args.corpus), "wb" ))
 

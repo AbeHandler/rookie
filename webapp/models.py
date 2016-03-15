@@ -134,6 +134,7 @@ def getcorpusid(corpus):
         return i[0]
 
 
+@lrudecorator(3000)
 def get_doc_metadata(docid, corpus):
     '''
     Just query db for function metatdata
@@ -299,8 +300,6 @@ class Models(object):
         # AH: assuming the order of results is not changed since coming out from IR system
         for whoosh_index, r in enumerate(results):
             d = get_doc_metadata(r, corpus)
-            import time
-            start = time.time()
             sent_results.append({
                 'docid':r,
                 'search_engine_index_doc': whoosh_index,
@@ -308,7 +307,6 @@ class Models(object):
                 'url': d['url'].encode("ascii", "ignore"),
                 'snippet': Models.get_sent(r, corpus, q, f, aliases=aliases)
             })
-            print time.time() - start
         return [i for i in sent_results if len(i["snippet"]) > 0 ] #filter nulls
 
     @staticmethod

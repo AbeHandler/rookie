@@ -14,15 +14,19 @@ session = Session()
 from pylru import lrudecorator
 
 @lrudecorator(100)
-def get_docs_sent_ngrams(corpus):
+def get_docs_sent_ngrams_key(corpus):
     with open("indexes/{}/docs_sentences_ngrams.p".format(corpus)) as inf:
         return pickle.load(inf)
 
 @lrudecorator(100)
-def get_ngram_key(corpus):
-    with open("indexes/{}/ngram_key.p".format(corpus)) as inf:
+def get_unigram_key(corpus):
+    with open("indexes/{}/unigram_key.p".format(corpus)) as inf:
         return pickle.load(inf)
 
+@lrudecorator(100)
+def get_nsentences_key(corpus):
+    with open("indexes/{}/how_many_sents_in_doc.p".format(corpus)) as inf:
+        return pickle.load(inf)
 
 ############################
 
@@ -85,37 +89,45 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
 
     if there is a sentence with both Q and an F: return just it as the snippet.
     else
-    select the first Q-containing sentence (if any)
-    select the first F-containing sentence (if any)
-    return the highest
+    select the first Q-containing sentence or F-containing sentence (whichever comes first)
 
-    if neither, return sentence 1 in doc (this is news! there is a lede!)
+    if neither, return sentence 1 in doc (this is news!)
     """
 
     from webapp.models import get_doc_metadata
     #import ipdb; 
-    sent_idx = get_docs_sent_ngrams(corpus)
+    sent_idx = get_docs_sent_ngrams_key(corpus)
     md = sent_idx[int(docid)]
-    ngram_key = get_ngram_key(corpus)
-    import ipdb
-    ipdb.set_trace()
-    has_q = md[ngram_key[q]]
-    if f_aliases is not None:
-        fs = itertools.chain(*[ngram_key[f] for f in f_aliases])
-        has_f = list(fs)
-    has_q_and_f = list(set(has_q).intersection(set(has_f)))
-    has_q_or_f = list(set(has_q).union(set(has_f)))
-    if len(has_q_and_f) > 1:
-        sentnum = min(has_q_and_f)
-    elif len(has_q_or_f) > 1:
-        sentnum = min(has_q_or_f)
-    else:
-        sentnum = 1
+    unigram_key = get_unigram_key(corpus)
+    all_n_sentences = range(get_nsentences_key(corpus)[int(docid)])
+    #unigrams_q = q.split(" ")
+    #has_q = set([i for i in itertools.chain(*[md[unigram_key[u]] for u in unigrams_q])])
+    #if f_aliases is not None:
+    #    unigrams_f = [itm for itm in itertools.chain(*[f.split(" ") for f in f_aliases])]
+    #    ipdb.set_trace()
+    #    has_f = set([thng for thng in itertools.chain(*[md[unigram_key[uf]] for uf in unigrams_f])])
+    #has_q_and_f = list(has_q.intersection(has_f))
+    #has_q_or_f = list(has_q.union(has_f))
 
-    toktext = get_doc_metadata(docid, corpus)['sentences'][sentnum]
-    hsent = hilite(toktext["as_string"], q, f_aliases, taginfo=taginfo)
-    hsent['sentnum'] = sentnum
-    return hsent
+    #priority_list = has_q_and_f + has_q_or_f + [i for i in all_n_sentences if i not in has_q_or_f]
+    priority_list = [i for i in all_n_sentences]
+    metad = get_doc_metadata(docid, corpus)
+
+    sents = []
+    for sentnum in priority_list:
+        toktext = metad['sentences'][sentnum]
+        hsent = hilite(toktext["as_string"], q, sentnum, f_aliases, taginfo=taginfo)
+        if hsent['has_q'] and hsent['has_f']:
+            return hsent
+        else:
+            sents.append(hsent)
+
+    q_or_f = [i for i in sents if hsent['has_q'] or hsent['has_f']]
+    if len(q_or_f) > 0:
+        return q_or_f[0] # return the highest w/ q or f. these are sorted.
+        
+    #default, just return the top
+    return hilite(metad['sentences'][0]["as_string"], q, "0", f_aliases, taginfo=taginfo)
 
 
 # regex matching system: always have groups
@@ -132,7 +144,7 @@ def q_regex(q):
     qregex = r"\b(" + re.escape(q) + r")(\S{0,4})\b"
     return qregex
 
-def hilite(text, q, f_aliases=None, taginfo=None):
+def hilite(text, q, sentnum, f_aliases=None, taginfo=None):
     """e.g.
     taginfo=dict(
         q_ltag = "<span style='color:blue'>, q_rtag = "</span>",
@@ -162,7 +174,7 @@ def hilite(text, q, f_aliases=None, taginfo=None):
     text3 = re.sub(qregex, qsub, text2, flags=re.I)
     has_q = text3 != text2
 
-    return dict(has_q=has_q, has_f=has_f, htext=text3)
+    return dict(has_q=has_q, has_f=has_f, htext=text3, sentnum=sentnum)
 
 
 ## below is only for offline development
