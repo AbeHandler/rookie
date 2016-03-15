@@ -5,7 +5,6 @@ These should be very small b.c gonna try to fit them all in memory
 '''
 from collections import defaultdict
 from pylru import lrudecorator
-from joblib import Memory
 from tempfile import mkdtemp
 import ujson
 import datetime
@@ -30,7 +29,6 @@ parser.add_argument('--corpus', help='the thing in the middle of corpus/{}/raw',
 args = parser.parse_args()
 
 cachedir = mkdtemp()
-memory = Memory(cachedir=cachedir, verbose=1)
 
 '''build connection to db'''
 from sqlalchemy import create_engine
@@ -101,7 +99,7 @@ def default_to_regular(d):
         d = {k: default_to_regular(v) for k, v in d.iteritems()}
     return d
 
-def build_matrix(docids, ok_ngrams):
+def build_matrix(docids, ok_ngrams, all_unigrams):
     '''
     This function builds sparse count vectors for each doc, held in memory
     '''
@@ -113,6 +111,9 @@ def build_matrix(docids, ok_ngrams):
     # dict to look up correct row #s in array
     ngram_to_slot = {n: i for (i, n) in enumerate(ok_ngrams)}
 
+    unigram_to_slot = {n: i for (i, n) in enumerate(all_unigrams)}
+    
+    pickle.dump(ngram_to_slot, open("indexes/{}/unigram_key.p".format(args.corpus), "wb" ))
     pickle.dump(ngram_to_slot, open("indexes/{}/ngram_key.p".format(args.corpus), "wb" ))
 
     ngram_counter = defaultdict(int)
@@ -130,9 +131,9 @@ def build_matrix(docids, ok_ngrams):
         docid = int(docid)
         sents = get_doc_metadata(docid, args.corpus)["sentences"]
         for s_no, sent in enumerate(sents):
-            for sent_ngram_gram in sent["ngrams"]:
+            for sent_unigram in sent["unigrams"]:
                 try:
-                    ngrams_sentences[docid][ngram_to_slot[sent_ngram_gram]].append(s_no)
+                    ngrams_sentences[docid][unigram_to_slot[sent_unigram]].append(s_no)
                 except KeyError: # rare ngrams are not in ngram_to_slot index and so can be skipped
                     pass    
         ngrams_in_doc = {}
@@ -164,8 +165,22 @@ def filter(input, n):
     return set([str(k) for k, v in input.iteritems() if v >= n])
 
 
+def get_all_unigrams(docids):
+    unigrams = set()
+    print "[*] looping over unigrams"
+    for dinex, docid in enumerate(docids):
+        if dinex % 100 == 0:
+            sys.stdout.write("...%s" % dinex); sys.stdout.flush()
+        sents = get_doc_metadata(docid, args.corpus)["sentences"]
+        for s in sents:
+            for u in s["unigrams"]:
+                unigrams.add(u)
+    return list(unigrams)
+
+
 if __name__ == '__main__':
     all_facets = count_facets()
     ngram = filter(all_facets, 5)
-    build_matrix(ALLDOCIDS, ngram)
+    all_unigrams = get_all_unigrams(ALLDOCIDS)
+    build_matrix(ALLDOCIDS, ngram, all_unigrams)
 

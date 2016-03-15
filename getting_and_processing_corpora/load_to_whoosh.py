@@ -280,9 +280,7 @@ def load(index_location, processed_location):
 
                 raw = make_raw(toks)
                 
-                def ngram_2_string(ng): # ngrams are collections of token objects. turn in to strings
-                    return " ".join([i.raw for i in ng])
-                return {"as_string": raw, "as_tokens": toks, "ngrams": [ngram_2_string(n) for n in sent.ngrams]}
+                return {"as_string": raw, "as_tokens": toks, "unigrams": [n.raw for n in sent.tokens]}
 
             sentences = [make_dict(sen) for sen in doc.sentences]
             if len(headline) > 0 and len(full_text) > 0:

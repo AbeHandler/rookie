@@ -1,12 +1,12 @@
 import re,os,json
 import time
+import itertools
 import cPickle as pickle
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import desc
 from webapp import CONNECTION_STRING
 import ipdb
-start_time = time.time()
 engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -17,6 +17,12 @@ from pylru import lrudecorator
 def get_docs_sent_ngrams(corpus):
     with open("indexes/{}/docs_sentences_ngrams.p".format(corpus)) as inf:
         return pickle.load(inf)
+
+@lrudecorator(100)
+def get_ngram_key(corpus):
+    with open("indexes/{}/ngram_key.p".format(corpus)) as inf:
+        return pickle.load(inf)
+
 
 ############################
 
@@ -81,43 +87,35 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
     else
     select the first Q-containing sentence (if any)
     select the first F-containing sentence (if any)
-    sort those (at most two) sentences.
-    return the top most
+    return the highest
+
+    if neither, return sentence 1 in doc (this is news! there is a lede!)
     """
 
     from webapp.models import get_doc_metadata
-    d = get_doc_metadata(docid, corpus)
-    hsents = {'has_q':[], 'has_f':[]}
     #import ipdb; 
     sent_idx = get_docs_sent_ngrams(corpus)
+    md = sent_idx[int(docid)]
+    ngram_key = get_ngram_key(corpus)
+    import ipdb
     ipdb.set_trace()
-    for sentnum, toktext in enumerate(d['sentences']):
-        hsent = hilite(toktext["as_string"], q, f_aliases, taginfo=taginfo)
-        hsent['sentnum'] = sentnum
-        if hsent['has_q'] and hsent['has_f']:
-            #import ipdb; ipdb.set_trace()
-            return hsent
+    has_q = md[ngram_key[q]]
+    if f_aliases is not None:
+        fs = itertools.chain(*[ngram_key[f] for f in f_aliases])
+        has_f = list(fs)
+    has_q_and_f = list(set(has_q).intersection(set(has_f)))
+    has_q_or_f = list(set(has_q).union(set(has_f)))
+    if len(has_q_and_f) > 1:
+        sentnum = min(has_q_and_f)
+    elif len(has_q_or_f) > 1:
+        sentnum = min(has_q_or_f)
+    else:
+        sentnum = 1
 
-        if hsent['has_q']:
-            hsents['has_q'].append(hsent)
-        if hsent['has_f']:
-            hsents['has_f'].append(hsent)
-
-    selection = []
-
-    if hsents['has_q']:
-        selection.append(hsents['has_q'][0])
-    if hsents['has_f']:
-        cand = hsents['has_f'][0]
-        # this condition shouldnt be possible assuming the shortcut break in the first Q&F
-        if not any(x['sentnum'] == cand['sentnum'] for x in selection):
-            selection.append(cand)
-
-    if len(selection) == 0: # default to first sentence
-        return {"has_q": False, "has_f": False, "sentnum": 1, "hsent": hilite(d['sentences'][0]["as_string"], q, f_aliases, taginfo=taginfo)}
-
-    selection.sort(key=lambda x: x['sentnum'])
-    return selection[0]
+    toktext = get_doc_metadata(docid, corpus)['sentences'][sentnum]
+    hsent = hilite(toktext["as_string"], q, f_aliases, taginfo=taginfo)
+    hsent['sentnum'] = sentnum
+    return hsent
 
 
 # regex matching system: always have groups
