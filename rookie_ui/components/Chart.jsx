@@ -300,9 +300,9 @@ module.exports = React.createClass({
     let max = _.max(this.props.datas);
     let rec, l_left, l_right, handle_mouseup; 
     if (this.props.chart_mode == "rectangle"){
-      rec = <rect onMouseDown={this.props.toggle_both_drags_start} y="0" x={start_pos} opacity={".2"} height={this.props.height} width={end_pos - start_pos} strokeWidth="4" fill="grey" />  
-      l_left = <line onMouseDown={this.props.toggle_drag_start_l} x1={start_pos} y1={this.props.height / 4} x2={start_pos} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="20"/>
-      l_right = <line onMouseDown={this.props.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 4} x2={end_pos} y2={this.props.height * .75} stroke={stroke_color_r} strokeWidth="20"/>
+      rec = <rect style={{cursor: "pointer"}} onMouseDown={this.props.toggle_both_drags_start} y="0" x={start_pos} opacity={".2"} height={this.props.height} width={end_pos - start_pos} strokeWidth="4" fill="grey" />  
+      l_left = <line style={{cursor: "pointer"}} onMouseDown={this.props.toggle_drag_start_l} x1={start_pos} y1={this.props.height / 4} x2={start_pos} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="20"/>
+      l_right = <line style={{cursor: "pointer"}} onMouseDown={this.props.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 4} x2={end_pos} y2={this.props.height * .75} stroke={stroke_color_r} strokeWidth="20"/>
     }
     if (this.props.drag_r == false && this.props.drag_l == false && this.props.chart_mode == "rectangle"){
       handle_mouseup = this.handle_mouse_up_in_rect_mode;

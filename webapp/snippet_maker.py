@@ -122,7 +122,8 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
         else:
             sents.append(hsent)
 
-    q_or_f = [i for i in sents if hsent['has_q'] or hsent['has_f']]
+    q_or_f = [sen for sen in sents if sen['has_q'] or sen['has_f']]
+
     if len(q_or_f) > 0:
         return q_or_f[0] # return the highest w/ q or f. these are sorted.
         
