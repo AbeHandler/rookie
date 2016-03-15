@@ -192,14 +192,21 @@ module.exports = React.createClass({
           nstories = nstories.toString() + " stories";
       }else if (nstories == 1){
           nstories = nstories.toString() + " story";
+      }else if (nstories == 0){
+          nstories = nstories.toString() + " stories";
       }
       let tooltip_height = 50;
-      if (y_loc > 75){  //stop tooltip from falling too low
-        y_loc = 75; 
+      if (y_loc > 50){  //stop tooltip from falling too low
+        y_loc = 50; 
+      }
+
+      //stop tooltip from extending past the edge of chart
+      if ((parseInt(this.props.tooltip_width) + x_scaled) > this.props.w - this.props.y_axis_width - 5){
+        x_scaled = this.props.w - this.props.y_axis_width - 5 - this.props.tooltip_width - 5;
       }
       return <svg>
               <g>
-              <rect x={x_scaled} rx="5" ry="5" y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width="90" fill="white"/>
+              <rect x={x_scaled} rx="5" ry="5" y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width={this.props.tooltip_width} fill="white"/>
               <rect x={x_scaled + 5} y={y_loc + 30} height="10" width="10" opacity=".25" fill="#0028a3"/>
               <text x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan>{x_moment.format("MMM. YYYY")}</tspan><tspan x={x_scaled + 20} y={y_loc + 40}>{nstories}</tspan></text></g>
              </svg>
@@ -243,9 +250,13 @@ module.exports = React.createClass({
       if (y_loc > 50){  //stop tooltip from falling too low
         y_loc = 50; 
       }
+      //stop tooltip from extending past the edge of chart
+      if ((parseInt(this.props.tooltip_width) + x_scaled) > this.props.w - this.props.y_axis_width - 5){
+        x_scaled = this.props.w - this.props.y_axis_width - 5 - this.props.tooltip_width - 5;
+      }
       return <svg>
               <g>
-              <rect rx="5" ry="5" x={x_scaled} y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width="90" fill="white"/>
+              <rect rx="5" ry="5" x={x_scaled} y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width={this.props.tooltip_width} fill="white"/>
               <rect x={x_scaled + 5} y={y_loc + 30} height="10" width="10" opacity=".25" fill="#0028a3"/>
               <rect x={x_scaled + 5} y={y_loc + 50} height="10" width="10" opacity="1" fill="rgb(179, 49, 37)"/>
               <text x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan>{x_moment.format("MMM. YYYY")}</tspan>
