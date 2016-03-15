@@ -4,6 +4,7 @@ Application logic for webapp should be in here
 import datetime
 import ipdb
 import time
+import cPickle as pickle
 import pandas as pd
 from dateutil.parser import parse
 from whoosh.index import open_dir
@@ -14,11 +15,13 @@ from webapp import CONNECTION_STRING
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from facets.query_sparse import get_facets_for_q, load_all_data_structures
+from pylru import lrudecorator
 import traceback
 
 ENGINE = create_engine(CONNECTION_STRING)
 SESS = sessionmaker(bind=ENGINE)
 SESSION = SESS()
+
 
 def get_stuff_ui_needs(params):
     try:
@@ -296,6 +299,8 @@ class Models(object):
         # AH: assuming the order of results is not changed since coming out from IR system
         for whoosh_index, r in enumerate(results):
             d = get_doc_metadata(r, corpus)
+            import time
+            start = time.time()
             sent_results.append({
                 'docid':r,
                 'search_engine_index_doc': whoosh_index,
@@ -303,6 +308,7 @@ class Models(object):
                 'url': d['url'].encode("ascii", "ignore"),
                 'snippet': Models.get_sent(r, corpus, q, f, aliases=aliases)
             })
+            print time.time() - start
         return [i for i in sent_results if len(i["snippet"]) > 0 ] #filter nulls
 
     @staticmethod

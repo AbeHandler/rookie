@@ -1,5 +1,6 @@
 import re,os,json
 import time
+import cPickle as pickle
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import desc
@@ -9,6 +10,13 @@ start_time = time.time()
 engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
+
+from pylru import lrudecorator
+
+@lrudecorator(100)
+def get_docs_sent_ngrams(corpus):
+    with open("indexes/{}/docs_sentences_ngrams.p".format(corpus)) as inf:
+        return pickle.load(inf)
 
 ############################
 
@@ -31,7 +39,7 @@ def get_snippet2(docid, corpus, q, f_aliases=None, taginfo=None):
     from webapp.models import get_doc_metadata
     d = get_doc_metadata(docid, corpus)
     hsents = {'has_q':[], 'has_f':[]}
-    for sentnum,toktext in enumerate(d['sentences']):
+    for sentnum, toktext in enumerate(d['sentences']):
         hsent = hilite(toktext["as_string"], q, f_aliases, taginfo=taginfo)
         hsent['sentnum'] = sentnum
         if hsent['has_q'] and hsent['has_f']:
@@ -80,6 +88,9 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
     from webapp.models import get_doc_metadata
     d = get_doc_metadata(docid, corpus)
     hsents = {'has_q':[], 'has_f':[]}
+    #import ipdb; 
+    sent_idx = get_docs_sent_ngrams(corpus)
+    ipdb.set_trace()
     for sentnum, toktext in enumerate(d['sentences']):
         hsent = hilite(toktext["as_string"], q, f_aliases, taginfo=taginfo)
         hsent['sentnum'] = sentnum

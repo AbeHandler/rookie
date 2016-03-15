@@ -91,7 +91,6 @@ module.exports = React.createClass({
     clicked_here.add(half_of_span, 'days');
     clicked_here.add(half_of_span, 'days');
     let new_end = clicked_here.format("YYYY-MM-DD");
-    console.log("to do fix offsets from width of rect");
     this.setState({start_selected:new_start,end_selected:clicked_here.format("YYYY-MM-DD")});
   },
 
@@ -214,7 +213,6 @@ module.exports = React.createClass({
               cache: true,
               success: function(d) {
                 let tmp = this.state.vars;
-                console.log("got dox");
                 this.setState({f: -1, mode: "docs", all_results: d, f_counts: []});
                 this.forceUpdate();
               }.bind(this),
@@ -284,7 +282,6 @@ module.exports = React.createClass({
   render: function() {
     let f = this.state.f;
     let q = this.props.q;
-    console.log(this.state.all_results);
     let qX = this.qX;
     let bin_size = "year"; //default binsize
     // docs = those that match q, f & t. all_results = what comes from browser.
@@ -321,8 +318,7 @@ module.exports = React.createClass({
                     <Status fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} {...this.props}/>
                     <SparklineGrid {...this.props} clickTile={this.clickTile} q_data={q_data} col_no={3} facet_datas={this.props.facet_datas}/>
                    </Panel>
-    } else { 
-      console.log("render me");
+    } else {
       let docviewer = <DocViewer height="200" f={this.state.f} mode={this.state.mode} handleBinClick={this.handleBinClick} start_selected={this.state.start_selected} end_selected={this.state.end_selected} all_results={this.state.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>
       main_panel = <div>{temporal_status}{docviewer}</div>
     }

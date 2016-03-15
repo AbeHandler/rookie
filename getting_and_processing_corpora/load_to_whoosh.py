@@ -256,11 +256,11 @@ def load(index_location, processed_location):
             ngrams = [unicode(" ".join(i.raw for i in j)) \
                                   for j in doc.ngrams]
 
-            def make_dict(tokens):
+            def make_dict(sent):
                 '''
                 Make a token dictionary to store as json
                 '''
-                toks = [(j.raw, j.token_no, j.char_offset) for j in tokens]
+                toks = [(j.raw, j.token_no, j.char_offset) for j in sent.tokens]
                 
                 def make_raw(toks):
                     """create a raw string that preserves token offsets"""
@@ -279,9 +279,12 @@ def load(index_location, processed_location):
                     return mutable.value
 
                 raw = make_raw(toks)
-                return {"as_string": raw, "as_tokens": toks}
+                
+                def ngram_2_string(ng): # ngrams are collections of token objects. turn in to strings
+                    return " ".join([i.raw for i in ng])
+                return {"as_string": raw, "as_tokens": toks, "ngrams": [ngram_2_string(n) for n in sent.ngrams]}
 
-            sentences = [make_dict(i.tokens) for i in doc.sentences]
+            sentences = [make_dict(sen) for sen in doc.sentences]
             if len(headline) > 0 and len(full_text) > 0:
                 writer.add_document(title=headline, path=u"/" + str(s_counter), content=full_text)
                 per_doc_json_blob = {'headline': headline, 'pubdate': pubdate.strftime('%Y-%m-%d'), 'ngrams': ngrams, "url": url, "sentences": sentences}

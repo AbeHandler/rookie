@@ -95,6 +95,12 @@ def df_vec(counter, decoder, noccurs):
         df_out[decoder[c]] = counter[c]
     return df_out
 
+# http://stackoverflow.com/questions/26496831/how-to-convert-defaultdict-of-defaultdicts-of-defaultdicts-to-dict-of-dicts-o
+def default_to_regular(d):
+    if isinstance(d, defaultdict):
+        d = {k: default_to_regular(v) for k, v in d.iteritems()}
+    return d
+
 def build_matrix(docids, ok_ngrams):
     '''
     This function builds sparse count vectors for each doc, held in memory
@@ -113,13 +119,22 @@ def build_matrix(docids, ok_ngrams):
 
     pubdates = {}
 
+    ngrams_sentences = defaultdict(lambda : defaultdict(list))
     for dinex, docid in enumerate(docids):
-        if dinex % 1000 == 0:
+        if dinex % 100 == 0:
             sys.stdout.write("...%s" % dinex); sys.stdout.flush()
         pubdate = datetime.datetime.strptime(get_doc_metadata(docid, args.corpus)["pubdate"], '%Y-%m-%d')
         pubdates[docid] = pubdate
         ngram = set([str(j) for j in get_doc_metadata(docid, args.corpus)["ngrams"] if j in ok_ngrams])
+
         docid = int(docid)
+        sents = get_doc_metadata(docid, args.corpus)["sentences"]
+        for s_no, sent in enumerate(sents):
+            for sent_ngram_gram in sent["ngrams"]:
+                try:
+                    ngrams_sentences[docid][ngram_to_slot[sent_ngram_gram]].append(s_no)
+                except KeyError: # rare ngrams are not in ngram_to_slot index and so can be skipped
+                    pass    
         ngrams_in_doc = {}
         for n in ngram:
             ngrams_in_doc[ngram_to_slot[n]] = 1
@@ -128,6 +143,8 @@ def build_matrix(docids, ok_ngrams):
         go("""INSERT INTO count_vectors (docid, CORPUSID, data) VALUES (%s, %s, %s)""", dinex, int(CORPUSID), ujson.dumps(ngrams_in_doc))
     session.commit()
     print "\ndumping pickled stuff..."
+
+    pickle.dump(default_to_regular(ngrams_sentences), open("indexes/{}/docs_sentences_ngrams.p".format(args.corpus), "wb" ))
 
     NDOCS = len(docids)
 
