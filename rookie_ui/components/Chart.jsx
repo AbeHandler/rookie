@@ -204,11 +204,15 @@ module.exports = React.createClass({
       if ((parseInt(this.props.tooltip_width) + x_scaled) > this.props.w - this.props.y_axis_width - 5){
         x_scaled = this.props.w - this.props.y_axis_width - 5 - this.props.tooltip_width - 5;
       }
+      if (this.state.mouse_x == -1){
+        opacity=0;
+        tooltip_height=0; //hard to disable selection, so just put off screen
+      }
       return <svg>
               <g>
               <rect x={x_scaled} rx="5" ry="5" y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width={this.props.tooltip_width} fill="white"/>
               <rect x={x_scaled + 5} y={y_loc + 30} height="10" width="10" opacity=".25" fill="#0028a3"/>
-              <text x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan>{x_moment.format("MMM. YYYY")}</tspan><tspan x={x_scaled + 20} y={y_loc + 40}>{nstories}</tspan></text></g>
+              <text style={{backgroundColor: "white"}} x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan>{x_moment.format("MMM. YYYY")}</tspan><tspan x={x_scaled + 20} y={y_loc + 40}>{nstories}</tspan></text></g>
              </svg>
    },
 
@@ -217,9 +221,6 @@ module.exports = React.createClass({
       let y_scale = this.get_y_scale();
       let x_scale = this.get_x_scale();
       let opacity=1;
-      if (this.state.mouse_x == -1){
-        opacity=0;
-      }
       let x_date = x_scale.invert(x_loc - this.props.y_axis_width - this.props.buffer);
       let x_moment = moment(x_date);
       x_moment.startOf("month");
@@ -254,12 +255,16 @@ module.exports = React.createClass({
       if ((parseInt(this.props.tooltip_width) + x_scaled) > this.props.w - this.props.y_axis_width - 5){
         x_scaled = this.props.w - this.props.y_axis_width - 5 - this.props.tooltip_width - 5;
       }
+      if (this.state.mouse_x == -1){
+        opacity=0;
+        tooltip_height=0; //hard to disable selection, so just put off screen
+      }
       return <svg>
               <g>
               <rect rx="5" ry="5" x={x_scaled} y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width={this.props.tooltip_width} fill="white"/>
               <rect x={x_scaled + 5} y={y_loc + 30} height="10" width="10" opacity=".25" fill="#0028a3"/>
               <rect x={x_scaled + 5} y={y_loc + 50} height="10" width="10" opacity="1" fill="rgb(179, 49, 37)"/>
-              <text x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan>{x_moment.format("MMM. YYYY")}</tspan>
+              <text style={{backgroundColor: "white"}} x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan>{x_moment.format("MMM. YYYY")}</tspan>
               <tspan x={x_scaled + 20} y={y_loc + 40}>{nstories}</tspan>
               <tspan x={x_scaled + 20} y={y_loc + 60}>{fstories}</tspan>
               </text>
@@ -268,6 +273,10 @@ module.exports = React.createClass({
    },
 
    get_tooltip: function(){
+      // no tooltip. important b.c otherwise ui does strange stuff w/ offscreen tooltip
+      if (this.state.mouse_x == -1){
+        return <svg></svg>;
+      }
       if (this.props.f != -1){
         return this.get_tooltip_q_and_f();
       }else{
