@@ -54,6 +54,11 @@ module.exports = React.createClass({
         return output; // + "L 5 30 L 10 40 L 15 30 L 20 20 L 25 40 L 25 50 Z";
     },
 
+    /**
+    * Get the SVG path for the hightlight bar to show where mouseovered
+    * @param {e_pageX} x location 
+    * @param {lateral_scale} d3 scale
+    */
     get_path_hilite: function(input_datas){
 
       let x_loc = this.state.mouse_x;// - this.props.y_axis_width - this.props.buffer;
@@ -101,6 +106,7 @@ module.exports = React.createClass({
 
   set_X: function(e_pageX, lateral_scale) {
     let p = lateral_scale.invert(e_pageX - this.props.y_axis_width - this.props.buffer);
+    this.props.mouse_move_in_chart(p);
     if (this.props.drag_r == true && this.props.drag_l == true){
       //set distance from mouse position to edges  
       let lateral_scale = this.get_x_scale();
@@ -127,7 +133,7 @@ module.exports = React.createClass({
   */
   handle_mouse_down: function(e, lateral_scale){
     if (this.props.chart_mode == "rectangle"){
-      this.props.validClickTimer();
+      this.props.mouse_down_in_chart_true(e.pageX);
     }else{
       this.props.toggle_rect(lateral_scale.invert(e.pageX - this.props.y_axis_width - this.props.buffer), false);
     }
@@ -136,7 +142,7 @@ module.exports = React.createClass({
   toggle_drag_stop: function(e_pageX, lateral_scale){
     this.setState({ mouse_to_r_d: -1, mouse_to_l_d: -1,
                     mouse_to_r_d: -1, mouse_to_l_d: -1});
-    this.props.validClickEnd(lateral_scale.invert(e_pageX - this.props.y_axis_width - this.props.buffer));
+    this.props.mouse_up_in_chart(lateral_scale.invert(e_pageX - this.props.y_axis_width - this.props.buffer));
   },
   
   /**
@@ -285,7 +291,6 @@ module.exports = React.createClass({
    },
 
   render: function() {
-    let lateralize = this.lateralize;
     let lateral_scale = this.get_x_scale();
     let height_scale = this.get_y_scale();
     let set_X = this.set_X;
@@ -334,7 +339,7 @@ module.exports = React.createClass({
         {l_left}
         {l_right}
         </svg>
-        <div style={{width: this.props.y_axis_width - 2, float: "left"}}>&nbsp;</div><XAxis style={{float: "left"}} show_nth_tickmark="12" q={this.props.q} keys={this.props.keys} lateral_scale={lateral_scale} height="50" width={chart_width} q_counts={this.props.q_data} lateralize={lateralize}/>
+        <div style={{width: this.props.y_axis_width - 2, float: "left"}}>&nbsp;</div><XAxis style={{float: "left"}} show_nth_tickmark="12" q={this.props.q} keys={this.props.keys} lateral_scale={lateral_scale} height="50" width={chart_width} q_counts={this.props.q_data} lateralize={this.lateralize}/>
         </Col>
         </Row>
         </Panel>

@@ -43,7 +43,11 @@ module.exports = React.createClass({
   getInitialState(){
     //Notes.
     //1) convention: -1 == null
-    return {drag_r: false, drag_l:false, width: 0, click_tracker: -1, chart_mode: "intro", all_results: [], start_selected:-1, end_selected:-1, f_counts:[], f: -1, hovered: -1, vars:this.props.vars, mode:"overview"};
+    return {drag_r: false, drag_l:false, mouse_down_in_chart: false, 
+           mouse_is_dragging: false, width: 0, click_tracker: -1, 
+           chart_mode: "intro", all_results: [], start_selected:-1,
+           end_selected:-1, f_counts:[], f: -1, hovered: -1,
+           vars:this.props.vars, mode:"overview"};
   },
 
   resultsToDocs: function(results){
@@ -65,13 +69,36 @@ module.exports = React.createClass({
 
   },
 
+  mouse_move_in_chart: function(p){
+    this.check_drag(p);
+  },
+
+  check_drag: function(p) {
+    //i.e. is the mouse is still down after delay?
+    let dif = +new Date() - this.state.click_tracker;
+    if (this.state.mouse_down_in_chart && dif > 250){
+      if (this.state.drag_l == false && this.state.drag_r == false){
+        let start = moment(p).format("YYYY-MM-DD");
+        let end = moment(p).format("YYYY-MM-DD");
+        this.setState({mouse_is_dragging: true, 
+                      drag_l: false,
+                      drag_r: true,
+                      start_selected: start,
+                      end_selected: end});
+      }
+    }
+  },
+
   /**
   * This function will fire on mousedown if chart is in rectangle mode
   * starts the click timer
   */
-  validClickTimer: function(){
+  mouse_down_in_chart_true: function(p){
     let start = +new Date();
-    this.setState({click_tracker: start});
+    this.setState({ 
+      click_tracker: start, 
+      mouse_down_in_chart: true, 
+      mouse_is_dragging: false}); // mouse assumed to be not dragging on click
   },
 
   /**
@@ -91,15 +118,15 @@ module.exports = React.createClass({
     clicked_here.add(half_of_span, 'days');
     clicked_here.add(half_of_span, 'days');
     let new_end = clicked_here.format("YYYY-MM-DD");
-    this.setState({start_selected:new_start,end_selected:clicked_here.format("YYYY-MM-DD")});
+    this.setState({start_selected:new_start, mouse_down_in_chart: false, mouse_is_dragging: false, end_selected:clicked_here.format("YYYY-MM-DD")});
   },
 
   /**
   * This function will fire on mouseup if chart is in rectangle mode
   * determines what to do based on if it is a valid click
   */
-  validClickEnd: function(e_page_X_adjusted){
-    this.setState({drag_l: false, drag_r: false});
+  mouse_up_in_chart: function(e_page_X_adjusted){
+    this.setState({drag_l: false, drag_r: false, mouse_down_in_chart: false, mouse_is_dragging: false});
     if (this.state.click_tracker != -1){
       let d = +new Date() - this.state.click_tracker;
       let valid = true; //TODO: move the rect on click
@@ -243,14 +270,14 @@ module.exports = React.createClass({
         if (end > max) {
            end = max;
         } 
-        this.setState({chart_mode:"rectangle", mode: "docs", start_selected:start, end_selected: end});
+        this.setState({chart_mode:"rectangle", mouse_down_in_chart:true, mode: "docs", start_selected:start, end_selected: end});
           if (this.state.f == -1){
               this.turnOnDocMode();
           }
         }
       else{
         if (this.state.chart_mode != "rectangle"){
-          this.setState({chart_mode:"rectangle", drag_r: true, mode: "docs", start_selected:m.format("YYYY-MM-DD"), end_selected: m.format("YYYY-MM-DD")});
+          this.setState({chart_mode:"rectangle", mouse_down_in_chart:true, drag_r: true, mode: "docs", start_selected:m.format("YYYY-MM-DD"), end_selected: m.format("YYYY-MM-DD")});
           this.turnOnDocMode();
         }
       }
@@ -325,16 +352,56 @@ module.exports = React.createClass({
     let chart;
     if (this.props.total_docs_for_q > 0){
       let buffer = 5;
-      chart = <Chart tooltip_width="90" f={this.state.f} q={this.props.q} handle_mouse_up_in_rect_mode={this.handle_mouse_up_in_rect_mode} toggle_both_drags_start={() => this.setState({drag_l: true, drag_r: true}) } toggle_drag_start_l={this.toggle_drag_start_l} toggle_drag_start_r={this.toggle_drag_start_r} drag_l={this.state.drag_l} drag_r={this.state.drag_r} w={this.state.width - this.props.y_axis_width - buffer} buffer={buffer} y_axis_width={this.props.y_axis_width} mode={this.state.mode} validClickEnd={this.validClickEnd} validClickTimer={this.validClickTimer} toggle_rect={this.toggle_rect} chart_mode={this.state.chart_mode} qX={qX} set_date={this.set_date} set_dates={this.set_dates} start_selected={this.state.start_selected} end_selected={this.state.end_selected} {...this.props} f_data={f_couts} belowchart="50" height={this.state.width / this.props.w_h_ratio}  keys={chart_bins} datas={q_data}/>
+      chart = <Chart 
+               tooltip_width="90"
+               mouse_move_in_chart={this.mouse_move_in_chart}
+               f={this.state.f}
+               q={this.props.q}
+               handle_mouse_up_in_rect_mode={this.handle_mouse_up_in_rect_mode}
+               toggle_both_drags_start={() => this.setState({drag_l: true, drag_r: true}) }
+               toggle_drag_start_l={this.toggle_drag_start_l}
+               toggle_drag_start_r={this.toggle_drag_start_r} drag_l={this.state.drag_l}
+               drag_r={this.state.drag_r}
+               w={this.state.width - this.props.y_axis_width - buffer} buffer={buffer} y_axis_width={this.props.y_axis_width}
+               mode={this.state.mode} mouse_up_in_chart={this.mouse_up_in_chart}
+               mouse_down_in_chart_true={this.mouse_down_in_chart_true}
+               toggle_rect={this.toggle_rect}
+               chart_mode={this.state.chart_mode}
+               qX={qX} set_date={this.set_date}
+               set_dates={this.set_dates}
+               start_selected={this.state.start_selected}
+               end_selected={this.state.end_selected} 
+               {...this.props}
+               f_data={f_couts}
+               belowchart="50"
+               height={this.state.width / this.props.w_h_ratio}
+               keys={chart_bins}
+               datas={q_data}/>
       
     }else{
       chart = "";
     }
 
+    let ss;
+    if (this.state.mouse_down_in_chart){
+      ss = "down";
+    }else{
+      ss = "up";
+    }
+
+    let rr;
+    if (this.state.mouse_is_dragging){
+      rr = "drag";
+    }else{
+      rr = "no drag";
+    }
+    
 
     return(
         <div>
             <QueryBar q={this.props.q} corpus={this.props.corpus}/>
+             <div>mouse down? {ss} </div>
+             <div>drag? {rr}</div>
              <Panel>
              <ChartTitle turnOnDocMode={this.turnOnDocMode} fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q}/>
              </Panel>

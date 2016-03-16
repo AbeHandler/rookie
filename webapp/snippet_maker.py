@@ -96,9 +96,9 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
 
     from webapp.models import get_doc_metadata
     #import ipdb; 
-    sent_idx = get_docs_sent_ngrams_key(corpus)
-    md = sent_idx[int(docid)]
-    unigram_key = get_unigram_key(corpus)
+    #sent_idx = get_docs_sent_ngrams_key(corpus)
+    #md = sent_idx[int(docid)]
+    #unigram_key = get_unigram_key(corpus)
     all_n_sentences = range(get_nsentences_key(corpus)[int(docid)])
     #unigrams_q = q.split(" ")
     #has_q = set([i for i in itertools.chain(*[md[unigram_key[u]] for u in unigrams_q])])
