@@ -97,16 +97,22 @@ module.exports = React.createClass({
     let scale = this.get_x_scale();
     let mouse_x = -1;
     let mouse_y = -1
-    return {w: 0, mouse_x: mouse_x, mouse_y: mouse_y, x_l: scale(d1), x_r: scale(d2), drag_l: this.props.drag_l, drag_r: this.props.drag_r, mouse_to_r_d: -1, mouse_to_l_d: -1};
+    return {w: 0, mouse_x: mouse_x, x_l: scale(d1), x_r: scale(d2), 
+           drag_l: this.props.drag_l, drag_r: this.props.drag_r, 
+           mouse_to_r_d: -1, mouse_to_l_d: -1};
   },
 
   lateralize: function (i, lateral_scale) {
     return lateral_scale(i);
   },
 
-  set_X: function(e_pageX, lateral_scale) {
+  handle_mouse_move: function(e_pageX, lateral_scale) {
+    
     let p = lateral_scale.invert(e_pageX - this.props.y_axis_width - this.props.buffer);
+    
+    //alert UI that mouse is moving
     this.props.mouse_move_in_chart(p);
+
     if (this.props.drag_r == true && this.props.drag_l == true){
       //set distance from mouse position to edges  
       let lateral_scale = this.get_x_scale();
@@ -293,7 +299,7 @@ module.exports = React.createClass({
   render: function() {
     let lateral_scale = this.get_x_scale();
     let height_scale = this.get_y_scale();
-    let set_X = this.set_X;
+    let handle_mouse_move = this.handle_mouse_move;
     let ps = this.get_path_string(this.props.q_data);
 
     let fs = "";
@@ -326,14 +332,14 @@ module.exports = React.createClass({
     let tooltip = this.get_tooltip();
     let hilite = this.get_path_hilite(this.props.q_data);
     return (
-        <Panel onMouseMove={e=> set_X(e.pageX, lateral_scale)} onMouseLeave={e=>this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseUp={e => handle_mouseup(e.pageX, lateral_scale)} onMouseDown={e => this.handle_mouse_down(e, lateral_scale)} >
+        <Panel onMouseMove={e=> handle_mouse_move(e.pageX, lateral_scale)} onMouseLeave={e=>this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseUp={e => handle_mouseup(e.pageX, lateral_scale)} onMouseDown={e => this.handle_mouse_down(e, lateral_scale)} >
         <Row>
         <Col xs={12}>
         <YAxis max={max} height={this.props.height} y_axis_width={this.props.y_axis_width}/>
 	      <svg ref="chart" width={this.props.w - this.props.y_axis_width - 5} height={this.props.height}>
-        <path onMouseLeave={e=>this.setState({mouse_x:-1, mouse_y:-1})} onMouseMove={e =>this.setState({mouse_x:e.pageX, mouse_y:e.pageY})} d={ps} fill="#0028a3" opacity=".25" stroke="grey"/>
+        <path onMouseLeave={e=>this.setState({mouse_x:-1, mouse_y:-1})} onMouseMove={e =>this.setState({mouse_x:e.pageX})} d={ps} fill="#0028a3" opacity=".25" stroke="grey"/>
         <path d={hilite} fill="rgb(57, 57, 37)" opacity=".6" stroke="black"/>
-        <path onMouseLeave={e=>this.setState({mouse_x:-1, mouse_y:-1})} onMouseMove={e =>this.setState({mouse_x:e.pageX, mouse_y:e.pageY})} d={fs} fill="rgb(179, 49, 37)" opacity=".6" stroke="black"/>
+        <path onMouseLeave={e=>this.setState({mouse_x:-1, mouse_y:-1})} onMouseMove={e =>this.setState({mouse_x:e.pageX})} d={fs} fill="rgb(179, 49, 37)" opacity=".6" stroke="black"/>
         {tooltip}
         {rec}
         {l_left}

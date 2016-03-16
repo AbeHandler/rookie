@@ -278,13 +278,9 @@ module.exports = React.createClass({
     }
   },
 
-  /**
-  * The chart starts with no rectangle. This turns it on.
-  */
-  toggle_rect: function (p, valid) {
+  turn_on_rect_mode: function(p){
     let m = moment(p.toString());
-    if (valid != false){
-        let e = moment(this.state.end_selected);
+    let e = moment(this.state.end_selected);
         let s = moment(this.state.start_selected);
         let diff = moment.duration(e - s);
         let start = m.clone();
@@ -302,6 +298,15 @@ module.exports = React.createClass({
           if (this.state.f == -1){
               this.turnOnDocMode();
           }
+  },
+
+  /**
+  * The chart starts with no rectangle. This turns it on.
+  */
+  toggle_rect: function (p, valid) {
+    let m = moment(p.toString());
+    if (valid != false){
+        this.turn_on_rect_mode(p);
         }
       else{
         if (this.state.chart_mode != "rectangle"){
@@ -410,26 +415,9 @@ module.exports = React.createClass({
       chart = "";
     }
 
-    let ss;
-    if (this.state.mouse_down_in_chart){
-      ss = "down";
-    }else{
-      ss = "up";
-    }
-
-    let rr;
-    if (this.state.mouse_is_dragging){
-      rr = "drag";
-    }else{
-      rr = "no drag";
-    }
-    
-
     return(
         <div>
             <QueryBar q={this.props.q} corpus={this.props.corpus}/>
-             <div>mouse down? {ss} </div>
-             <div>drag? {rr}</div>
              <Panel>
              <ChartTitle turnOnDocMode={this.turnOnDocMode} fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q}/>
              </Panel>
