@@ -42,11 +42,12 @@ module.exports = React.createClass({
 
   getInitialState(){
     //Notes.
-    //1) convention: -1 == null
+    //convention: -1 == null
     return {drag_r: false, drag_l:false, mouse_down_in_chart: false, 
            mouse_is_dragging: false, width: 0, click_tracker: -1, 
            chart_mode: "intro", all_results: [], start_selected:-1,
            end_selected:-1, f_counts:[], f: -1, hovered: -1,
+           current_bin_position: -1,
            vars:this.props.vars, mode:"overview"};
   },
 
@@ -70,13 +71,13 @@ module.exports = React.createClass({
   },
 
   mouse_move_in_chart: function(p){
-    this.check_drag(p);
+    this.setState({current_bin_position: moment(p).format("YYYY-MM")}, this.check_drag(p));
   },
 
   check_drag: function(p) {
     //i.e. is the mouse is still down after delay?
     let dif = +new Date() - this.state.click_tracker;
-    if (this.state.mouse_down_in_chart && dif > 250){
+    if (this.state.mouse_down_in_chart && dif > 200){
       if (this.state.drag_l == false && this.state.drag_r == false){
         let start = moment(p).format("YYYY-MM-DD");
         let end = moment(p).format("YYYY-MM-DD");
@@ -89,6 +90,26 @@ module.exports = React.createClass({
     }
   },
 
+  //YYYY_MM_on_mouse_down set on mouse down
+  check_after_delay: function(YYYY_MM_on_mouse_down){
+    if (this.state.current_bin_position == YYYY_MM_on_mouse_down){
+        let dif = +new Date() - this.state.click_tracker;
+        //dif is how many ms since last click
+        if(this.state.mouse_down_in_chart && dif > 75){
+          let start = moment(YYYY_MM_on_mouse_down + "-01", "YYYY-MM-DD");
+          let end = moment(YYYY_MM_on_mouse_down + "-01", "YYYY-MM-DD");
+          this.setState({mouse_is_dragging: true, 
+                        drag_l: false,
+                        drag_r: true,
+                        start_selected: start,
+                        end_selected: end});
+      }
+    }
+    else{
+      console.log("bins dff");
+    }
+  },
+
   /**
   * This function will fire on mousedown if chart is in rectangle mode
   * starts the click timer
@@ -98,7 +119,14 @@ module.exports = React.createClass({
     this.setState({ 
       click_tracker: start, 
       mouse_down_in_chart: true, 
-      mouse_is_dragging: false}); // mouse assumed to be not dragging on click
+      mouse_is_dragging: false}, 
+        function(){
+          setTimeout(this.check_after_delay(moment(p).format("YYYY-MM")), 100);
+        }
+      );
+
+    
+     // mouse assumed to be not dragging on click
   },
 
   /**

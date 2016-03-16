@@ -133,7 +133,7 @@ module.exports = React.createClass({
   */
   handle_mouse_down: function(e, lateral_scale){
     if (this.props.chart_mode == "rectangle"){
-      this.props.mouse_down_in_chart_true(e.pageX);
+      this.props.mouse_down_in_chart_true(lateral_scale.invert(e.pageX - this.props.y_axis_width - this.props.buffer));
     }else{
       this.props.toggle_rect(lateral_scale.invert(e.pageX - this.props.y_axis_width - this.props.buffer), false);
     }
