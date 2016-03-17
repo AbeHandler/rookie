@@ -28,27 +28,9 @@ module.exports = React.createClass({
 
   render: function() {
 
-    let l_style = {
-      width: "50%",
-      float:"left",
-    }
-
-    let r_style = {
-      width: "50%",
-      float:"left",
-      paddingTop: "5%",
-      paddingRight: "5%"     
-    }
-
     let width = this.props.width/2;
     let tile_height = width/this.props.w_h_ratio * 3;
     let height = width/this.props.w_h_ratio;
-    
-    let big_w = {
-      width: this.props.width,
-      height: tile_height,
-      border: "1px solid gray"
-    }
     
     let facet_title_style = {
       paddingTop: "10%",
@@ -57,14 +39,18 @@ module.exports = React.createClass({
       textOverflow:"clip",
       whiteSpace: "nowrap"
     }
+    if (this.props.col_no != 0){
+      facet_title_style.borderLeft = "1px solid grey";
+    }
+    
     let w = this.state.w;
     let h = w / this.props.w_h_ratio;
     return (
-          <div onClick={this.handleClick} style={big_w}>
-            <div style={l_style}>
+          <div onClick={this.handleClick} style={{width: this.props.width, height: tile_height}}>
+            <div style={{width: "50%", float: "left"}}>
             <div style={facet_title_style}>{this.props.facet}</div>
             </div>
-            <div style={r_style}>
+            <div style={{width: "50%", float: "left", paddingTop: "5%", paddingRight: "5%"}}>
             <Sparkline q_data={this.props.q_data} f_data={this.props.f_datas} width={w} height={h}/>
             </div>
           </div>
