@@ -82,6 +82,7 @@ module.exports = React.createClass({
         this.setState({mouse_is_dragging: true, 
                       drag_l: false,
                       drag_r: true,
+                      mode: "docs",
                       start_selected: start,
                       end_selected: end});
       }
@@ -189,11 +190,7 @@ module.exports = React.createClass({
   * A handler for when user clicks the X by F. Adjust state so f=-1
   */
   fX: function(){
-    let min;
-    let max;
-    min = moment(this.props.first_story_pubdate, "YYYY-MM-DD").format("YYYY-MM-DD"); 
-    max = moment(this.props.last_story_pubdate, "YYYY-MM-DD").format("YYYY-MM-DD");
-    this.setState({f: -1, mode:"overview", start_selected: min, end_selected: max});
+    this.setState({f: -1, mode:"overview", start_selected: -1, end_selected: -1, f_counts: []});
   },
 
   /**
@@ -248,8 +245,6 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    let f = this.state.f;
-    let q = this.props.q;
     let qX = this.qX;
     let bin_size = "year"; //default binsize
     // docs = those that match q, f & t. all_results = what comes from browser.
@@ -268,14 +263,11 @@ module.exports = React.createClass({
 
     let main_panel;
 
-    var binned_counts_f = this.props.binned_counts_f;
-
     let chart_bins = this.props.chart_bins;
     let temporal_status = <TemporalStatus ndocs={docs.length} start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>
     if (this.props.total_docs_for_q == 0){
         temporal_status = "";
     }
-    let f_couts = this.state.f_counts;
     if (this.state.mode != "docs" & this.props.total_docs_for_q > 0){
       main_panel = <Panel>
                     <Status fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} {...this.props}/>
@@ -308,7 +300,7 @@ module.exports = React.createClass({
                start_selected={this.state.start_selected}
                end_selected={this.state.end_selected} 
                {...this.props}
-               f_data={f_couts}
+               f_data={this.state.f_counts}
                belowchart="50"
                height={this.state.width / this.props.w_h_ratio}
                keys={chart_bins}
