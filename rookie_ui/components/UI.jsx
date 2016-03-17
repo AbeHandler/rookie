@@ -93,14 +93,9 @@ module.exports = React.createClass({
   */
   mouse_down_in_chart_true: function(d){
     this.setState({ 
-      mouse_down_in_chart: true, 
-      mouse_is_dragging: true}, function(){
+      mouse_down_in_chart: true, mouse_is_dragging: true}, function(){
         if (this.state.drag_l == false && this.state.drag_r == false){
-          var start = moment(d);
-          var end = start.clone();
-          end.add(45, 'day'); //TODO this will break if x axis scales
-          start.subtract(90, "day"); // to center around click
-          this.set_dates(start, end);
+          this.set_dates(d, d);
         }
       });
   },
@@ -117,14 +112,14 @@ module.exports = React.createClass({
   * The chart will now have drag_l is true
   */
   toggle_drag_start_l: function(){
-    this.setState({drag_l : true});
+    this.setState({drag_l : true, mouse_is_dragging: true});
   },
 
   /**
   * The chart will now have drag_r is true
   */
   toggle_drag_start_r: function(){
-    this.setState({drag_r : true});
+    this.setState({drag_r : true, mouse_is_dragging: true});
   },
 
   /**
@@ -272,11 +267,6 @@ module.exports = React.createClass({
     let row_height = Math.floor(this.props.height/binned_facets.length);
 
     let main_panel;
-
-    let uiMonthHandler = this.handleMo;
-    let b_f_click = this.handleLinguisticFacetClick;
-
-    let handleMoUI = this.handleMo;
 
     var binned_counts_f = this.props.binned_counts_f;
 
