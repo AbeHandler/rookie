@@ -33,6 +33,10 @@ module.exports = React.createClass({
     var width = ReactDOM.findDOMNode(this).offsetWidth;
     this.setState({width: width});
   },
+ 
+  toggleIntro: function(){
+    this.setState({mode: "overview", chart_mode: "intro"});
+  },
 
   componentDidMount: function () {
     this.set_width();
@@ -320,7 +324,7 @@ module.exports = React.createClass({
         <div>
             <QueryBar q={this.props.q} corpus={this.props.corpus}/>
              <Panel>
-             <ChartTitle turnOnDocMode={this.turnOnDocMode} fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q}/>
+             <ChartTitle toggleIntro={this.toggleIntro} turnOnDocMode={this.turnOnDocMode} fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q}/>
              </Panel>
              {chart}
             <div>
