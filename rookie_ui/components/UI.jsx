@@ -75,9 +75,7 @@ module.exports = React.createClass({
   },
 
   check_drag: function(p) {
-    //i.e. is the mouse is still down after delay?
-    let dif = +new Date() - this.state.click_tracker;
-    if (this.state.mouse_down_in_chart && dif > 200){
+    if (this.state.mouse_down_in_chart){
       if (this.state.drag_l == false && this.state.drag_r == false){
         let start = moment(p).format("YYYY-MM-DD");
         let end = moment(p).format("YYYY-MM-DD");
@@ -93,11 +91,18 @@ module.exports = React.createClass({
   /**
   * This function will fire on mousedown if chart is in rectangle mode
   */
-  mouse_down_in_chart_true: function(p){
-    console.log("mousedown");
+  mouse_down_in_chart_true: function(d){
     this.setState({ 
       mouse_down_in_chart: true, 
-      mouse_is_dragging: true});
+      mouse_is_dragging: true}, function(){
+        if (this.state.drag_l == false && this.state.drag_r == false){
+          var start = moment(d);
+          var end = start.clone();
+          end.add(45, 'day'); //TODO this will break if x axis scales
+          start.subtract(90, "day"); // to center around click
+          this.set_dates(start, end);
+        }
+      });
   },
 
   /**
@@ -168,7 +173,6 @@ module.exports = React.createClass({
               dataType: 'json',
               cache: true,
               success: function(d) {
-                let tmp = this.state.vars;
                 this.setState({start_selected: minbin, end_selected: maxbin, f: e, mode: "docs", f_list: d, f_counts: facet_datas[e]}, this.check_mode);
               }.bind(this),
               error: function(xhr, status, err) {
@@ -208,7 +212,6 @@ module.exports = React.createClass({
               dataType: 'json',
               cache: true,
               success: function(d) {
-                let tmp = this.state.vars;
                 this.setState({f: -1, mode: "docs", all_results: d, f_counts: []});
                 this.forceUpdate();
               }.bind(this),
