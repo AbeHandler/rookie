@@ -141,7 +141,7 @@ module.exports = React.createClass({
     if (this.props.chart_mode == "rectangle"){
       this.props.mouse_down_in_chart_true(lateral_scale.invert(e.pageX - this.props.y_axis_width - this.props.buffer));
     }else{
-      this.props.toggle_rect(lateral_scale.invert(e.pageX - this.props.y_axis_width - this.props.buffer), false);
+      this.props.turn_on_rect_mode(lateral_scale.invert(e.pageX - this.props.y_axis_width - this.props.buffer));
     }
   },
 
@@ -149,17 +149,6 @@ module.exports = React.createClass({
     this.setState({ mouse_to_r_d: -1, mouse_to_l_d: -1,
                     mouse_to_r_d: -1, mouse_to_l_d: -1});
     this.props.mouse_up_in_chart(lateral_scale.invert(e_pageX - this.props.y_axis_width - this.props.buffer));
-  },
-  
-  /**
-  * This function will fire on mousedown
-  * @param {e_pageX} x location 
-  * @param {lateral_scale} d3 scale
-  */
-  handle_mouse_up_in_rect_mode: function(e_pageX, lateral_scale){
-    this.setState({ mouse_to_r_d: -1, mouse_to_l_d: -1,
-                    mouse_to_r_d: -1, mouse_to_l_d: -1});
-    this.props.handle_mouse_up_in_rect_mode(e_pageX - this.props.y_axis_width - this.props.buffer, lateral_scale);
   },
 
   get_stroke_color_r: function(){
@@ -324,11 +313,7 @@ module.exports = React.createClass({
       l_left = <line style={{cursor: "pointer"}} onMouseDown={this.props.toggle_drag_start_l} x1={start_pos} y1={this.props.height / 4} x2={start_pos} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="20"/>
       l_right = <line style={{cursor: "pointer"}} onMouseDown={this.props.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 4} x2={end_pos} y2={this.props.height * .75} stroke={stroke_color_r} strokeWidth="20"/>
     }
-    if (this.props.drag_r == false && this.props.drag_l == false && this.props.chart_mode == "rectangle"){
-      handle_mouseup = this.handle_mouse_up_in_rect_mode;
-    }else{
-      handle_mouseup = this.toggle_drag_stop;
-    }
+    handle_mouseup = this.toggle_drag_stop;
     let tooltip = this.get_tooltip();
     let hilite = this.get_path_hilite(this.props.q_data);
     return (

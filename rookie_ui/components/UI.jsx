@@ -90,63 +90,14 @@ module.exports = React.createClass({
     }
   },
 
-  //YYYY_MM_on_mouse_down set on mouse down
-  check_after_delay: function(YYYY_MM_on_mouse_down){
-    if (this.state.current_bin_position == YYYY_MM_on_mouse_down){
-        let dif = +new Date() - this.state.click_tracker;
-        //dif is how many ms since last click
-        if(this.state.mouse_down_in_chart && dif > 75){
-          let start = moment(YYYY_MM_on_mouse_down + "-01", "YYYY-MM-DD");
-          let end = moment(YYYY_MM_on_mouse_down + "-01", "YYYY-MM-DD");
-          this.setState({mouse_is_dragging: true, 
-                        drag_l: false,
-                        drag_r: true,
-                        start_selected: start,
-                        end_selected: end});
-      }
-    }
-    else{
-      console.log("bins dff");
-    }
-  },
-
   /**
   * This function will fire on mousedown if chart is in rectangle mode
-  * starts the click timer
   */
   mouse_down_in_chart_true: function(p){
-    let start = +new Date();
+    console.log("mousedown");
     this.setState({ 
-      click_tracker: start, 
       mouse_down_in_chart: true, 
-      mouse_is_dragging: false}, 
-        function(){
-          setTimeout(this.check_after_delay(moment(p).format("YYYY-MM")), 100);
-        }
-      );
-
-    
-     // mouse assumed to be not dragging on click
-  },
-
-  /**
-  * This function will fire on mouseup if neither bar is clicked
-  * @param {e_pageX} e_pageX location
-  * @param {lateral_scale} d3 scale 
-  * @param {pix_buffer} y-axis width + chart buffer. buffer is set in render method of UI.jsx
-  */
-  handle_mouse_up_in_rect_mode: function(e_pageX_adjusted, lateral_scale){
-    let end = moment(this.state.end_selected, "YYYY-MM-DD");
-    let start = moment(this.state.start_selected, "YYYY-MM-DD");
-    let days_diff = start.diff(end, 'days');
-    let half_of_span = Math.abs(Math.floor(days_diff/2));
-    let clicked_here = moment(lateral_scale.invert(e_pageX_adjusted));
-    clicked_here.subtract(half_of_span, 'days');
-    let new_start = clicked_here.format("YYYY-MM-DD");
-    clicked_here.add(half_of_span, 'days');
-    clicked_here.add(half_of_span, 'days');
-    let new_end = clicked_here.format("YYYY-MM-DD");
-    this.setState({start_selected:new_start, mouse_down_in_chart: false, mouse_is_dragging: false, end_selected:clicked_here.format("YYYY-MM-DD")});
+      mouse_is_dragging: true});
   },
 
   /**
@@ -155,16 +106,6 @@ module.exports = React.createClass({
   */
   mouse_up_in_chart: function(e_page_X_adjusted){
     this.setState({drag_l: false, drag_r: false, mouse_down_in_chart: false, mouse_is_dragging: false});
-    if (this.state.click_tracker != -1){
-      let d = +new Date() - this.state.click_tracker;
-      let valid = true; //TODO: move the rect on click
-      if (d > 250){
-        valid = false;
-      }
-      this.setState({click_tracker: -1}, this.toggle_rect(e_page_X_adjusted, valid));
-    }else{
-      this.setState({click_tracker: -1});
-    }
   },
 
   /**
@@ -216,7 +157,7 @@ module.exports = React.createClass({
   },
 
   /**
-  * A clickhandler for sparkline time
+  * A clickhandler for sparkline tile
   */
   clickTile: function (e) {
     let url = this.props.base_url + "get_sents?q=" + this.props.q + "&f=" + e + "&corpus=" + this.props.corpus;
@@ -279,41 +220,10 @@ module.exports = React.createClass({
   },
 
   turn_on_rect_mode: function(p){
-    let m = moment(p.toString());
-    let e = moment(this.state.end_selected);
-        let s = moment(this.state.start_selected);
-        let diff = moment.duration(e - s);
-        let start = m.clone();
-        let end = m.clone();
-        end.add(diff);
-        let min = moment(_.first(this.props.chart_bins), "YYYY-MM-DD"); 
-        let max = moment(_.last(this.props.chart_bins), "YYYY-MM-DD");
-        if (start < min) {
-           start = min;
-        }
-        if (end > max) {
-           end = max;
-        } 
-        this.setState({chart_mode:"rectangle", mouse_down_in_chart:true, mode: "docs", start_selected:start, end_selected: end});
-          if (this.state.f == -1){
-              this.turnOnDocMode();
-          }
-  },
-
-  /**
-  * The chart starts with no rectangle. This turns it on.
-  */
-  toggle_rect: function (p, valid) {
-    let m = moment(p.toString());
-    if (valid != false){
-        this.turn_on_rect_mode(p);
-        }
-      else{
-        if (this.state.chart_mode != "rectangle"){
-          this.setState({chart_mode:"rectangle", mouse_down_in_chart:true, drag_r: true, mode: "docs", start_selected:m.format("YYYY-MM-DD"), end_selected: m.format("YYYY-MM-DD")});
-          this.turnOnDocMode();
-        }
-      }
+    this.setState({chart_mode:"rectangle", mouse_down_in_chart:true, mode: "docs"});
+    if (this.state.f == -1){
+        this.turnOnDocMode();
+    }
   },
 
   /**
@@ -387,6 +297,7 @@ module.exports = React.createClass({
       let buffer = 5;
       chart = <Chart 
                tooltip_width="90"
+               turn_on_rect_mode={this.turn_on_rect_mode}
                mouse_move_in_chart={this.mouse_move_in_chart}
                f={this.state.f}
                q={this.props.q}
@@ -398,7 +309,6 @@ module.exports = React.createClass({
                w={this.state.width - this.props.y_axis_width - buffer} buffer={buffer} y_axis_width={this.props.y_axis_width}
                mode={this.state.mode} mouse_up_in_chart={this.mouse_up_in_chart}
                mouse_down_in_chart_true={this.mouse_down_in_chart_true}
-               toggle_rect={this.toggle_rect}
                chart_mode={this.state.chart_mode}
                qX={qX} set_date={this.set_date}
                set_dates={this.set_dates}
