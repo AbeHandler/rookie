@@ -39,7 +39,7 @@ module.exports = React.createClass({
             color: "black",
             fontSize: "13"
         };
-        let mom = moment(this.props.story.pubdate);
+        let mom = moment(this.props.pubdate);
         return (
             <div style={rowStyle}>
                 <div style={dateStyle}>
@@ -47,8 +47,8 @@ module.exports = React.createClass({
                     <div style={yrStyle}>{mom.format("YYYY")}</div>
                 </div>
                 <div style={storyStyle}>
-                    <a target="_blank" href={this.props.story.url} style={headlineStyle}> <div>{this.props.story.headline}</div> </a>
-                    <div style={snippetStyle} dangerouslySetInnerHTML={markup(this.props.story.snippet)}/>
+                    <a target="_blank" href={this.props.url} style={headlineStyle}> <div>{this.props.headline}</div> </a>
+                    <div style={snippetStyle} dangerouslySetInnerHTML={markup(this.props.snippet)}/>
                 </div>
             </div>
         );

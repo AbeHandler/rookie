@@ -36,7 +36,7 @@ module.exports = React.createClass({
         return(
             <Panel style={rowStyle}>
                 {docs.map(function(doc, n) {
-                    return <div key={n} style={rowStyle}><Story story={doc}/></div>;
+                    return <div key={n} style={rowStyle}><Story url={doc.url} pubdate={doc.pubdate} snippet={doc.snippet.htext}/></div>;
                 })}
            </Panel>
         );

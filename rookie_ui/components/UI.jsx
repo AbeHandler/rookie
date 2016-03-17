@@ -8,13 +8,13 @@ var ReactDOM = require('react-dom');
 var _ = require('lodash');
 var moment = require('moment');
 
-var DocViewer = require('./DocViewer_trial.jsx');
+var DocViewer = require('./DocViewer_generic.jsx');
 var SparklineStatus = require('./SparklineStatus.jsx');
 var Chart = require('./Chart.jsx');
 var ChartTitle = require('./ChartTitle.jsx');
 var SparklineGrid = require('./SparklineGrid.jsx');
 var QueryBar = require('./QueryBar.jsx');
-var TemporalStatus = require('./TemporalStatus.jsx');
+var SummaryStatus = require('./SummaryStatus.jsx');
 var $ = require('jquery');
 var Panel = require('react-bootstrap/lib/Panel');
 
@@ -38,6 +38,11 @@ module.exports = React.createClass({
     this.setState({mode: "overview", chart_mode: "intro"});
   },
 
+  turnOnDoclist: function(){
+    console.log("asdf");
+    this.setSTate({kind_of_doc_list: "no_summary"});
+  },
+
   componentDidMount: function () {
     this.set_width();
     window.addEventListener("resize", this.set_width);
@@ -52,6 +57,7 @@ module.exports = React.createClass({
            chart_mode: "intro", all_results: [], start_selected:-1,
            end_selected:-1, f_counts:[], f: -1, hovered: -1,
            current_bin_position: -1,
+           kind_of_doc_list: "summary_baseline",
            vars:this.props.vars, mode:"overview"};
   },
 
@@ -274,7 +280,8 @@ module.exports = React.createClass({
     let main_panel;
 
     let chart_bins = this.props.chart_bins;
-    let temporal_status = <TemporalStatus ndocs={docs.length} start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>
+    console.log(this.turnOnDoclist);
+    let temporal_status = <SummaryStatus ndocs={docs.length} turnOnDoclist={this.turnOnDocList} start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>
     if (this.props.total_docs_for_q == 0){
         temporal_status = "";
     }
@@ -284,7 +291,7 @@ module.exports = React.createClass({
                     <SparklineGrid {...this.props} clickTile={this.clickTile} q_data={q_data} col_no={3} facet_datas={this.props.facet_datas}/>
                    </Panel>
     } else {
-      let docviewer = <DocViewer height="200" f={this.state.f} mode={this.state.mode} handleBinClick={this.handleBinClick} start_selected={this.state.start_selected} end_selected={this.state.end_selected} all_results={this.state.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>
+      let docviewer = <DocViewer kind_of_doc_list={this.state.kind_of_doc_list} height="200" f={this.state.f} mode={this.state.mode} handleBinClick={this.handleBinClick} start_selected={this.state.start_selected} end_selected={this.state.end_selected} all_results={this.state.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>
       main_panel = <div>{temporal_status}{docviewer}</div>
     }
     let chart;
