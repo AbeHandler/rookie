@@ -271,7 +271,7 @@ module.exports = React.createClass({
     var binned_counts_f = this.props.binned_counts_f;
 
     let chart_bins = this.props.chart_bins;
-    let temporal_status = <TemporalStatus start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>
+    let temporal_status = <TemporalStatus ndocs={docs.length} start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>
     if (this.props.total_docs_for_q == 0){
         temporal_status = "";
     }

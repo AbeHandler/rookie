@@ -18,7 +18,7 @@ module.exports = React.createClass({
     if (moment(this.props.start_selected).isValid() && moment(this.props.end_selected).isValid()){
         d1 = moment(this.props.start_selected).format("MMM DD, YYYY");
         d2 = moment(this.props.end_selected).format("MMM DD, YYYY");
-        status = <span>Showing documents from <span style={{fontWeight: "bold"}}>{d1}</span> to <span style={{fontWeight: "bold"}}>{d2}</span></span>
+        status = <span>Summary of {this.props.ndocs} documents from <span style={{fontWeight: "bold"}}>{d1}</span> to <span style={{fontWeight: "bold"}}>{d2}</span></span>
       }else{
         status = "";
       }
