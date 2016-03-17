@@ -9,7 +9,7 @@ var _ = require('lodash');
 var moment = require('moment');
 
 var DocViewer = require('./DocViewer_trial.jsx');
-var Status = require('./Status.jsx');
+var SparklineStatus = require('./SparklineStatus.jsx');
 var Chart = require('./Chart.jsx');
 var ChartTitle = require('./ChartTitle.jsx');
 var SparklineGrid = require('./SparklineGrid.jsx');
@@ -276,7 +276,7 @@ module.exports = React.createClass({
     }
     if (this.state.mode != "docs" & this.props.total_docs_for_q > 0){
       main_panel = <Panel>
-                    <Status fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} {...this.props}/>
+                    <SparklineStatus fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} {...this.props}/>
                     <SparklineGrid {...this.props} clickTile={this.clickTile} q_data={q_data} col_no={3} facet_datas={this.props.facet_datas}/>
                    </Panel>
     } else {
