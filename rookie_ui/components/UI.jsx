@@ -218,7 +218,7 @@ module.exports = React.createClass({
   },
 
   turn_on_rect_mode: function(p){
-    this.setState({chart_mode:"rectangle", mouse_down_in_chart:true, mode: "docs"});
+    this.setState({chart_mode:"rectangle", start_selected: -1, end_selected: -1, mouse_down_in_chart:true, mode: "docs"});
     if (this.state.f == -1){
         this.turnOnDocMode();
     }
