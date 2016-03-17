@@ -169,7 +169,13 @@ module.exports = React.createClass({
               dataType: 'json',
               cache: true,
               success: function(d) {
-                this.setState({start_selected: minbin, end_selected: maxbin, f: e, mode: "docs", f_list: d, f_counts: facet_datas[e]}, this.check_mode);
+                this.setState({start_selected: minbin, 
+                              end_selected: maxbin,
+                              f: e, 
+                              mode: "docs", 
+                              f_list: d,
+                              chart_mode: "intro",
+                              f_counts: facet_datas[e]}, this.check_mode);
               }.bind(this),
               error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
