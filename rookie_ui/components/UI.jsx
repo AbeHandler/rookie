@@ -35,7 +35,7 @@ module.exports = React.createClass({
   },
  
   toggleIntro: function(){
-    this.setState({mode: "overview", chart_mode: "intro"});
+    this.setState({mode: "overview", chart_mode: "intro", kind_of_doc_list: "summary_baseline"});
   },
 
   componentDidMount: function () {
@@ -275,8 +275,7 @@ module.exports = React.createClass({
     let main_panel;
 
     let chart_bins = this.props.chart_bins;
-    console.log(this.turnOnDoclist);
-    let temporal_status = <SummaryStatus ndocs={docs.length} turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})} start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>
+    let temporal_status = <SummaryStatus kind_of_doc_list={this.state.kind_of_doc_list} ndocs={docs.length} turnOnSummary={() => this.setState({kind_of_doc_list: "summary_baseline"})} turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})} start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>
     if (this.props.total_docs_for_q == 0){
         temporal_status = "";
     }
