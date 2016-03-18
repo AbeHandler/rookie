@@ -38,11 +38,6 @@ module.exports = React.createClass({
     this.setState({mode: "overview", chart_mode: "intro"});
   },
 
-  turnOnDoclist: function(){
-    console.log("asdf");
-    this.setSTate({kind_of_doc_list: "no_summary"});
-  },
-
   componentDidMount: function () {
     this.set_width();
     window.addEventListener("resize", this.set_width);
@@ -281,7 +276,7 @@ module.exports = React.createClass({
 
     let chart_bins = this.props.chart_bins;
     console.log(this.turnOnDoclist);
-    let temporal_status = <SummaryStatus ndocs={docs.length} turnOnDoclist={this.turnOnDocList} start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>
+    let temporal_status = <SummaryStatus ndocs={docs.length} turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})} start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>
     if (this.props.total_docs_for_q == 0){
         temporal_status = "";
     }
