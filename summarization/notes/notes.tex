@@ -1,0 +1,108 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{sectsty}
+\usepackage{scrextend}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{nth}
+\usepackage{pifont}
+\usepackage{boxedminipage}
+\usepackage[backend=bibtex]{biblatex} %backend tells biblatex what you will be using to process the bibliography file
+\bibliography{additional}
+\algdef{SE}[DOWHILE]{Do}{doWhile}{\algorithmicdo}[1]{\algorithmicwhile\ #1}%
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
+
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+\sectionfont{\fontsize{12}{16}\selectfont}
+
+\title{Rookie NLP spinoff notes/draft}
+\author{Abram Handler}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Potential introduction}
+Current algorithms for query-focused multi-document summarization are too slow for interactive systems. At worst, exact linear programming approaches require hundreds of seconds to find a summary \cite{mcdonald2007study}. At best, approximate MMR methods make a linear pass over the data, but still require seconds of real time \cite{mcdonald2007study}. Yet in interactive systems, a user will perform many queries and create many filtered subsets of query-responsive documents. SOMETHING FROM HCI ON ACCEPTABLE RESPONSE TIME THRESHOLDS \cite{doherty1982economic} If the system has to keep generating summaries, it will be too slow to use. This calls for new, anytime approaches, which attempt to provide the best-possible summary within some real time threshold of acceptable delay.
+
+
+\section{Events definition}
+
+Filatova et. al use ``events'' to create summaries. Copying this approach requires a definition of an ``event''. Seems reasonable to say ``event'' is defined by the particular task at hand -- any other claim requires serious linguistics or cognitive psychology. One of their papers assumes 1 sentence = one event.
+
+
+\vspace{.5cm}
+\centerline{\begin{minipage}{0.7\textwidth} 
+\textbf{Rookie-like idea}: noun phrase clusters? I suspect that finding high tf-idf noun phrases in sentences that contain Q or F or both will sketch out an event. Q = ``Mitch Landrieu'', F =``Marlin Gusman''. High tf-idf noun phrases: ``Department of Justice,'' ``Orleans Parish Prison''
+\end{minipage}}
+\vspace{.5cm}
+
+\textbf{Temporal and spatial granularity}. Event based summarization for news has to deal with temporal and spatial granularity. Some of the Hovy papers address this. (1) The US has been fighting in Iraq since 2003. (2) In October, 2010 there was an ambush of US forces outside Fallujah. News reader project addressed this.
+
+\textbf{Head words} Read Nate Chambers. more linguistics.
+
+\section{Form of summary}
+
+DUC and TREC summarization competitions have long focused on a particular form of single or multi-document summary. However, one could imagine that different choices about white space or text layout might make for more or less useful summaries. These choices about white space would in turn impact the choice of algorithm.
+
+\begin{enumerate}\label{approach}
+  \item \textbf{Search engine results} A form of summary.
+  \item \textbf{Traditional summary (DUC/TREC)} I think: no line breaks. I think the goal is a human readable summary, like what an analyst would sit down to write. DUC website requires login. 
+  \item \textbf{Bullet point summary} One short point per line. With a temporal corpus, these could be events. But for scientific summarization, each bullet point might represent a particular approach or theory. I think this is most sutable for Rookie.
+  \item \textbf{KWIK viewer summary}
+  \item \textbf{Sentence selection}: one sentence per line.
+  \item \textbf{Sub-sentential clause or phrase selection}: one phrase per line, both with or without line breaks
+\end{enumerate}
+
+\section{Current Rookie}
+
+Current Rookie, 3/15/16, takes approach \#5 defined in section \ref{approach}. After a search engine returns a list of documents in response to a query, Rookie places each sentence from each of the query-responsive documents, R (results), into exactly 1 of the following categories: 
+
+\begin{enumerate}
+  \item Sentence contains Q $\land$ F \footnote{If no F is selected, no sentences will be placed into category 1.}
+  \item Sentence contains Q $\lor$ F
+  \item Sentence $\neg$ contains Q $\lor$ F
+\end{enumerate}
+
+Each document will contribute N eligible sentences for potential inclusion in a multi document summary. Rookie chooses greedily from categories 1, 2, and 3 (in that order) until it finds the N sentences from a document. Rookie uses sentence position to break ties within a category, within a document. The set of all eligible sentences from R is called E.
+
+Not all eligible sentences from E are displayed in the summary. Rookie's UI has a ``summarization area'' that is P pixels tall. The P pixels are divided into horizontal \textbf{stripes}. Each stripe, $s_i$ is filled with one sentence. The sentence is allowed to wrap within its stripe, so the height of one stripe $s_i$ may or may not equal the height of another, $s_j$. \footnote{Informally, the sentences in the summarization area should reflect important information about Q and F in T, although this notion is poorly defined.} Rookie picks sentences from E to fill the stripes until the height of the chosen stripes + the height of the next proposed stripe is greater than P. Rookie chooses sentences from E by picking greedily from categories 1, 2 and 3 (in that order). If a category contains more than one eligible sentence, Rookie chooses randomly.
+
+This is not an anytime algorithm, but it is imperceptibly fast, even w/ React overhead. It could be turned into an anytime algorithm.
+
+\vspace{.5cm}
+\centerline{\begin{minipage}{0.7\textwidth} 
+HCI + NLP note: this algorithm was designed to support ``interactive summarization'' along the axis of time. That is: a user might be interested in a particular ambush in Fallujah 2010, which is part of a broader US invasion from 2003-2015. ``Events-based summarization with context?'' Matching an event to its context seems like an unexplored problem. Pretty hard.
+\end{minipage}}
+
+
+\section{Evaluation}
+
+Brendan 3/15: I think we'll need to compare alternative summaries side-by-side and think about what information they convey, relative to the user's expressed information need (which I think is the (Q,F,T) tuple).  then eventually operationalize our criteria into an mturk-able (or otherwise annotatable) task.
+
+\section{Results}
+
+Brendan 3/15: The failure of ``naive multidoc snippets", if I understand it correctly, is a good finding -- it's a great argument for joint inference being important, since joint inference helps ensure the selected text spans give the right context for each other.
+
+\section{A ``judgments'' evaluation}
+One use case for summarization: should I read this? A good summary helps you make the correct choice about reading (as opposed to best reflecting the contents of the document). If you have a particular reason for being interested in a document (a Q or F) then maybe these are different goals. There are lots of IR corpora about ``judgments" (i.e. and expert says which docs are relevant or not relevant), which might be a way to approach this.
+
+\section{Related work}
+
+Filatova
+
+Toward Abstractive Summarization Using Semantic Representations
+
+Event-Centric Summary Generation 
+
+Talk to Emma and Luke who wrote a paper on this.
+
+\printbibliography
+
+\end{document}
