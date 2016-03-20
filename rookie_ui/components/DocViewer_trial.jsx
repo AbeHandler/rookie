@@ -16,7 +16,7 @@ module.exports = React.createClass({
  
     markup: function(doc) {
         let dt = moment(doc.pubdate, "YYYY-MM-DD").format("MM.DD.YYYY");
-        return {__html: dt + " | " + doc.snippet.htext};
+        return {__html: doc.snippet.htext};
     },
 
     fake_markup: function(doc) {
@@ -74,6 +74,10 @@ module.exports = React.createClass({
         
     },
 
+    format_d: function(d){
+        return moment(d).format("MMM. DD YYYY");
+    },
+
     render: function(){
         
         let docs;
@@ -92,10 +96,11 @@ module.exports = React.createClass({
             overflow:"hidden"
         };
         let markup = this.markup;
+        let format_d = this.format_d;
         return(
             <Panel style={{backgroundColor: "white", overflowY: "hidden", height: this.props.height, overflow: "hidden"}}>
                 {docs.map(function(doc, n) {
-                    return <div key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/>;
+                    return <div><span style={{color: "grey"}}>{format_d(doc.pubdate)} | </span><span key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/></div>;
                 })}
            </Panel>
         );
