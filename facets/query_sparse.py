@@ -125,7 +125,21 @@ def heuristic_cleanup(output, proposed_new_facet, structures, q, aliases=default
         return output
     if get_jaccard(proposed_new_facet, q) > .5:
         return output # proposed new facet overlaps w/ query
+    
+    def is_in_output(output, proposed_new_facet):
+        return [o for o in output if (proposed_new_facet in o or o in proposed_new_facet)]
+        
+    # overlapping facets
+    overlaps = is_in_output(output, proposed_new_facet)
+
+    if len(overlaps) > 0:
+        overlaps_and_counts = [(ovlps, dfs[decoder[ovlps]]) for ovlps in overlaps]
+        max_overlap_count = max(overlaps_and_counts, key=lambda x:x[1])
+        proposed_facet_count = dfs[decoder[proposed_new_facet]]
+        # TODO
+
     append = True # insert the facet after the check. assume true
+
     for index, facet in enumerate(output): # loop over facets thus far
         dist = distance(facet, proposed_new_facet) # get lev distance
         if dist > 0 and dist < 3: # if lev. distance is less than 2
@@ -302,7 +316,6 @@ if __name__ == '__main__':
 
     CORPUS_ID = getcorpusid(CORPUS)
     RESULTZ = query(args.query, args.corpus)
-    print RESULTZ
     structures = load_all_data_structures(CORPUS)
     startTime = time.time()
     facets = get_facets_for_q(args.query, RESULTZ, 9, structures)

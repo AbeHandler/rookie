@@ -9,7 +9,7 @@
 \usepackage{pifont}
 \usepackage{boxedminipage}
 \usepackage[backend=bibtex]{biblatex} %backend tells biblatex what you will be using to process the bibliography file
-\bibliography{additional}
+\bibliography{additional.bib}
 \algdef{SE}[DOWHILE]{Do}{doWhile}{\algorithmicdo}[1]{\algorithmicwhile\ #1}%
 \makeatletter
 \def\BState{\State\hskip-\ALG@thistlm}
@@ -20,7 +20,7 @@
 
 \sectionfont{\fontsize{12}{16}\selectfont}
 
-\title{Rookie NLP spinoff notes/draft}
+\title{Data-driven methods for fine-grained, linguistically-informed, rapid summarization}
 \author{Abram Handler}
 \date{\today}
 
@@ -28,9 +28,12 @@
 
 \maketitle
 
-\section{Potential introduction}
-Current algorithms for query-focused multi-document summarization are too slow for interactive systems. At worst, exact linear programming approaches require hundreds of seconds to find a summary \cite{mcdonald2007study}. At best, approximate MMR methods make a linear pass over the data, but still require seconds of real time \cite{mcdonald2007study}. Yet in interactive systems, a user will perform many queries and create many filtered subsets of query-responsive documents. SOMETHING FROM HCI ON ACCEPTABLE RESPONSE TIME THRESHOLDS \cite{doherty1982economic} If the system has to keep generating summaries, it will be too slow to use. This calls for new, anytime approaches, which attempt to provide the best-possible summary within some real time threshold of acceptable delay.
+\section{Introduction}
+Current algorithms for document summarization (both query-focused summarization, and single/multi-document summarization) are poorly suited for user-facing systems. Approximate MMR methods are fast enough for interactive applications (linear with the size of the data), but sacrifice linguistic insight in favor of simple token-level tf-idf weights. \cite{mcdonald2007study}. Exact linear programming approaches use machine learning methods to find optimal summaries (?), but require hundreds of seconds of real time \cite{mcdonald2007study}. 
 
+\section{From hand-written rules to MMR}
+
+Early summarization used hand-written rules. These are pretty good -- but not data-driven. Condition on the particular word. Run ML at query time: expensive. Informed heuristics. Greedy.
 
 \section{Events definition}
 
@@ -80,6 +83,66 @@ This is not an anytime algorithm, but it is imperceptibly fast, even w/ React ov
 \centerline{\begin{minipage}{0.7\textwidth} 
 HCI + NLP note: this algorithm was designed to support ``interactive summarization'' along the axis of time. That is: a user might be interested in a particular ambush in Fallujah 2010, which is part of a broader US invasion from 2003-2015. ``Events-based summarization with context?'' Matching an event to its context seems like an unexplored problem. Pretty hard.
 \end{minipage}}
+
+
+\section{Paper ideas \& related work}
+
+\subsection{Clause dropping and human readability}
+
+Gramaticality vs. human readability. Are they the same? Chompsky example. ``Colorless green ideas sleep furiously.''
+
+Human readable subgraphs
+Query-focused sentence compression
+
+Pittler 2010 defines sentence compression as producing a gramatical, shorter version of the original. Addition: compression with a set of objectives [Q, F, F' ...]. Tree-based method: edit the syntax tree. Sentence-based: generate strings.
+
+Tree operations don't use dependencies.
+
+Knight and Marcu 2002, call compression a scaled down version of summarization. Ziff-Davis corpus. Noisy channel model vs. tree operations.
+
+Human readable subgraphs.
+
+McDonald: issues w/ parse trees similar to Brendan's comments 3/21.
+
+Linguistics: Galley and McKeown (2007) -- keep negations. McDonald: handles verbs.
+
+Pittler (2010) Verb categories: give needs a subject, object and indirect object.
+
+Clarke and Lapta (2007): discourse approaches. 
+
+``A Sentence Compression Based Framework to Query-Focused
+Multi-Document Summarization''
+
+Hand-crafted rules, table 2. Wang 2013. CRF.
+
+Query Relevance.
+
+They don't really dig into why certain things work.
+
+``Dependency Tree Based Sentence Compression''
+Good idea: condition on words. So you delete based on the word. Removing the direct object/indirect object for ``gave''
+is bad: ``Mitch Landrieu gave tax breaks to the low-income home owners''. But... can't think of case when ok to remove DO actually. 
+
+Easily Turkable.
+
+5 Participants, 25 sentences. Human readability. Replicate w/ tons of data.
+
+``Snippet generation''
+Does it need to make sense?
+
+What rules are OK? What rules are not? 
+
+Do you get a sentence out? Do you get a clause out? What clauses are OK? What subgraphs make sense in snippets? What subgraphs make sense jammed toegether? ``Barack Obama traveled to Cuba... freed the dissidents in 2016''. If you had periods betweeen the clauses that would help.
+
+``Using tweets to help sentence compression for news highlights generation''
+
+Semantic role labeling + prop bank.
+
+\section{People who cite Dependency Tree Based Sentence Compression}
+
+Wikipedia and simple wikipedia. 
+
+Empirically: what rules are good? For what? For compression?
 
 
 \section{Evaluation}

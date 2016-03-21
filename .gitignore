@@ -33,3 +33,4 @@ indexes/*
 *goose*
 rookie_ui/doc_react/.sass-cache/*
 .idea/*
+summarization/*
