@@ -22,7 +22,7 @@ if socket.gethostname() == "dewey":
     files_location = "/Users/ahandler/research/rookie/"
     processed_location = "/Users/ahandler/research/rookie/lens_processed"
 elif socket.gethostname() == "hobbes":
-    BASE_URL = "http://hobbes.cs.umass.edu/~ahandler/www/rookie/main.cgi/"
+    BASE_URL = "http://hobbes.cs.umass.edu:5000/"
     CORPUS_LOC = "/home/ubuntu/data/lens_processed/"
     IP = IP # read from config file
     ROOKIE_JS = "https://s3-us-west-2.amazonaws.com/rookie2/js/"
