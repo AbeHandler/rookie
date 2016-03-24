@@ -25,6 +25,7 @@ module.exports = React.createClass({
             return "";
         }
     },
+
     render: function() {
 
         let status_start = <span>Found {this.props.ndocs} <span onClick={this.props.turnOnDocMode} style={{textDecoration: "underline"}}>{this.getStoryPhrase()}</span> for </span>;

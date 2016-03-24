@@ -51,9 +51,13 @@ module.exports = React.createClass({
            mouse_is_dragging: false, width: 0, click_tracker: -1, 
            chart_mode: "intro", all_results: [], start_selected:-1,
            end_selected:-1, f_counts:[], f: -1, hovered: -1,
-           current_bin_position: -1,
+           //current_bin_position: -1,
            kind_of_doc_list: "summary_baseline",
            vars:this.props.vars, mode:"overview"};
+  },
+
+  resetT: function(){
+    this.setState({start_selected: -1, end_selected: -1, mode:"overview", chart_mode: "intro"});
   },
 
   resultsToDocs: function(results){
@@ -76,7 +80,8 @@ module.exports = React.createClass({
   },
 
   mouse_move_in_chart: function(p){
-    this.setState({current_bin_position: moment(p).format("YYYY-MM")}, this.check_drag(p));
+    this.check_drag(p);
+    //this.setState({current_bin_position: moment(p).format("YYYY-MM")}, );
   },
 
   check_drag: function(p) {
@@ -275,7 +280,7 @@ module.exports = React.createClass({
     let main_panel;
 
     let chart_bins = this.props.chart_bins;
-    let temporal_status = <SummaryStatus kind_of_doc_list={this.state.kind_of_doc_list} ndocs={docs.length} turnOnSummary={() => this.setState({kind_of_doc_list: "summary_baseline"})} turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})} start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>
+    let temporal_status = <SummaryStatus resetT={this.resetT} kind_of_doc_list={this.state.kind_of_doc_list} ndocs={docs.length} turnOnSummary={() => this.setState({kind_of_doc_list: "summary_baseline"})} turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})} start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>
     if (this.props.total_docs_for_q == 0){
         temporal_status = "";
     }
