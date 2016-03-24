@@ -12,14 +12,6 @@ module.exports = React.createClass({
         var markup = function(doc) { 
             return {__html: doc + "..."};
         };
-        let headlineStyle = {
-            color: "#323232",
-            fontWeight: "bold"
-        };
-        let snippetStyle = {
-            color: "grey",
-            fontSize: "small"
-        };
         let dateStyle = {
             width: "9%",
             float: "left",
@@ -27,28 +19,22 @@ module.exports = React.createClass({
             overflow: "hidden",
             fontSize: "large"
         };
-        let storyStyle = {
-            width: "91%",
-            float: "left"
-        };
-        let rowStyle = {
-            width: "100%",
-            borderStyle: '1px solid black'
-        };
         let yrStyle = {
             color: "black",
             fontSize: "13"
         };
         let mom = moment(this.props.pubdate);
+        console.log(this.props);
         return (
-            <div style={rowStyle}>
+            <div style={{width: "100%", borderStyle: "1px solid black"}}>
                 <div style={dateStyle}>
                     <div>{mom.format("MMM DD")}</div>
                     <div style={yrStyle}>{mom.format("YYYY")}</div>
                 </div>
-                <div style={storyStyle}>
-                    <a target="_blank" href={this.props.url} style={headlineStyle}> <div>{this.props.headline}</div> </a>
-                    <div style={snippetStyle} dangerouslySetInnerHTML={markup(this.props.snippet)}/>
+                <div style={{width: "91%", float: "left"}}>
+                    <a href={this.props.url} target="_blank">
+                    <div style={{color: "grey", fontSize: "small"}} dangerouslySetInnerHTML={markup(this.props.snippet)}/>
+                    </a>
                 </div>
             </div>
         );

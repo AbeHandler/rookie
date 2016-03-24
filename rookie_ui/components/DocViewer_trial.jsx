@@ -13,10 +13,12 @@ module.exports = React.createClass({
     shouldComponentUpdate: function(nextProps, nextState) {
       return nextProps.all_results != this.props.all_results || nextProps.start_selected != this.props.start_selected || nextProps.end_selected != this.props.end_selected || nextProps.mode != this.props.mode;   
     },
- 
+
+
+    //need to use this markup thing b/c snippet has html in it     
     markup: function(doc) {
         let dt = moment(doc.pubdate, "YYYY-MM-DD").format("MM.DD.YYYY");
-        return {__html: doc.snippet.htext};
+        return {__html: "<a style='color:black;' href='" + doc.url + "' target='_blank' >" + doc.snippet.htext + "</a>"};
     },
 
     fake_markup: function(doc) {
