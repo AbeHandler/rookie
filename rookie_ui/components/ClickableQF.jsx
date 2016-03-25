@@ -8,22 +8,15 @@ var React = require('react');
 module.exports = React.createClass({
 
      render: function(){
-        let text_style = {
-            color: this.props.color,
-            "fontWeight": "bold"
-        };
-        let x_style = {
-            color: "black"
-        };
         let x_script;
         let x_handler = this.props.xHandler;
         if (this.props.showX){
-            x_script = <sup onClick={x_handler} style={x_style}>X</sup>
+            x_script = <sup onClick={x_handler} style={{color: "black", cursor: "pointer"}}>X</sup>
         }else{
             x_script = ""
         }
         return (
-            <span style={text_style}>
+            <span style={{color: this.props.color, fontWeight: "bold"}}>
                 {this.props.text}{x_script}
             </span>
         );

@@ -25,12 +25,6 @@ module.exports = React.createClass({
 	ticks = scale.ticks(Math.floor(this.props.height/(11 * 2))); //_.range(this.props.max);
     }let height = this.props.height;
     
-    try {
-       console.log(Math.floor(this.props.height/11));
-    }
-    catch(err) {
-       console.log("d");
-    }
     
     return (
          <svg width={this.props.y_axis_width} height={this.props.height}>

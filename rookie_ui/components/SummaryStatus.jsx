@@ -26,14 +26,14 @@ module.exports = React.createClass({
       summary_of = "Summary of ";
     }else{
       summary_of = "Showing ";
-      summary_toggle = <span onClick={()=>this.props.turnOnSummary()} style={{float: "right", textDecoration: "underline"}}>summarize</span>
+      summary_toggle = <span onClick={()=>this.props.turnOnSummary()} style={{float: "right", textDecoration: "underline", cursor: "pointer"}}>summarize</span>
     }
     if (moment(this.props.start_selected).isValid() && moment(this.props.end_selected).isValid()){
         d1 = moment(this.props.start_selected).format("MMM DD, YYYY");
         d2 = moment(this.props.end_selected).format("MMM DD, YYYY");
         status = <span>{summary_of} {this.props.ndocs} <span onClick={()=>this.props.turnOnDoclist()}>
                 <span style={{cursor: "pointer", textDecoration: "underline"}}>documents</span>
-                </span> from <span style={{fontWeight: "bold"}}>{d1}</span><span style={{fontWeight: "bold"}}> &mdash; {d2}</span>{summary_toggle}<sup onClick={this.resetT} style={{fontWeight: "bold"}}>X</sup></span>
+                </span> from <span style={{fontWeight: "bold"}}>{d1}</span><span style={{fontWeight: "bold"}}> &mdash; {d2}</span>{summary_toggle}<sup onClick={this.resetT} style={{cursor: "pointer", fontWeight: "bold"}}>X</sup></span>
       }else{
         status = "";
       }
