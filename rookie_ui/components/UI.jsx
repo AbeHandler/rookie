@@ -173,7 +173,7 @@ module.exports = React.createClass({
   clickTile: function (e) {
     let url = this.props.base_url + "get_sents?q=" + this.props.q + "&f=" + e + "&corpus=" + this.props.corpus;
         let minbin = _.head(this.props.chart_bins);
-        let maxbin = _.last(this.props.chart_bins)
+        let maxbin = _.last(this.props.chart_bins);
         $.ajax({
               url: url,
               dataType: 'json',
@@ -220,7 +220,15 @@ module.exports = React.createClass({
               dataType: 'json',
               cache: true,
               success: function(d) {
-                this.setState({f: -1, mode: "docs", all_results: d, f_counts: []});
+                let minbin = _.head(this.props.chart_bins);
+                let maxbin = _.last(this.props.chart_bins);
+                if (this.state.mode == "overview"){
+                        this.setState({kind_of_doc_list: "no_summary", chart_mode: "intro", start_selected: minbin, end_selected: maxbin, f: -1, mode: "docs", all_results: d, f_counts: []});
+                }
+                if (this.state.chart_mode == "rectangle"){
+                        
+                        this.setState({f: -1, mode: "docs", all_results: d, f_counts: []});
+                }
                 this.forceUpdate();
               }.bind(this),
               error: function(xhr, status, err) {
@@ -330,7 +338,7 @@ module.exports = React.createClass({
         <div>
             <QueryBar q={this.props.q} corpus={this.props.corpus}/>
              <Panel>
-             <ChartTitle toggleIntro={this.toggleIntro} turnOnDocMode={this.turnOnDocMode} fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q}/>
+             <ChartTitle chartMode={this.state.chart_mode} toggleIntro={this.toggleIntro} turnOnDocMode={this.turnOnDocMode} fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q}/>
              </Panel>
              {chart}
             <div>

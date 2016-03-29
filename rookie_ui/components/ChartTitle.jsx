@@ -12,9 +12,9 @@ module.exports = React.createClass({
 
     getStoryPhrase: function (argument) {
         if ((this.props.ndocs) == 1) {
-            return "story";
+            return "document";
         } else{
-            return "stories";
+            return "documents";
         }   
     },
 
@@ -27,8 +27,14 @@ module.exports = React.createClass({
     },
 
     render: function() {
-
-        let status_start = <span>Found {this.props.ndocs} <span onClick={this.props.turnOnDocMode} style={{textDecoration: "underline"}}>{this.getStoryPhrase()}</span> for </span>;
+        
+        let text_dec = "none";
+        let on_click_f = "";
+        if (this.props.mode == "overview"){
+            text_dec = "underline";
+            on_click_f = this.props.turnOnDocMode;   
+        }
+        let status_start = <span>Found {this.props.ndocs} <span onClick={on_click_f} style={{textDecoration: text_dec}}>{this.getStoryPhrase()}</span> for </span>;
             
         let otherTopics = this.getOtherTopics();
         let q_color = "#0028a3";
