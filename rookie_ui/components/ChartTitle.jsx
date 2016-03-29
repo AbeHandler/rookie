@@ -20,7 +20,7 @@ module.exports = React.createClass({
 
     getOtherTopics: function(){
         if (this.props.f == -1 & this.props.mode == "docs"){
-            return <span>other <span style={{color:"#b33125", textDecoration: "underline", cursor: "pointer"}} onClick={this.props.toggleIntro}>subjects related</span> to <span style={{color: "#0028a3", fontWeight: "bold"}}>{this.props.q} </span> </span>;
+            return <span><span style={{color:"#b33125", textDecoration: "underline", cursor: "pointer"}} onClick={this.props.toggleIntro}>subjects related</span> to <span style={{color: "#0028a3", fontWeight: "bold"}}>{this.props.q} </span> </span>;
         }else{
             return "";
         }
