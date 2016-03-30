@@ -4,7 +4,6 @@ The main web app for rookie
 '''
 
 import json
-import traceback
 from flask.ext.compress import Compress
 from webapp.models import results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, corpus_min_max, get_stuff_ui_needs
 from flask import Flask, request
@@ -13,8 +12,6 @@ from facets.query_sparse import load_all_data_structures
 from webapp.views import Views
 from webapp.models import Models
 from webapp import IP, ROOKIE_JS, ROOKIE_CSS, BASE_URL
-from webapp.models import get_doc_metadata
-
 
 app = Flask(__name__)
 Compress(app)
@@ -33,7 +30,6 @@ views = Views(IP, ROOKIE_JS, ROOKIE_CSS, BASE_URL)
 def get_doclist():
     '''
     Just post for Q's doclist
-    SHOULD BE DEPRECETED FOR GET_SENTS 3/13
     '''
     params = Models.get_parameters(request)
 
@@ -80,7 +76,11 @@ def get_docs():
 @app.route('/', methods=['GET'])
 def main():
     params = Models.get_parameters(request)
-    return views.handle_query(get_stuff_ui_needs(params))
+    results = Models.get_results(params)
+    print params.corpus
+    from subprocess import Popen
+    Popen(['nohup', './redis/adder.sh'] + [params.corpus] + list(results))
+    return views.handle_query(get_stuff_ui_needs(params, results))
 
 
 if __name__ == '__main__':

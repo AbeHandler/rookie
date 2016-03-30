@@ -18,15 +18,23 @@ from facets.query_sparse import get_facets_for_q, load_all_data_structures
 from pylru import lrudecorator
 import traceback
 
-ENGINE = create_engine(CONNECTION_STRING)
-SESS = sessionmaker(bind=ENGINE)
-SESSION = SESS()
+@lrudecorator(100)
+def get_urls_xpress(corpus):
+    with open("indexes/{}/urls_xpress.p".format(corpus)) as inf:
+        return pickle.load(inf)
 
+@lrudecorator(100)
+def get_pubdates_xpress(corpus):
+    with open("indexes/{}/pubdates_xpress.p".format(corpus)) as inf:
+        return pickle.load(inf)
 
-def get_stuff_ui_needs(params):
+@lrudecorator(100)
+def get_headline_xpress(corpus):
+    with open("indexes/{}/headlines_xpress.p".format(corpus)) as inf:
+        return pickle.load(inf)
+
+def get_stuff_ui_needs(params, results):
     try:
-
-        results = Models.get_results(params)
 
         binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
 
@@ -97,9 +105,13 @@ def filter_results_with_binary_dataframe(results, facet, df):
 
 def corpus_min_max(corpus):
     """get the min/max pubdates for a corpus"""
+    ENGINE = create_engine(CONNECTION_STRING)
+    SESS = sessionmaker(bind=ENGINE)
+    SESSION = SESS()
     res = SESSION.connection().execute(
             u"SELECT * FROM corpora WHERE corpusname=%s",
             corpus)
+    SESSION.close()
     res2 = [r for r in res][0]
     return {"min": res2[2], "max": res2[3]}
 
@@ -117,10 +129,15 @@ def results_to_doclist(results, q, f, corpus, pubdates, aliases):
 
 def get_pubdates_for_ngram(ngram_str):
     """used to be PI[ngram_str]"""
+    
+    ENGINE = create_engine(CONNECTION_STRING)
+    SESS = sessionmaker(bind=ENGINE)
+    SESSION = SESS()
     res = SESSION.connection().execute(
             u"SELECT pubdates FROM ngram_pubdates WHERE ngram=%s",
             ngram_str)
     row = res.fetchone()
+    SESSION.close()
     dates = row[0]
     return set(datetime.datetime.strptime(date, "%Y-%m-%d") for date in dates)
 
@@ -129,9 +146,16 @@ def getcorpusid(corpus):
     '''
     Get corpus id for corpus name
     '''
+
+    ENGINE = create_engine(CONNECTION_STRING)
+    SESS = sessionmaker(bind=ENGINE)
+    SESSION = SESS()
     go = lambda *args: SESSION.connection().execute(*args)
+    
     for i in go("select corpusid from corpora where corpusname='{}'".format(corpus)):
-        return i[0]
+        cid = i[0]
+    SESSION.close()
+    return cid
 
 
 @lrudecorator(3000)
@@ -139,8 +163,13 @@ def get_doc_metadata(docid, corpus):
     '''
     Just query db for function metatdata
     '''
+
+    ENGINE = create_engine(CONNECTION_STRING)
+    SESS = sessionmaker(bind=ENGINE)
+    SESSION = SESS()
     corpusid = getcorpusid(corpus)
     row = SESSION.connection().execute("select data from doc_metadata where docid=%s and corpusid=%s", docid, corpusid).fetchone()
+    SESSION.close()
     return row[0]
 
 
@@ -173,8 +202,8 @@ class Parameters(object):
         self.corpus = None
 
     def __repr__(self):
-        return "<Parameters (q={}, detail={}, startdate={}, enddate={}, zoom={})>".format(
-            self.q, self.f, self.startdate, self.enddate, self.zoom)
+        return "<Parameters (q={}, detail={}, startdate={}, enddate={})>".format(
+            self.q, self.f, self.startdate, self.enddate)
 
 
 def get_val_from_df(val_key, dt_key, df, binsize="month"):
@@ -275,13 +304,16 @@ class Models(object):
         start = time.time()
         # AH: assuming the order of results is not changed since coming out from IR system
         for whoosh_index, r in enumerate(results):
-            d = get_doc_metadata(r, corpus)
+            pdate = get_pubdates_xpress(corpus)[int(r)]
+            url = get_urls_xpress(corpus)[int(r)]
+            headline = get_headline_xpress(corpus)[int(r)]
+            #d = get_doc_metadata(r, corpus)
             pubdate = datetime.datetime.strptime(d["pubdate"], "%Y-%m-%d") #TODO: use the index
             doc_results.append({
                 'search_engine_index': whoosh_index,
-                'pubdate': d['pubdate'].encode("ascii", "ignore"),
-                'headline': d['headline'].encode("ascii", "ignore"),
-                'url': d['url'].encode("ascii", "ignore"),
+                'pubdate': pdate.encode("ascii", "ignore"),
+                'headline': headline.encode("ascii", "ignore"),
+                'url': url.encode("ascii", "ignore"),
                 'year': pubdate.year,
                 'month': pubdate.month,
                 'day': pubdate.day,
@@ -299,12 +331,13 @@ class Models(object):
 
         # AH: assuming the order of results is not changed since coming out from IR system
         for whoosh_index, r in enumerate(results):
-            d = get_doc_metadata(r, corpus)
+            url = get_urls_xpress(corpus)[int(r)]
+            pd = get_pubdates_xpress(corpus)[int(r)]
             sent_results.append({
                 'docid':r,
                 'search_engine_index_doc': whoosh_index,
-                'pubdate': d['pubdate'].encode("ascii", "ignore"),
-                'url': d['url'].encode("ascii", "ignore"),
+                'pubdate': pd.encode("ascii", "ignore"),
+                'url': url.encode("ascii", "ignore"),
                 'snippet': Models.get_sent(r, corpus, q, f, aliases=aliases)
             })
         return [i for i in sent_results if len(i["snippet"]) > 0 ] #filter nulls

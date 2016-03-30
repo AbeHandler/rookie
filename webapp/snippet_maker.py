@@ -30,6 +30,28 @@ def get_nsentences_key(corpus):
 
 ############################
 
+def get_sentences(docid, corpus):
+    '''
+    Try to load the sentences from the redis cache, which is filled on initial query
+    If cache look up fails, go to postgres, get the metadata (seek cost) and deserialize (more cost)
+    '''
+    from webapp.models import get_doc_metadata
+    import redis
+    r = redis.StrictRedis(host='localhost', port=6379, db=0)
+    ngram_sentences_key = get_nsentences_key(corpus)
+    import time
+    start = time.time()
+    sentences = r.get("{}-{}".format(docid, corpus))
+    end = time.time()
+    #print end - start
+    if sentences is None: #i.e. missing in cache
+        d = get_doc_metadata(docid, corpus)
+        return [i["as_string"] for i in d['sentences']]
+    else:
+        import time
+        tmp = sentences.split("###$$$###")
+        return tmp
+
 def get_snippet2(docid, corpus, q, f_aliases=None, taginfo=None):
     """
     returns list of "highlighted sentence" dictionaries.
@@ -47,9 +69,8 @@ def get_snippet2(docid, corpus, q, f_aliases=None, taginfo=None):
     """
 
     from webapp.models import get_doc_metadata
-    d = get_doc_metadata(docid, corpus)
     hsents = {'has_q':[], 'has_f':[]}
-    for sentnum, toktext in enumerate(d['sentences']):
+    for sentnum, toktext in enumerate(sentences):
         hsent = hilite(toktext["as_string"], q, f_aliases, taginfo=taginfo)
         hsent['sentnum'] = sentnum
         if hsent['has_q'] and hsent['has_f']:
@@ -94,29 +115,36 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
     if neither, return sentence 1 in doc (this is news!)
     """
 
+    import time
+    start = time.time()
     from webapp.models import get_doc_metadata
     #import ipdb; 
-    #sent_idx = get_docs_sent_ngrams_key(corpus)
-    #md = sent_idx[int(docid)]
-    #unigram_key = get_unigram_key(corpus)
     all_n_sentences = range(get_nsentences_key(corpus)[int(docid)])
-    #unigrams_q = q.split(" ")
-    #has_q = set([i for i in itertools.chain(*[md[unigram_key[u]] for u in unigrams_q])])
-    #if f_aliases is not None:
-    #    unigrams_f = [itm for itm in itertools.chain(*[f.split(" ") for f in f_aliases])]
+    """
+    sent_idx = get_docs_sent_ngrams_key(corpus)
+    md = sent_idx[int(docid)]
+    unigram_key = get_unigram_key(corpus)
+    
+    unigrams_q = q.split(" ")
+    has_q = set([i for i in itertools.chain(*[md[unigram_key[u]] for u in unigrams_q])])
+    if f_aliases is not None:
+        unigrams_f = [itm for itm in itertools.chain(*[f.split(" ") for f in f_aliases])]
     #    ipdb.set_trace()
-    #    has_f = set([thng for thng in itertools.chain(*[md[unigram_key[uf]] for uf in unigrams_f])])
-    #has_q_and_f = list(has_q.intersection(has_f))
-    #has_q_or_f = list(has_q.union(has_f))
+        has_f = set([thng for thng in itertools.chain(*[md[unigram_key[uf]] for uf in unigrams_f])])
+    has_q_and_f = list(has_q.intersection(has_f))
+    has_q_or_f = list(has_q.union(has_f))
 
-    #priority_list = has_q_and_f + has_q_or_f + [i for i in all_n_sentences if i not in has_q_or_f]
+    priority_list = has_q_and_f + has_q_or_f + [i for i in all_n_sentences if i not in has_q_or_f]
+    """
     priority_list = [i for i in all_n_sentences]
-    metad = get_doc_metadata(docid, corpus)
+
+    sentences = get_sentences(docid, corpus)
 
     sents = []
+    #print(end - start)
     for sentnum in priority_list:
-        toktext = metad['sentences'][sentnum]
-        hsent = hilite(toktext["as_string"], q, sentnum, f_aliases, taginfo=taginfo)
+        toktext = sentences[sentnum]
+        hsent = hilite(toktext, q, sentnum, f_aliases, taginfo=taginfo)
         if hsent['has_q'] and hsent['has_f']:
             return hsent
         else:
@@ -128,7 +156,9 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
         return q_or_f[0] # return the highest w/ q or f. these are sorted.
         
     #default, just return the top
-    return hilite(metad['sentences'][0]["as_string"], q, "0", f_aliases, taginfo=taginfo)
+    
+
+    return hilite(sentences[0], q, "0", f_aliases, taginfo=taginfo)
 
 
 # regex matching system: always have groups

@@ -121,16 +121,21 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
     pubdates = {}
 
     docid_n_sentences = defaultdict(int)
+    urls_xpress = defaultdict(str)
+    headlines_xpress = defaultdict(str)
 
     ngrams_sentences = defaultdict(lambda : defaultdict(list))
     for dinex, docid in enumerate(docids):
         if dinex % 100 == 0:
             sys.stdout.write("...%s" % dinex); sys.stdout.flush()
-        pubdate = datetime.datetime.strptime(get_doc_metadata(docid, args.corpus)["pubdate"], '%Y-%m-%d')
+        mdata = get_doc_metadata(docid, args.corpus)
+        pubdate = datetime.datetime.strptime(mdata["pubdate"], '%Y-%m-%d')
         pubdates[docid] = pubdate
         ngram = set([str(j) for j in get_doc_metadata(docid, args.corpus)["ngrams"] if j in ok_ngrams])
 
         docid = int(docid)
+        urls_xpress[docid] = mdata["url"]
+        headlines_xpress[docid] = mdata["headline"]
         sents = get_doc_metadata(docid, args.corpus)["sentences"]
         docid_n_sentences[docid] = len(sents)
         for s_no, sent in enumerate(sents):
@@ -154,7 +159,11 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
 
     pickle.dump(docid_n_sentences, open("indexes/{}/how_many_sents_in_doc.p".format(args.corpus), "wb" ))
 
+    pickle.dump(urls_xpress, open("indexes/{}/urls_xpress.p".format(args.corpus), "wb" ))
+
     pickle.dump(pubdates, open("indexes/{}/pubdates_xpress.p".format(args.corpus), "wb" ))
+
+    pickle.dump(headlines_xpress, open("indexes/{}/headines_xpress.p".format(args.corpus), "wb" ))
 
     pickle.dump(df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams)), open("indexes/{}/ngram_df.p".format(args.corpus), "wb" ))
 
