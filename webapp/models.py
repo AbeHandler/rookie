@@ -144,9 +144,9 @@ def getcorpusid(corpus):
     go = lambda *args: SESSION.connection().execute(*args)
     cid = go("select corpusid from corpora where corpusname='{}'".format(corpus)).fetchone()[0]
     return cid
+        
 
-
-@lrudecorator(3000)
+#@lrudecorator(3000)
 def get_doc_metadata(docid, corpus):
     '''
     Just query db for function metatdata

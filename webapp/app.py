@@ -45,7 +45,6 @@ def get_doclist():
 @app.route("/get_sents", methods=['GET'])
 def get_sents():
     '''
-    Just post for Q's doclist
     '''
     params = Models.get_parameters(request)
     results = Models.get_results(params)
@@ -77,9 +76,6 @@ def get_docs():
 def main():
     params = Models.get_parameters(request)
     results = Models.get_results(params)
-    print params.corpus
-    from subprocess import Popen
-    Popen(['nohup', './redis/adder.sh'] + [params.corpus] + list(results))
     return views.handle_query(get_stuff_ui_needs(params, results))
 
 

@@ -13,6 +13,17 @@ session = Session()
 
 from pylru import lrudecorator
 
+ENGINE = create_engine(CONNECTION_STRING)
+SESS = sessionmaker(bind=ENGINE)
+SESSION = SESS()
+
+def get_preproc_sentences(docid, corpusid):
+    """
+    load preproc sentences
+    """
+    row = SESSION.connection().execute("select delmited_sentences from sentences_preproc where docid=%s and corpusid=%s", docid, corpusid).fetchone()
+    return row[0].split("###$$$###")
+
 @lrudecorator(100)
 def get_docs_sent_ngrams_key(corpus):
     with open("indexes/{}/docs_sentences_ngrams.p".format(corpus)) as inf:
@@ -28,6 +39,16 @@ def get_nsentences_key(corpus):
     with open("indexes/{}/how_many_sents_in_doc.p".format(corpus)) as inf:
         return pickle.load(inf)
 
+# a new copy here to avoid circular import w/ models
+@lrudecorator(5)
+def getcorpusid(corpus):
+    '''
+    Get corpus id for corpus name
+    '''
+    go = lambda *args: SESSION.connection().execute(*args)
+    cid = go("select corpusid from corpora where corpusname='{}'".format(corpus)).fetchone()[0]
+    return cid
+
 ############################
 
 def get_sentences(docid, corpus):
@@ -39,18 +60,17 @@ def get_sentences(docid, corpus):
     import redis
     r = redis.StrictRedis(host='localhost', port=6379, db=0)
     ngram_sentences_key = get_nsentences_key(corpus)
-    import time
-    start = time.time()
-    sentences = r.get("{}-{}".format(docid, corpus))
-    end = time.time()
+    #sentences = r.get("{}-{}".format(docid, corpus))
     #print end - start
-    if sentences is None: #i.e. missing in cache
-        d = get_doc_metadata(docid, corpus)
-        return [i["as_string"] for i in d['sentences']]
-    else:
-        import time
-        tmp = sentences.split("###$$$###")
-        return tmp
+    corpusid = getcorpusid(corpus)
+    return get_preproc_sentences(docid, corpusid)
+    #if sentences is None: #i.e. missing in cache
+    #    d = get_doc_metadata(docid, corpus)
+    #    return [i["as_string"] for i in d['sentences']]
+    #else:
+    #    import time
+    #    tmp = sentences.split("###$$$###")
+    #    return tmp
 
 def get_snippet2(docid, corpus, q, f_aliases=None, taginfo=None):
     """
@@ -260,3 +280,4 @@ def runf(q,f,q_docids,aliases):
         for h in hsents:
             print "  s%s\tq=%d f=%d\t%s" % (h['sentnum'], h['has_q'], h['has_f'], h['htext'])
 
+SESSION.close()

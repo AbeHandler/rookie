@@ -6,6 +6,8 @@ engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
 go = lambda *args: session.connection().execute(*args)
+
+# create table sentences_preproc (corpusid integer, docid integer, delmited_sentences TEXT);
 go("create table ngram_pubdates (ngram text, pubdates jsonb, corpusid integer)")
 go("create table doc_metadata (docid integer, data jsonb, corpusid integer)")
 go("create table corpora (corpusid integer not null primary key, corpusname character(100), first_story date, last_story date)")

@@ -234,17 +234,15 @@ def load(index_location, processed_location):
 
     ngram_pubdate_index = defaultdict(list)
 
-    people_org_ngram_index = {}
     go = lambda *args: session.connection().execute(*args)
+    go('delete from doc_metadata where corpusid={}'.format(CORPUSID))
+    go('delete from sentences_preproc where corpusid={}'.format(CORPUSID))
+    session.commit()
     with open ("corpora/{}/processed/all.json".format(args.corpus)) as raw:
         for line in raw:
             line_json = ujson.loads(line)
             headline = line_json["headline"]
-            try:
-                pubdate = parse(line_json["pubdate"])
-            except:
-                tm = line_json["pubdate"].split("T")[0].strip('"') # wierdness i phone tweets
-                pubdate = parse(tm)
+            pubdate = parse(line_json["pubdate"])
             procesed_text = line_json["text"]
 
             try:
@@ -283,10 +281,12 @@ def load(index_location, processed_location):
                 return {"as_string": raw, "as_tokens": toks, "unigrams": [n.raw for n in sent.tokens]}
 
             sentences = [make_dict(sen) for sen in doc.sentences]
+            preprocsentences = "###$$$###".join([sen["as_string"] for sen in sentences])
             if len(headline) > 0 and len(full_text) > 0:
                 writer.add_document(title=headline, path=u"/" + str(s_counter), content=full_text)
                 per_doc_json_blob = {'headline': headline, 'pubdate': pubdate.strftime('%Y-%m-%d'), 'ngrams': ngrams, "url": url, "sentences": sentences}
                 go("""INSERT INTO doc_metadata (docid, data, corpusid) VALUES (%s, %s, %s)""", s_counter, ujson.dumps(per_doc_json_blob), CORPUSID)
+                go("""INSERT INTO sentences_preproc (corpusid, docid, delmited_sentences) VALUES (%s, %s, %s)""", CORPUSID, s_counter, preprocsentences)
                 for ngram in ngrams:
                     ngram_pubdate_index[ngram].append(pubdate.strftime('%Y-%m-%d'))
                 s_counter += 1
