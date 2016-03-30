@@ -227,7 +227,7 @@ def filter_t(results, start, end, structures):
     '''
     Take a set of results and return those that fall in [start, end]
     '''
-    return [i for i in results if structures["pubdates"][i] >= start and structures["pubdates"][i] <= end]
+    return [i for i in results if structures["pubdates"][int(i)] >= start and structures["pubdates"][int(i)] <= end]
 
 
 def get_raw_facets(results, bins, structures, CUTOFF=25): #TODO: CUTOFF no longer a fixed value. no caps.
@@ -276,8 +276,8 @@ def get_facets_for_q(q, results, n_facets, structures):
     # Get raw facets by tfidf score 
     startTime = time.time()
 
-    min_yr = min(structures["pubdates"][r].year for r in results)
-    max_yr = max(structures["pubdates"][r].year for r in results)
+    min_yr = min(structures["pubdates"][int(r)].year for r in results)
+    max_yr = max(structures["pubdates"][int(r)].year for r in results)
 
     raw_results = get_raw_facets(results, xrange(min_yr, max_yr), structures)
     

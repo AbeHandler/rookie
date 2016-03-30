@@ -18,6 +18,10 @@ from facets.query_sparse import get_facets_for_q, load_all_data_structures
 from pylru import lrudecorator
 import traceback
 
+ENGINE = create_engine(CONNECTION_STRING)
+SESS = sessionmaker(bind=ENGINE)
+SESSION = SESS()
+
 @lrudecorator(100)
 def get_urls_xpress(corpus):
     with open("indexes/{}/urls_xpress.p".format(corpus)) as inf:
@@ -40,7 +44,7 @@ def get_stuff_ui_needs(params, results):
 
         aliases = [] # TODO
         stuff_ui_needs = {}
-        q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][r] for r in results]
+        q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
 
         binsize = "month"
 
@@ -105,13 +109,9 @@ def filter_results_with_binary_dataframe(results, facet, df):
 
 def corpus_min_max(corpus):
     """get the min/max pubdates for a corpus"""
-    ENGINE = create_engine(CONNECTION_STRING)
-    SESS = sessionmaker(bind=ENGINE)
-    SESSION = SESS()
     res = SESSION.connection().execute(
             u"SELECT * FROM corpora WHERE corpusname=%s",
             corpus)
-    SESSION.close()
     res2 = [r for r in res][0]
     return {"min": res2[2], "max": res2[3]}
 
@@ -119,25 +119,20 @@ def results_to_doclist(results, q, f, corpus, pubdates, aliases):
     '''
     Start w/ search results. filter based on params. get a doclist back.
     '''
-    q_pubdates = [pubdates[r] for r in results]
+    q_pubdates = [pubdates[int(r)] for r in results]
     df = make_dataframe(q, [f], results, q_pubdates, aliases)
     results = filter_results_with_binary_dataframe(results, f, df)
     fdoc_list = Models.get_doclist(results, q, f, corpus, aliases=aliases)
-    filtered_pubdates = [pubdates[r] for r in results]
+    filtered_pubdates = [pubdates[int(r)] for r in results]
     return filtered_pubdates, fdoc_list
 
 
 def get_pubdates_for_ngram(ngram_str):
     """used to be PI[ngram_str]"""
-    
-    ENGINE = create_engine(CONNECTION_STRING)
-    SESS = sessionmaker(bind=ENGINE)
-    SESSION = SESS()
     res = SESSION.connection().execute(
             u"SELECT pubdates FROM ngram_pubdates WHERE ngram=%s",
             ngram_str)
     row = res.fetchone()
-    SESSION.close()
     dates = row[0]
     return set(datetime.datetime.strptime(date, "%Y-%m-%d") for date in dates)
 
@@ -146,15 +141,8 @@ def getcorpusid(corpus):
     '''
     Get corpus id for corpus name
     '''
-
-    ENGINE = create_engine(CONNECTION_STRING)
-    SESS = sessionmaker(bind=ENGINE)
-    SESSION = SESS()
     go = lambda *args: SESSION.connection().execute(*args)
-    
-    for i in go("select corpusid from corpora where corpusname='{}'".format(corpus)):
-        cid = i[0]
-    SESSION.close()
+    cid = go("select corpusid from corpora where corpusname='{}'".format(corpus)).fetchone()[0]
     return cid
 
 
@@ -164,12 +152,8 @@ def get_doc_metadata(docid, corpus):
     Just query db for function metatdata
     '''
 
-    ENGINE = create_engine(CONNECTION_STRING)
-    SESS = sessionmaker(bind=ENGINE)
-    SESSION = SESS()
     corpusid = getcorpusid(corpus)
     row = SESSION.connection().execute("select data from doc_metadata where docid=%s and corpusid=%s", docid, corpusid).fetchone()
-    SESSION.close()
     return row[0]
 
 
@@ -336,7 +320,7 @@ class Models(object):
             sent_results.append({
                 'docid':r,
                 'search_engine_index_doc': whoosh_index,
-                'pubdate': pd.encode("ascii", "ignore"),
+                'pubdate': pd.strftime("%Y-%m-%d"),
                 'url': url.encode("ascii", "ignore"),
                 'snippet': Models.get_sent(r, corpus, q, f, aliases=aliases)
             })
@@ -382,3 +366,5 @@ class Models(object):
                                     f_ltag='<span style="font-weight:bold;color:#b33125">',
                                     f_rtag='</span>',)
                             )
+
+SESSION.close()

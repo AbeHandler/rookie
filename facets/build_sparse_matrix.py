@@ -126,6 +126,7 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
 
     ngrams_sentences = defaultdict(lambda : defaultdict(list))
     for dinex, docid in enumerate(docids):
+        docid = int(docid)
         if dinex % 100 == 0:
             sys.stdout.write("...%s" % dinex); sys.stdout.flush()
         mdata = get_doc_metadata(docid, args.corpus)
@@ -133,7 +134,6 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
         pubdates[docid] = pubdate
         ngram = set([str(j) for j in get_doc_metadata(docid, args.corpus)["ngrams"] if j in ok_ngrams])
 
-        docid = int(docid)
         urls_xpress[docid] = mdata["url"]
         headlines_xpress[docid] = mdata["headline"]
         sents = get_doc_metadata(docid, args.corpus)["sentences"]
