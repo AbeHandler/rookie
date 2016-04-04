@@ -146,7 +146,7 @@ def getcorpusid(corpus):
     return cid
         
 
-#@lrudecorator(3000)
+@lrudecorator(3000)
 def get_doc_metadata(docid, corpus):
     '''
     Just query db for function metatdata
@@ -155,6 +155,17 @@ def get_doc_metadata(docid, corpus):
     corpusid = getcorpusid(corpus)
     row = SESSION.connection().execute("select data from doc_metadata where docid=%s and corpusid=%s", docid, corpusid).fetchone()
     return row[0]
+
+def filter_f(results, params):
+    if params.f is None:
+        return results
+    def has_f(r):
+        if params.f in get_doc_metadata(int(r), params.corpus)["ngrams"]:
+            return True
+        else:
+            return False
+    return [r for r in results if has_f(r)]
+
 
 
 def get_keys(corpus):

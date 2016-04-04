@@ -24,7 +24,6 @@ module.exports = React.createClass({
             fontSize: "13"
         };
         let mom = moment(this.props.pubdate);
-        console.log(this.props);
         return (
             <div style={{width: "100%", borderStyle: "1px solid black"}}>
                 <div style={dateStyle}>
