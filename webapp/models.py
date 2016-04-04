@@ -157,6 +157,8 @@ def get_doc_metadata(docid, corpus):
     return row[0]
 
 def filter_f(results, params):
+    if params.f is None:
+        return results
     ds = load_all_data_structures(params.corpus)["vectors"]
     f_ngram_no = load_all_data_structures(params.corpus)["decoders"]["ngram"][params.f]
     rev_decoders = load_all_data_structures(params.corpus)["reverse_decoders"]
