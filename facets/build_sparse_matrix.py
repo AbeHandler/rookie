@@ -59,7 +59,7 @@ ALLDOCIDS = get_all_doc_ids()
 
 def count_facets():
     '''
-    This function counts every person, org and ngram in the corpus
+    This function counts every ngram in the corpus
     '''
     ngram_count = defaultdict(int)
 

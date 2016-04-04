@@ -157,15 +157,10 @@ def get_doc_metadata(docid, corpus):
     return row[0]
 
 def filter_f(results, params):
-    if params.f is None:
-        return results
-    def has_f(r):
-        if params.f in get_doc_metadata(int(r), params.corpus)["ngrams"]:
-            return True
-        else:
-            return False
-    return [r for r in results if has_f(r)]
-
+    ds = load_all_data_structures(params.corpus)["vectors"]
+    f_ngram_no = load_all_data_structures(params.corpus)["decoders"]["ngram"][params.f]
+    rev_decoders = load_all_data_structures(params.corpus)["reverse_decoders"]
+    return [r for r in results if unicode(f_ngram_no) in ds[r]]
 
 
 def get_keys(corpus):
