@@ -18,4 +18,6 @@ go("CREATE index on doc_metadata (docid)") # i think these are all the important
 go("CREATE index on doc_metadata (corpusid)")
 go("CREATE index on count_vectors (docid)")
 go("CREATE index on count_vectors (corpusid)")
+go("CREATE index on sentences_preproc (corpusid)")
+go("CREATE index on sentences_preproc (docid)")
 session.commit()
