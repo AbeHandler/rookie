@@ -38,8 +38,8 @@ def get_pubdates_xpress(corpus):
 @lrudecorator(100)
 def get_headline_xpress(corpus):
     #ipdb.set_trace()
-    with open("indexes/{}/headlines_xpress.json".format(corpus)) as inf:
-        return ujson.load(inf)
+    with open("indexes/{}/headlines_xpress.p".format(corpus)) as inf:
+        return pickle.load(inf)
 
 
 def get_stuff_ui_needs(params, results):
@@ -308,16 +308,16 @@ class Models(object):
             url = get_urls_xpress(corpus)[int(r)]
             headline = get_headline_xpress(corpus)[int(r)]
             print headline
-            #d = get_doc_metadata(r, corpus)
-            pubdate = datetime.datetime.strptime(d["pubdate"], "%Y-%m-%d") #TODO: use the index
+            pubdate = pdate.strftime("%Y-%m-%d") #TODO: use the index
+            print type(pubdate)
             doc_results.append({
                 'search_engine_index': whoosh_index,
-                'pubdate': pdate.encode("ascii", "ignore"),
+                'pubdate': pubdate,
                 'headline': headline.encode("ascii", "ignore"),
                 'url': url.encode("ascii", "ignore"),
-                'year': pubdate.year,
-                'month': pubdate.month,
-                'day': pubdate.day,
+                'year': pdate.year,
+                'month': pdate.month,
+                'day': pdate.day,
                 'snippet': Models.get_snippet(r, corpus, q, f, aliases=aliases).encode("ascii", "ignore")
             })
         return doc_results
