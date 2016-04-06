@@ -75,6 +75,16 @@ def get_docs():
     return json.dumps({"doclist":doc_list, "facet_datas":facet_datas, "min_filtered": None, "max_filtered": None})
 
 
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    params = Models.get_parameters(request)
+    #params.corpus = "lens"
+    results = Models.get_results(params)
+    pds = load_all_data_structures(params.corpus)["pubdates"]
+    doc_list = Models.get_doclist(results, params.q, params.f, params.corpus)
+    return views.basic_search(doc_list)
+
+
 @app.route('/', methods=['GET'])
 def main():
     params = Models.get_parameters(request)

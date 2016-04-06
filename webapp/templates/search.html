@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+
+
+<title>Rookie</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.css"></link>
+<script type="text/javascript" src="
+https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
+
+<script>
+
+function post() {
+    var imp = $("#imp").val();
+    $.post( "/search?corpus=lens&q=" + imp, function( data ) {
+      alert(data);
+    });
+}
+
+$( document ).ready(function() {
+    $("#search").on("click", function(){
+        post();
+    });
+    $(document).keypress(function(e) {
+        if(e.keyCode == 13) 
+        {
+          post();
+        }
+    });
+});
+</script>
+
+</head>
+
+<body>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="input-group">
+      <input id="imp" type="text" class="form-control" placeholder="Search for...">
+      <span class="input-group-btn">
+        <button id="search" class="btn btn-default" type="button">Search</button>
+      </span>
+    </div><!-- /input-group -->
+  </div><!-- /.col-lg-6 -->
+</div><!-- /.row -->
+
+<div>
+    {% for item in results %}
+        {{item}}
+    {% endfor %}
+</div>
+
+</body>
+</html>

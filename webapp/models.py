@@ -3,6 +3,7 @@ Application logic for webapp should be in here
 '''
 import datetime
 import ipdb
+import ujson
 import time
 import cPickle as pickle
 import pandas as pd
@@ -29,13 +30,17 @@ def get_urls_xpress(corpus):
 
 @lrudecorator(100)
 def get_pubdates_xpress(corpus):
+    import os
+    print os.getcwd()
     with open("indexes/{}/pubdates_xpress.p".format(corpus)) as inf:
         return pickle.load(inf)
 
 @lrudecorator(100)
 def get_headline_xpress(corpus):
-    with open("indexes/{}/headlines_xpress.p".format(corpus)) as inf:
-        return pickle.load(inf)
+    #ipdb.set_trace()
+    with open("indexes/{}/headlines_xpress.json".format(corpus)) as inf:
+        return ujson.load(inf)
+
 
 def get_stuff_ui_needs(params, results):
     try:
@@ -257,7 +262,10 @@ class Models(object):
         '''get parameters'''
         output = Parameters()
 
-        output.q = request.args.get('q').replace("_", " ")
+        try:
+            output.q = request.args.get('q').replace("_", " ")
+        except AttributeError: # almost certainly b\c q is not given in query
+            output.q = ""
 
         try:
             output.startdate = parse(request.args.get('startdate'))
@@ -299,6 +307,7 @@ class Models(object):
             pdate = get_pubdates_xpress(corpus)[int(r)]
             url = get_urls_xpress(corpus)[int(r)]
             headline = get_headline_xpress(corpus)[int(r)]
+            print headline
             #d = get_doc_metadata(r, corpus)
             pubdate = datetime.datetime.strptime(d["pubdate"], "%Y-%m-%d") #TODO: use the index
             doc_results.append({

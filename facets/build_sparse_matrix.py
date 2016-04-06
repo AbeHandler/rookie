@@ -163,7 +163,8 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
 
     pickle.dump(pubdates, open("indexes/{}/pubdates_xpress.p".format(args.corpus), "wb" ))
 
-    pickle.dump(headlines_xpress, open("indexes/{}/headines_xpress.p".format(args.corpus), "wb" ))
+    with open("indexes/{}/headines_xpress.json".format(args.corpus), "wb" ) as outfile:
+        ujson.dump(default_to_regular(headlines_xpress), outfile)
 
     pickle.dump(df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams)), open("indexes/{}/ngram_df.p".format(args.corpus), "wb" ))
 

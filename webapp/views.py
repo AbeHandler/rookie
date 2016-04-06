@@ -26,9 +26,25 @@ class Views(object):
             'medviz.html',
             stuff_ui_needs=stuff_ui_needs,
             IP=self.ip,
-	        base_url=self.base_url,
+            base_url=self.base_url,
             ROOKIE_JS=self.js,
             ROOKIE_CSS=self.rookie_css
+        )
+
+        return response
+
+
+    def basic_search(self, results):
+        '''
+        return main view
+        '''
+        if self.ip == "localhost":
+            baseurl = "http://localhost:5000/"
+        else:
+            baseurl = "" #TODO: why this should be blank for an IP address?
+        response = render_template(
+            'search.html',
+            results=results
         )
 
         return response
