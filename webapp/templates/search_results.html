@@ -2,7 +2,7 @@
     {% for item in results %}
       <div style="padding-bottom: 7px; padding-left: 7px">
         <h4 style="color:#1b1203;">
-        {{item.headline}}
+        <a style="color:#1b1203;" target="_blank" href='{{item.url}}'>{{item.headline}}</a>
         </h3>
         <div style="color:grey; padding-left: 13px"> {{item.snippet.htext | safe }} </div>
       </div>
