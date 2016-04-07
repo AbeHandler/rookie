@@ -94,6 +94,10 @@ def search():
     return views.basic_search(doc_list)
 
 
+@app.route('/quiz', methods=['GET'])
+def quiz():
+    return views.quiz()
+
 @app.route('/', methods=['GET'])
 def main():
     params = Models.get_parameters(request)

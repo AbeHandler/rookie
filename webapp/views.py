@@ -36,7 +36,7 @@ class Views(object):
 
     def basic_search(self, results):
         '''
-        return main view
+        return IR view
         '''
         response = render_template(
             'search.html',
@@ -53,6 +53,16 @@ class Views(object):
         response = render_template(
             'search_results.html',
             results=results
+        )
+
+        return response
+
+    def quiz(self):
+        '''
+        return results list
+        '''
+        response = render_template(
+            'quiz_l.html'
         )
 
         return response
