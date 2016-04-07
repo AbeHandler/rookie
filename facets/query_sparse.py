@@ -63,7 +63,6 @@ def load_all_data_structures(corpus):
     '''
     decoders = {}
     reverse_decoders = {}
-    matrixes = {}
     df = {}
     idf = {}
     n = "ngram"
@@ -187,21 +186,19 @@ def heuristic_cleanup(output, proposed_new_facet, structures, q, aliases=default
         debug_print("appending {}".format(proposed_new_facet))
         output.append(proposed_new_facet)
 
-    return [i for i in set(output)] #sometimes more than 1 facet will be replaced by propsed_new_facet
+    return output #sometimes more than 1 facet will be replaced by propsed_new_facet
 
 
 def get_all_facets(raws, structures, facet_type, q):
     '''
-    :param indices: ?
     :param structures: data structures for facets
     :param facet_type: could be people/ngram/org but will always = ngram basically
     :param q: query
     :return:
     '''
     output = []
-    for facet_bin in raws:
-        for possible_f in raws[facet_bin]:
-            output = heuristic_cleanup(output, possible_f[0], structures, q)
+    for possible_f in raws:
+        output = heuristic_cleanup(output, possible_f[0], structures, q)
     return output
 
 
@@ -226,15 +223,12 @@ def get_facet_tfidf_cutoff(results, structures, facet_type):
     sorted_x = sorted(tfidfs.items(), key=operator.itemgetter(1), reverse=True)[0:CUTOFF]
     return [(structures["reverse_decoders"][facet_type][int(i[0])], i[1]) for i in sorted_x] # i[0] is ngram, i[1] is tfidf score
 
+
 def get_raw_facets(results, bins, structures): #TODO: CUTOFF no longer a fixed value. no caps.
     '''
     Returns top_n facets per bin + top_n for global bin
     '''
-    raw_results = {} # raw best facets by tf idf
-
-    raw_results["g"] = get_facet_tfidf_cutoff(results, structures, "ngram")
-
-    return raw_results
+    return get_facet_tfidf_cutoff(results, structures, "ngram")
 
 
 def get_facets_for_q(q, results, n_facets, structures):
@@ -252,11 +246,17 @@ def get_facets_for_q(q, results, n_facets, structures):
     min_yr = min(structures["pubdates"][int(r)].year for r in results)
     max_yr = max(structures["pubdates"][int(r)].year for r in results)
 
-    raw_results = get_raw_facets(results, xrange(min_yr, max_yr), structures)
+    # tf and idf score + string -- no filtering heutistics
+    raw_facets = get_raw_facets(results, xrange(min_yr, max_yr), structures)
 
-    ok_facets = get_all_facets(raw_results, structures, "ngram", q)
-       
-    return {"g": ok_facets}
+    # run a filtering heuristic to clean up facets
+    ok_facets = get_all_facets(raw_facets, structures, "ngram", q)
+
+    # find the ok_facets in the raw_facets
+    filtered_facets = [i for i in raw_facets if i[0] in ok_facets]
+
+    # return the strings, in order of i
+    return {"g": [i[0] for i in filtered_facets]}
 
 if __name__ == '__main__':
 
