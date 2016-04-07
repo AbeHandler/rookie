@@ -13,8 +13,8 @@ https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></scrip
 
 function post() {
     var imp = $("#imp").val();
-    $.post( "/search?corpus=lens&q=" + imp, function( data ) {
-      alert(data);
+    $.post( "/search_results?corpus=lens&q=" + imp, function( data ) {
+      $("#search_results").html(data);
     });
 }
 
@@ -35,7 +35,7 @@ $( document ).ready(function() {
 
 <body>
 
-<div class="row">
+<div class="row" style="padding-bottom: 7px; padding-left: 7px; width: 95%">
   <div class="col-lg-12">
     <div class="input-group">
       <input id="imp" type="text" class="form-control" placeholder="Search for...">
@@ -46,10 +46,8 @@ $( document ).ready(function() {
   </div><!-- /.col-lg-6 -->
 </div><!-- /.row -->
 
-<div>
-    {% for item in results %}
-        {{item}}
-    {% endfor %}
+<div id="search_results">
+{% include 'search_results.html' %}
 </div>
 
 </body>

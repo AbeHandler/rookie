@@ -74,13 +74,22 @@ def get_docs():
 
     return json.dumps({"doclist":doc_list, "facet_datas":facet_datas, "min_filtered": None, "max_filtered": None})
 
+'''
+These methods are for IR mode
+'''
 
-@app.route('/search', methods=['GET', 'POST'])
+@app.route('/search_results', methods=['POST'])
+def search_results():
+    params = Models.get_parameters(request)
+    params.corpus = "lens"
+    results = Models.get_results(params)
+    doc_list = Models.get_doclist(results, params.q, params.f, params.corpus)
+    return views.basic_search_results(doc_list)
+
+@app.route('/search', methods=['GET'])
 def search():
     params = Models.get_parameters(request)
-    #params.corpus = "lens"
-    results = Models.get_results(params)
-    pds = load_all_data_structures(params.corpus)["pubdates"]
+    results = []
     doc_list = Models.get_doclist(results, params.q, params.f, params.corpus)
     return views.basic_search(doc_list)
 

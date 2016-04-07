@@ -38,12 +38,20 @@ class Views(object):
         '''
         return main view
         '''
-        if self.ip == "localhost":
-            baseurl = "http://localhost:5000/"
-        else:
-            baseurl = "" #TODO: why this should be blank for an IP address?
         response = render_template(
             'search.html',
+            results=results
+        )
+
+        return response
+
+
+    def basic_search_results(self, results):
+        '''
+        return results list
+        '''
+        response = render_template(
+            'search_results.html',
             results=results
         )
 

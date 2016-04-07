@@ -30,8 +30,6 @@ def get_urls_xpress(corpus):
 
 @lrudecorator(100)
 def get_pubdates_xpress(corpus):
-    import os
-    print os.getcwd()
     with open("indexes/{}/pubdates_xpress.p".format(corpus)) as inf:
         return pickle.load(inf)
 
@@ -307,9 +305,7 @@ class Models(object):
             pdate = get_pubdates_xpress(corpus)[int(r)]
             url = get_urls_xpress(corpus)[int(r)]
             headline = get_headline_xpress(corpus)[int(r)]
-            print headline
             pubdate = pdate.strftime("%Y-%m-%d") #TODO: use the index
-            print type(pubdate)
             doc_results.append({
                 'search_engine_index': whoosh_index,
                 'pubdate': pubdate,
@@ -318,7 +314,7 @@ class Models(object):
                 'year': pdate.year,
                 'month': pdate.month,
                 'day': pdate.day,
-                'snippet': Models.get_snippet(r, corpus, q, f, aliases=aliases).encode("ascii", "ignore")
+                'snippet': Models.get_sent(r, corpus, q, f, aliases=aliases)
             })
         return doc_results
 
