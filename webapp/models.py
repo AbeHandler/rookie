@@ -45,6 +45,7 @@ def get_stuff_ui_needs(params, results):
 
         binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
 
+        print binned_facets
         aliases = [] # TODO
         stuff_ui_needs = {}
         q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]

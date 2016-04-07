@@ -15,6 +15,8 @@ from Levenshtein import distance
 DEBUG = False
 STOPTOKENS = [] # TODO: set this in the db
 
+CUTOFF = 50
+
 stops = ["lens staff", "lens staff writer", "live blog", "#### live", "matt davis", "ariella cohen", "story report", "####", "#### live blog", "the lens", "new orleans", "staff writer", "orleans parish"]
 
 import whoosh.query
@@ -123,7 +125,11 @@ def heuristic_cleanup(output, proposed_new_facet, structures, q, aliases=default
         return output # dont add duplicates
     if "new" in proposed_new_facet.lower():
         return output
-    if get_jaccard(proposed_new_facet, q) > .5:
+    if proposed_new_facet.lower() in q.lower(): # if new facet is a substring of Q, reject
+        return output
+    if q.lower() in proposed_new_facet.lower(): # if q is substring of proposed facet, reject
+        return output
+    if get_jaccard(proposed_new_facet, q) >= .33:
         return output # proposed new facet overlaps w/ query
     
     def is_in_output(output, proposed_new_facet):
@@ -180,6 +186,7 @@ def heuristic_cleanup(output, proposed_new_facet, structures, q, aliases=default
     if append:
         debug_print("appending {}".format(proposed_new_facet))
         output.append(proposed_new_facet)
+
     return [i for i in set(output)] #sometimes more than 1 facet will be replaced by propsed_new_facet
 
 
@@ -198,7 +205,7 @@ def get_all_facets(raws, structures, facet_type, q):
     return output
 
 
-def get_facet_tfidf_cutoff(results, structures, facet_type, CUTOFF=25):
+def get_facet_tfidf_cutoff(results, structures, facet_type):
     '''
     get the tfidf score for each facet_type w/ a cutoff
     "tf" = how many queried documents contain f (i.e. boolean: facet occurs or no)
@@ -207,7 +214,6 @@ def get_facet_tfidf_cutoff(results, structures, facet_type, CUTOFF=25):
 
     returns the top CUTOFF indexes in the array
     '''
-    start_time = time.time()
     tfs = defaultdict(int)
     for r in results:
         n_counts = structures["vectors"][r]
@@ -218,46 +224,17 @@ def get_facet_tfidf_cutoff(results, structures, facet_type, CUTOFF=25):
     for t in tfs:
         tfidfs[t] = idf[int(t)] * tfs[t]
     sorted_x = sorted(tfidfs.items(), key=operator.itemgetter(1), reverse=True)[0:CUTOFF]
-    sorted_x = [(structures["reverse_decoders"][facet_type][int(i[0])], i[1]) for i in sorted_x] # i[0] is ngram, i[1] is tfidf score
-    return sorted_x
-    # print tfidfs
+    return [(structures["reverse_decoders"][facet_type][int(i[0])], i[1]) for i in sorted_x] # i[0] is ngram, i[1] is tfidf score
 
-
-def filter_t(results, start, end, structures):
-    '''
-    Take a set of results and return those that fall in [start, end]
-    '''
-    return [i for i in results if structures["pubdates"][int(i)] >= start and structures["pubdates"][int(i)] <= end]
-
-
-def get_raw_facets(results, bins, structures, CUTOFF=25): #TODO: CUTOFF no longer a fixed value. no caps.
+def get_raw_facets(results, bins, structures): #TODO: CUTOFF no longer a fixed value. no caps.
     '''
     Returns top_n facets per bin + top_n for global bin
     '''
     raw_results = {} # raw best facets by tf idf
 
-    raw_results["g"] = get_facet_tfidf_cutoff(results, structures, "ngram", CUTOFF)
-    
-    for yr in bins:
-        lresults = filter_t(results, datetime.datetime(int(yr), 1, 1),
-                            datetime.datetime(int(yr + 1), 1, 1), structures)
-        raw_results[yr] = get_facet_tfidf_cutoff(lresults, structures, "ngram", CUTOFF)
+    raw_results["g"] = get_facet_tfidf_cutoff(results, structures, "ngram")
 
     return raw_results
-
-
-def get_facets_for_bin(tfidfs, structures, ok_facets, n_facets):
-    '''
-    Given a list of tfidf scores, a list of ok_facets, n_facets
-    '''
-    tfidfs.sort(key=lambda x: x[1]) # sort by score
-    output = []
-    for facet_name in tfidfs:
-        if facet_name[0] in ok_facets:
-            output.append(facet_name[0])
-        if len(output) == n_facets:
-            return output
-    return output
 
 
 def get_facets_for_q(q, results, n_facets, structures):
@@ -272,22 +249,14 @@ def get_facets_for_q(q, results, n_facets, structures):
     if len(results) == 0:
         return facet_results
 
-    # TODO binning
-    # Get raw facets by tfidf score 
-    startTime = time.time()
-
     min_yr = min(structures["pubdates"][int(r)].year for r in results)
     max_yr = max(structures["pubdates"][int(r)].year for r in results)
 
     raw_results = get_raw_facets(results, xrange(min_yr, max_yr), structures)
-    
-    # Get all of the possible facets
-    startTime = time.time()
-    ok_facets = get_all_facets(raw_results, structures, "ngram", q)
-    for t_bin in raw_results: # for each bin
-        facet_results[t_bin] = get_facets_for_bin(raw_results[t_bin], structures, ok_facets, n_facets)
 
-    return facet_results
+    ok_facets = get_all_facets(raw_results, structures, "ngram", q)
+       
+    return {"g": ok_facets}
 
 if __name__ == '__main__':
 
@@ -310,8 +279,6 @@ if __name__ == '__main__':
 
     aliases = defaultdict(list)
 
-    CUTOFF = 25 # TODO no global var here
-
     DEBUG = False # by default false. can be set to T w/ arg -v in command line mode
 
     CORPUS_ID = getcorpusid(CORPUS)
@@ -319,5 +286,5 @@ if __name__ == '__main__':
     structures = load_all_data_structures(CORPUS)
     startTime = time.time()
     facets = get_facets_for_q(args.query, RESULTZ, 9, structures)
-    print facets
-    print time.time() - startTime
+
+session.close()
