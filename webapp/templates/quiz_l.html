@@ -11,22 +11,40 @@ https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></scrip
 
 <script>
 
+
+function get_checked(answer){
+  return document.getElementById(answer + "_t").checked;
+}
+
+function get_explanation(answer){
+  return document.getElementById(answer + "_explanation").checked;
+}
+
 function post() {
-    var imp = $("#imp").val();
-    $.post( "/search_results?corpus=lens&q=" + imp, function( data ) {
-      $("#search_results").html(data);
+    var answers = {}
+    answers["name"] = $("#name").val();
+    answers["burl_cain"] = {"a": get_checked("burl_cain")};
+    answers["consent_decree"] = {"a": get_checked("consent_decree")};
+    answers["andy_kopplin"] = {"a": get_checked("andy_kopplin")};
+    answers["kyle_graham"] = {"a": get_checked("kyle_graham")};
+    answers["orleans_parish_prison"] = {"a": get_checked("orleans_parish_prison")};
+    answers["erasure_analysis"] = {"a": get_checked("erasure_analysis")};
+
+    $.ajax({
+       url: "/quiz_answers",
+       type: 'POST',
+       contentType:'application/json',
+       data: JSON.stringify(answers),
+       dataType:'json'
     });
+
+    alert("Thanks! Your answer has been recorded");
+
 }
 
 $( document ).ready(function() {
-    $("#search").on("click", function(){
+    $("#submit").on("click", function(){
         post();
-    });
-    $(document).keypress(function(e) {
-        if(e.keyCode == 13) 
-        {
-          post();
-        }
     });
 });
 </script>
@@ -41,93 +59,97 @@ $( document ).ready(function() {
 <form >
    <div class="form-group">
     <label for="exampleInputName2">Type in your name</label>
-    <input type="text" class="form-control" id="exampleInputName2" placeholder="Jane Doe">
+    <input type="text" class="form-control" id="name" placeholder="Jane Doe">
   </div>
 
 <h4>
   <label style="color:grey" for="exampleInputName2">If you were a new reporter who just moved to New Orleans to cover Mitch Landrieu, which of the following topics would be important to research for your new job? </label>
-</h3>
+</h4>
+
+<h5 style="color:#990000" >
+  Please pick THREE topics to research
+</h5>
 
 <label style="padding-top:5px" for="exampleInputName2">Burl Cain</label>
 <div class="radio">
   <label>
-    <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
+    <input type="radio" name="burl_cain" id="burl_cain_t" value="option2">
     Important
   </label>
 </div>
 <div class="radio">
   <label>
-    <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1">
+    <input type="radio" name="burl_cain" id="burl_cain_f" value="option1">
     Not important
   </label>
 </div>
-<textarea class="form-control" placeholder="If you picked important, explain why" rows="3"></textarea>
+<textarea id="burl_cain_explanation" class="form-control" placeholder="If you picked important, explain why" rows="3"></textarea>
 </form>
 
 
 <label style="padding-top:15px" for="exampleInputName2">Consent decree</label>
 <div class="radio">
   <label>
-    <input type="radio" name="optionsRadios" id="optionsRadios3" value="option2">
+    <input type="radio" name="consent_decree" id="consent_decree_t" value="option2">
     Important
   </label>
 </div>
 <div class="radio">
   <label>
-    <input type="radio" name="optionsRadios" id="optionsRadios4" value="option1">
+    <input type="radio" name="consent_decree" id="consent_decree_f" value="option1">
     Not important
   </label>
 </div>
-<textarea class="form-control" placeholder="If you picked important, explain why" rows="3"></textarea>
+<textarea id="consent_decree_explanation" class="form-control" placeholder="If you picked important, explain why" rows="3"></textarea>
 </form>
 
 <label style="padding-top:15px" for="exampleInputName2">Andy Kopplin</label>
 <div class="radio">
   <label>
-    <input type="radio" name="optionsRadios" id="optionsRadios5" value="option2">
+    <input type="radio" name="andy_kopplin" id="andy_kopplin_t" value="option2">
     Important
   </label>
 </div>
 <div class="radio">
   <label>
-    <input type="radio" name="optionsRadios" id="optionsRadios6" value="option1">
+    <input type="radio" name="andy_kopplin" id="andy_kopplin_f" value="option1">
     Not important
   </label>
 </div>
-<textarea class="form-control" placeholder="If you picked important, explain why" rows="3"></textarea>
+<textarea id="andy_kopplin_explanation" class="form-control" placeholder="If you picked important, explain why" rows="3"></textarea>
 </form>
 
 <label style="padding-top:15px" for="exampleInputName2">Orleans parish prison</label>
 <div class="radio">
   <label>
-    <input type="radio" name="optionsRadios" id="optionsRadios9" value="option2">
+    <input type="radio" name="orleans_parish_prison" id="orleans_parish_prison_t" value="option2">
     Important
   </label>
 </div>
 <div class="radio">
   <label>
-    <input type="radio" name="optionsRadios" id="optionsRadios10" value="option1">
+    <input type="radio" name="orleans_parish_prison" id="orleans_parish_prison_f" value="option1">
     Not important
   </label>
 </div>
-<textarea class="form-control" placeholder="If you picked important, explain why" rows="3"></textarea>
+<textarea id="orleans_parish_prison_explanation" class="form-control" placeholder="If you picked important, explain why" rows="3"></textarea>
 </form>
 
 
 <label style="padding-top:15px" for="exampleInputName2">Kyle Graham</label>
 <div class="radio">
   <label>
-    <input type="radio" name="optionsRadios" id="optionsRadios11" value="option2">
+    <input type="radio" name="kyle_graham" id="kyle_graham_t" value="option2">
     Important
   </label>
 </div>
 <div class="radio">
   <label>
-    <input type="radio" name="optionsRadios" id="optionsRadios12" value="option1">
+    <input type="radio" name="kyle_graham" id="kyle_graham_f" value="option1">
     Not important
   </label>
 </div>
-<textarea class="form-control" placeholder="If you picked important, explain why" rows="3"></textarea>
+<textarea id="kyle_graham_explanation" class="form-control" placeholder="If you picked important, explain why" rows="3"></textarea>
 </form>
 
 
@@ -135,21 +157,21 @@ $( document ).ready(function() {
 <label style="padding-top:15px" for="exampleInputName2">Erasure analysis</label>
 <div class="radio">
   <label>
-    <input type="radio" name="optionsRadios" id="optionsRadios13" value="option2">
+    <input type="radio" name="erasure_analysis" id="erasure_analysis_t" value="option2">
     Important
   </label>
 </div>
 <div class="radio">
   <label>
-    <input type="radio" name="optionsRadios" id="optionsRadios14" value="option1">
+    <input type="radio" name="erasure_analysis" id="erasure_analysis_f" value="option1">
     Not important
   </label>
 </div>
-<textarea class="form-control" placeholder="If you picked important, explain why" rows="3"></textarea>
+<textarea id="erasure_analysis_explanation" class="form-control" placeholder="If you picked important, explain why" rows="3"></textarea>
 </form>
 
 <div style="padding-top:15px; float:right">
-<button type="submit" class="btn btn-default">Submit</button>
+<button id="submit" type="submit" class="btn btn-default">Submit</button>
 </div>
 
 </div>

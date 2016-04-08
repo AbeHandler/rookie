@@ -98,6 +98,16 @@ def search():
 def quiz():
     return views.quiz()
 
+
+@app.route('/quiz_answers', methods=['POST'])
+def quiz_answers():
+    answers = request.get_json()
+    with open('answers.json', 'a') as outfile:
+        json.dump(answers, outfile)
+        outfile.write('\n')
+    return ""
+
+
 @app.route('/', methods=['GET'])
 def main():
     params = Models.get_parameters(request)
