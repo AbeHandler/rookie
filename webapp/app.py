@@ -93,6 +93,22 @@ def search():
     doc_list = Models.get_doclist(results, params.q, params.f, params.corpus)
     return views.basic_search(doc_list)
 
+@app.route('/', methods=['GET'])
+def main():
+    params = Models.get_parameters(request)
+    results = Models.get_results(params)
+    return views.handle_query(get_stuff_ui_needs(params, results))
+
+@app.route('/intro', methods=['GET'])
+def intro():
+    params = Models.get_parameters(request)
+    params.q = "INTRO_MODE"
+    results = []
+    return views.handle_query(get_stuff_ui_needs(params, results))
+
+'''
+Methods for the quiz
+'''
 
 @app.route('/quiz', methods=['GET'])
 def quiz():
@@ -106,14 +122,6 @@ def quiz_answers():
         json.dump(answers, outfile)
         outfile.write('\n')
     return ""
-
-
-@app.route('/', methods=['GET'])
-def main():
-    params = Models.get_parameters(request)
-    results = Models.get_results(params)
-    return views.handle_query(get_stuff_ui_needs(params, results))
-
 
 if __name__ == '__main__':
     app.run(debug=True, host=IP, port=5000)
