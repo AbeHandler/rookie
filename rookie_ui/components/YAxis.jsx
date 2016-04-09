@@ -12,7 +12,7 @@ var ReactDOM = require('react-dom');
 module.exports = React.createClass({
 
   render: function() {
-    let xp = this.props.y_axis_width / 2;
+    let xp = this.props.y_axis_width * .75;
     let yend = this.props.height;
     var scale = d3.scale.linear()
 	    .domain([0,this.props.max])
@@ -30,9 +30,9 @@ module.exports = React.createClass({
          <svg width={this.props.y_axis_width} height={this.props.height}>
           <line ref="yaxis" x1={xp} y1="0" x2={xp} y2={this.props.height} stroke="black" strokeWidth="3" />
 	       {ticks.map(function(object, i){                           
-            return <text fontSize="11" key={i} x="4" y={yend - scale(object)} fill="black">{object}</text>
+            return <text fontSize="11" key={i} x="18" y={yend - scale(object)} fill="black">{object}</text>
             })}      
-         <text x="-100" y="5" transform="rotate(270 0,0)" data-reactid=".0.2.1:$0.0.0.0.2"># Stories</text> 
+         <text fontSize="11px" x="-115" y="5" transform="rotate(270 0,-5)" data-reactid=".0.2.1:$0.0.0.0.2"># Stories</text> 
          </svg>
 	       )
 	}
