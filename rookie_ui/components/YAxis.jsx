@@ -32,7 +32,8 @@ module.exports = React.createClass({
 	       {ticks.map(function(object, i){                           
             return <text fontSize="11" key={i} x="4" y={yend - scale(object)} fill="black">{object}</text>
             })}      
-    	  </svg>
+         <text x="-100" y="5" transform="rotate(270 0,0)" data-reactid=".0.2.1:$0.0.0.0.2"># Stories</text> 
+         </svg>
 	       )
 	}
 });
