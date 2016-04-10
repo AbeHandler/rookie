@@ -124,6 +124,10 @@ def heuristic_cleanup(output, proposed_new_facet, structures, q, aliases=default
         return output # dont add duplicates
     if "new" in proposed_new_facet.lower():
         return output
+    if proposed_new_facet.lower() == "last year":
+        return output
+    if proposed_new_facet.lower() == "next year":
+        return output
     if proposed_new_facet.lower() in q.lower(): # if new facet is a substring of Q, reject
         return output
     if q.lower() in proposed_new_facet.lower(): # if q is substring of proposed facet, reject

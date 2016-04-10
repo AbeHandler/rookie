@@ -103,7 +103,7 @@ def main():
 def intro():
     params = Models.get_parameters(request)
     params.q = "INTRO_MODE"
-    results = []
+    results = Models.get_results(params)
     return views.handle_query(get_stuff_ui_needs(params, results))
 
 '''

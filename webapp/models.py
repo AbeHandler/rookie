@@ -96,9 +96,14 @@ def query(qry_string, corpus):
     index = open_dir("indexes/{}/".format(corpus))
     query_parser = QueryParser("content", schema=index.schema)
     qry = query_parser.parse(qry_string)
-    with index.searcher() as srch:
-        results_a = srch.search(qry, limit=None)
-        out = [a.get("path").replace("/", "") for a in results_a]
+    if qry_string == "INTRO_MODE": #query all docs
+        with index.searcher() as srch:
+            results_a = [a for a in srch.documents()]
+            out = [a.get("path").replace("/", "") for a in results_a]
+    else:
+        with index.searcher() as srch:
+            results_a = [a for a in srch.search(qry, limit=None)]
+            out = [a.get("path").replace("/", "") for a in results_a]
     return out
 
 
