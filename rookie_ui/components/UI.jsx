@@ -295,7 +295,7 @@ module.exports = React.createClass({
     if (this.state.mode != "docs" & this.props.total_docs_for_q > 0){
       main_panel = <Panel>
                     <SparklineStatus fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} {...this.props}/>
-                    <SparklineGrid {...this.props} clickTile={this.clickTile} q_data={q_data} col_no={3} facet_datas={this.props.facet_datas}/>
+                    <SparklineGrid intro="true" {...this.props} clickTile={this.clickTile} q_data={q_data} col_no={3} facet_datas={this.props.facet_datas}/>
                    </Panel>
     } else {
       let docviewer = <DocViewer kind_of_doc_list={this.state.kind_of_doc_list} height="200" f={this.state.f} mode={this.state.mode} handleBinClick={this.handleBinClick} start_selected={this.state.start_selected} end_selected={this.state.end_selected} all_results={this.state.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>

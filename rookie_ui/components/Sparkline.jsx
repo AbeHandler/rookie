@@ -29,6 +29,13 @@ module.exports = React.createClass({
     render: function(){
         let q = this.get_path_string(this.props.q_data);
         let f = this.get_path_string(this.props.f_data);
-        return <svg width={this.props.width} height={this.props.height}><path d={q} fill="#0028a3" opacity=".15" stroke="black"/><path d={f} fill="#B33125" opacity=".75" stroke="black"/></svg>;
+        let fill;
+        console.log(this.props);
+        if (this.props.intro == "true"){
+            fill = "#000000"
+        }else{
+            fill = "#0028a3"
+        }
+        return <svg width={this.props.width} height={this.props.height}><path d={q} fill={fill} opacity=".15" stroke="black"/><path d={f} fill="#B33125" opacity=".75" stroke="black"/></svg>;
     }
 });

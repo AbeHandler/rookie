@@ -47,13 +47,14 @@ module.exports = React.createClass({
     
     let w = this.state.w;
     let h = w / this.props.w_h_ratio;
+    let intro = this.props.intro;
     return (
           <div onClick={this.handleClick} style={{width: this.props.width, height: tile_height}}>
             <div style={{width: "50%", float: "left"}}>
             <div style={facet_title_style}>{this.props.facet}</div>
             </div>
             <div style={{width: "50%", float: "left", paddingTop: "5%", paddingRight: "5%"}}>
-            <Sparkline q_data={this.props.q_data} f_data={this.props.f_datas} width={w} height={h}/>
+            <Sparkline intro={intro} q_data={this.props.q_data} f_data={this.props.f_datas} width={w} height={h}/>
             </div>
           </div>
     );

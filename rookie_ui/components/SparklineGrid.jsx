@@ -25,13 +25,14 @@ module.exports = React.createClass({
     let clickTile = this.props.clickTile;
     let w_h_ratio = this.props.w_h_ratio;
     let cst = this.cst;
+    let intro = this.props.intro;
     return (
             <Grid fluid>
             {col_range.map(function(value, i){
                    return <Row key={i} style={{height:50}} className="show-grid">
                    {chunks[value].map(function(k1, v1){
                       return <Col xs={4}>
-                              <SparklineTile col_no={v1} clickTile={clickTile} key={k1} facet={k1} w_h_ratio={w_h_ratio} q_data={q_data} f_datas={facet_datas[k1]}/>
+                              <SparklineTile intro={intro} col_no={v1} clickTile={clickTile} key={k1} facet={k1} w_h_ratio={w_h_ratio} q_data={q_data} f_datas={facet_datas[k1]}/>
                               </Col>
                     })}
                    </Row>
