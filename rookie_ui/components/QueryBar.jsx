@@ -13,7 +13,7 @@ var Input = require('./Input.jsx');
 module.exports = React.createClass({
 
   submitter: function(){
-    location.href= '?q='+this.state.value + '&corpus=' + this.props.corpus;
+    location.href= '/?q='+this.state.value + '&corpus=' + this.props.corpus;
   },
 
   getInitialState: function() {

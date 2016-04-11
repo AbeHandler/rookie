@@ -25,14 +25,15 @@ module.exports = React.createClass({
 	ticks = scale.ticks(Math.floor(this.props.height/(11 * 2))); //_.range(this.props.max);
     }let height = this.props.height;
     
-    
+    let tot = 3;
+    let xtot = -1 * this.props.height * 1;
     return (
          <svg width={this.props.y_axis_width} height={this.props.height}>
           <line ref="yaxis" x1={xp} y1="0" x2={xp} y2={this.props.height} stroke="black" strokeWidth="3" />
 	       {ticks.map(function(object, i){                           
             return <text fontSize="11" key={i} x="18" y={yend - scale(object)} fill="black">{object}</text>
             })}      
-         <text fontSize="11px" x="-115" y="5" transform="rotate(270 0,-5)" data-reactid=".0.2.1:$0.0.0.0.2"># Stories</text> 
+         <text fontSize="11px" x={xtot} y={tot} transform="rotate(270 0,-5)"># Stories</text> 
          </svg>
 	       )
 	}

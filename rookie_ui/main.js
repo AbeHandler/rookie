@@ -7,7 +7,7 @@ var UI = require('./components/UI.jsx');
 var IntroUI = require('./components/IntroUI.jsx');
 
 var cache = {};
-var w_h_ratio = 9;  // width % height for sparkline or chart. used to set aspect ratio
+var w_h_ratio = 12;  // width % height for sparkline or chart. used to set aspect ratio
 
 if (query != "INTRO_MODE"){
     ReactDOM.render(
