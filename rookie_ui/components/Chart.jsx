@@ -197,10 +197,11 @@ module.exports = React.createClass({
           nstories = nstories.toString() + " stories";
       }
       let tooltip_height = 50;
-      if (y_loc > 50){  //stop tooltip from falling too low
-        y_loc = 50; 
-      }
-
+      //console.log(this.props.height);
+      //if (y_loc > 50){  //stop tooltip from falling too low
+      //  y_loc = 50; 
+     // }
+      y_loc = this.props.height/7; 
       //stop tooltip from extending past the edge of chart
       if ((parseInt(this.props.tooltip_width) + x_scaled) > this.props.w - this.props.y_axis_width - 5){
         x_scaled = this.props.w - this.props.y_axis_width - 5 - this.props.tooltip_width - 5;
@@ -249,9 +250,10 @@ module.exports = React.createClass({
           fstories = fstories.toString() + " story";
       }
       let tooltip_height = 75;
-      if (y_loc > 50){  //stop tooltip from falling too low
-        y_loc = 50; 
-      }
+      console.log(this.props.height - tooltip_height);
+      //if (y_loc > 20){  //stop tooltip from falling too low
+        y_loc = this.props.height/6; 
+      //}
       //stop tooltip from extending past the edge of chart
       if ((parseInt(this.props.tooltip_width) + x_scaled) > this.props.w - this.props.y_axis_width - 5){
         x_scaled = this.props.w - this.props.y_axis_width - 5 - this.props.tooltip_width - 5;

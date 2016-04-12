@@ -26,7 +26,7 @@ module.exports = React.createClass({
     }let height = this.props.height;
     
     let tot = 3;
-    let xtot = -1 * this.props.height * 1;
+    let xtot = -1 * this.props.height * .9;
     return (
          <svg width={this.props.y_axis_width} height={this.props.height}>
           <line ref="yaxis" x1={xp} y1="0" x2={xp} y2={this.props.height} stroke="black" strokeWidth="3" />
