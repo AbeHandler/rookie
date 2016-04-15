@@ -18,7 +18,6 @@ module.exports = React.createClass({
   render: function() {
     
     let chunks = _.chunk(_.keys(this.props.facet_datas), this.props.col_no);
-    console.log(chunks);
     let col_range = _.range(this.props.col_no);
     let facet_datas = this.props.facet_datas;
     let q_data = this.props.q_data;

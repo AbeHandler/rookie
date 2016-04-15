@@ -30,7 +30,6 @@ module.exports = React.createClass({
         let q = this.get_path_string(this.props.q_data);
         let f = this.get_path_string(this.props.f_data);
         let fill;
-        console.log(this.props);
         if (this.props.intro == "true"){
             fill = "#000000"
         }else{
