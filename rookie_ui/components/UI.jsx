@@ -57,6 +57,7 @@ module.exports = React.createClass({
   },
 
   resetT: function(){
+    console.log(this.state.f);
     this.setState({start_selected: -1, end_selected: -1, mode:"overview", chart_mode: "intro"});
   },
 

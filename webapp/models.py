@@ -69,6 +69,7 @@ def get_stuff_ui_needs(params, results):
         stuff_ui_needs["total_docs_for_q"] = len(results)
         facets = {}
         for fac in binned_facets['g']:
+            print fac
             facets[fac] = [get_val_from_df(fac, key, df, binsize) for key in keys]
         stuff_ui_needs["facet_datas"] = facets
 
