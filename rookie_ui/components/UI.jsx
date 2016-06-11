@@ -294,12 +294,26 @@ module.exports = React.createClass({
     }
     let chart_height = this.state.width / this.props.w_h_ratio;
     let query_bar_height = 50;
+    let lower_h = this.state.height - chart_height - query_bar_height - 300;
     main_panel = <Panel>
                     <SparklineStatus fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} {...this.props}/>
-                    <SparklineGrid ntile="10" width={this.state.width/2} height={this.state.height - chart_height - query_bar_height - 300} f={this.state.f} {...this.props} clickTile={this.clickTile} q_data={q_data} col_no={1} facet_datas={this.props.facet_datas}/>
+                    <SparklineGrid ntile="10" width={this.state.width/2}
+                                   height={lower_h} f={this.state.f}
+                                   {...this.props} clickTile={this.clickTile}
+                                   q_data={q_data} col_no={1}
+                                   facet_datas={this.props.facet_datas}/>
                    </Panel>
     let chart;
-
+    let docviewer = <DocViewer kind_of_doc_list={this.state.kind_of_doc_list}
+                                height={lower_h + 50}
+                                f={this.state.f}
+                                mode={this.state.mode}
+                                handleBinClick={this.handleBinClick}
+                                start_selected={this.state.start_selected}
+                                end_selected={this.state.end_selected}
+                                all_results={this.state.all_results}
+                                docs={docs} bin_size={bin_size}
+                                bins={binned_facets}/>
     if (this.props.total_docs_for_q > 0){
       let buffer = 5;
       chart = <Chart
@@ -338,7 +352,9 @@ module.exports = React.createClass({
 
     return(
         <div>
-            <QueryBar height={query_bar_height} q={this.props.q} corpus={this.props.corpus}/>
+            <QueryBar height={query_bar_height}
+                      q={this.props.q}
+                      corpus={this.props.corpus}/>
              <Panel>
              <ChartTitle f_docs={docs}
                          chartMode={this.state.chart_mode}
@@ -351,8 +367,11 @@ module.exports = React.createClass({
                          q={this.props.q}/>
              </Panel>
              {chart}
-            <div style={{width: this.state.width/2}}>
+            <div style={{float:"left", width:(this.state.width-5)/2}}>
               {main_panel}
+            </div>
+            <div style={{float:"right", width:(this.state.width-5)/2}}>
+              {docviewer}
             </div>
 
        </div>);
