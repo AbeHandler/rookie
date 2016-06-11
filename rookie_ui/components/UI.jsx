@@ -30,10 +30,11 @@ module.exports = React.createClass({
   },
 
   set_width: function(){
-    var width = ReactDOM.findDOMNode(this).offsetWidth;
-    this.setState({width: width});
+    var width = $(window).width();
+    var height = $(window).height();
+    this.setState({width: width, height: height});
   },
- 
+
   toggleIntro: function(){
     this.setState({mode: "overview", chart_mode: "intro", kind_of_doc_list: "summary_baseline"});
   },
@@ -47,8 +48,8 @@ module.exports = React.createClass({
   getInitialState(){
     //Notes.
     //convention: -1 == null
-    return {drag_r: false, drag_l:false, mouse_down_in_chart: false, 
-           mouse_is_dragging: false, width: 0, click_tracker: -1, 
+    return {drag_r: false, drag_l:false, mouse_down_in_chart: false,
+           mouse_is_dragging: false, width: 0, height: 0, click_tracker: -1,
            chart_mode: "intro", all_results: [], start_selected:-1,
            end_selected:-1, f_counts:[], f: -1, hovered: -1,
            //current_bin_position: -1,
@@ -57,13 +58,12 @@ module.exports = React.createClass({
   },
 
   resetT: function(){
-    console.log(this.state.f);
     this.setState({start_selected: -1, end_selected: -1, mode:"overview", chart_mode: "intro"});
   },
 
   resultsToDocs: function(results){
     if (this.state.f != -1){
-        results = this.state.f_list; 
+        results = this.state.f_list;
     }
     let start = moment(this.state.start_selected, "YYYY-MM-DD");
     let end = moment(this.state.end_selected, "YYYY-MM-DD");
@@ -76,7 +76,7 @@ module.exports = React.createClass({
         }
         return false;
     });
-    return out_results; 
+    return out_results;
 
   },
 
@@ -90,7 +90,7 @@ module.exports = React.createClass({
       if (this.state.drag_l == false && this.state.drag_r == false){
         let start = moment(p).format("YYYY-MM-DD");
         let end = moment(p).format("YYYY-MM-DD");
-        this.setState({mouse_is_dragging: true, 
+        this.setState({mouse_is_dragging: true,
                       drag_l: false,
                       drag_r: true,
                       mode: "docs",
@@ -104,7 +104,7 @@ module.exports = React.createClass({
   * This function will fire on mousedown if chart is in rectangle mode
   */
   mouse_down_in_chart_true: function(d){
-    this.setState({ 
+    this.setState({
       mouse_down_in_chart: true, mouse_is_dragging: true}, function(){
         if (this.state.drag_l == false && this.state.drag_r == false){
           this.set_dates(d, d);
@@ -180,10 +180,10 @@ module.exports = React.createClass({
               dataType: 'json',
               cache: true,
               success: function(d) {
-                this.setState({start_selected: minbin, 
+                this.setState({start_selected: minbin,
                               end_selected: maxbin,
-                              f: e, 
-                              mode: "docs", 
+                              f: e,
+                              mode: "docs",
                               f_list: d,
                               chart_mode: "intro",
                               f_counts: facet_datas[e]}, this.check_mode);
@@ -227,7 +227,6 @@ module.exports = React.createClass({
                         this.setState({kind_of_doc_list: "no_summary", chart_mode: "intro", start_selected: minbin, end_selected: maxbin, f: -1, mode: "docs", all_results: d, f_counts: []});
                 }
                 if (this.state.chart_mode == "rectangle"){
-                        
                         this.setState({f: -1, mode: "docs", all_results: d, f_counts: []});
                 }
                 this.forceUpdate();
@@ -265,7 +264,7 @@ module.exports = React.createClass({
           new_end = moment(this.state.end_selected).subtract(1, granularity).format("YYYY-MM-DD");
         }
         this.setState({start_selected:new_start, end_selected: new_end});
-      } 
+      }
     }
   },
 
@@ -293,19 +292,17 @@ module.exports = React.createClass({
     if (this.props.total_docs_for_q == 0){
         temporal_status = "";
     }
-    if (this.state.mode != "docs" & this.props.total_docs_for_q > 0){
-      main_panel = <Panel>
+    let chart_height = this.state.width / this.props.w_h_ratio;
+    let query_bar_height = 50;
+    main_panel = <Panel>
                     <SparklineStatus fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} {...this.props}/>
-                    <SparklineGrid intro="true" {...this.props} clickTile={this.clickTile} q_data={q_data} col_no={3} facet_datas={this.props.facet_datas}/>
+                    <SparklineGrid ntile="10" width={this.state.width/2} height={this.state.height - chart_height - query_bar_height - 300} f={this.state.f} {...this.props} clickTile={this.clickTile} q_data={q_data} col_no={1} facet_datas={this.props.facet_datas}/>
                    </Panel>
-    } else {
-      let docviewer = <DocViewer kind_of_doc_list={this.state.kind_of_doc_list} height="200" f={this.state.f} mode={this.state.mode} handleBinClick={this.handleBinClick} start_selected={this.state.start_selected} end_selected={this.state.end_selected} all_results={this.state.all_results} docs={docs} bin_size={bin_size} bins={binned_facets}/>
-      main_panel = <div>{temporal_status}{docviewer}</div>
-    }
     let chart;
+
     if (this.props.total_docs_for_q > 0){
       let buffer = 5;
-      chart = <Chart 
+      chart = <Chart
                tooltip_width="90"
                turn_on_rect_mode={this.turn_on_rect_mode}
                mouse_move_in_chart={this.mouse_move_in_chart}
@@ -314,35 +311,47 @@ module.exports = React.createClass({
                handle_mouse_up_in_rect_mode={this.handle_mouse_up_in_rect_mode}
                toggle_both_drags_start={() => this.setState({drag_l: true, drag_r: true}) }
                toggle_drag_start_l={this.toggle_drag_start_l}
-               toggle_drag_start_r={this.toggle_drag_start_r} drag_l={this.state.drag_l}
+               toggle_drag_start_r={this.toggle_drag_start_r}
+               drag_l={this.state.drag_l}
                drag_r={this.state.drag_r}
-               w={this.state.width - this.props.y_axis_width - buffer} buffer={buffer} y_axis_width={this.props.y_axis_width}
-               mode={this.state.mode} mouse_up_in_chart={this.mouse_up_in_chart}
+               w={this.state.width - this.props.y_axis_width - buffer}
+               buffer={buffer}
+               y_axis_width={this.props.y_axis_width}
+               mode={this.state.mode}
+               mouse_up_in_chart={this.mouse_up_in_chart}
                mouse_down_in_chart_true={this.mouse_down_in_chart_true}
                chart_mode={this.state.chart_mode}
                qX={qX} set_date={this.set_date}
                set_dates={this.set_dates}
                start_selected={this.state.start_selected}
-               end_selected={this.state.end_selected} 
+               end_selected={this.state.end_selected}
                {...this.props}
                f_data={this.state.f_counts}
                belowchart="50"
-               height={this.state.width / this.props.w_h_ratio}
+               height={chart_height}
                keys={chart_bins}
                datas={q_data}/>
-      
+
     }else{
       chart = "";
     }
 
     return(
         <div>
-            <QueryBar q={this.props.q} corpus={this.props.corpus}/>
+            <QueryBar height={query_bar_height} q={this.props.q} corpus={this.props.corpus}/>
              <Panel>
-             <ChartTitle f_docs={docs} chartMode={this.state.chart_mode} toggleIntro={this.toggleIntro} turnOnDocMode={this.turnOnDocMode} fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} f={this.state.f} mode={this.state.mode} q={this.props.q}/>
+             <ChartTitle f_docs={docs}
+                         chartMode={this.state.chart_mode}
+                         toggleIntro={this.toggleIntro}
+                         turnOnDocMode={this.turnOnDocMode}
+                         fX={this.fX} qX={qX}
+                         ndocs={this.props.total_docs_for_q}
+                         f={this.state.f}
+                         mode={this.state.mode}
+                         q={this.props.q}/>
              </Panel>
              {chart}
-            <div>
+            <div style={{width: this.state.width/2}}>
               {main_panel}
             </div>
 

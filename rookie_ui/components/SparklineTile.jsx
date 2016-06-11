@@ -14,7 +14,7 @@ var ReactDOM = require('react-dom');
 module.exports = React.createClass({
 
   componentDidMount: function () {
-     var width = ReactDOM.findDOMNode(this).offsetWidth /2;
+     var width = ReactDOM.findDOMNode(this).offsetWidth;
      this.setState({w: width});
   },
 
@@ -27,35 +27,39 @@ module.exports = React.createClass({
   },
 
   render: function() {
-
-    let width = this.props.width/2;
-    let tile_height = width/this.props.w_h_ratio * 3;
-    let height = width/this.props.w_h_ratio;
-    
-    let facet_title_style = {
-      paddingTop: "10%",
-      paddingLeft: "10%",
-      color:"#621b14",
-      textOverflow:"clip",
-      whiteSpace: "nowrap",
-      fontWeight: "bold",
-      cursor: "pointer"
-    }
     if (this.props.col_no != 0){
       facet_title_style.borderLeft = "1px solid grey";
     }
-    
-    let w = this.state.w;
-    let h = w / this.props.w_h_ratio;
-    let intro = this.props.intro;
+    let bc = "white";
+    if (this.props.selected){
+      bc = "rgba(100,100,100,0.2)";
+    }
+    let w = (this.props.width - 50)/2;
+    let spark_h = w/this.props.w_h_ratio;
     return (
-          <div onClick={this.handleClick} style={{width: this.props.width, height: tile_height}}>
-            <div style={{width: "50%", float: "left"}}>
-            <div style={facet_title_style}>{this.props.facet}</div>
-            </div>
-            <div style={{width: "50%", float: "left", paddingTop: "5%", paddingRight: "5%"}}>
-            <Sparkline intro={intro} q_data={this.props.q_data} f_data={this.props.f_datas} width={w} height={h}/>
-            </div>
+          <div style={{border:"1px solid blue",
+                      width:"100%",
+                      height:this.props.height}}
+                      onClick={this.handleClick}>
+              <div style={{border:"1px solid green",
+                          width:w,
+                          height:this.props.height,
+                          color:"#621b14",
+                          fontWeight: "bold",
+                          cursor: "pointer",
+                          float: "left"}}>
+                          {this.props.facet}
+              </div>
+              <div style={{border:"1px solid black",
+                          width: w,
+                          height:this.props.height,
+                          float: "right"}}>
+
+                <Sparkline  q_data={this.props.q_data}
+                            f_data={this.props.f_datas}
+                            width={w}
+                            height={spark_h}/>
+              </div>
           </div>
     );
   }
