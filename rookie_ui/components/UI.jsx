@@ -18,6 +18,8 @@ var SummaryStatus = require('./SummaryStatus.jsx');
 var $ = require('jquery');
 var Panel = require('react-bootstrap/lib/Panel');
 
+let q_color = "#0028a3";
+let f_color = "#b33125";
 
 module.exports = React.createClass({
 
@@ -48,17 +50,39 @@ module.exports = React.createClass({
   getInitialState(){
     //Notes.
     //convention: -1 == null
+    let min = moment(this.props.chart_bins[0]);
+    let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
+    min = min.format("YYYY-MM-DD");
+    max = max.format("YYYY-MM-DD");
     return {drag_r: false, drag_l:false, mouse_down_in_chart: false,
            mouse_is_dragging: false, width: 0, height: 0, click_tracker: -1,
-           chart_mode: "intro", all_results: [], start_selected:-1,
-           end_selected:-1, f_counts:[], f: -1, hovered: -1,
+           chart_mode: "intro", all_results: [], start_selected:min,
+           end_selected:max, f_counts:[], f: -1, hovered: -1,
            //current_bin_position: -1,
            kind_of_doc_list: "summary_baseline",
            vars:this.props.vars, mode:"overview"};
   },
 
+  show_x_for_t_in_sum_status: function(){
+    let min = moment(this.props.chart_bins[0]);
+    let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
+    min = min.format("YYYY-MM-DD");
+    max = max.format("YYYY-MM-DD");
+    if (this.state.start_selected == min && this.state.end_selected == max){
+      return false;
+    }else{
+      return true;
+    }
+  },
+
   resetT: function(){
-    this.setState({start_selected: -1, end_selected: -1, mode:"overview", chart_mode: "intro"});
+    let min = moment(this.props.chart_bins[0]);
+    let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
+    min = min.format("YYYY-MM-DD");
+    max = max.format("YYYY-MM-DD");
+    this.setState({start_selected: min,
+                  end_selected: max,
+                  chart_mode: "intro"});
   },
 
   resultsToDocs: function(results){
@@ -91,7 +115,6 @@ module.exports = React.createClass({
 
   mouse_move_in_chart: function(p){
     this.check_drag(p);
-    //this.setState({current_bin_position: moment(p).format("YYYY-MM")}, );
   },
 
   check_drag: function(p) {
@@ -173,7 +196,8 @@ module.exports = React.createClass({
     let min = moment(this.props.chart_bins[0]);
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
     if (s < e  & s > min & e < max) {
-      this.setState({start_selected:s.format("YYYY-MM-DD"), end_selected:e.format("YYYY-MM-DD")});
+      this.setState({start_selected:s.format("YYYY-MM-DD"),
+                     end_selected:e.format("YYYY-MM-DD")});
     }
   },
 
@@ -248,7 +272,8 @@ module.exports = React.createClass({
   },
 
   turn_on_rect_mode: function(p){
-    this.setState({chart_mode:"rectangle", start_selected: -1, end_selected: -1, mouse_down_in_chart:true, mode: "docs"});
+    this.setState({chart_mode:"rectangle", start_selected: -1, end_selected: -1,
+                  mouse_down_in_chart:true, mode: "docs"});
     if (this.state.f == -1){
         this.turnOnDocMode();
     }
@@ -296,14 +321,21 @@ module.exports = React.createClass({
     let main_panel;
 
     let chart_bins = this.props.chart_bins;
-    let temporal_status = <SummaryStatus resetT={this.resetT}
+    let show_x_for_t_in_sum_status = this.show_x_for_t_in_sum_status();
+    let summary_status = <SummaryStatus resetT={this.resetT}
+                                          show_x = {show_x_for_t_in_sum_status}
                                           kind_of_doc_list={this.state.kind_of_doc_list}
                                           ndocs={docs.length}
+                                          q={this.props.q}
+                                          f={this.state.f}
+                                          q_color={q_color}
+                                          f_color={f_color}
                                           turnOnSummary={() => this.setState({kind_of_doc_list: "summary_baseline"})}
                                           turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})}
-                                          start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>
-    if (this.props.total_docs_for_q == 0){
-        temporal_status = "";
+                                          start_selected={this.state.start_selected}
+                                          end_selected={this.state.end_selected}/>
+    if (this.props.total_docs_for_q == 0 ){
+        summary_status = "";
     }
     let chart_height = this.state.width / this.props.w_h_ratio;
     let query_bar_height = 50;
@@ -312,7 +344,7 @@ module.exports = React.createClass({
                     <SparklineStatus fX={this.fX} qX={qX}
                                      ndocs={this.props.total_docs_for_q}
                                      {...this.props}/>
-                    <SparklineGrid ntile="10" width={this.state.width/2}
+                                   <SparklineGrid ntile="7" width={this.state.width/2}
                                    height={lower_h} f={this.state.f}
                                    {...this.props} clickTile={this.clickTile}
                                    q_data={q_data} col_no={1}
@@ -388,7 +420,7 @@ module.exports = React.createClass({
             <div style={{float:"right", width:(this.state.width-5)/2}}>
               <Panel>
                 <div style={{paddingBottom:"5"}}>
-                  {temporal_status}
+                  {summary_status}
                 </div>
                 <div>
                   {docviewer}

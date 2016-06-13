@@ -34,8 +34,9 @@ module.exports = React.createClass({
     if (this.props.selected){
       bc = "rgba(100,100,100,0.2)";
     }
-    let w = (this.props.width - 50);
-    let spark_h = (w * .6666) /this.props.w_h_ratio;
+    let w = (this.props.width) - 50;
+    let spark_h = this.props.height;
+    let spark_w = this.props.w_h_ratio * spark_h;
     return (
           <div style={{
                       width:"100%",
@@ -58,7 +59,7 @@ module.exports = React.createClass({
 
                 <Sparkline  q_data={this.props.q_data}
                             f_data={this.props.f_datas}
-                            width={w * .6666}
+                            width={spark_w}
                             height={spark_h}/>
               </div>
           </div>
