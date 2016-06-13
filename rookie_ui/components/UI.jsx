@@ -169,8 +169,8 @@ module.exports = React.createClass({
   */
   mouse_up_in_chart: function(e_page_X_adjusted){
     if (this.state.start_selected == -1 && this.state.end_selected == -1){
-      let s = moment(e_page_X_adjusted);
-      let e = moment(e_page_X_adjusted).add(2, 'month');
+      let s = moment(e_page_X_adjusted).add(-1, 'month');
+      let e = moment(e_page_X_adjusted).add(1, 'month');
       s = s.format("YYYY-MM-DD");
       e = e.format("YYYY-MM-DD");
       this.setState({start_selected:s,end_selected:e});

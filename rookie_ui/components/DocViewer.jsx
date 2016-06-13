@@ -12,7 +12,7 @@ var Panel = require('react-bootstrap/lib/Panel');
 module.exports = React.createClass({
 
     render: function(){
-
+        console.log(docs.length);
         let docs = _.filter(this.props.docs, function(d) {
             return moment(d.pubdate) > moment(this.props.start_selected, "YYYY-MM-DD") &&
                    moment(d.pubdate) < moment(this.props.end_selected, "YYYY-MM-DD")
@@ -33,6 +33,7 @@ module.exports = React.createClass({
             width:"100%",
             overflow:"hidden"
         };
+
         return(
             <div style={rowStyle}>
                 {docs.map(function(doc, n) {

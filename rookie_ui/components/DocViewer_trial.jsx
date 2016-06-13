@@ -10,12 +10,16 @@ var Panel = require('react-bootstrap/lib/Panel');
 
 module.exports = React.createClass({
 
+    // need to avoid constantly updating the summary box.
+    // feels glitchy if not limit update
     shouldComponentUpdate: function(nextProps, nextState) {
       return nextProps.all_results != this.props.all_results
             || nextProps.start_selected != this.props.start_selected
             || nextProps.end_selected != this.props.end_selected
             || nextProps.mode != this.props.mode
-            || nextProps.f != this.props.f;
+            || nextProps.f != this.props.f
+            || nextProps.height != this.props.height
+            || nextProps.width != this.props.width;
     },
 
 
@@ -88,8 +92,8 @@ module.exports = React.createClass({
 
         let docs;
 
+        console.log(this.props.height);
         docs = this.get_docs_to_render();
-
         if (docs.length < 1){
             return <div></div>;
         }
