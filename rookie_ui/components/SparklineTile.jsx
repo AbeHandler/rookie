@@ -44,16 +44,17 @@ module.exports = React.createClass({
                       height:this.props.height}}
                       onClick={this.handleClick}>
               <div style={{
-                          width:w * .3333,
+                          width:w * .2,
                           height:this.props.height,
                           color:"#621b14",
                           fontWeight: "bold",
+                          fontSize: ".8em",
                           cursor: "pointer",
                           float: "left"}}>
                           {this.props.facet}
               </div>
               <div style={{
-                          width: w * .6666,
+                          width: w * .8,
                           height:this.props.height,
                           float: "right"}}>
 

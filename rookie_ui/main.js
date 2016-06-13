@@ -6,7 +6,7 @@ var ReactDOM = require('react-dom');
 var UI = require('./components/UI.jsx');
 
 var cache = {};
-var w_h_ratio = 12;  // width % height for sparkline or chart. used to set aspect ratio
+var w_h_ratio = 15;  // width % height for sparkline or chart. used to set aspect ratio
 
 ReactDOM.render(
   <UI base_url={base_url}

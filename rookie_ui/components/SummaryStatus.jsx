@@ -36,7 +36,7 @@ module.exports = React.createClass({
         let d2 = moment(this.props.end_selected).format("MMM DD, YYYY");
         var f_stuff = "";
         if (this.props.f != -1){
-          f_stuff = <span>and <span style={{color: this.props.f_color, fontWeight: "bold"}}> {this.props.f} </span> </span>;
+          f_stuff = <span>mentioning <span style={{color: this.props.f_color, fontWeight: "bold"}}> {this.props.f} </span> </span>;
         }
         status = <span>
                   <span>{summary_of} {this.props.ndocs} </span>

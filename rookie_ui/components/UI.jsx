@@ -306,6 +306,10 @@ module.exports = React.createClass({
     }
   },
 
+  requery: function (arg) {
+      location.href= '/?q='+ arg + '&corpus=' + this.props.corpus;
+  },
+
   render: function() {
     let qX = this.qX;
     let bin_size = "year"; //default binsize
@@ -343,7 +347,7 @@ module.exports = React.createClass({
     }
     let chart_height = this.state.width / this.props.w_h_ratio;
     let query_bar_height = 50;
-    let lower_h = this.state.height - chart_height - query_bar_height - 300;
+    let lower_h = (this.state.height - chart_height - query_bar_height)/2.5;
     let sparkline_h = <SparklineStatus fX={this.fX} qX={qX}
                      ndocs={this.props.total_docs_for_q}
                      {...this.props}/>
@@ -400,7 +404,7 @@ module.exports = React.createClass({
     }else{
       chart = "";
     }
-
+    console.log(this.click_f);
     return(
         <div>
             <QueryBar height={query_bar_height}
@@ -414,14 +418,15 @@ module.exports = React.createClass({
                          fX={this.fX} qX={qX}
                          ndocs={this.props.total_docs_for_q}
                          f={this.state.f}
+                         requery={this.requery}
                          mode={this.state.mode}
                          q={this.props.q}/>
              </Panel>
              {chart}
-            <div style={{float:"left", width:(this.state.width-5)/2}}>
+            <div style={{float:"left", width:(this.state.width-5)/2 }}>
               {main_panel}
             </div>
-            <div style={{float:"right", width:(this.state.width-5)/2}}>
+            <div style={{float:"right", width:(this.state.width-5)/2 }}>
               <Panel header={summary_status}>
                 <div>
                   {docviewer}

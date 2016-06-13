@@ -30,9 +30,9 @@ module.exports = React.createClass({
         let show = (f != -1 & f != undefined);
         let tot_f_docs = this.props.f_docs;
         if (this.props.f != -1){
-            return <span><span>{status_start}</span><ClickableQF showX={show} xHandler={this.props.qX} color={this.props.q_color} text={this.props.q}/> — <span style={{fontWeight: "bold"}}>{tot_f_docs}</span> mention <ClickableQF showX={true} xHandler={this.props.fX} color={this.props.f_color} text={this.props.f}/> </span>
+            return <span><span>{status_start}</span><ClickableQF click={this.props.requery} showX={show} xHandler={this.props.qX} color={this.props.q_color} text={this.props.q}/> — <span style={{fontWeight: "bold"}}>{tot_f_docs}</span> mention <ClickableQF click={this.props.requery} showX={true} xHandler={this.props.fX} color={this.props.f_color} text={this.props.f}/> </span>
         } else {
-            return <span><span>{status_start}</span><ClickableQF showX={show} xHandler={this.props.qX} color={this.props.q_color} text={this.props.q}/> <span style={{float: "right"}}></span></span>
+            return <span><span>{status_start}</span><ClickableQF click={this.props.requery} showX={show} xHandler={this.props.qX} color={this.props.q_color} text={this.props.q}/> <span style={{float: "right"}}></span></span>
         }
     }
 });
