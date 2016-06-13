@@ -56,7 +56,7 @@ module.exports = React.createClass({
 
     /**
     * Get the SVG path for the hightlight bar to show where mouseovered
-    * @param {e_pageX} x location 
+    * @param {e_pageX} x location
     * @param {lateral_scale} d3 scale
     */
     get_path_hilite: function(input_datas){
@@ -76,7 +76,7 @@ module.exports = React.createClass({
       let dates = _.map(this.props.keys, function(o, i){return moment(o)});
       let nstories = "";
       let j = 0;
-      for (let i = 0; i < dates.length; i++) { 
+      for (let i = 0; i < dates.length; i++) {
           if(dates[i].year() == x_moment.year() && dates[i].month() == x_moment.month()){
               j = i;
           }
@@ -97,8 +97,8 @@ module.exports = React.createClass({
     let scale = this.get_x_scale();
     let mouse_x = -1;
     let mouse_y = -1
-    return {w: 0, mouse_x: mouse_x, x_l: scale(d1), x_r: scale(d2), 
-           drag_l: this.props.drag_l, drag_r: this.props.drag_r, 
+    return {w: 0, mouse_x: mouse_x, x_l: scale(d1), x_r: scale(d2),
+           drag_l: this.props.drag_l, drag_r: this.props.drag_r,
            mouse_to_r_d: -1, mouse_to_l_d: -1};
   },
 
@@ -107,14 +107,14 @@ module.exports = React.createClass({
   },
 
   handle_mouse_move: function(e_pageX, lateral_scale) {
-    
+
     let p = lateral_scale.invert(e_pageX - this.props.y_axis_width - this.props.buffer);
-    
+
     //alert UI that mouse is moving
     this.props.mouse_move_in_chart(p);
 
     if (this.props.drag_r == true && this.props.drag_l == true){
-      //set distance from mouse position to edges  
+      //set distance from mouse position to edges
       let lateral_scale = this.get_x_scale();
       let start_pos = lateral_scale(new Date(this.props.start_selected));
       let end_pos = lateral_scale(new Date(this.props.end_selected));
@@ -134,7 +134,7 @@ module.exports = React.createClass({
 
   /**
   * This function will fire on mousedown
-  * @param {Event} e 
+  * @param {Event} e
   * @param {d3.scale} lateral_scale
   */
   handle_mouse_down: function(e, lateral_scale){
@@ -182,7 +182,7 @@ module.exports = React.createClass({
       let y_loc = this.props.height /2;
       let dates = _.map(this.props.keys, function(o, i){return moment(o)});
       let nstories = "";
-      for (let i = 0; i < dates.length; i++) { 
+      for (let i = 0; i < dates.length; i++) {
           if(dates[i].year() == x_moment.year() && dates[i].month() == x_moment.month()){
               let diff = this.props.height - parseFloat(y_scale(this.props.q_data[i]));
               y_loc = diff;
@@ -198,7 +198,7 @@ module.exports = React.createClass({
       }
       let tooltip_height = 50;
 
-      y_loc = this.props.height/7; 
+      y_loc = this.props.height/5;
       //stop tooltip from extending past the edge of chart
       if ((parseInt(this.props.tooltip_width) + x_scaled) > this.props.w - this.props.y_axis_width - 5){
         x_scaled = this.props.w - this.props.y_axis_width - 5 - this.props.tooltip_width - 5;
@@ -207,11 +207,15 @@ module.exports = React.createClass({
         opacity=0;
         tooltip_height=0; //hard to disable selection, so just put off screen
       }
+      let tool_w = this.props.q.visualWidth();
       return <svg>
               <g>
-              <rect x={x_scaled} rx="5" ry="5" y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width={this.props.tooltip_width} fill="white"/>
-              <rect x={x_scaled + 5} y={y_loc + 30} height="10" width="10" opacity=".25" fill="#0028a3"/>
-              <text style={{backgroundColor: "white"}} x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan>{x_moment.format("MMM. YYYY")}</tspan><tspan x={x_scaled + 20} y={y_loc + 40}>{nstories}</tspan></text></g>
+              <rect x={x_scaled} rx="5" ry="5" y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width={tool_w + 110} fill="white"/>
+              <text style={{backgroundColor: "white"}} x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan style={{fontWeight: "bold"}}>{x_moment.format("MMM. YYYY")}</tspan>
+              <tspan x={x_scaled + 9} y={y_loc + 40}>{nstories}</tspan><tspan> for</tspan>
+              <tspan> </tspan><tspan style={{fontWeight: "bold", fill:"#0028a3"}}>{this.props.q}</tspan>
+              </text>
+              </g>
              </svg>
    },
 
@@ -224,11 +228,11 @@ module.exports = React.createClass({
       let x_moment = moment(x_date);
       x_moment.startOf("month");
       let x_scaled = x_scale(x_moment);
-      let y_loc = this.props.height /2;
+      let y_loc = "";
       let dates = _.map(this.props.keys, function(o, i){return moment(o)});
       let nstories = "";
       let fstories = "";
-      for (let i = 0; i < dates.length; i++) { 
+      for (let i = 0; i < dates.length; i++) {
           if(dates[i].year() == x_moment.year() && dates[i].month() == x_moment.month()){
               let diff = this.props.height - parseFloat(y_scale(this.props.q_data[i]));
               y_loc = diff;
@@ -248,7 +252,7 @@ module.exports = React.createClass({
       }
       let tooltip_height = 75;
       //if (y_loc > 20){  //stop tooltip from falling too low
-        y_loc = this.props.height/6; 
+      y_loc = 0;
       //}
       //stop tooltip from extending past the edge of chart
       if ((parseInt(this.props.tooltip_width) + x_scaled) > this.props.w - this.props.y_axis_width - 5){
@@ -258,9 +262,15 @@ module.exports = React.createClass({
         opacity=0;
         tooltip_height=0; //hard to disable selection, so just put off screen
       }
+      let tool_w = "";
+      if (this.props.q.visualWidth() < this.props.f.visualWidth()){
+        tool_w = this.props.f.visualWidth();
+      }else{
+        tool_w = this.props.q.visualWidth();
+      }
       return <svg>
               <g>
-              <rect rx="5" ry="5" x={x_scaled} y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width={this.props.tooltip_width * 2.5} fill="white"/>
+              <rect rx="5" ry="5" x={x_scaled} y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width={tool_w + 100} fill="white"/>
               <text style={{backgroundColor: "white"}} x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan style={{fontWeight: "bold"}}>{x_moment.format("MMM. YYYY")}</tspan>
               <tspan x={x_scaled + 9} y={y_loc + 40}>{nstories}</tspan><tspan style={{fontWeight: "bold", fill:"#0028a3"}}>{this.props.q}</tspan>
               <tspan x={x_scaled + 9} y={y_loc + 60}>{fstories}</tspan><tspan style={{fontWeight: "bold", fill:"#b33125"}}>{this.props.f}</tspan>
@@ -301,11 +311,11 @@ module.exports = React.createClass({
     if (end_pos > this.props.w){
         end_pos = lateral_scale(new Date(_.last(this.props.keys)));
     }
-    let chart_width = this.props.w - this.props.y_axis_width - 5; 
+    let chart_width = this.props.w - this.props.y_axis_width - 5;
     let max = _.max(this.props.datas);
-    let rec, l_left, l_right, handle_mouseup; 
+    let rec, l_left, l_right, handle_mouseup;
     if (this.props.chart_mode == "rectangle"){
-      rec = <rect style={{cursor: "pointer"}} onMouseDown={this.props.toggle_both_drags_start} y="0" x={start_pos} opacity={".2"} height={this.props.height} width={end_pos - start_pos} strokeWidth="4" fill="grey" />  
+      rec = <rect style={{cursor: "pointer"}} onMouseDown={this.props.toggle_both_drags_start} y="0" x={start_pos} opacity={".2"} height={this.props.height} width={end_pos - start_pos} strokeWidth="4" fill="grey" />
       l_left = <line style={{cursor: "pointer"}} onMouseDown={this.props.toggle_drag_start_l} x1={start_pos} y1={this.props.height / 4} x2={start_pos} y2={this.props.height * .75} stroke={stroke_color_l} strokeWidth="20"/>
       l_right = <line style={{cursor: "pointer"}} onMouseDown={this.props.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 4} x2={end_pos} y2={this.props.height * .75} stroke={stroke_color_r} strokeWidth="20"/>
     }
@@ -317,7 +327,7 @@ module.exports = React.createClass({
         <Row>
         <Col xs={12}>
         <YAxis max={max} height={this.props.height} y_axis_width={this.props.y_axis_width}/>
-	      <svg ref="chart" width={this.props.w - this.props.y_axis_width - 5} height={this.props.height}>
+        <svg ref="chart" width={this.props.w - this.props.y_axis_width - 5} height={this.props.height}>
         <path onMouseLeave={e=>this.setState({mouse_x:-1, mouse_y:-1})} onMouseMove={e =>this.setState({mouse_x:e.pageX})} d={ps} fill="#0028a3" opacity=".25" stroke="grey"/>
         <path d={hilite} fill="rgb(57, 57, 37)" opacity=".6" stroke="black"/>
         <path onMouseLeave={e=>this.setState({mouse_x:-1, mouse_y:-1})} onMouseMove={e =>this.setState({mouse_x:e.pageX})} d={fs} fill="rgb(179, 49, 37)" opacity=".6" stroke="black"/>
@@ -330,7 +340,7 @@ module.exports = React.createClass({
         </Col>
         </Row>
         </Panel>
-          
+
     );
   }
 });
