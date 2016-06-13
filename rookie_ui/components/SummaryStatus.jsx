@@ -34,6 +34,10 @@ module.exports = React.createClass({
     if (moment(this.props.start_selected).isValid() && moment(this.props.end_selected).isValid()){
         let d1 = moment(this.props.start_selected).format("MMM DD, YYYY");
         let d2 = moment(this.props.end_selected).format("MMM DD, YYYY");
+        var f_stuff = "";
+        if (this.props.f != -1){
+          f_stuff = <span>and <span style={{color: this.props.f_color, fontWeight: "bold"}}> {this.props.f} </span> </span>;
+        }
         status = <span>
                   <span>{summary_of} {this.props.ndocs} </span>
                   <span onClick={()=>this.props.turnOnDoclist()}>
@@ -43,6 +47,7 @@ module.exports = React.createClass({
                               {this.props.q}&nbsp;
                             </span>
                   </span>
+                  {f_stuff}
                    from <span style={{fontWeight: "bold"}}>{d1}</span>
                   <span style={{fontWeight: "bold"}}> &mdash; {d2}</span>
                   {inc_x}{summary_toggle}

@@ -2,7 +2,6 @@
 /* A list of days */
 "use strict";
 var React = require('react');
-var $ = require('jQuery');
 var Input = require('react-bootstrap/lib/Input');
 
 module.exports = React.createClass({

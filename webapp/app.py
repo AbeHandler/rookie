@@ -97,14 +97,17 @@ def search():
 def main():
     params = Models.get_parameters(request)
     results = Models.get_results(params)
-    return views.handle_query(get_stuff_ui_needs(params, results))
+    out = get_stuff_ui_needs(params, results)
+    out["sents"] = json.dumps(Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[]))
+    return views.handle_query(out)
 
 @app.route('/intro', methods=['GET'])
 def intro():
     params = Models.get_parameters(request)
     params.q = "INTRO_MODE"
     results = Models.get_results(params)
-    return views.handle_query(get_stuff_ui_needs(params, results))
+    out = get_stuff_ui_needs(params, results)
+    return views.handle_query(out)
 
 '''
 Methods for the quiz

@@ -23,22 +23,38 @@ let f_color = "#b33125";
 
 module.exports = React.createClass({
 
-  check_mode: function(){
-    if (this.state.f != -1){
-        this.setState({mode: "docs"});
-    }else{
-        this.setState({mode: "overview"});
-    }
-  },
-
   set_width: function(){
     var width = $(window).width();
     var height = $(window).height();
     this.setState({width: width, height: height});
   },
 
-  toggleIntro: function(){
-    this.setState({mode: "overview", chart_mode: "intro", kind_of_doc_list: "summary_baseline"});
+  /**
+  * The UI starts in intro mode, which has sparklines. This turns on doc mode
+  */
+  turnOnDocMode: function(){
+    if (this.state.f == -1){
+        let url = this.props.base_url + "get_sents?q=" + this.props.q + "&corpus=" + this.props.corpus;
+        $.ajax({
+              url: url,
+              dataType: 'json',
+              cache: true,
+              success: function(d) {
+                let minbin = _.head(this.props.chart_bins);
+                let maxbin = _.last(this.props.chart_bins);
+                if (this.state.mode == "overview"){
+                        this.setState({kind_of_doc_list: "no_summary", chart_mode: "intro", start_selected: minbin, end_selected: maxbin, f: -1, mode: "docs", all_results: d, f_counts: []});
+                }
+                if (this.state.chart_mode == "rectangle"){
+                        this.setState({f: -1, mode: "docs", all_results: d, f_counts: []});
+                }
+                this.forceUpdate();
+              }.bind(this),
+              error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+              }.bind(this)
+        });
+    }
   },
 
   componentDidMount: function () {
@@ -56,13 +72,14 @@ module.exports = React.createClass({
     max = max.format("YYYY-MM-DD");
     return {drag_r: false, drag_l:false, mouse_down_in_chart: false,
            mouse_is_dragging: false, width: 0, height: 0, click_tracker: -1,
-           chart_mode: "intro", all_results: [], start_selected:min,
+           chart_mode: "intro", all_results: sents, start_selected:min,
            end_selected:max, f_counts:[], f: -1, hovered: -1,
            //current_bin_position: -1,
            kind_of_doc_list: "summary_baseline",
            vars:this.props.vars, mode:"overview"};
   },
 
+  //do you show a little x in the summary box status?
   show_x_for_t_in_sum_status: function(){
     let min = moment(this.props.chart_bins[0]);
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
@@ -149,7 +166,8 @@ module.exports = React.createClass({
   * determines what to do based on if it is a valid click
   */
   mouse_up_in_chart: function(e_page_X_adjusted){
-    this.setState({drag_l: false, drag_r: false, mouse_down_in_chart: false, mouse_is_dragging: false});
+    this.setState({drag_l: false, drag_r: false,
+                   mouse_down_in_chart: false, mouse_is_dragging: false});
   },
 
   /**
@@ -195,9 +213,11 @@ module.exports = React.createClass({
     let e = moment(end_date);
     let min = moment(this.props.chart_bins[0]);
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
-    if (s < e  & s > min & e < max) {
+    if (s <= e  & s > min & e < max) {
       this.setState({start_selected:s.format("YYYY-MM-DD"),
                      end_selected:e.format("YYYY-MM-DD")});
+    }else{
+      console.log("skip");
     }
   },
 
@@ -219,7 +239,7 @@ module.exports = React.createClass({
                               mode: "docs",
                               f_list: d,
                               chart_mode: "intro",
-                              f_counts: facet_datas[e]}, this.check_mode);
+                              f_counts: facet_datas[e]});
               }.bind(this),
               error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -243,37 +263,16 @@ module.exports = React.createClass({
     this.setState({f: -1, mode:"overview", start_selected: -1, end_selected: -1, f_counts: []});
   },
 
-  /**
-  * The UI starts in intro mode, which has sparklines. This turns on doc mode
-  */
-  turnOnDocMode: function(){
-    if (this.state.f == -1){
-        let url = this.props.base_url + "get_sents?q=" + this.props.q + "&corpus=" + this.props.corpus;
-        $.ajax({
-              url: url,
-              dataType: 'json',
-              cache: true,
-              success: function(d) {
-                let minbin = _.head(this.props.chart_bins);
-                let maxbin = _.last(this.props.chart_bins);
-                if (this.state.mode == "overview"){
-                        this.setState({kind_of_doc_list: "no_summary", chart_mode: "intro", start_selected: minbin, end_selected: maxbin, f: -1, mode: "docs", all_results: d, f_counts: []});
-                }
-                if (this.state.chart_mode == "rectangle"){
-                        this.setState({f: -1, mode: "docs", all_results: d, f_counts: []});
-                }
-                this.forceUpdate();
-              }.bind(this),
-              error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-              }.bind(this)
-        });
-    }
-  },
-
   turn_on_rect_mode: function(p){
-    this.setState({chart_mode:"rectangle", start_selected: -1, end_selected: -1,
-                  mouse_down_in_chart:true, mode: "docs"});
+    let min = moment(this.props.chart_bins[0]);
+    let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
+    min = min.format("YYYY-MM-DD");
+    max = max.format("YYYY-MM-DD");
+    this.setState({chart_mode:"rectangle",
+                  start_selected: min,
+                  end_selected: max,
+                  mouse_down_in_chart:true,
+                  mode: "docs"});
     if (this.state.f == -1){
         this.turnOnDocMode();
     }
@@ -340,10 +339,10 @@ module.exports = React.createClass({
     let chart_height = this.state.width / this.props.w_h_ratio;
     let query_bar_height = 50;
     let lower_h = this.state.height - chart_height - query_bar_height - 300;
-    main_panel = <Panel>
-                    <SparklineStatus fX={this.fX} qX={qX}
-                                     ndocs={this.props.total_docs_for_q}
-                                     {...this.props}/>
+    let sparkline_h = <SparklineStatus fX={this.fX} qX={qX}
+                     ndocs={this.props.total_docs_for_q}
+                     {...this.props}/>
+    main_panel = <Panel header={sparkline_h}>
                                    <SparklineGrid ntile="7" width={this.state.width/2}
                                    height={lower_h} f={this.state.f}
                                    {...this.props} clickTile={this.clickTile}
@@ -404,9 +403,9 @@ module.exports = React.createClass({
                       corpus={this.props.corpus}/>
              <Panel>
              <ChartTitle f_docs={docs_ignoreT}
+                         q_color={q_color}
+                         f_color={f_color}
                          chartMode={this.state.chart_mode}
-                         toggleIntro={this.toggleIntro}
-                         turnOnDocMode={this.turnOnDocMode}
                          fX={this.fX} qX={qX}
                          ndocs={this.props.total_docs_for_q}
                          f={this.state.f}
@@ -418,14 +417,10 @@ module.exports = React.createClass({
               {main_panel}
             </div>
             <div style={{float:"right", width:(this.state.width-5)/2}}>
-              <Panel>
-                <div style={{paddingBottom:"5"}}>
-                  {summary_status}
-                </div>
+              <Panel header={summary_status}>
                 <div>
                   {docviewer}
                 </div>
-
               </Panel>
             </div>
        </div>);
