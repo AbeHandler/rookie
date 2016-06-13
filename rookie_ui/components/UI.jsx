@@ -43,7 +43,10 @@ module.exports = React.createClass({
                 let minbin = _.head(this.props.chart_bins);
                 let maxbin = _.last(this.props.chart_bins);
                 if (this.state.mode == "overview"){
-                        this.setState({kind_of_doc_list: "no_summary", chart_mode: "intro", start_selected: minbin, end_selected: maxbin, f: -1, mode: "docs", all_results: d, f_counts: []});
+                        this.setState({kind_of_doc_list: "no_summary",
+                                       chart_mode: "intro", start_selected: minbin,
+                                       end_selected: maxbin, f: -1,
+                                       mode: "docs", all_results: d, f_counts: []});
                 }
                 if (this.state.chart_mode == "rectangle"){
                         this.setState({f: -1, mode: "docs", all_results: d, f_counts: []});
@@ -76,7 +79,7 @@ module.exports = React.createClass({
            end_selected:max, f_counts:[], f: -1, hovered: -1,
            //current_bin_position: -1,
            kind_of_doc_list: "summary_baseline",
-           vars:this.props.vars, mode:"overview"};
+           mode:"docs"};
   },
 
   //do you show a little x in the summary box status?
@@ -163,9 +166,15 @@ module.exports = React.createClass({
 
   /**
   * This function will fire on mouseup if chart is in rectangle mode
-  * determines what to do based on if it is a valid click
   */
   mouse_up_in_chart: function(e_page_X_adjusted){
+    if (this.state.start_selected == -1 && this.state.end_selected == -1){
+      let s = moment(e_page_X_adjusted);
+      let e = moment(e_page_X_adjusted).add(2, 'month');
+      s = s.format("YYYY-MM-DD");
+      e = e.format("YYYY-MM-DD");
+      this.setState({start_selected:s,end_selected:e});
+    }
     this.setState({drag_l: false, drag_r: false,
                    mouse_down_in_chart: false, mouse_is_dragging: false});
   },
@@ -264,13 +273,9 @@ module.exports = React.createClass({
   },
 
   turn_on_rect_mode: function(p){
-    let min = moment(this.props.chart_bins[0]);
-    let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
-    min = min.format("YYYY-MM-DD");
-    max = max.format("YYYY-MM-DD");
     this.setState({chart_mode:"rectangle",
-                  start_selected: min,
-                  end_selected: max,
+                  start_selected:-1,
+                  end_selected:-1,
                   mouse_down_in_chart:true,
                   mode: "docs"});
     if (this.state.f == -1){
