@@ -30,7 +30,7 @@ module.exports = React.createClass({
     let height = this.props.height;
     let ntile = this.props.ntile;
     return (
-            <Grid fluid style={{border: "1px solid blue", height:height}}>
+            <Grid fluid style={{height:height}}>
               {row_range.map(function(value, i){
                      return <Row key={i} style={{height:height/ntile}}>
                      {chunks[value].map(function(k1, v1){

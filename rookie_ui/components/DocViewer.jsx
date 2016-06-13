@@ -12,9 +12,9 @@ var Panel = require('react-bootstrap/lib/Panel');
 module.exports = React.createClass({
 
     render: function(){
-        
-        let docs = _.filter(this.props.docs, function(d) { 
-            return moment(d.pubdate) > moment(this.props.start_selected, "YYYY-MM-DD") && 
+
+        let docs = _.filter(this.props.docs, function(d) {
+            return moment(d.pubdate) > moment(this.props.start_selected, "YYYY-MM-DD") &&
                    moment(d.pubdate) < moment(this.props.end_selected, "YYYY-MM-DD")
         }, this);
         docs = _.sortBy(docs, function(d){
@@ -24,7 +24,7 @@ module.exports = React.createClass({
             return <div></div>;
         }
         let f = this.props.f;
-        var markup = function(doc) { 
+        var markup = function(doc) {
            return {__html: doc.snippet};
         };
         let props = this.props;
@@ -34,11 +34,15 @@ module.exports = React.createClass({
             overflow:"hidden"
         };
         return(
-            <Panel style={rowStyle}>
+            <div style={rowStyle}>
                 {docs.map(function(doc, n) {
-                    return <div key={n} style={rowStyle}><Story url={doc.url} pubdate={doc.pubdate} snippet={doc.snippet.htext}/></div>;
+                    return <div key={n} style={rowStyle}>
+                                <Story url={doc.url}
+                                pubdate={doc.pubdate}
+                                snippet={doc.snippet.htext}/>
+                           </div>;
                 })}
-           </Panel>
+           </div>
         );
        }
 });

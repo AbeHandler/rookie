@@ -80,6 +80,15 @@ module.exports = React.createClass({
 
   },
 
+  n_fdocs: function(results){
+    if (this.state.f != -1){
+        results = this.state.f_list;
+        return results.length;
+    }else{
+      return 0;
+    }
+  },
+
   mouse_move_in_chart: function(p){
     this.check_drag(p);
     //this.setState({current_bin_position: moment(p).format("YYYY-MM")}, );
@@ -271,9 +280,8 @@ module.exports = React.createClass({
   render: function() {
     let qX = this.qX;
     let bin_size = "year"; //default binsize
-    // docs = those that match q, f & t. all_results = what comes from browser.
     let docs = this.resultsToDocs(this.state.all_results);
-
+    let docs_ignoreT = this.n_fdocs(this.state.all_results);
     let y_scroll = {
         overflowY: "scroll",
         height:this.props.height
@@ -288,7 +296,12 @@ module.exports = React.createClass({
     let main_panel;
 
     let chart_bins = this.props.chart_bins;
-    let temporal_status = <SummaryStatus resetT={this.resetT} kind_of_doc_list={this.state.kind_of_doc_list} ndocs={docs.length} turnOnSummary={() => this.setState({kind_of_doc_list: "summary_baseline"})} turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})} start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>
+    let temporal_status = <SummaryStatus resetT={this.resetT}
+                                          kind_of_doc_list={this.state.kind_of_doc_list}
+                                          ndocs={docs.length}
+                                          turnOnSummary={() => this.setState({kind_of_doc_list: "summary_baseline"})}
+                                          turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})}
+                                          start_selected={this.state.start_selected} end_selected={this.state.end_selected}/>
     if (this.props.total_docs_for_q == 0){
         temporal_status = "";
     }
@@ -296,7 +309,9 @@ module.exports = React.createClass({
     let query_bar_height = 50;
     let lower_h = this.state.height - chart_height - query_bar_height - 300;
     main_panel = <Panel>
-                    <SparklineStatus fX={this.fX} qX={qX} ndocs={this.props.total_docs_for_q} {...this.props}/>
+                    <SparklineStatus fX={this.fX} qX={qX}
+                                     ndocs={this.props.total_docs_for_q}
+                                     {...this.props}/>
                     <SparklineGrid ntile="10" width={this.state.width/2}
                                    height={lower_h} f={this.state.f}
                                    {...this.props} clickTile={this.clickTile}
@@ -356,7 +371,7 @@ module.exports = React.createClass({
                       q={this.props.q}
                       corpus={this.props.corpus}/>
              <Panel>
-             <ChartTitle f_docs={docs}
+             <ChartTitle f_docs={docs_ignoreT}
                          chartMode={this.state.chart_mode}
                          toggleIntro={this.toggleIntro}
                          turnOnDocMode={this.turnOnDocMode}
@@ -371,9 +386,16 @@ module.exports = React.createClass({
               {main_panel}
             </div>
             <div style={{float:"right", width:(this.state.width-5)/2}}>
-              {docviewer}
-            </div>
+              <Panel>
+                <div style={{paddingBottom:"5"}}>
+                  {temporal_status}
+                </div>
+                <div>
+                  {docviewer}
+                </div>
 
+              </Panel>
+            </div>
        </div>);
   }
 });

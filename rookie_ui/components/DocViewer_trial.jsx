@@ -11,11 +11,15 @@ var Panel = require('react-bootstrap/lib/Panel');
 module.exports = React.createClass({
 
     shouldComponentUpdate: function(nextProps, nextState) {
-      return nextProps.all_results != this.props.all_results || nextProps.start_selected != this.props.start_selected || nextProps.end_selected != this.props.end_selected || nextProps.mode != this.props.mode;   
+      return nextProps.all_results != this.props.all_results
+            || nextProps.start_selected != this.props.start_selected
+            || nextProps.end_selected != this.props.end_selected
+            || nextProps.mode != this.props.mode
+            || nextProps.f != this.props.f;
     },
 
 
-    //need to use this markup thing b/c snippet has html in it     
+    //need to use this markup thing b/c snippet has html in it
     markup: function(doc) {
         let dt = moment(doc.pubdate, "YYYY-MM-DD").format("MM.DD.YYYY");
         return {__html: "<a style='color:black;' href='" + doc.url + "' target='_blank' >" + doc.snippet.htext + "</a>"};
@@ -32,7 +36,7 @@ module.exports = React.createClass({
     find_next: function(docs){
        let qf = _.filter(docs, function(d){
                    return d.snippet.has_q && d.snippet.has_f;
-              }); 
+              });
        if (qf.length > 0){
             let out = qf[Math.floor(Math.random() * qf.length)];
             return out;
@@ -47,13 +51,13 @@ module.exports = React.createClass({
 
     get_docs_to_render: function(){
         let docs = this.props.docs;
-        docs = _.filter(docs, function(d) { 
-                return moment(d.pubdate) > moment(this.props.start_selected, "YYYY-MM-DD") && 
+        docs = _.filter(docs, function(d) {
+                return moment(d.pubdate) > moment(this.props.start_selected, "YYYY-MM-DD") &&
                        moment(d.pubdate) < moment(this.props.end_selected, "YYYY-MM-DD")
         }, this);
 
         let render = [];
-        let ht = 0; //height 
+        let ht = 0; //height
         if (docs.length > 0){
             while (ht < this.props.height && docs.length > 0){ //pretty hack-y. but apparently this is a weakness in react
                 let picked = this.find_next(docs);
@@ -61,10 +65,10 @@ module.exports = React.createClass({
                     return doc.docid == picked.docid;
                 });
                 ht += this.fake_markup(picked).visualHeight();
-                if (ht < this.props.height){          
+                if (ht < this.props.height){
                     render.push(picked);
                 }
-            }   
+            }
         }
 
         //console.log(markup(docs[0]).visualHeight());
@@ -73,7 +77,7 @@ module.exports = React.createClass({
         }else{
             return [];
         }
-        
+
     },
 
     format_d: function(d){
@@ -81,11 +85,11 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        
+
         let docs;
 
         docs = this.get_docs_to_render();
-        
+
         if (docs.length < 1){
             return <div></div>;
         }
@@ -100,11 +104,11 @@ module.exports = React.createClass({
         let markup = this.markup;
         let format_d = this.format_d;
         return(
-            <Panel style={{backgroundColor: "white", overflowY: "hidden", height: this.props.height, overflow: "hidden"}}>
+            <div style={{backgroundColor: "white", overflowY: "hidden", height: this.props.height, overflow: "hidden"}}>
                 {docs.map(function(doc, n) {
                     return <div><span style={{color: "grey"}}>{format_d(doc.pubdate)} | </span><span key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/></div>;
                 })}
-           </Panel>
+           </div>
         );
        }
 });

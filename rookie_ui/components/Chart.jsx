@@ -237,14 +237,14 @@ module.exports = React.createClass({
           }
       }
       if (nstories > 1){
-          nstories = nstories.toString() + " stories";
+          nstories = nstories.toString() + " stories for ";
       }else if (nstories == 1){
-          nstories = nstories.toString() + " story";
+          nstories = nstories.toString() + " story for ";
       }
       if (fstories > 1 || fstories == 0){
-          fstories = fstories.toString() + " stories";
+          fstories = fstories.toString() + " mention ";
       }else if (fstories == 1){
-          fstories = fstories.toString() + " story";
+          fstories = fstories.toString() + " mention ";
       }
       let tooltip_height = 75;
       //if (y_loc > 20){  //stop tooltip from falling too low
@@ -260,12 +260,10 @@ module.exports = React.createClass({
       }
       return <svg>
               <g>
-              <rect rx="5" ry="5" x={x_scaled} y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width={this.props.tooltip_width} fill="white"/>
-              <rect x={x_scaled + 5} y={y_loc + 30} height="10" width="10" opacity=".25" fill="#0028a3"/>
-              <rect x={x_scaled + 5} y={y_loc + 50} height="10" width="10" opacity="1" fill="rgb(179, 49, 37)"/>
-              <text style={{backgroundColor: "white"}} x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan>{x_moment.format("MMM. YYYY")}</tspan>
-              <tspan x={x_scaled + 20} y={y_loc + 40}>{nstories}</tspan>
-              <tspan x={x_scaled + 20} y={y_loc + 60}>{fstories}</tspan>
+              <rect rx="5" ry="5" x={x_scaled} y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width={this.props.tooltip_width * 2.5} fill="white"/>
+              <text style={{backgroundColor: "white"}} x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan style={{fontWeight: "bold"}}>{x_moment.format("MMM. YYYY")}</tspan>
+              <tspan x={x_scaled + 9} y={y_loc + 40}>{nstories}</tspan><tspan style={{fontWeight: "bold", fill:"#0028a3"}}>{this.props.q}</tspan>
+              <tspan x={x_scaled + 9} y={y_loc + 60}>{fstories}</tspan><tspan style={{fontWeight: "bold", fill:"#b33125"}}>{this.props.f}</tspan>
               </text>
               </g>
              </svg>

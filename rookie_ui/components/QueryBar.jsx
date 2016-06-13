@@ -48,7 +48,7 @@ module.exports = React.createClass({
     let submitter = this.submitter;
     let changeHandler = this.changeHandler;
     return (
-      <Navbar style={{width: "100%"}} onKeyPress={(e)=> this.handleKeyPress(e)}>
+      <Navbar style={{height:this.props.height, width: "100%"}} onKeyPress={(e)=> this.handleKeyPress(e)}>
         <Grid>
           <Row className="show-grid">
             <Col xs={10} md={10}><Input q={this.props.q} style={{pstyle}} changeHandler={changeHandler}/></Col>

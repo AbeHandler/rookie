@@ -34,15 +34,16 @@ module.exports = React.createClass({
     if (this.props.selected){
       bc = "rgba(100,100,100,0.2)";
     }
-    let w = (this.props.width - 50)/2;
-    let spark_h = w/this.props.w_h_ratio;
+    let w = (this.props.width - 50);
+    let spark_h = (w * .6666) /this.props.w_h_ratio;
     return (
-          <div style={{border:"1px solid blue",
+          <div style={{
                       width:"100%",
+                      backgroundColor:bc,
                       height:this.props.height}}
                       onClick={this.handleClick}>
-              <div style={{border:"1px solid green",
-                          width:w,
+              <div style={{
+                          width:w * .3333,
                           height:this.props.height,
                           color:"#621b14",
                           fontWeight: "bold",
@@ -50,14 +51,14 @@ module.exports = React.createClass({
                           float: "left"}}>
                           {this.props.facet}
               </div>
-              <div style={{border:"1px solid black",
-                          width: w,
+              <div style={{
+                          width: w * .6666,
                           height:this.props.height,
                           float: "right"}}>
 
                 <Sparkline  q_data={this.props.q_data}
                             f_data={this.props.f_datas}
-                            width={w}
+                            width={w * .6666}
                             height={spark_h}/>
               </div>
           </div>

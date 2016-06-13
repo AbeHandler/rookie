@@ -16,7 +16,7 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    
+
     let d1;
     let d2;
     let status;
@@ -38,9 +38,9 @@ module.exports = React.createClass({
         status = "";
       }
     return (
-      <Panel>
+      <div>
          {status}
-      </Panel>
+      </div>
     )
   }
 
