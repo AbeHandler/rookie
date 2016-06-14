@@ -16,7 +16,6 @@ import time
 import ipdb
 import cPickle as pickle
 import numpy as np
-import joblib
 import argparse
 from webapp.models import get_doc_metadata
 from whoosh import query
@@ -112,7 +111,7 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
     ngram_to_slot = {n: i for (i, n) in enumerate(ok_ngrams)}
 
     unigram_to_slot = {n: i for (i, n) in enumerate(all_unigrams)}
-    
+
     pickle.dump(unigram_to_slot, open("indexes/{}/unigram_key.p".format(args.corpus), "wb" ))
     pickle.dump(ngram_to_slot, open("indexes/{}/ngram_key.p".format(args.corpus), "wb" ))
 
@@ -127,7 +126,7 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
     ngrams_sentences = defaultdict(lambda : defaultdict(list))
     for dinex, docid in enumerate(docids):
         docid = int(docid)
-        if dinex % 100 == 0:
+        if dinex % 1000 == 0:
             sys.stdout.write("...%s" % dinex); sys.stdout.flush()
         mdata = get_doc_metadata(docid, args.corpus)
         pubdate = datetime.datetime.strptime(mdata["pubdate"], '%Y-%m-%d')
@@ -143,7 +142,7 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
                 try:
                     ngrams_sentences[docid][unigram_to_slot[sent_unigram]].append(s_no)
                 except KeyError: # rare ngrams are not in ngram_to_slot index and so can be skipped
-                    pass    
+                    pass
         ngrams_in_doc = {}
         for n in ngram:
             ngrams_in_doc[ngram_to_slot[n]] = 1
@@ -176,14 +175,14 @@ def filter(input, n):
     '''
     Filter input to cases where v > n
     '''
-    return set([str(k) for k, v in input.iteritems() if v >= n])
+    return set([k.encode('ascii', 'ignore') for k, v in input.iteritems() if v >= n])
 
 
 def get_all_unigrams(docids):
     unigrams = set()
     print "[*] looping over unigrams"
     for dinex, docid in enumerate(docids):
-        if dinex % 100 == 0:
+        if dinex % 1000 == 0:
             sys.stdout.write("...%s" % dinex); sys.stdout.flush()
         sents = get_doc_metadata(docid, args.corpus)["sentences"]
         for s in sents:
@@ -197,4 +196,3 @@ if __name__ == '__main__':
     ngram = filter(all_facets, 5)
     all_unigrams = get_all_unigrams(ALLDOCIDS)
     build_matrix(ALLDOCIDS, ngram, all_unigrams)
-
