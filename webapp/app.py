@@ -5,7 +5,7 @@ The main web app for rookie
 
 import json
 from flask.ext.compress import Compress
-from webapp.models import results_to_doclist, make_dataframe, get_keys, get_val_from_df, bin_dataframe, corpus_min_max, get_stuff_ui_needs, filter_f
+from webapp.models import results_to_doclist, get_keys, corpus_min_max, get_stuff_ui_needs, filter_f
 from flask import Flask, request
 
 from facets.query_sparse import load_all_data_structures
@@ -35,7 +35,7 @@ def get_doclist():
 
     results = Models.get_results(params)
 
-    results = filter_f(results, params)
+    results = filter_f(results, params.f, params.corpus)
 
     out = Models.get_doclist(results, params.q, None, params.corpus, aliases=[])
 
@@ -50,7 +50,7 @@ def get_sents():
     '''
     params = Models.get_parameters(request)
     results = Models.get_results(params)
-    results = filter_f(results, params)
+    results = filter_f(results, params.f, params.corpus)
     out = Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[])
     return json.dumps(out)
 
@@ -98,8 +98,6 @@ def main():
     params = Models.get_parameters(request)
     results = Models.get_results(params)
     out = get_stuff_ui_needs(params, results)
-    #import ipdb
-    #ipdb.set_trace()
     out["sents"] = json.dumps(Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[]))
     return views.handle_query(out)
 

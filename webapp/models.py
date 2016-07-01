@@ -45,32 +45,38 @@ def get_stuff_ui_needs(params, results):
 
         binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
 
-        print binned_facets
         aliases = [] # TODO
         stuff_ui_needs = {}
         q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
 
         binsize = "month"
 
-        df = make_dataframe(params.q, binned_facets["g"], results, q_pubdates, aliases)
-        df = bin_dataframe(df, binsize)
-
         keys = get_keys(params.corpus)
 
-        q_data = [get_val_from_df(params.q, key, df, binsize) for key in keys]
+        q_data = []
+        for key in keys:
+            q_data.append(sum(1 for r in q_pubdates if r.year==key.year and r.month==key.month))
 
-        stuff_ui_needs["keys"] = [k + "-01" for k in keys]
+        stuff_ui_needs["keys"] = [k.strftime("%Y-%m") + "-01" for k in keys]
         display_bins = []
         for key in binned_facets:
             if key != "g":
                 display_bins.append({"key": key, "facets": binned_facets[key]})
 
-
         stuff_ui_needs["total_docs_for_q"] = len(results)
         facets = {}
+        
+        qpdset = set(q_pubdates)
         for fac in binned_facets['g']:
-            print fac
-            facets[fac] = [get_val_from_df(fac, key, df, binsize) for key in keys]
+            counts = []
+            results_f = filter_f(results, fac, params.corpus)
+            facet_pds = [load_all_data_structures(params.corpus)["pubdates"][int(f)] for f in results_f]
+            for key in keys:
+                counts.append(sum(1 for r in facet_pds if 
+                                  r.year == key.year and r.month == key.month
+                                  and r in qpdset))
+            facets[fac] = counts
+
         stuff_ui_needs["facet_datas"] = facets
 
         dminmax = corpus_min_max(params.corpus)
@@ -108,15 +114,6 @@ def query(qry_string, corpus):
     return out
 
 
-def filter_results_with_binary_dataframe(results, facet, df):
-    '''
-    take a binary dataframe indicating which facets occur
-    '''
-    hits = df.loc[df[facet] == 1]["id"].tolist()
-    for h in hits:
-        assert h in results
-    return hits
-
 def corpus_min_max(corpus):
     """get the min/max pubdates for a corpus"""
     res = SESSION.connection().execute(
@@ -129,9 +126,7 @@ def results_to_doclist(results, q, f, corpus, pubdates, aliases):
     '''
     Start w/ search results. filter based on params. get a doclist back.
     '''
-    q_pubdates = [pubdates[int(r)] for r in results]
-    df = make_dataframe(q, [f], results, q_pubdates, aliases)
-    results = filter_results_with_binary_dataframe(results, f, df)
+    results = filter_f(results, f, corpus)
     fdoc_list = Models.get_doclist(results, q, f, corpus, aliases=aliases)
     filtered_pubdates = [pubdates[int(r)] for r in results]
     return filtered_pubdates, fdoc_list
@@ -166,12 +161,13 @@ def get_doc_metadata(docid, corpus):
     row = SESSION.connection().execute("select data from doc_metadata where docid=%s and corpusid=%s", docid, corpusid).fetchone()
     return row[0]
 
-def filter_f(results, params):
-    if params.f is None:
+
+def filter_f(results, f, corpus):
+    '''filter out only those results that contain f'''
+    if f is None:
         return results
-    ds = load_all_data_structures(params.corpus)["vectors"]
-    f_ngram_no = load_all_data_structures(params.corpus)["decoders"]["ngram"][params.f]
-    rev_decoders = load_all_data_structures(params.corpus)["reverse_decoders"]
+    ds = load_all_data_structures(corpus)["vectors"]
+    f_ngram_no = load_all_data_structures(corpus)["decoders"]["ngram"][f]
     return [r for r in results if unicode(f_ngram_no) in ds[r]]
 
 
@@ -186,7 +182,7 @@ def get_keys(corpus):
     counter = start
 
     while counter <= stop:
-        output.append(counter.strftime("%Y-%m"))
+        output.append(counter)
         counter = counter + relativedelta(months=+1)
     return output
 
@@ -206,58 +202,6 @@ class Parameters(object):
     def __repr__(self):
         return "<Parameters (q={}, detail={}, startdate={}, enddate={})>".format(
             self.q, self.f, self.startdate, self.enddate)
-
-
-def get_val_from_df(val_key, dt_key, df, binsize="month"):
-    '''
-    :param val_key: a facet
-    :param dt_key: a date string. usually, YYYY-M. formatted 2014-5
-    :param df: a dataframe
-    :param binsize: ignored for now. needed for dateparsing in try methods
-    :return:
-    '''
-    try:
-        return df[val_key][int(dt_key.split("-")[0])][int(dt_key.split("-")[1])]
-    except KeyError:
-        return 0
-
-
-def bin_dataframe(df, binsize):
-    '''
-    :param df: binary df of what facets show up in what doc_results
-    :param binsize: ex. "month" or "year"
-    :return: df that counts how many times facets show up in a bin
-    '''
-    if binsize == "year":
-        df = df.groupby([df['pd'].map(lambda x: x.year)]).sum().unstack(0).fillna(0)
-    elif binsize == "month":
-        df = df.groupby([df['pd'].map(lambda x: x.year), df['pd'].map(lambda x: x.month)]).sum().unstack(0).fillna(0)
-    else:
-        assert binsize == "day"
-        df = df.groupby([df['pd'].map(lambda x: x.year), df['pd'].map(lambda x: x.month), df['pd'].map(lambda x: x.day)]).sum().unstack(0).fillna(0)
-    return df
-
-
-def make_dataframe(q, facets, results, q_pubdates, aliases):
-    '''
-    :param q: params.q
-    :type username: Parameters
-    :param facets: facets
-    :type: unicode
-    :returns: pandas df. Columns get 1 if facet appears in pubdate
-    '''
-    df = pd.DataFrame()
-    df['id'] = results
-    df['pd'] = q_pubdates
-    df[q] = [1 for i in q_pubdates]
-    for facet in facets:
-        facet_dates = [i for i in set([i for i in get_pubdates_for_ngram(facet)])]
-        #TODO
-        #alias = [get_pubdates_for_ngram(a) for a in aliases[facet]]
-        # facet_dates = set([i for i in set([i for i in itertools.chain(*alias)]).union(get_pubdates_for_ngram(facet))])
-        gus = [int(p) for p in [p in facet_dates for p in q_pubdates]]
-        df[facet] = gus
-    return df
 
 
 class Models(object):

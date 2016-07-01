@@ -109,6 +109,7 @@ module.exports = React.createClass({
     if (this.state.f != -1){
         results = this.state.f_list;
     }
+    console.log(this.state.f_list);
     let start = moment(this.state.start_selected, "YYYY-MM-DD");
     let end = moment(this.state.end_selected, "YYYY-MM-DD");
     let out_results =  _.filter(results, function(value, key) {
@@ -314,6 +315,7 @@ module.exports = React.createClass({
     let qX = this.qX;
     let bin_size = "year"; //default binsize
     let docs = this.resultsToDocs(this.state.all_results);
+    console.log(docs.length);
     let docs_ignoreT = this.n_fdocs(this.state.all_results);
     let y_scroll = {
         overflowY: "scroll",
@@ -404,7 +406,6 @@ module.exports = React.createClass({
     }else{
       chart = "";
     }
-    console.log(this.click_f);
     return(
         <div>
             <QueryBar height={query_bar_height}

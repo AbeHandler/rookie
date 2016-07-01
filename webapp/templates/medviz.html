@@ -41,6 +41,12 @@ String.prototype.visualHeight = function()
     ruler.innerHTML = this;
     return ruler.offsetHeight;
 }
+String.prototype.visualWidth = function()  
+{
+    var ruler = document.getElementById("ruler");
+    ruler.innerHTML = this;
+    return ruler.offsetWidth;
+}
 </script>
 
 
