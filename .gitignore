@@ -1,3 +1,4 @@
+twitter/ark-tweet-nlp-0.3.2.jar
 *bundle.js.map
 nohup.out
 .rookie.pwd
@@ -36,3 +37,5 @@ indexes/*
 rookie_ui/doc_react/.sass-cache/*
 .idea/*
 summarization/*
+twitter/grammar/*
+twitter/candidatescorpus*
