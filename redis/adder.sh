@@ -1,1 +1,0 @@
-python redis/cache_adder.py --ids $@

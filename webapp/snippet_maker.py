@@ -4,12 +4,7 @@ import itertools
 import cPickle as pickle
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import desc
 from webapp import CONNECTION_STRING
-import ipdb
-engine = create_engine(CONNECTION_STRING)
-Session = sessionmaker(bind=engine)
-session = Session()
 
 from pylru import lrudecorator
 
@@ -17,10 +12,12 @@ ENGINE = create_engine(CONNECTION_STRING)
 SESS = sessionmaker(bind=ENGINE)
 SESSION = SESS()
 
+@lrudecorator(1000)
 def get_preproc_sentences(docid, corpusid):
     """
     load preproc sentences
     """
+    # print docid, corpusid
     row = SESSION.connection().execute("select delmited_sentences from sentences_preproc where docid=%s and corpusid=%s", docid, corpusid).fetchone()
     return row[0].split("###$$$###")
 
@@ -51,74 +48,14 @@ def getcorpusid(corpus):
 
 ############################
 
+@lrudecorator(1000)
 def get_sentences(docid, corpus):
     '''
-    Try to load the sentences from the redis cache, which is filled on initial query
-    If cache look up fails, go to postgres, get the metadata (seek cost) and deserialize (more cost)
+    load from postgres
     '''
-    from webapp.models import get_doc_metadata
-    import redis
-    r = redis.StrictRedis(host='localhost', port=6379, db=0)
-    ngram_sentences_key = get_nsentences_key(corpus)
-    #sentences = r.get("{}-{}".format(docid, corpus))
-    #print end - start
     corpusid = getcorpusid(corpus)
     return get_preproc_sentences(docid, corpusid)
-    #if sentences is None: #i.e. missing in cache
-    #    d = get_doc_metadata(docid, corpus)
-    #    return [i["as_string"] for i in d['sentences']]
-    #else:
-    #    import time
-    #    tmp = sentences.split("###$$$###")
-    #    return tmp
 
-def get_snippet2(docid, corpus, q, f_aliases=None, taginfo=None):
-    """
-    returns list of "highlighted sentence" dictionaries.
-    supply taginfo in accordance with docs in hilite()
-
-    algorithm
-    where "F-containing" means any alias of the facet (including the facet itself),
-
-    if there is a sentence with both Q and an F: return just it as the snippet.
-    else
-    select the first Q-containing sentence (if any)
-    select the first F-containing sentence (if any)
-    sort those (at most two) sentences.
-    return them as the snippet.
-    """
-
-    from webapp.models import get_doc_metadata
-    hsents = {'has_q':[], 'has_f':[]}
-    for sentnum, toktext in enumerate(sentences):
-        hsent = hilite(toktext["as_string"], q, f_aliases, taginfo=taginfo)
-        hsent['sentnum'] = sentnum
-        if hsent['has_q'] and hsent['has_f']:
-            return [hsent]
-
-        if hsent['has_q']:
-            #import ipdb; ipdb.set_trace()
-            hsents['has_q'].append(hsent)
-        if hsent['has_f']:
-            hsents['has_f'].append(hsent)
-
-    selection = []
-
-    if hsents['has_q']:
-        selection.append(hsents['has_q'][0])
-    if hsents['has_f']:
-        cand = hsents['has_f'][0]
-        # this condition shouldnt be possible assuming the shortcut break in the first Q&F
-        if not any(x['sentnum']==cand['sentnum'] for x in selection):
-            selection.append(cand)
-
-    if len(selection)==0:
-        # hm tricky.
-        # i guess an empty selection is ok
-        return selection
-
-    selection.sort(key=lambda x: x['sentnum'])
-    return selection
 
 def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
     """
@@ -135,48 +72,23 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
     if neither, return sentence 1 in doc (this is news!)
     """
 
-    import time
-    start = time.time()
-    from webapp.models import get_doc_metadata
-    #import ipdb; 
     all_n_sentences = range(get_nsentences_key(corpus)[int(docid)])
-    """
-    sent_idx = get_docs_sent_ngrams_key(corpus)
-    md = sent_idx[int(docid)]
-    unigram_key = get_unigram_key(corpus)
-    
-    unigrams_q = q.split(" ")
-    has_q = set([i for i in itertools.chain(*[md[unigram_key[u]] for u in unigrams_q])])
-    if f_aliases is not None:
-        unigrams_f = [itm for itm in itertools.chain(*[f.split(" ") for f in f_aliases])]
-    #    ipdb.set_trace()
-        has_f = set([thng for thng in itertools.chain(*[md[unigram_key[uf]] for uf in unigrams_f])])
-    has_q_and_f = list(has_q.intersection(has_f))
-    has_q_or_f = list(has_q.union(has_f))
 
-    priority_list = has_q_and_f + has_q_or_f + [i for i in all_n_sentences if i not in has_q_or_f]
-    """
-    priority_list = [i for i in all_n_sentences]
+    priority_list = all_n_sentences # you could use an index to save time instead of looping
+                                    # over sentences
 
     sentences = get_sentences(docid, corpus)
 
-    sents = []
-    #print(end - start)
     for sentnum in priority_list:
         toktext = sentences[sentnum]
         hsent = hilite(toktext, q, sentnum, f_aliases, taginfo=taginfo)
         if hsent['has_q'] and hsent['has_f']:
             return hsent
         else:
-            sents.append(hsent)
-
-    q_or_f = [sen for sen in sents if sen['has_q'] or sen['has_f']]
-
-    if len(q_or_f) > 0:
-        return q_or_f[0] # return the highest w/ q or f. these are sorted.
+            if hsent['has_q'] or hsent['has_f']:
+                return hsent
         
     #default, just return the top
-    
 
     return hilite(sentences[0], q, "0", f_aliases, taginfo=taginfo)
 

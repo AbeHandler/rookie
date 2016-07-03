@@ -96,14 +96,21 @@ module.exports = React.createClass({
     let d2 = new Date(this.props.keys[this.props.keys.length -1]);
     let scale = this.get_x_scale();
     let mouse_x = -1;
-    let mouse_y = -1
-    return {w: 0, mouse_x: mouse_x, x_l: scale(d1), x_r: scale(d2),
+    let mouse_y = -1;
+    let panel_width = 0;
+            
+    return {w: 0, panel_width: panel_width, mouse_x: mouse_x, x_l: scale(d1), x_r: scale(d2),
            drag_l: this.props.drag_l, drag_r: this.props.drag_r,
            mouse_to_r_d: -1, mouse_to_l_d: -1};
   },
 
   lateralize: function (i, lateral_scale) {
     return lateral_scale(i);
+  },
+
+  componentDidMount: function(){
+        var width = this.refs.chart_panel.getDOMNode().offsetWidth;
+        this.setState({panel_width:width});
   },
 
   handle_mouse_move: function(e_pageX, lateral_scale) {
@@ -200,8 +207,9 @@ module.exports = React.createClass({
 
       y_loc = this.props.height/5;
       //stop tooltip from extending past the edge of chart
-      if ((parseInt(this.props.tooltip_width) + x_scaled) > this.props.w - this.props.y_axis_width - 5){
-        x_scaled = this.props.w - this.props.y_axis_width - 5 - this.props.tooltip_width - 5;
+      let pad_r = 50; //leeway
+      if ((parseInt(this.props.tooltip_width) + x_scaled + this.props.y_axis_width + pad_r) > this.props.w){
+        x_scaled = this.props.w - this.props.y_axis_width - pad_r - this.props.tooltip_width;
       }
       if (this.state.mouse_x == -1){
         opacity=0;
@@ -323,7 +331,7 @@ module.exports = React.createClass({
     let tooltip = this.get_tooltip();
     let hilite = this.get_path_hilite(this.props.q_data);
     return (
-        <Panel onMouseMove={e=> handle_mouse_move(e.pageX, lateral_scale)} onMouseLeave={e=>this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseUp={e => handle_mouseup(e.pageX, lateral_scale)} onMouseDown={e => this.handle_mouse_down(e, lateral_scale)} >
+        <Panel ref="chart_panel" onMouseMove={e=> handle_mouse_move(e.pageX, lateral_scale)} onMouseLeave={e=>this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseUp={e => handle_mouseup(e.pageX, lateral_scale)} onMouseDown={e => this.handle_mouse_down(e, lateral_scale)} >
         <Row>
         <Col xs={12}>
         <YAxis max={max} height={this.props.height} y_axis_width={this.props.y_axis_width}/>

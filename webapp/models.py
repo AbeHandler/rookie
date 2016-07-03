@@ -6,12 +6,11 @@ import ipdb
 import ujson
 import time
 import cPickle as pickle
-import pandas as pd
 from dateutil.parser import parse
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser
 from dateutil.relativedelta import relativedelta
-from webapp.snippet_maker import get_snippet2, get_snippet3
+from webapp.snippet_maker import get_snippet3
 from webapp import CONNECTION_STRING
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -25,17 +24,19 @@ SESSION = SESS()
 
 @lrudecorator(100)
 def get_urls_xpress(corpus):
+    '''load and cache url quick lookup'''
     with open("indexes/{}/urls_xpress.p".format(corpus)) as inf:
         return pickle.load(inf)
 
 @lrudecorator(100)
 def get_pubdates_xpress(corpus):
+    '''load and cache pubdates quick lookup'''
     with open("indexes/{}/pubdates_xpress.p".format(corpus)) as inf:
         return pickle.load(inf)
 
 @lrudecorator(100)
 def get_headline_xpress(corpus):
-    #ipdb.set_trace()
+    '''load and cache pubdates headline lookup'''
     with open("indexes/{}/headlines_xpress.p".format(corpus)) as inf:
         return pickle.load(inf)
 
@@ -48,8 +49,6 @@ def get_stuff_ui_needs(params, results):
         aliases = [] # TODO
         stuff_ui_needs = {}
         q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
-
-        binsize = "month"
 
         keys = get_keys(params.corpus)
 
@@ -114,6 +113,7 @@ def query(qry_string, corpus):
     return out
 
 
+@lrudecorator(10)
 def corpus_min_max(corpus):
     """get the min/max pubdates for a corpus"""
     res = SESSION.connection().execute(
@@ -168,7 +168,8 @@ def filter_f(results, f, corpus):
         return results
     ds = load_all_data_structures(corpus)["vectors"]
     f_ngram_no = load_all_data_structures(corpus)["decoders"]["ngram"][f]
-    return [r for r in results if unicode(f_ngram_no) in ds[r]]
+    return [r for r in results if 
+            unicode(f_ngram_no) in ds[r]]
 
 
 def get_keys(corpus):
@@ -278,17 +279,17 @@ class Models(object):
         sent_results = []
 
         # AH: assuming the order of results is not changed since coming out from IR system
-        for whoosh_index, r in enumerate(results):
-            url = get_urls_xpress(corpus)[int(r)]
-            pd = get_pubdates_xpress(corpus)[int(r)]
+        for whoosh_index, result in enumerate(results):
+            url = get_urls_xpress(corpus)[int(result)]
+            pd = get_pubdates_xpress(corpus)[int(result)]
             sent_results.append({
-                'docid':r,
+                'docid':result,
                 'search_engine_index_doc': whoosh_index,
                 'pubdate': pd.strftime("%Y-%m-%d"),
                 'url': url.encode("ascii", "ignore"),
-                'snippet': Models.get_sent(r, corpus, q, f, aliases=aliases)
+                'snippet': Models.get_sent(result, corpus, q, f, aliases=aliases)
             })
-        return [i for i in sent_results if len(i["snippet"]) > 0 ] #filter nulls
+        return [i for i in sent_results if len(i["snippet"]) > 0] #filter nulls
 
     @staticmethod
     def get_snippet(docid, corpus, q, f=None, aliases=None):
@@ -322,7 +323,6 @@ class Models(object):
         f_aliases = set() if aliases is None else set(aliases)
         if f is not None:
             f_aliases.add(f)
-        #import ipdb; ipdb.set_trace()
         return get_snippet3(docid, corpus, q, f_aliases,
                             taginfo=dict(
                                     q_ltag='<span style="font-weight:bold;color:#0028a3">',

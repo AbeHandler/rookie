@@ -374,7 +374,7 @@ module.exports = React.createClass({
     if (this.props.total_docs_for_q > 0){
       let buffer = 5;
       chart = <Chart
-               tooltip_width="90"
+               tooltip_width="160"
                turn_on_rect_mode={this.turn_on_rect_mode}
                mouse_move_in_chart={this.mouse_move_in_chart}
                f={this.state.f}

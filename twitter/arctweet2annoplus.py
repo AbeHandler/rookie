@@ -3,7 +3,7 @@ import ujson as json
 from twokenize import tokenize
 import fstphrases
 
-
+all_tweets = set()
 
 def lines(fname):
     '''how many lines in the file?'''
@@ -32,7 +32,7 @@ with open(sys.argv[1], "r") as inf:
     except OSError:
         pass
     for i in range(lines(sys.argv[1])):
-        if i % 100000 == 0:
+        if i % 10000 == 0:
             sys.stderr.write("{}\t".format(i))
         out = {}
         with open(sys.argv[1], "r") as dts:
@@ -63,8 +63,10 @@ with open(sys.argv[1], "r") as inf:
                                               "regular": regular,
                                               "normalized": normalized})
                     ln["pubdate"] = dt
-                    ln["os"] = tags
+                    ln["pos"] = tags
                     ln["tokens"] = toks
+                    ln["phrases"] = phrases
                     with open(sys.argv[1].replace(".dates", ".anno"), "a") as outf:
                         json_s = json.dumps(ln)
                         outf.write(json_s + "\n")
+
