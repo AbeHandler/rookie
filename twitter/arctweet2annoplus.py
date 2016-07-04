@@ -31,17 +31,17 @@ with open(sys.argv[1], "r") as inf:
         os.remove(sys.argv[1].replace(".dates", ".anno_plus"))
     except OSError:
         pass
-    for i in range(lines(sys.argv[1])):
-        if i % 10000 == 0:
-            sys.stderr.write("{}\t".format(i))
-        out = {}
-        with open(sys.argv[1], "r") as dts:
-            with open(sys.argv[1].replace(".dates", ".pos"), "r") as poss:
-                with open(sys.argv[1].replace(".dates", ".tweet"), "r") as tweets:
+    with open(sys.argv[1], "r") as dts:
+        with open(sys.argv[1].replace(".dates", ".pos"), "r") as poss:
+            with open(sys.argv[1].replace(".dates", ".tweet"), "r") as tweets:
+                for i in range(lines(sys.argv[1])):
+                    if i % 10000 == 0:
+                        sys.stderr.write("{}\t".format(i))
                     ln = {}
                     dt = dts.next().replace('/tweets/all_parcol/', '')[0:10]
                     pos = poss.next()
                     tw = tweets.next()
+
                     toks = tokenize(tw)
                     tags = pos.split('\t')[1].split()
                     # TODO: probably need to get rid of standalone numbers in
@@ -66,7 +66,11 @@ with open(sys.argv[1], "r") as inf:
                     ln["pos"] = tags
                     ln["tokens"] = toks
                     ln["phrases"] = phrases
-                    with open(sys.argv[1].replace(".dates", ".anno"), "a") as outf:
-                        json_s = json.dumps(ln)
-                        outf.write(json_s + "\n")
+                    ln["text"] = tw
+                    try:
+                        with open(sys.argv[1].replace(".dates", ".anno_plus"), "a") as outf:
+                            json_s = json.dumps(ln)
+                            outf.write(json_s + "\n")
+                    except OverflowError:
+                        print "e"
 
