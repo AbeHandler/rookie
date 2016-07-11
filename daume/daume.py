@@ -5,6 +5,8 @@ Daume note: J fixed at 1
 
 Queries: boolean for now
 
+To-try: supervision for F, like in dict classifier
+
 '''
 
 from __future__ import division
@@ -15,7 +17,6 @@ import ctypes
 import string
 import ujson as json
 import numpy as np
-import random
 
 
 
@@ -43,18 +44,22 @@ def run_sweep(dd, mm, starttok, endtok):
     '''update tok range'''
     # python for now. should be written in a way that makes it be easy to xfer to C
 
-    alpha = .5  # simple uniform priors for 
+    alpha = .5  # simple uniform priors for now
     eta = .5
     for i in range(starttok, endtok):
-        nk = mm.N_k
-
         import ipdb
         ipdb.set_trace()
-        np.subtract(mm.Q_ik[i], mm.N_k, out=mm.N_k)
-        np.subtract(mm.Q_ik[i], mm.N_wk, out=mm.N_wk)
-        np.subtract(mm.Q_ik[i], mm.N_sk[dd.i_s[i]], out=mm.N_sk[dd.i_s[i]])
+        np.subtract(mm.N_k, mm.Q_ik[i], out=mm.N_k)
+        np.subtract(mm.N_wk[dd.i_w[i]], mm.Q_ik[i], out=mm.N_wk[dd.i_w[i]])
+        np.subtract(mm.N_sk[dd.i_s[i]], mm.Q_ik[i], out=mm.N_sk[dd.i_s[i]])
         
-        pass
+        assert np.where(mm.N_k < 0)[0].shape == 0
+        assert np.where(mm.N_wk < 0)[0].shape == 0
+        assert np.where(mm.N_sk < 0)[0].shape == 0
+
+        o = mm.N_wk + eta
+        oo = mm.N_k + (dd.V * eta)
+
         # mm.N_k => N_k vec of K
         # mm.N_wk => need to construct a 3-place vec of Q, D and G language models. rest of K are 0
         # mm.N_sk => again, the sentence probabilities
@@ -99,24 +104,25 @@ def build_dataset():
 
     # emprical language model, for initialization
     doc_counts = defaultdict(lambda: defaultdict(int))
-    global_counts = defaultdict(int)
     hits = [] # stores vector of positive or negative: matches query?
     i_s = [] # maps i -> sentence
     i_w = [] # maps i -> w
-
+    D_ = 0
+    i_dk = [] # maps i -> dk
     for docid,line in enumerate(open("lens.anno")):
         if docid > 100: break # TODO: un-shorten dataset
         doc = json.loads(line)["text"]
-        hit = 1
+        hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
             sentences += 1
             reals = [word for word in sent["tokens"] if word.lower() not in SW]
             
             for word in reals:
                 i_s.append(s_ix) # building a vector of sentences for each token, i
+                i_dk.append(docid + 2)
                 word = word.lower()
                 if word in query:
-                    hit = 0
+                    hit = 1
                 wordcount[word] += 1
                 if word not in word2num:
                     n = len(word2num)
@@ -126,23 +132,28 @@ def build_dataset():
                 else:
                     n = word2num[word]
                 doc_counts[docid + 2][n] += 1
-                doc_counts[QLM_K][n] += 1
+                doc_counts[GLM_K][n] += 1
                 dd.tokens.append(n)
                 i_w.append(n)
             dd.docids.append(docid + 2)
-        for s_ix, sent in enumerate(doc['sentences']):
-            hits.append(hit)
+        # have to loop 2x here b/c need to see if doc is a hit first
+        for s_ix, sent in enumerate(doc['sentences']): 
+            reals = [word for word in sent["tokens"] if word.lower() not in SW]
+            for w in reals:
+                hits.append(hit)
 
-    # a S length vector mapping docid (index) to hit. hit = S's document matches query
+        D_ += 1
+
+    # an I length vector mapping i->hit. hit = i's document matches query
     dd.hits = np.array(hits, dtype=np.uint32)
     dd.S = sentences
-
+    dd.i_dk = i_dk
     dd.i_w = np.array(i_w, dtype=np.uint32) # i->w
     dd.i_s = np.array(i_s, dtype=np.uint32) # i->s
     # a S length vector w/ the doc id for each S
     dd.docids = np.array(dd.docids, dtype=np.uint32) 
     dd.tokens = np.array(dd.tokens, dtype=np.uint32)
-    dd.D = dd.docids[-1] + 1
+    dd.D = D_ # cant look at end of array b/c is 2 extra
     dd.V = len(word2num)
     dd.Ntok = len(dd.tokens)
     dd.doc_counts = doc_counts
@@ -170,7 +181,7 @@ def make_model():
 
     ## counting pass could be expensive
     for ww in dd.tokens:
-        mm.N_w[ww] += 1
+        mm.N_w[ww] += 1     
 
     ## priors
     mm.E_wk = 1.0/V * np.ones((V,K), dtype=np.float32)
@@ -179,23 +190,38 @@ def make_model():
     return mm
 
 def empirical_init(dd, mm):
-    '''init model w/ emprical language model'''
-    mm.N_k = np.sum(mm.emprical_N_wk, axis=1)
-    mm.N_wk = np.sum(mm.emprical_N_wk, axis=0)
-    # sentence level probs are all 0, except for 3 options
-    # multiplying by this vector will ensure that Q(i) only is distrubuted over 3 possible Ks
+    '''init w/ emprical language models from D and G'''
     # if a doc is not responsive to a query, there are only 2 options for the token: D or G
-    for ss in range(dd.S):
-        if (dd.hits[dd.docids[ss]]) != 1:
-            mm.N_sk[ss][GLM_K] = 1/2
-            mm.N_sk[ss][dd.docids[ss]] = 1/2        
-        else:
-            mm.N_sk[ss][QLM_K] = 1/3
-            mm.N_sk[ss][GLM_K] = 1/3
-            mm.N_sk[ss][dd.docids[ss]] = 1/3
-    # fill out Q_ik, based on mm.N_sk
-    for i, rw in enumerate(mm.Q_ik):
-        mm.Q_ik[i] = mm.N_sk[dd.i_s[i]] 
+    # if it is responsive to query, there are 3 options  
+
+    for i_ in range(Ntok):
+        w = dd.i_w[i_]
+        mm.Q_ik[i_][GLM_K] = mm.emprical_N_wk[GLM_K][w]
+        if dd.hits[i_] == 1:
+            mm.Q_ik[i_][QLM_K] = mm.emprical_N_wk[GLM_K][w] * 2 # init query lm to global X 2 ? 
+        dk = dd.i_dk[i_] # i's document lm
+
+        mm.Q_ik[i_][dk] = mm.emprical_N_wk[dk][w]
+        mm.Q_ik[i_] = mm.Q_ik[i_]/np.sum(mm.Q_ik[i_]) # normalize
+        assert round(np.sum(mm.Q_ik[i_]), 5) == 1.
+        assert np.where(mm.Q_ik[i_] != 0)[0].shape[0] <= 3 # no more than 3 ks turned on per row
+
+    for i_ in range(Ntok):
+        ss = dd.i_s[i_]
+        w = dd.i_w[i_]
+        for k in range(K):
+            mm.N_sk[ss][k] += mm.Q_ik[i_][k]
+            if i_ == 764 and k == 3:
+                import ipdb
+                ipdb.set_trace()
+            try:
+                assert np.where(mm.N_sk[ss] != 0)[0].shape[0] <= 3 # no more than 3 ks turned on per N_sk
+            except:
+                print i_, k, mm.N_sk[ss], mm.Q_ik[i_]
+                import ipdb
+                ipdb.set_trace()
+            mm.N_k[k] += mm.Q_ik[i_][k]
+            mm.N_wk[w][k] += mm.Q_ik[i_][k]
 
 
 
@@ -212,8 +238,3 @@ for itr in range(100):
 
 for i in np.argsort(mm.emprical_N_wk[QLM_K])[-5:]:
     print NUM2WORD[i]
-
-# IDEAS:
-# phi_{q,t} TODO. Or non parametric ?
-# document language models
-# supervision for summarization
