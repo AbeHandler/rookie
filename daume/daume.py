@@ -110,15 +110,13 @@ def build_dataset():
     D_ = 0
     i_dk = [] # maps i -> dk
     for docid,line in enumerate(open("lens.anno")):
-        if docid > 100: break # TODO: un-shorten dataset
+        if docid > 25: break # TODO: un-shorten dataset
         doc = json.loads(line)["text"]
         hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
-            sentences += 1
             reals = [word for word in sent["tokens"] if word.lower() not in SW]
-            
             for word in reals:
-                i_s.append(s_ix) # building a vector of sentences for each token, i
+                i_s.append(sentences) # building a vector of sentences for each token, i
                 i_dk.append(docid + 2)
                 word = word.lower()
                 if word in query:
@@ -136,6 +134,7 @@ def build_dataset():
                 dd.tokens.append(n)
                 i_w.append(n)
             dd.docids.append(docid + 2)
+            sentences += 1
         # have to loop 2x here b/c need to see if doc is a hit first
         for s_ix, sent in enumerate(doc['sentences']): 
             reals = [word for word in sent["tokens"] if word.lower() not in SW]
@@ -150,6 +149,7 @@ def build_dataset():
     dd.i_dk = i_dk
     dd.i_w = np.array(i_w, dtype=np.uint32) # i->w
     dd.i_s = np.array(i_s, dtype=np.uint32) # i->s
+    assert dd.i_w.shape[0] == dd.i_s.shape[0]
     # a S length vector w/ the doc id for each S
     dd.docids = np.array(dd.docids, dtype=np.uint32) 
     dd.tokens = np.array(dd.tokens, dtype=np.uint32)
@@ -208,12 +208,14 @@ def empirical_init(dd, mm):
 
     for i_ in range(Ntok):
         ss = dd.i_s[i_]
+        idk = dd.i_dk[i_] # tokens document language model
+        # print i_, ss
         w = dd.i_w[i_]
         for k in range(K):
+            if k > 1 and k != idk:
+                assert mm.Q_ik[i_][k] == 0.0
+        for k in range(K):
             mm.N_sk[ss][k] += mm.Q_ik[i_][k]
-            if i_ == 764 and k == 3:
-                import ipdb
-                ipdb.set_trace()
             try:
                 assert np.where(mm.N_sk[ss] != 0)[0].shape[0] <= 3 # no more than 3 ks turned on per N_sk
             except:
