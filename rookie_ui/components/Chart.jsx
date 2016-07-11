@@ -248,6 +248,8 @@ module.exports = React.createClass({
               fstories = this.props.f_data[i];
           }
       }
+      let nstories_ct = nstories;
+      let fstories_ct = fstories;
       if (nstories > 1){
           nstories = nstories.toString() + " stories for ";
       }else if (nstories == 1){
@@ -271,6 +273,10 @@ module.exports = React.createClass({
       }
 
       tool_w += 100; //padding
+
+      if (nstories_ct >= 10){
+        tool_w += 15; // "5 stories vs 15 stories... overflows tooltip"
+      }
 
       //stop tooltip from extending past the edge of chart
       if ((tool_w + x_scaled) > this.props.w - this.props.y_axis_width - 5){
