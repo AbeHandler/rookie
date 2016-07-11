@@ -112,8 +112,8 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
 
     unigram_to_slot = {n: i for (i, n) in enumerate(all_unigrams)}
 
-    pickle.dump(unigram_to_slot, open("indexes/{}/unigram_key.p".format(args.corpus), "wb" ))
-    pickle.dump(ngram_to_slot, open("indexes/{}/ngram_key.p".format(args.corpus), "wb" ))
+    pickle.dump(unigram_to_slot, open("indexes/{}/unigram_key.p".format(args.corpus), "wb"))
+    pickle.dump(ngram_to_slot, open("indexes/{}/ngram_key.p".format(args.corpus), "wb"))
 
     ngram_counter = defaultdict(int)
 
@@ -138,7 +138,7 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
         sents = get_doc_metadata(docid, args.corpus)["sentences"]
         docid_n_sentences[docid] = len(sents)
         for s_no, sent in enumerate(sents):
-            for sent_unigram in sent["unigrams"]:
+            for sent_unigram in sent["tokens"]:
                 try:
                     ngrams_sentences[docid][unigram_to_slot[sent_unigram]].append(s_no)
                 except KeyError: # rare ngrams are not in ngram_to_slot index and so can be skipped
@@ -149,10 +149,9 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
             string_to_pubdate_index[n].append(get_doc_metadata(docid, args.corpus)["pubdate"])
             ngram_counter[n] += 1
         go("""INSERT INTO count_vectors (docid, CORPUSID, data) VALUES (%s, %s, %s)""", dinex, int(CORPUSID), ujson.dumps(ngrams_in_doc))
+    print "\ncommitting to db"
     session.commit()
     print "\ndumping pickled stuff..."
-
-    pickle.dump(default_to_regular(ngrams_sentences), open("indexes/{}/docs_sentences_ngrams.p".format(args.corpus), "wb" ))
 
     NDOCS = len(docids)
 
@@ -186,12 +185,13 @@ def get_all_unigrams(docids):
             sys.stdout.write("...%s" % dinex); sys.stdout.flush()
         sents = get_doc_metadata(docid, args.corpus)["sentences"]
         for s in sents:
-            for u in s["unigrams"]:
+            for u in s["tokens"]:
                 unigrams.add(u)
     return list(unigrams)
 
 
 if __name__ == '__main__':
+    print "Running facets"
     all_facets = count_facets()
     ngram = filter(all_facets, 5)
     all_unigrams = get_all_unigrams(ALLDOCIDS)

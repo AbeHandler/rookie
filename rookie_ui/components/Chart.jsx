@@ -262,23 +262,29 @@ module.exports = React.createClass({
       //if (y_loc > 20){  //stop tooltip from falling too low
       y_loc = 0;
       //}
-      //stop tooltip from extending past the edge of chart
-      if ((parseInt(this.props.tooltip_width) + x_scaled) > this.props.w - this.props.y_axis_width - 5){
-        x_scaled = this.props.w - this.props.y_axis_width - 5 - this.props.tooltip_width - 5;
-      }
-      if (this.state.mouse_x == -1){
-        opacity=0;
-        tooltip_height=0; //hard to disable selection, so just put off screen
-      }
+
       let tool_w = "";
       if (this.props.q.visualWidth() < this.props.f.visualWidth()){
         tool_w = this.props.f.visualWidth();
       }else{
         tool_w = this.props.q.visualWidth();
       }
+
+      tool_w += 100; //padding
+
+      //stop tooltip from extending past the edge of chart
+      if ((tool_w + x_scaled) > this.props.w - this.props.y_axis_width - 5){
+        x_scaled = this.props.w - this.props.y_axis_width - tool_w - 10;
+      }
+      if (this.state.mouse_x == -1){
+        opacity=0;
+        tooltip_height=0; //hard to disable selection, so just put off screen
+      }
+      
+      
       return <svg>
               <g>
-              <rect rx="5" ry="5" x={x_scaled} y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width={tool_w + 100} fill="white"/>
+              <rect rx="5" ry="5" x={x_scaled} y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width={tool_w} fill="white"/>
               <text style={{backgroundColor: "white"}} x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan style={{fontWeight: "bold"}}>{x_moment.format("MMM. YYYY")}</tspan>
               <tspan x={x_scaled + 9} y={y_loc + 40}>{nstories}</tspan><tspan style={{fontWeight: "bold", fill:"#0028a3"}}>{this.props.q}</tspan>
               <tspan x={x_scaled + 9} y={y_loc + 60}>{fstories}</tspan><tspan style={{fontWeight: "bold", fill:"#b33125"}}>{this.props.f}</tspan>

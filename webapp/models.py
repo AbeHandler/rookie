@@ -132,6 +132,8 @@ def results_to_doclist(results, q, f, corpus, pubdates, aliases):
     return filtered_pubdates, fdoc_list
 
 
+'''
+AH: I think can be deleted
 def get_pubdates_for_ngram(ngram_str):
     """used to be PI[ngram_str]"""
     res = SESSION.connection().execute(
@@ -140,7 +142,7 @@ def get_pubdates_for_ngram(ngram_str):
     row = res.fetchone()
     dates = row[0]
     return set(datetime.datetime.strptime(date, "%Y-%m-%d") for date in dates)
-
+'''
 
 def getcorpusid(corpus):
     '''

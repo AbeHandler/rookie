@@ -22,11 +22,6 @@ def get_preproc_sentences(docid, corpusid):
     return row[0].split("###$$$###")
 
 @lrudecorator(100)
-def get_docs_sent_ngrams_key(corpus):
-    with open("indexes/{}/docs_sentences_ngrams.p".format(corpus)) as inf:
-        return pickle.load(inf)
-
-@lrudecorator(100)
 def get_unigram_key(corpus):
     with open("indexes/{}/unigram_key.p".format(corpus)) as inf:
         return pickle.load(inf)

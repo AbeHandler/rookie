@@ -14,6 +14,7 @@ go("create table corpora (corpusid integer not null primary key, corpusname char
 go("create table count_vectors (docid integer, corpusid integer not null, data jsonb)")
 go("insert into corpora values (1, 'lens')")
 go("insert into corpora values (2, 'gawk')")
+go("insert into corpora values (3, 'election')")
 go("CREATE index on doc_metadata (docid)") # i think these are all the important indexes. added them manually
 go("CREATE index on doc_metadata (corpusid)")
 go("CREATE index on count_vectors (docid)")

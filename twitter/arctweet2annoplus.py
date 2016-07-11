@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, re
 import ujson as json
 from twokenize import tokenize
 import fstphrases
@@ -43,6 +43,18 @@ with open(sys.argv[1], "r") as inf:
                     tw = tweets.next()
 
                     toks = tokenize(tw)
+                    last = 0
+                    '''
+                    ## need to escape regexes. argh ##
+                    offsets = []
+                    for tok in toks:
+                        remainder = tw[last:]
+                        for mtch in re.finditer(tok, remainder):
+                            offsets.append((mtch.start() + last, mtch.end() + last))
+                            last += mtch.end() 
+                            break
+                    print offsets
+                    '''
                     tags = pos.split('\t')[1].split()
                     # TODO: probably need to get rid of standalone numbers in
                     # NP grammar, "2015"
@@ -63,14 +75,15 @@ with open(sys.argv[1], "r") as inf:
                                               "regular": regular,
                                               "normalized": normalized})
                     ln["pubdate"] = dt
-                    ln["pos"] = tags
-                    ln["tokens"] = toks
-                    ln["phrases"] = phrases
-                    ln["text"] = tw
+                    ln["headline"] = "NA"
+                    ln["text"] = {"sentences": [{"as_string": tw,
+                                                "unigrams": toks,
+                                                "pos": tags,
+                                                "tokens": toks,
+                                                "phrases": phrases_deets}]}
                     try:
                         with open(sys.argv[1].replace(".dates", ".anno_plus"), "a") as outf:
                             json_s = json.dumps(ln)
                             outf.write(json_s + "\n")
                     except OverflowError:
                         print "e"
-

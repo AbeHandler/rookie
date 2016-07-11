@@ -193,7 +193,7 @@ def heuristic_cleanup(output, proposed_new_facet, structures, q, aliases=default
     return output #sometimes more than 1 facet will be replaced by propsed_new_facet
 
 
-def get_all_facets(raws, structures, facet_type, q):
+def get_all_facets(raws, structures, q):
     '''
     :param structures: data structures for facets
     :param facet_type: could be people/ngram/org but will always = ngram basically
@@ -228,7 +228,7 @@ def get_facet_tfidf_cutoff(results, structures, facet_type):
     return [(structures["reverse_decoders"][facet_type][int(i[0])], i[1]) for i in sorted_x] # i[0] is ngram, i[1] is tfidf score
 
 
-def get_raw_facets(results, bins, structures): #TODO: CUTOFF no longer a fixed value. no caps.
+def get_raw_facets(results, bins, structures):
     '''
     Returns top_n facets per bin + top_n for global bin
     '''
@@ -254,7 +254,7 @@ def get_facets_for_q(q, results, n_facets, structures):
     raw_facets = get_raw_facets(results, xrange(min_yr, max_yr), structures)
 
     # run a filtering heuristic to clean up facets
-    ok_facets = get_all_facets(raw_facets, structures, "ngram", q)
+    ok_facets = get_all_facets(raw_facets, structures, q)
 
     # find the ok_facets in the raw_facets
     filtered_facets = [i for i in raw_facets if i[0] in ok_facets]
@@ -272,9 +272,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.v:
-        DEBUG=True
+        DEBUG = True
     else:
-        DEBUG=False
+        DEBUG = False
 
     CORPUS = args.corpus
     NDOCS = get_ndocs(CORPUS)
