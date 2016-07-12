@@ -13,11 +13,17 @@ from __future__ import division
 from collections import defaultdict
 from ctypes import c_int
 from numpy.ctypeslib import as_ctypes
+import argparse
+import cPickle as pickle
 import ctypes
+import sys
 import string
 import ujson as json
 import numpy as np
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-corpus", type=str, help="corpus")
+ARGS = parser.parse_args()
 
 
 from stop_words import get_stop_words
@@ -47,28 +53,25 @@ def run_sweep(dd, mm, starttok, endtok):
     alpha = .5  # simple uniform priors for now
     eta = .5
     for i in range(starttok, endtok):
-        import ipdb
-        ipdb.set_trace()
+
         np.subtract(mm.N_k, mm.Q_ik[i], out=mm.N_k)
         np.subtract(mm.N_wk[dd.i_w[i]], mm.Q_ik[i], out=mm.N_wk[dd.i_w[i]])
         np.subtract(mm.N_sk[dd.i_s[i]], mm.Q_ik[i], out=mm.N_sk[dd.i_s[i]])
-        
-        assert np.where(mm.N_k < 0)[0].shape == 0
-        assert np.where(mm.N_wk < 0)[0].shape == 0
-        assert np.where(mm.N_sk < 0)[0].shape == 0
 
-        o = mm.N_wk + eta
-        oo = mm.N_k + (dd.V * eta)
+        # assert np.where(mm.N_k < 0)[0].shape[0] == 0
+        # assert np.where(mm.N_wk < 0)[0].shape[0] == 0
+        # assert np.where(mm.N_sk < 0)[0].shape[0] == 0
 
-        # mm.N_k => N_k vec of K
-        # mm.N_wk => need to construct a 3-place vec of Q, D and G language models. rest of K are 0
-        # mm.N_sk => again, the sentence probabilities
-        # decrement: N_wk, N_K, N_kj
-        # k_probs = len(K) vec
-        # increment: N_wk, N_K, N_kj
+        ks = (mm.N_wk[dd.i_w[i]] + eta)/(mm.N_k + (dd.V * eta)) * (mm.N_sk[dd.i_s[i]])
+        ks = ks / np.sum(ks)
+
+        mm.Q_ik[i] = ks
+        np.add(mm.N_k, ks, out=mm.N_k)
+        np.add(mm.N_wk[dd.i_w[i]], ks, out=mm.N_wk[dd.i_w[i]])
+        np.add(mm.N_sk[dd.i_s[i]], ks, out=mm.N_sk[dd.i_s[i]])
 
 
-SW = get_stop_words('en') + ["city", "new", "orleans", "lens", "report", "said", "-lrb-", "-rrb-"]
+SW = get_stop_words('en') + ["city", "new", "orleans", "lens", "report", "said", "-lrb-", "-rrb-", "week"]
 SW = SW + [o for o in string.punctuation]
 
 libc = ctypes.CDLL("./cvb0.so")
@@ -78,7 +81,11 @@ def fill_emprical_language_models(dd, mm):
     '''find p(W|K) for each doc, G and Q lm'''
     smoothing = 1
     mm.emprical_N_wk = np.zeros((K,V), dtype=np.float32)
+    print "[*] Finding the empirical language model"
+    print "[*] K = {}".format(K)
     for k in range(K):
+        if k % 100 == 0:
+            sys.stderr.write("{}\t".format(k))
         tot_words = sum(dd.doc_counts[k]) + (smoothing * V)
         for v in range(V):
             try:
@@ -87,12 +94,18 @@ def fill_emprical_language_models(dd, mm):
                 tot_word = smoothing
             mm.emprical_N_wk[k][v] = tot_word/tot_words
 
+def default_to_regular(d):
+    # stackoverflow: default dict to regular
+    if isinstance(d, defaultdict):
+        d = {k: default_to_regular(v) for k, v in d.iteritems()}
+    return d
+
 
 def build_dataset():
     ## load data.  will be faster to pre-numberize it.
 
     # docids are offset by 2. First 2 "docids" are reserved for global and query lm
-
+    print "[*] Building dataset"
     word2num = {}
     num2word = []
     dd = Dataset()
@@ -109,13 +122,17 @@ def build_dataset():
     i_w = [] # maps i -> w
     D_ = 0
     i_dk = [] # maps i -> dk
+    s_i = defaultdict(list)
+    i = 0
     for docid,line in enumerate(open("lens.anno")):
-        if docid > 25: break # TODO: un-shorten dataset
+        if docid > 25: break 
         doc = json.loads(line)["text"]
         hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
             reals = [word for word in sent["tokens"] if word.lower() not in SW]
+            s_i[sentences] = []
             for word in reals:
+                
                 i_s.append(sentences) # building a vector of sentences for each token, i
                 i_dk.append(docid + 2)
                 word = word.lower()
@@ -131,8 +148,11 @@ def build_dataset():
                     n = word2num[word]
                 doc_counts[docid + 2][n] += 1
                 doc_counts[GLM_K][n] += 1
+                doc_counts[QLM_K][n] = 0
                 dd.tokens.append(n)
                 i_w.append(n)
+                s_i[sentences].append(i)
+                i += 1
             dd.docids.append(docid + 2)
             sentences += 1
         # have to loop 2x here b/c need to see if doc is a hit first
@@ -149,6 +169,7 @@ def build_dataset():
     dd.i_dk = i_dk
     dd.i_w = np.array(i_w, dtype=np.uint32) # i->w
     dd.i_s = np.array(i_s, dtype=np.uint32) # i->s
+    dd.s_i = dict(s_i)
     assert dd.i_w.shape[0] == dd.i_s.shape[0]
     # a S length vector w/ the doc id for each S
     dd.docids = np.array(dd.docids, dtype=np.uint32) 
@@ -156,8 +177,10 @@ def build_dataset():
     dd.D = D_ # cant look at end of array b/c is 2 extra
     dd.V = len(word2num)
     dd.Ntok = len(dd.tokens)
-    dd.doc_counts = doc_counts
-        
+    dd.doc_counts = default_to_regular(doc_counts)
+    pickle.dump(dd, open(ARGS.corpus + ".dd", "wb"))
+    print "[*] Built dataset"
+
     return dd, word2num, num2word
 
 dd, WORD2NUM, NUM2WORD = build_dataset()
@@ -193,7 +216,8 @@ def empirical_init(dd, mm):
     '''init w/ emprical language models from D and G'''
     # if a doc is not responsive to a query, there are only 2 options for the token: D or G
     # if it is responsive to query, there are 3 options  
-
+    print "[*] Building empirical language models"
+    print "[*] Filling Q_ik"
     for i_ in range(Ntok):
         w = dd.i_w[i_]
         mm.Q_ik[i_][GLM_K] = mm.emprical_N_wk[GLM_K][w]
@@ -206,24 +230,27 @@ def empirical_init(dd, mm):
         assert round(np.sum(mm.Q_ik[i_]), 5) == 1.
         assert np.where(mm.Q_ik[i_] != 0)[0].shape[0] <= 3 # no more than 3 ks turned on per row
 
+    print "[*] Counting N_k etc... this is too slow... need speedup... ntok={}".format(Ntok)
+
+    ks = np.sum(mm.Q_ik, axis=0)
+    for k, v in enumerate(ks):
+        mm.N_k[k] = v
+    for ss in range(dd.S):
+        is_for_s = dd.s_i[ss]
+        sum_ = np.sum(mm.Q_ik[is_for_s], axis=0)
+        for k, v in enumerate(sum_):
+            mm.N_sk[ss][k] = v
+    for w in range(V): # fill mm.N_wk
+        ws = np.where(dd.i_w == w)
+        assert "to" == "do"
     for i_ in range(Ntok):
-        ss = dd.i_s[i_]
-        idk = dd.i_dk[i_] # tokens document language model
-        # print i_, ss
-        w = dd.i_w[i_]
+        print "this is dead code replace mm.N_wk w/ above"
+        if i_ % 1000 == 0:
+            sys.stderr.write("{}\t".format(i_))
         for k in range(K):
-            if k > 1 and k != idk:
-                assert mm.Q_ik[i_][k] == 0.0
-        for k in range(K):
-            mm.N_sk[ss][k] += mm.Q_ik[i_][k]
-            try:
-                assert np.where(mm.N_sk[ss] != 0)[0].shape[0] <= 3 # no more than 3 ks turned on per N_sk
-            except:
-                print i_, k, mm.N_sk[ss], mm.Q_ik[i_]
-                import ipdb
-                ipdb.set_trace()
-            mm.N_k[k] += mm.Q_ik[i_][k]
-            mm.N_wk[w][k] += mm.Q_ik[i_][k]
+            mm.N_wk[dd.i_w[i_]][k] += mm.Q_ik[i_][k]
+    
+
 
 
 
@@ -232,11 +259,15 @@ mm = make_model()
 fill_emprical_language_models(dd, mm)
 empirical_init(dd, mm)
 
+print "[*] Prelims complete"
+pickle.dump(mm, open(ARGS.corpus + ".mm", "wb"))
+
 for itr in range(100):
     # print loglik(dd, mm)
+
     run_sweep(dd,mm, 0,len(dd.tokens))
-#    print "=== Iter",itr
+    print "=== Iter",itr
 
 
-for i in np.argsort(mm.emprical_N_wk[QLM_K])[-5:]:
+for i in np.argsort(mm.N_wk[QLM_K])[-5:]:
     print NUM2WORD[i]
