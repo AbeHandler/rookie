@@ -81,11 +81,10 @@ def fill_emprical_language_models(dd, mm):
     '''find p(W|K) for each doc, G and Q lm'''
     smoothing = 1
     mm.emprical_N_wk = np.zeros((K,V), dtype=np.float32)
-    print "[*] Finding the empirical language model"
-    print "[*] K = {}".format(K)
+    print "\t - Adding up the empirical language model\n"
     for k in range(K):
         if k % 100 == 0:
-            sys.stderr.write("{}\t".format(k))
+            sys.stderr.write("{} of {}\t".format(k, K))
         tot_words = sum(dd.doc_counts[k]) + (smoothing * V)
         for v in range(V):
             try:
@@ -93,8 +92,11 @@ def fill_emprical_language_models(dd, mm):
             except KeyError:  # i.e. word does not appear
                 tot_word = smoothing
             mm.emprical_N_wk[k][v] = tot_word/tot_words
+    print "\t Done"
+
 
 def default_to_regular(d):
+    '''convert default dict to regular'''
     # stackoverflow: default dict to regular
     if isinstance(d, defaultdict):
         d = {k: default_to_regular(v) for k, v in d.iteritems()}
@@ -178,16 +180,23 @@ def build_dataset():
     dd.V = len(word2num)
     dd.Ntok = len(dd.tokens)
     dd.doc_counts = default_to_regular(doc_counts)
+    dd.word2num = word2num
+    dd.num2word = num2word
     pickle.dump(dd, open(ARGS.corpus + ".dd", "wb"))
     print "[*] Built dataset"
+    return dd
 
-    return dd, word2num, num2word
 
-dd, WORD2NUM, NUM2WORD = build_dataset()
+try:
+    dd = pickle.load(open(ARGS.corpus + ".dd", "rb"))
+    print "[*] Found & loaded cached dataset"
+except IOError:
+    print "[*] Could not find cached dataset. Building one"
+    dd = build_dataset()
 
 K = dd.D + 1 + 1 # i.e. D language models, plus a Q model, plus a G model
 # for any given Q_i, only 3 of these will be relevant
-V = len(WORD2NUM)
+V = len(dd.word2num)
 D = dd.D
 S = dd.S
 Ntok = len(dd.tokens)
@@ -212,62 +221,67 @@ def make_model():
     mm.A_sk = 1.0/K * np.ones((S,K), dtype=np.float32)
     return mm
 
-def empirical_init(dd, mm):
+def fill_qi_and_count(dd, mm):
     '''init w/ emprical language models from D and G'''
     # if a doc is not responsive to a query, there are only 2 options for the token: D or G
     # if it is responsive to query, there are 3 options  
-    print "[*] Building empirical language models"
-    print "[*] Filling Q_ik"
+    print "[*] Filling Q_i and counting ntok={}".format(Ntok)
+    print "\t - Filling Q_ik"
+    ks = np.zeros(K)
+    nsk = np.zeros((S, K))
+    nwk = np.zeros((V, K))
     for i_ in range(Ntok):
         w = dd.i_w[i_]
         mm.Q_ik[i_][GLM_K] = mm.emprical_N_wk[GLM_K][w]
         if dd.hits[i_] == 1:
             mm.Q_ik[i_][QLM_K] = mm.emprical_N_wk[GLM_K][w] * 2 # init query lm to global X 2 ? 
         dk = dd.i_dk[i_] # i's document lm
-
         mm.Q_ik[i_][dk] = mm.emprical_N_wk[dk][w]
         mm.Q_ik[i_] = mm.Q_ik[i_]/np.sum(mm.Q_ik[i_]) # normalize
+        np.add(ks, mm.Q_ik[i_], out=ks)
+        np.add(nsk[dd.i_s[i_]], mm.Q_ik[i_], out=nsk[dd.i_s[i_]])
+        np.add(nwk[dd.i_w[i_]], mm.Q_ik[i_], out=nwk[dd.i_w[i_]])
         assert round(np.sum(mm.Q_ik[i_]), 5) == 1.
         assert np.where(mm.Q_ik[i_] != 0)[0].shape[0] <= 3 # no more than 3 ks turned on per row
 
-    print "[*] Counting N_k etc... this is too slow... need speedup... ntok={}".format(Ntok)
+    print "\t - Counting N_k, N_wk and N_sk".format(Ntok)
 
-    ks = np.sum(mm.Q_ik, axis=0)
-    for k, v in enumerate(ks):
-        mm.N_k[k] = v
-    for ss in range(dd.S):
-        is_for_s = dd.s_i[ss]
-        sum_ = np.sum(mm.Q_ik[is_for_s], axis=0)
-        for k, v in enumerate(sum_):
-            mm.N_sk[ss][k] = v
-    for w in range(V): # fill mm.N_wk
-        ws = np.where(dd.i_w == w)
-        assert "to" == "do"
-    for i_ in range(Ntok):
-        print "this is dead code replace mm.N_wk w/ above"
-        if i_ % 1000 == 0:
-            sys.stderr.write("{}\t".format(i_))
-        for k in range(K):
-            mm.N_wk[dd.i_w[i_]][k] += mm.Q_ik[i_][k]
-    
+    mm.N_k = ks
+    mm.N_sk = nsk
+    mm.nwk = nwk
 
 
+try:
+    mm = Model()
+    # annoying that all this stuff is serialized individually.
+    # but pickle was freezing on Q_ik: https://github.com/numpy/numpy/issues/2396
+    mm.N_k = np.load(ARGS.corpus + ".N_k.dat")  
+    mm.N_wk = np.load(ARGS.corpus + ".N_wk.dat")
+    mm.N_sk = np.load(ARGS.corpus + ".N_sk.dat")
+    mm.Q_ik = np.load(ARGS.corpus + ".Q_ik.gz")
+    print "[*] Found & loaded cached model"
+except IOError:
+    print "[*] Could not find cached model. Building one"
+    mm = make_model()
+    fill_emprical_language_models(dd, mm)
+    fill_qi_and_count(dd, mm)
+    print "[*] Dumping model"
+    mm.N_k.dump(ARGS.corpus + ".N_k.dat")
+    mm.N_wk.dump(ARGS.corpus + ".N_wk.dat")
+    mm.N_sk.dump(ARGS.corpus + ".N_sk.dat")
 
+    # https://github.com/numpy/numpy/issues/2396
+    # using np.savetxt for big matrixes b/c 
+    # apparently pickle does not work for that until python 3.3
+    np.savetxt(ARGS.corpus + ".Q_ik.gz", mm.Q_ik)
 
-mm = make_model()
-
-fill_emprical_language_models(dd, mm)
-empirical_init(dd, mm)
 
 print "[*] Prelims complete"
-pickle.dump(mm, open(ARGS.corpus + ".mm", "wb"))
-
 for itr in range(100):
     # print loglik(dd, mm)
-
     run_sweep(dd,mm, 0,len(dd.tokens))
     print "=== Iter",itr
 
 
 for i in np.argsort(mm.N_wk[QLM_K])[-5:]:
-    print NUM2WORD[i]
+    print dd.num2word[i]
