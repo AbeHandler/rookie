@@ -46,7 +46,27 @@ class Dataset:
     pass
 
 
-def run_sweep(dd, mm, starttok, endtok):
+
+def run_sweep(dd, mm,starttok, endtok):
+    libc.sweep(
+            c_int(starttok), 
+            c_int(endtok),
+            as_ctypes(dd.tokens),
+            as_ctypes(dd.docids),
+            as_ctypes(mm.qfix),
+            c_int(K),
+            c_int(V),
+            as_ctypes(mm.A_sk),
+            as_ctypes(mm.E_wk),
+            as_ctypes(mm.E_k),
+            as_ctypes(mm.Q_ik),
+            as_ctypes(mm.N_wk),
+            as_ctypes(mm.N_k),
+            as_ctypes(mm.N_sk),
+    )
+
+
+def run_sweep_p(dd, mm, starttok, endtok):
     '''update tok range'''
     # python for now. should be written in a way that makes it be easy to xfer to C
 
@@ -155,7 +175,7 @@ def build_dataset():
                 i_w.append(n)
                 s_i[sentences].append(i)
                 i += 1
-            dd.docids.append(docid + 2)
+                dd.docids.append(sentences)
             sentences += 1
         # have to loop 2x here b/c need to see if doc is a hit first
         for s_ix, sent in enumerate(doc['sentences']): 
@@ -215,6 +235,9 @@ def make_model():
     for ww in dd.tokens:
         mm.N_w[ww] += 1     
 
+    # just for compatibility. not used in C code.
+    mm.qfix = np.zeros(Ntok, dtype=np.int8)
+
     ## priors
     mm.E_wk = 1.0/V * np.ones((V,K), dtype=np.float32)
     mm.E_k  = mm.E_wk.sum(0)
@@ -244,44 +267,69 @@ def fill_qi_and_count(dd, mm):
         assert round(np.sum(mm.Q_ik[i_]), 5) == 1.
         assert np.where(mm.Q_ik[i_] != 0)[0].shape[0] <= 3 # no more than 3 ks turned on per row
 
-    print "\t - Counting N_k, N_wk and N_sk".format(Ntok)
-
     mm.N_k = ks
     mm.N_sk = nsk
     mm.nwk = nwk
 
+def infodot(qvec, lpvec):
+    """returns sum_k q*log(p)  with q*log(p)=0 when q=0"""
+    xx = qvec*lpvec
+    return np.sum(xx[qvec != 0])
+
+def loglik(dd,mm):
+    ll = 0
+    # should hyperparams be added in after Q sums for these? or not?
+
+    # assert np.all(mm.N_wk > 0)
+    # print "\nNum negative entries", np.sum(mm.N_wk < 0), np.min(mm.N_wk), np.sum(mm.Q_ik < 0)
+
+    topics = mm.N_wk / mm.N_wk.sum(0)
+    topics[topics <= 0] = 1e-9
+
+    for i in xrange(len(dd.tokens)):
+        w = dd.tokens[i]
+        Q = mm.Q_ik[i,:]
+
+        ## actually this is log P(w) using P(w) = sum_z Q(z)P(w|z)
+        ## not sure if it's related to ELBO
+        # wordprob = np.sum(topics[w,:] * Q)
+        # ll += np.log(wordprob)
+
+        ## ELBO terms
+        # E[log P(w|z)]
+        ll += infodot(Q, np.log(topics[w,:]))
+        # E[log P(z)]: skip i'm confused. have to eval per doc dirichlets i think
+        # E[log Q(z)]
+        ll += infodot(Q, np.log(Q))
+    return ll
+
+mm = make_model()
 
 try:
-    mm = Model()
     # annoying that all this stuff is serialized individually.
     # but pickle was freezing on Q_ik: https://github.com/numpy/numpy/issues/2396
-    mm.N_k = np.load(ARGS.corpus + ".N_k.dat")  
-    mm.N_wk = np.load(ARGS.corpus + ".N_wk.dat")
-    mm.N_sk = np.load(ARGS.corpus + ".N_sk.dat")
-    mm.Q_ik = np.load(ARGS.corpus + ".Q_ik.gz")
-    print "[*] Found & loaded cached model"
+    mm.emprical_N_wk = np.load(ARGS.corpus + ".emprical_N_wk.dat")
+    print "[*] Found & loaded cached empirical lms"
 except IOError:
-    print "[*] Could not find cached model. Building one"
-    mm = make_model()
+    print "[*] Could not find cached empirical lm. Building one"
     fill_emprical_language_models(dd, mm)
-    fill_qi_and_count(dd, mm)
-    print "[*] Dumping model"
-    mm.N_k.dump(ARGS.corpus + ".N_k.dat")
-    mm.N_wk.dump(ARGS.corpus + ".N_wk.dat")
-    mm.N_sk.dump(ARGS.corpus + ".N_sk.dat")
-
+    print "\t - Dumping model"
+    mm.emprical_N_wk.dump(ARGS.corpus + ".emprical_N_wk.dat")
+    # This is just too big to pickle. Serialization takes too long
     # https://github.com/numpy/numpy/issues/2396
     # using np.savetxt for big matrixes b/c 
     # apparently pickle does not work for that until python 3.3
-    np.savetxt(ARGS.corpus + ".Q_ik.gz", mm.Q_ik)
+    # np.savetxt(ARGS.corpus + ".Q_ik.gz", mm.Q_ik)
 
+fill_qi_and_count(dd, mm)
 
 print "[*] Prelims complete"
 for itr in range(100):
     # print loglik(dd, mm)
+    print loglik(dd,mm)
     run_sweep(dd,mm, 0,len(dd.tokens))
     print "=== Iter",itr
 
 
-for i in np.argsort(mm.N_wk[QLM_K])[-5:]:
+for i in np.argsort(mm.N_wk[QLM_K])[-10:]:
     print dd.num2word[i]
