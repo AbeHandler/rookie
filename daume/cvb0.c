@@ -41,6 +41,7 @@ void sweep(
         int endtok,
         uint32_t *tokens,   // wordid per token position, length Ntok
         uint32_t *docids,   // docid per token position, length Ntok
+        uint32_t *i_dk,     // map: token position -> dk (document lm), length Ntok
         // uint8_t *qfix,   // boolean: fix this position?
         int K,  // num topics
         int V,  // vocab size (num wordtypes) .. oh not necessary?
@@ -74,23 +75,56 @@ void sweep(
         // (a[d,k]+n[d,k]) * -----------------
         //                   n[k]   + eta[k]
         double probsum = 0;
+        printf("docid = %d\n", d);
         for (int k=0; k<K; k++) {
             double DD = A_dk[ind2(K, d,k)] + N_dk[ind2(K, d,k)];
             double AA = E_wk[ind2(K, w,k)] + N_wk[ind2(K, w,k)];
             double BB = E_k[k] + N_k[k];
-            double pp = DD * AA / BB;
-            pp = MAX(1e-100, pp); //THIS IS NOT SUITABLE FOR DAUME. ONLY 3 Ks are VALID. GIVES BUGS
-            //if (pp <= 0) { 
-            //     printf("BAD %d\n", w); 
-            //}
+            double pp = (DD * AA) / BB;
+            
+            if (BB < 0) { 
+                 printf("BAD BB %f\n", BB);
+                 printf("BAD E_k %f\n", E_k[k]); 
+                 printf("BAD N_k %f\n", N_k[k]); 
+            }
+            if (DD < 0) { 
+                 printf("BAD DD %f\n", DD); 
+            }
+            if (AA < 0) { 
+                 printf("BAD AA %f\n", AA); 
+            }
+            if (pp < 0) { 
+                 printf("BAD %d\n", w); 
+            }
+
+            /*
+            if (k == 2){
+                printf("AA %f\n", AA); 
+                printf("BB %f\n", BB); 
+                printf("DD %f\n", DD); 
+                printf("i=%d k=%d A_dk=%f N_dk=%f \n", i, k, A_dk[ind2(K, d,k)], N_dk[ind2(K, d,k)]);
+                printf("i=%d k=%d E_wk=%f N_wk=%f \n", i, k, E_wk[ind2(K, d,k)], N_wk[ind2(K, d,k)]);
+                printf("i=%d k=%d E_k=%f N_k=%f \n", i, k, E_k[ind2(K, d,k)], N_k[ind2(K, d,k)]);
+            }
+            */
+            
+            /* printf("%g %g\n", pp, probsum); */
+            if (k < 2){ //In Daume model, only 3 Ks are valid.
+                pp = MAX(1e-100, pp); //general lm and query lm
+            }
+            if (k == i_dk[i]){
+                pp = MAX(1e-100, pp);
+            }
             probs[k] = pp;
             probsum += pp;
-            /* printf("%g %g\n", pp, probsum); */
         }
+        
+        //printf("%d probsum=%f\n", i, probsum);
         // could get another speed gain by folding this into increment step?
         for (int k=0; k<K; k++) {
             /* printf("k=%d Q=%g\n", k, probs[k]/probsum); */
             /* Q_ik[ind2(K, i,k)] = MAX(1e-100, probs[k] / probsum); */
+            //printf("i=%d k=%d kval=%f\n", i, k, probs[k]);
             Q_ik[ind2(K, i,k)] = probs[k] / probsum;
         }
 

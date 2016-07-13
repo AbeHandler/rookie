@@ -38,6 +38,7 @@ from stop_words import get_stop_words
 GLM_K = 0
 QLM_K = 1
 
+BETA = 5  # boost query words in priors for QLM
 
 query = ["jail", "consent", "decree", "gusman"]
 
@@ -52,6 +53,16 @@ class Dataset:
 
 
 def run_sweep(dd, mm,starttok, endtok):
+
+    mm.A_sk.dtype == "float32"
+    mm.E_k.dtype == "float32"
+    mm.E_k.dtype == "float32"
+    mm.Q_ik.dtype == "float32"
+    mm.N_wk.dtype == "float32"
+    mm.N_k.dtype == "float32"
+    mm.N_sk.dtype == "float32"
+
+
     libc.sweep(
             c_int(starttok), 
             c_int(endtok),
@@ -74,7 +85,8 @@ def run_sweep_p(dd, mm, starttok, endtok):
     '''update tok range'''
     # python for now. should be written in a way that makes it be easy to xfer to C
 
-
+    if endtok != Ntok:
+        print "warning. not running on all tokens"
     for i in range(starttok, endtok):
 
         assert np.count_nonzero(np.isnan(mm.N_k)) == 0
@@ -90,7 +102,11 @@ def run_sweep_p(dd, mm, starttok, endtok):
         #assert (mm.N_wk < 0).sum() == 0
         #assert (mm.N_sk < 0).sum() == 0
 
-        ks = (mm.N_wk[dd.i_w[i]] + ETA)/(mm.N_k + (dd.V * ETA)) * (mm.A_sk[i] + mm.N_sk[dd.i_s[i]])
+        
+        #import ipdb
+        #ipdb.set_trace()
+        # assert mm.A_sk[i] == ALPHA
+        ks = (mm.N_wk[dd.i_w[i]] + mm.E_wk[dd.i_w[i]])/(mm.N_k + mm.E_k) * (mm.A_sk[i] + mm.N_sk[dd.i_s[i]])
 
         # occassionnally have nonsense where ks is 0s b/c removed all mass in tn topic
         ks[dd.i_dk[i]] = max(1e-100, ks[dd.i_dk[i]]) # this avoids the NaNs. 
@@ -108,27 +124,13 @@ def run_sweep_p(dd, mm, starttok, endtok):
 
 
 SW = get_stop_words('en') + ["city", "new", "orleans", "lens", "report", "said", "-lrb-", "-rrb-", "week"]
-SW = SW + [o for o in string.punctuation]
+SW = SW + [o for o in string.punctuation] + [str(o) for o in range(0, 1000)]
+SW = SW + ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+SW = SW + ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
+SW = SW + ["a.m.", "p.m."]
 
 libc = ctypes.CDLL("./cvb0.so")
 
-
-def fill_emprical_language_models(dd, mm):
-    '''find p(W|K) for each doc, G and Q lm'''
-    smoothing = 1
-    mm.emprical_N_wk = np.zeros((K,V), dtype=np.float32)
-    print "\t - Adding up the empirical language model\n"
-    for k in range(K):
-        if k % 100 == 0:
-            sys.stderr.write("{} of {}\t".format(k, K))
-        tot_words = sum(dd.doc_counts[k]) + (smoothing * V)
-        for v in range(V):
-            try:
-                tot_word = tot_word = dd.doc_counts[k][v] + smoothing
-            except KeyError:  # i.e. word does not appear
-                tot_word = smoothing
-            mm.emprical_N_wk[k][v] = tot_word/tot_words
-    print "\t Done"
 
 
 def default_to_regular(d):
@@ -165,7 +167,7 @@ def build_dataset():
     raw_sents = {}
     alpha_is = []
     for docid,line in enumerate(open("lens.anno")):
-        if docid > 1: break 
+        if docid > 500: break 
         doc = json.loads(line)["text"]
         hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
@@ -179,6 +181,7 @@ def build_dataset():
                     word = word.lower()
                     if word in query:
                         hit = 1
+
                     wordcount[word] += 1
                     if word not in word2num:
                         n = len(word2num)
@@ -198,6 +201,8 @@ def build_dataset():
                     dd.docids.append(sentences)
                 raw_sents[sentences] = sent_to_string(sent)
                 sentences += 1
+        if hit == 1:
+            print "Found hit"
         # have to loop 2x here b/c need to see if doc is a hit first
         for s_ix, sent in enumerate(doc['sentences']): 
             reals = [word for word in sent["tokens"] if word.lower() not in SW]
@@ -239,7 +244,7 @@ except IOError:
 K = dd.D + 1 + 1 # i.e. D language models, plus a Q model, plus a G model
 # for any given Q_i, only 3 of these will be relevant
 V = len(dd.word2num)
-ALPHA = .1/(3 * K) # 3 here b/c there are 3 valid options for each Q(i)
+ALPHA = .5/(3 * K) # 3 here b/c there are 3 valid options for each Q(i)
 ETA = 1.0/V
 D = dd.D
 S = dd.S
@@ -248,60 +253,47 @@ Ntok = len(dd.tokens)
 
 def make_model(dd):
     '''set up the model'''
+    print "Setting up model"
     mm = Model()
-    mm.Q_ik = np.zeros((Ntok,K), dtype=np.float32)
-    mm.N_k = np.zeros(K, dtype=np.float32)
-    mm.N_sk = np.zeros((S,K), dtype=np.float32)
-    mm.N_wk = np.zeros((V,K), dtype=np.float32)
     mm.N_w = np.zeros(V, dtype=np.float32)
 
     ## counting pass could be expensive
     for ww in dd.tokens:
-        mm.N_w[ww] += 1     
-
-    # just for compatibility. not used in C code.
-    mm.qfix = np.zeros(Ntok, dtype=np.int8)
+        mm.N_w[ww] += 1 
 
     ## priors
     mm.E_wk = ETA * np.ones((V,K), dtype=np.float32)
+    for w in query:
+        mm.E_wk[dd.word2num[w]][QLM_K] = BETA
     mm.E_k  = mm.E_wk.sum(0)
-    mm.A_sk = ALPHA * np.ones((Ntok,K), dtype=np.float32)
+    mm.A_sk = np.zeros((Ntok,K), dtype=np.float32)
     for i in range(Ntok):
         dk = dd.i_dk[i]
-        for k in range(2, K): # skip over the GLM and QLM
-            if k != dk:
-                mm.A_sk[i][k] = 0 # no Alpha for invalid Ks
+        mm.A_sk[i][0] = ALPHA  # no Alpha for invalid Ks
+        mm.A_sk[i][1] = ALPHA
+        mm.A_sk[i][dk] = ALPHA
+    mm.Q_ik = np.zeros((Ntok,K), dtype=np.float32) # don't pickle this part
+    # just for compatibility. not used in C code.
+    mm.qfix = np.zeros(Ntok, dtype=np.int8)
     return mm
 
-def fill_qi_and_count(dd, mm):
-    '''init w/ emprical language models from D and G'''
-    # if a doc is not responsive to a query, there are only 2 options for the token: D or G
-    # if it is responsive to query, there are 3 options  
-    print "[*] Filling Q_i and counting ntok={}".format(Ntok)
-    print "\t - Filling Q_ik"
-    ks = np.zeros(K)
-    nsk = np.zeros((S, K))
-    nwk = np.zeros((V, K))
+
+def fill_qi_randomly_and_count(dd, mm):
+    '''i think its faster to let the algo converge than load empirical lm'''
+    mm.N_k = np.zeros(K, dtype=np.float32)
+    mm.N_sk = np.zeros((S, K), dtype=np.float32)
+    mm.N_wk = np.zeros((V, K), dtype=np.float32)
+    print "filling dataset randomly"
+    mm.Q_ik = np.random.dirichlet(np.ones(K), Ntok)
+    assert mm.Q_ik.shape[0] == Ntok
     for i_ in range(Ntok):
-        w = dd.i_w[i_]
-        mm.Q_ik[i_][GLM_K] = mm.emprical_N_wk[GLM_K][w]
-        if dd.hits[i_] == 1:
-            mm.Q_ik[i_][QLM_K] = mm.emprical_N_wk[GLM_K][w] * 2 # init query lm to global X 2 ? 
-        dk = dd.i_dk[i_] # i's document lm
-        mm.Q_ik[i_][dk] = mm.emprical_N_wk[dk][w]
-        mm.Q_ik[i_] = mm.Q_ik[i_]/np.sum(mm.Q_ik[i_]) # normalize
-        np.add(ks, mm.Q_ik[i_], out=ks)
-        #if i_ == 880:
-        #    import ipdb
-        #    ipdb.set_trace()
-        np.add(nsk[dd.i_s[i_]], mm.Q_ik[i_], out=nsk[dd.i_s[i_]])
-        np.add(nwk[dd.i_w[i_]], mm.Q_ik[i_], out=nwk[dd.i_w[i_]])
+        np.add(mm.N_k, mm.Q_ik[i_], out=mm.N_k)
+        np.add(mm.N_sk[dd.i_s[i_]], mm.Q_ik[i_], out=mm.N_sk[dd.i_s[i_]])
+        np.add(mm.N_wk[dd.i_w[i_]], mm.Q_ik[i_], out=mm.N_wk[dd.i_w[i_]])
         assert round(np.sum(mm.Q_ik[i_]), 5) == 1.
         assert np.where(mm.Q_ik[i_] != 0)[0].shape[0] <= 3 # no more than 3 ks turned on per row
 
-    mm.N_k = ks
-    mm.N_sk = nsk
-    mm.N_wk = nwk
+
 
 def infodot(qvec, lpvec):
     """returns sum_k q*log(p)  with q*log(p)=0 when q=0"""
@@ -331,7 +323,7 @@ def loglik(dd,mm):
         ## ELBO terms
         # E[log P(w|z)]
 
-        #if np.sum(infodot(Q, np.log(topics[w,:]))) == 0:
+        # if np.sum(infodot(Q, np.log(topics[w,:]))) == 0:
         #    import ipdb
         #    ipdb.set_trace()
         ll += infodot(Q, np.log(topics[w,:]))
@@ -350,36 +342,20 @@ def loglik(dd,mm):
 
 mm = make_model(dd)
 
-try:
-    # annoying that all this stuff is serialized individually.
-    # but pickle was freezing on Q_ik: https://github.com/numpy/numpy/issues/2396
-    mm.emprical_N_wk = np.load(ARGS.corpus + ".emprical_N_wk.dat")
-    print "[*] Found & loaded cached empirical lms"
-except IOError:
-    print "[*] Could not find cached empirical lm. Building one"
-    fill_emprical_language_models(dd, mm)
-    print "\t - Dumping model"
-    mm.emprical_N_wk.dump(ARGS.corpus + ".emprical_N_wk.dat")
-    # This is just too big to pickle. Serialization takes too long
-    # https://github.com/numpy/numpy/issues/2396
-    # using np.savetxt for big matrixes b/c 
-    # apparently pickle does not work for that until python 3.3
-    # np.savetxt(ARGS.corpus + ".Q_ik.gz", mm.Q_ik)
-
-fill_qi_and_count(dd, mm)
+fill_qi_randomly_and_count(dd, mm)
 
 import copy
 dd_p = copy.deepcopy(dd)
 mm_p = copy.deepcopy(mm)
 
 print "[*] Prelims complete"
-for itr in range(100):
+for itr in range(50):
+    #run_sweep_p(dd,mm,0,Ntok)
+
     run_sweep_p(dd,mm,0,Ntok)
-    run_sweep(dd_p,mm_p,0,Ntok)
-    import ipdb
-    ipdb.set_trace()
-    #if itr % 10 == 0:
-    #    print loglik(dd,mm)
+
+    if itr % 10 == 0:
+        print loglik(dd,mm)
     print "=== Iter",itr
 
 
@@ -388,4 +364,11 @@ def print_sents():
     for i in np.argsort(mm.N_sk[QLM_K])[-10:]:
         print dd.raw_sents[i]
 
+
+def print_words():
+    '''print out top sentences QLM'''
+    for i in np.argsort(mm.N_wk[QLM_K])[-10:]:
+        print dd.num2word[i] + "," , 
+
 print_sents()
+print_words()
