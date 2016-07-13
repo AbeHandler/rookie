@@ -74,16 +74,11 @@ def run_sweep_p(dd, mm, starttok, endtok):
     alpha = .5  # simple uniform priors for now
     eta = .5
     for i in range(starttok, endtok):
-        # print i,
 
-        #print np.isnan(np.sum(mm.N_k))
         np.subtract(mm.N_k, mm.Q_ik[i], out=mm.N_k)
         np.subtract(mm.N_wk[dd.i_w[i]], mm.Q_ik[i], out=mm.N_wk[dd.i_w[i]])
         np.subtract(mm.N_sk[dd.i_s[i]], mm.Q_ik[i], out=mm.N_sk[dd.i_s[i]])
-        # print np.isnan(np.sum(mm.N_k))
-        #if np.isnan(np.sum(mm.N_wk)) or np.isnan(np.sum(mm.N_k)) or np.isnan(np.sum(mm.N_sk)):
-        #    import ipdb
-        #    ipdb.set_trace()
+
         assert (mm.Q_ik < 0).sum() == 0
         assert (mm.N_k < 0).sum() == 0
         assert (mm.N_wk < 0).sum() == 0
@@ -92,13 +87,15 @@ def run_sweep_p(dd, mm, starttok, endtok):
         ks = (mm.N_wk[dd.i_w[i]] + eta)/(mm.N_k + (dd.V * eta)) * (mm.N_sk[dd.i_s[i]])
 
         # occassionnally have nonsense where ks is 0s b/c removed all mass in tn topic
-        ks[ks < 1e-100] = 1e-100  # this avoids the NaNs
+        ks[dd.i_dk[i]] = max(1e-100, ks[dd.i_dk[i]]) # this avoids the NaNs. 
+        ks[dd.i_dk[i]] = max(1e-100, ks[QLM_K])      # NOTE: ONLY 3 ks set. A dif w/ cvb0 in c
+        ks[dd.i_dk[i]] = max(1e-100, ks[GLM_K])
         ks = ks / np.sum(ks)
         mm.Q_ik[i] = ks
         np.add(mm.N_k, ks, out=mm.N_k)
         np.add(mm.N_wk[dd.i_w[i]], ks, out=mm.N_wk[dd.i_w[i]])
         np.add(mm.N_sk[dd.i_s[i]], ks, out=mm.N_sk[dd.i_s[i]])
-        # print np.isnan(np.sum(mm.N_k))
+
 
 
 SW = get_stop_words('en') + ["city", "new", "orleans", "lens", "report", "said", "-lrb-", "-rrb-", "week"]
@@ -157,7 +154,7 @@ def build_dataset():
     s_i = defaultdict(list)
     i = 0
     for docid,line in enumerate(open("lens.anno")):
-        if docid > 30: break 
+        # if docid > 30: break 
         doc = json.loads(line)["text"]
         hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
