@@ -38,6 +38,7 @@ from stop_words import get_stop_words
 GLM_K = 0
 QLM_K = 1
 
+
 query = ["jail", "consent", "decree", "gusman"]
 
 ## set up model.  
@@ -73,8 +74,7 @@ def run_sweep_p(dd, mm, starttok, endtok):
     '''update tok range'''
     # python for now. should be written in a way that makes it be easy to xfer to C
 
-    alpha = .5  # simple uniform priors for now
-    eta = .5
+
     for i in range(starttok, endtok):
 
         assert np.count_nonzero(np.isnan(mm.N_k)) == 0
@@ -90,13 +90,16 @@ def run_sweep_p(dd, mm, starttok, endtok):
         #assert (mm.N_wk < 0).sum() == 0
         #assert (mm.N_sk < 0).sum() == 0
 
-        ks = (mm.N_wk[dd.i_w[i]] + eta)/(mm.N_k + (dd.V * eta)) * (mm.N_sk[dd.i_s[i]])
+        ks = (mm.N_wk[dd.i_w[i]] + ETA)/(mm.N_k + (dd.V * ETA)) * (mm.A_sk[i] + mm.N_sk[dd.i_s[i]])
 
         # occassionnally have nonsense where ks is 0s b/c removed all mass in tn topic
         ks[dd.i_dk[i]] = max(1e-100, ks[dd.i_dk[i]]) # this avoids the NaNs. 
         ks[dd.i_dk[i]] = max(1e-100, ks[QLM_K])      # NOTE: ONLY 3 ks set. A dif w/ cvb0 in c
         ks[dd.i_dk[i]] = max(1e-100, ks[GLM_K])
         ks = ks / np.sum(ks)
+
+
+
         mm.Q_ik[i] = ks
         np.add(mm.N_k, ks, out=mm.N_k)
         np.add(mm.N_wk[dd.i_w[i]], ks, out=mm.N_wk[dd.i_w[i]])
@@ -160,8 +163,9 @@ def build_dataset():
     s_i = defaultdict(list)
     i = 0
     raw_sents = {}
+    alpha_is = []
     for docid,line in enumerate(open("lens.anno")):
-        if docid > 25: break 
+        if docid > 1: break 
         doc = json.loads(line)["text"]
         hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
@@ -187,6 +191,7 @@ def build_dataset():
                     doc_counts[GLM_K][n] += 1
                     doc_counts[QLM_K][n] = 0
                     dd.tokens.append(n)
+
                     i_w.append(n)
                     s_i[sentences].append(i)
                     i += 1
@@ -208,7 +213,6 @@ def build_dataset():
     dd.i_w = np.array(i_w, dtype=np.uint32) # i->w
     dd.i_s = np.array(i_s, dtype=np.uint32) # i->s
     dd.s_i = dict(s_i)
-    assert dd.i_w.shape[0] == dd.i_s.shape[0]
     # a S length vector w/ the doc id for each S
     dd.docids = np.array(dd.docids, dtype=np.uint32) 
     dd.tokens = np.array(dd.tokens, dtype=np.uint32)
@@ -220,6 +224,7 @@ def build_dataset():
     dd.num2word = num2word
     dd.raw_sents = raw_sents # this won't scale to corpora that dont fit in memory. TODO, maybe
     pickle.dump(dd, open(ARGS.corpus + ".dd", "wb"))
+
     print "[*] Built dataset"
     return dd
 
@@ -234,12 +239,14 @@ except IOError:
 K = dd.D + 1 + 1 # i.e. D language models, plus a Q model, plus a G model
 # for any given Q_i, only 3 of these will be relevant
 V = len(dd.word2num)
+ALPHA = .1/(3 * K) # 3 here b/c there are 3 valid options for each Q(i)
+ETA = 1.0/V
 D = dd.D
 S = dd.S
 Ntok = len(dd.tokens)
 
 
-def make_model():
+def make_model(dd):
     '''set up the model'''
     mm = Model()
     mm.Q_ik = np.zeros((Ntok,K), dtype=np.float32)
@@ -256,9 +263,14 @@ def make_model():
     mm.qfix = np.zeros(Ntok, dtype=np.int8)
 
     ## priors
-    mm.E_wk = 1.0/V * np.ones((V,K), dtype=np.float32)
+    mm.E_wk = ETA * np.ones((V,K), dtype=np.float32)
     mm.E_k  = mm.E_wk.sum(0)
-    mm.A_sk = 1.0/K * np.ones((S,K), dtype=np.float32)
+    mm.A_sk = ALPHA * np.ones((Ntok,K), dtype=np.float32)
+    for i in range(Ntok):
+        dk = dd.i_dk[i]
+        for k in range(2, K): # skip over the GLM and QLM
+            if k != dk:
+                mm.A_sk[i][k] = 0 # no Alpha for invalid Ks
     return mm
 
 def fill_qi_and_count(dd, mm):
@@ -330,10 +342,13 @@ def loglik(dd,mm):
 
         lg_q[np.isnan(lg_q)] = 0  # NaNs will cause whole infodot to be a Nan so no LL reading
         
+        if np.isnan(infodot(Q, lg_q)):
+            import ipdb
+            ipdb.set_trace()
         ll += infodot(Q, lg_q)
     return np.nan_to_num(ll)
 
-mm = make_model()
+mm = make_model(dd)
 
 try:
     # annoying that all this stuff is serialized individually.
@@ -353,11 +368,18 @@ except IOError:
 
 fill_qi_and_count(dd, mm)
 
+import copy
+dd_p = copy.deepcopy(dd)
+mm_p = copy.deepcopy(mm)
+
 print "[*] Prelims complete"
 for itr in range(100):
-    # print loglik(dd, mm)
-    run_sweep_p(dd,mm, 0,len(dd.tokens))
-    print loglik(dd,mm)
+    run_sweep_p(dd,mm,0,Ntok)
+    run_sweep(dd_p,mm_p,0,Ntok)
+    import ipdb
+    ipdb.set_trace()
+    #if itr % 10 == 0:
+    #    print loglik(dd,mm)
     print "=== Iter",itr
 
 
