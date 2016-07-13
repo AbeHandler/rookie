@@ -20,6 +20,8 @@ import sys
 import string
 import ujson as json
 import numpy as np
+import ipdb
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-corpus", type=str, help="corpus")
@@ -53,7 +55,6 @@ def run_sweep(dd, mm,starttok, endtok):
             c_int(endtok),
             as_ctypes(dd.tokens),
             as_ctypes(dd.docids),
-            as_ctypes(mm.qfix),
             c_int(K),
             c_int(V),
             as_ctypes(mm.A_sk),
@@ -73,22 +74,31 @@ def run_sweep_p(dd, mm, starttok, endtok):
     alpha = .5  # simple uniform priors for now
     eta = .5
     for i in range(starttok, endtok):
+        # print i,
 
+        #print np.isnan(np.sum(mm.N_k))
         np.subtract(mm.N_k, mm.Q_ik[i], out=mm.N_k)
         np.subtract(mm.N_wk[dd.i_w[i]], mm.Q_ik[i], out=mm.N_wk[dd.i_w[i]])
         np.subtract(mm.N_sk[dd.i_s[i]], mm.Q_ik[i], out=mm.N_sk[dd.i_s[i]])
-
-        # assert np.where(mm.N_k < 0)[0].shape[0] == 0
-        # assert np.where(mm.N_wk < 0)[0].shape[0] == 0
-        # assert np.where(mm.N_sk < 0)[0].shape[0] == 0
+        # print np.isnan(np.sum(mm.N_k))
+        #if np.isnan(np.sum(mm.N_wk)) or np.isnan(np.sum(mm.N_k)) or np.isnan(np.sum(mm.N_sk)):
+        #    import ipdb
+        #    ipdb.set_trace()
+        assert (mm.Q_ik < 0).sum() == 0
+        assert (mm.N_k < 0).sum() == 0
+        assert (mm.N_wk < 0).sum() == 0
+        assert (mm.N_sk < 0).sum() == 0
 
         ks = (mm.N_wk[dd.i_w[i]] + eta)/(mm.N_k + (dd.V * eta)) * (mm.N_sk[dd.i_s[i]])
-        ks = ks / np.sum(ks)
 
+        # occassionnally have nonsense where ks is 0s b/c removed all mass in tn topic
+        ks[ks < 1e-100] = 1e-100  # this avoids the NaNs
+        ks = ks / np.sum(ks)
         mm.Q_ik[i] = ks
         np.add(mm.N_k, ks, out=mm.N_k)
         np.add(mm.N_wk[dd.i_w[i]], ks, out=mm.N_wk[dd.i_w[i]])
         np.add(mm.N_sk[dd.i_s[i]], ks, out=mm.N_sk[dd.i_s[i]])
+        # print np.isnan(np.sum(mm.N_k))
 
 
 SW = get_stop_words('en') + ["city", "new", "orleans", "lens", "report", "said", "-lrb-", "-rrb-", "week"]
@@ -147,36 +157,37 @@ def build_dataset():
     s_i = defaultdict(list)
     i = 0
     for docid,line in enumerate(open("lens.anno")):
-        if docid > 25: break 
+        if docid > 30: break 
         doc = json.loads(line)["text"]
         hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
             reals = [word for word in sent["tokens"] if word.lower() not in SW]
             s_i[sentences] = []
-            for word in reals:
-                
-                i_s.append(sentences) # building a vector of sentences for each token, i
-                i_dk.append(docid + 2)
-                word = word.lower()
-                if word in query:
-                    hit = 1
-                wordcount[word] += 1
-                if word not in word2num:
-                    n = len(word2num)
-                    word2num[word] = n
-                    num2word.append(word)
-                    assert num2word[n] == word
-                else:
-                    n = word2num[word]
-                doc_counts[docid + 2][n] += 1
-                doc_counts[GLM_K][n] += 1
-                doc_counts[QLM_K][n] = 0
-                dd.tokens.append(n)
-                i_w.append(n)
-                s_i[sentences].append(i)
-                i += 1
-                dd.docids.append(sentences)
-            sentences += 1
+            if len(reals) > 1: # need more than 1 word for sentence. fixes nan weirdness
+                for word in reals:
+                    
+                    i_s.append(sentences) # building a vector of sentences for each token, i
+                    i_dk.append(docid + 2)
+                    word = word.lower()
+                    if word in query:
+                        hit = 1
+                    wordcount[word] += 1
+                    if word not in word2num:
+                        n = len(word2num)
+                        word2num[word] = n
+                        num2word.append(word)
+                        assert num2word[n] == word
+                    else:
+                        n = word2num[word]
+                    doc_counts[docid + 2][n] += 1
+                    doc_counts[GLM_K][n] += 1
+                    doc_counts[QLM_K][n] = 0
+                    dd.tokens.append(n)
+                    i_w.append(n)
+                    s_i[sentences].append(i)
+                    i += 1
+                    dd.docids.append(sentences)
+                sentences += 1
         # have to loop 2x here b/c need to see if doc is a hit first
         for s_ix, sent in enumerate(doc['sentences']): 
             reals = [word for word in sent["tokens"] if word.lower() not in SW]
@@ -262,6 +273,9 @@ def fill_qi_and_count(dd, mm):
         mm.Q_ik[i_][dk] = mm.emprical_N_wk[dk][w]
         mm.Q_ik[i_] = mm.Q_ik[i_]/np.sum(mm.Q_ik[i_]) # normalize
         np.add(ks, mm.Q_ik[i_], out=ks)
+        #if i_ == 880:
+        #    import ipdb
+        #    ipdb.set_trace()
         np.add(nsk[dd.i_s[i_]], mm.Q_ik[i_], out=nsk[dd.i_s[i_]])
         np.add(nwk[dd.i_w[i_]], mm.Q_ik[i_], out=nwk[dd.i_w[i_]])
         assert round(np.sum(mm.Q_ik[i_]), 5) == 1.
@@ -269,7 +283,7 @@ def fill_qi_and_count(dd, mm):
 
     mm.N_k = ks
     mm.N_sk = nsk
-    mm.nwk = nwk
+    mm.N_wk = nwk
 
 def infodot(qvec, lpvec):
     """returns sum_k q*log(p)  with q*log(p)=0 when q=0"""
@@ -297,11 +311,17 @@ def loglik(dd,mm):
 
         ## ELBO terms
         # E[log P(w|z)]
+        if np.isnan(infodot(Q, np.log(topics[w,:]))):
+            import ipdb
+            ipdb.set_trace()
+        #if np.sum(infodot(Q, np.log(topics[w,:]))) == 0:
+        #    import ipdb
+        #    ipdb.set_trace()
         ll += infodot(Q, np.log(topics[w,:]))
         # E[log P(z)]: skip i'm confused. have to eval per doc dirichlets i think
         # E[log Q(z)]
         ll += infodot(Q, np.log(Q))
-    return ll
+    return np.nan_to_num(ll)
 
 mm = make_model()
 
@@ -326,8 +346,8 @@ fill_qi_and_count(dd, mm)
 print "[*] Prelims complete"
 for itr in range(100):
     # print loglik(dd, mm)
+    run_sweep_p(dd,mm, 0,len(dd.tokens))
     print loglik(dd,mm)
-    run_sweep(dd,mm, 0,len(dd.tokens))
     print "=== Iter",itr
 
 
