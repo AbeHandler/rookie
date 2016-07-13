@@ -13,6 +13,7 @@ from __future__ import division
 from collections import defaultdict
 from ctypes import c_int
 from numpy.ctypeslib import as_ctypes
+from utils import sent_to_string
 import argparse
 import cPickle as pickle
 import ctypes
@@ -55,6 +56,7 @@ def run_sweep(dd, mm,starttok, endtok):
             c_int(endtok),
             as_ctypes(dd.tokens),
             as_ctypes(dd.docids),
+            as_ctypes(dd.i_dk),
             c_int(K),
             c_int(V),
             as_ctypes(mm.A_sk),
@@ -75,14 +77,18 @@ def run_sweep_p(dd, mm, starttok, endtok):
     eta = .5
     for i in range(starttok, endtok):
 
+        assert np.count_nonzero(np.isnan(mm.N_k)) == 0
+        assert np.count_nonzero(np.isnan(mm.N_wk)) == 0
+        assert np.count_nonzero(np.isnan(mm.N_sk)) == 0
+
         np.subtract(mm.N_k, mm.Q_ik[i], out=mm.N_k)
         np.subtract(mm.N_wk[dd.i_w[i]], mm.Q_ik[i], out=mm.N_wk[dd.i_w[i]])
         np.subtract(mm.N_sk[dd.i_s[i]], mm.Q_ik[i], out=mm.N_sk[dd.i_s[i]])
 
-        assert (mm.Q_ik < 0).sum() == 0
-        assert (mm.N_k < 0).sum() == 0
-        assert (mm.N_wk < 0).sum() == 0
-        assert (mm.N_sk < 0).sum() == 0
+        #assert (mm.Q_ik < 0).sum() == 0
+        #assert (mm.N_k < 0).sum() == 0
+        #assert (mm.N_wk < 0).sum() == 0
+        #assert (mm.N_sk < 0).sum() == 0
 
         ks = (mm.N_wk[dd.i_w[i]] + eta)/(mm.N_k + (dd.V * eta)) * (mm.N_sk[dd.i_s[i]])
 
@@ -150,11 +156,12 @@ def build_dataset():
     i_s = [] # maps i -> sentence
     i_w = [] # maps i -> w
     D_ = 0
-    i_dk = [] # maps i -> dk
+    dd.i_dk = [] # maps i -> dk
     s_i = defaultdict(list)
     i = 0
+    raw_sents = {}
     for docid,line in enumerate(open("lens.anno")):
-        # if docid > 30: break 
+        if docid > 25: break 
         doc = json.loads(line)["text"]
         hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
@@ -164,7 +171,7 @@ def build_dataset():
                 for word in reals:
                     
                     i_s.append(sentences) # building a vector of sentences for each token, i
-                    i_dk.append(docid + 2)
+                    dd.i_dk.append(docid + 2)
                     word = word.lower()
                     if word in query:
                         hit = 1
@@ -184,6 +191,7 @@ def build_dataset():
                     s_i[sentences].append(i)
                     i += 1
                     dd.docids.append(sentences)
+                raw_sents[sentences] = sent_to_string(sent)
                 sentences += 1
         # have to loop 2x here b/c need to see if doc is a hit first
         for s_ix, sent in enumerate(doc['sentences']): 
@@ -196,7 +204,7 @@ def build_dataset():
     # an I length vector mapping i->hit. hit = i's document matches query
     dd.hits = np.array(hits, dtype=np.uint32)
     dd.S = sentences
-    dd.i_dk = i_dk
+    dd.i_dk = np.array(dd.i_dk, dtype=np.uint32) # i->dk
     dd.i_w = np.array(i_w, dtype=np.uint32) # i->w
     dd.i_s = np.array(i_s, dtype=np.uint32) # i->s
     dd.s_i = dict(s_i)
@@ -210,6 +218,7 @@ def build_dataset():
     dd.doc_counts = default_to_regular(doc_counts)
     dd.word2num = word2num
     dd.num2word = num2word
+    dd.raw_sents = raw_sents # this won't scale to corpora that dont fit in memory. TODO, maybe
     pickle.dump(dd, open(ARGS.corpus + ".dd", "wb"))
     print "[*] Built dataset"
     return dd
@@ -285,6 +294,7 @@ def fill_qi_and_count(dd, mm):
 def infodot(qvec, lpvec):
     """returns sum_k q*log(p)  with q*log(p)=0 when q=0"""
     xx = qvec*lpvec
+    # assert not np.isnan(np.sum(xx[qvec != 0]))
     return np.sum(xx[qvec != 0])
 
 def loglik(dd,mm):
@@ -308,16 +318,19 @@ def loglik(dd,mm):
 
         ## ELBO terms
         # E[log P(w|z)]
-        if np.isnan(infodot(Q, np.log(topics[w,:]))):
-            import ipdb
-            ipdb.set_trace()
+
         #if np.sum(infodot(Q, np.log(topics[w,:]))) == 0:
         #    import ipdb
         #    ipdb.set_trace()
         ll += infodot(Q, np.log(topics[w,:]))
         # E[log P(z)]: skip i'm confused. have to eval per doc dirichlets i think
         # E[log Q(z)]
-        ll += infodot(Q, np.log(Q))
+
+        lg_q = np.log(Q)
+
+        lg_q[np.isnan(lg_q)] = 0  # NaNs will cause whole infodot to be a Nan so no LL reading
+        
+        ll += infodot(Q, lg_q)
     return np.nan_to_num(ll)
 
 mm = make_model()
@@ -348,5 +361,9 @@ for itr in range(100):
     print "=== Iter",itr
 
 
-for i in np.argsort(mm.N_wk[QLM_K])[-10:]:
-    print dd.num2word[i]
+def print_sents():
+    '''print out top sentences QLM'''
+    for i in np.argsort(mm.N_sk[QLM_K])[-10:]:
+        print dd.raw_sents[i]
+
+print_sents()
