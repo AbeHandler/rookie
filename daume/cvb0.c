@@ -30,15 +30,21 @@ void update(
         float *N_wk,   // matrix size (V x K)
         float *N_k,
         float *N_dk,
-        uint32_t *i_dk
+        int* ks
         ) {
 
-    for (int k=0; k<K; k++) {
+
+    for (int k_ix=0; k_ix<3; k_ix++) {
+        int k = ks[k_ix];
         float qdelta = direction * Q_ik[ind2(K,i,k)];
         N_k[k]            += qdelta;
         N_wk[ind2(K,w,k)] += qdelta;
+        // WHAT IS CAUSING THIS!!!! ??? !!!! TODO. WTF
+        // N_wk is sometimes a little negative. 
+        // this does crazy stuff to the whole algo. how does this happen?
+        N_wk[ind2(K,w,k)] = MAX(0, N_wk[ind2(K,w,k)]); 
         N_dk[ind2(K,d,k)] += qdelta;
-        check_nwk(N_wk[ind2(K,w,k)], k, i);
+        //check_nwk(N_wk[ind2(K,w,k)], k, i);
     }
 }
 
@@ -87,46 +93,47 @@ void sweep(
         //if (qfix[i]) {
         //    continue;
         //}
-
+        int ks[3] = {0,1,i_dk[i]};
         uint32_t w = tokens[i];
         uint32_t d = docids[i];
         /* printf("TOK %u %d %d\n", i, w,d); */
 
         // decrement
-        update(-1, K,i,d,w, Q_ik, N_wk, N_k, N_dk, i_dk);
+        update(-1, K,i,d,w, Q_ik, N_wk, N_k, N_dk, ks);
 
         // P(z=k | w) \propto
         //                   n[w,k] + eta[w,k]
         // (a[d,k]+n[d,k]) * -----------------
         //                   n[k]   + eta[k]
         double probsum = 0.0;
-        for (int k=0; k<K; k++) {
+        for (int k_ix=0; k_ix<3; k_ix++) {
+            int k = ks[k_ix];
             double DD = A_dk[ind2(K, d,k)] + N_dk[ind2(K, d,k)];
             double AA = E_wk[ind2(K, w,k)] + N_wk[ind2(K, w,k)];
             double BB = E_k[k] + N_k[k];
             double pp = (DD * AA) / BB;
             
             /* printf("%g %g\n", pp, probsum); */
-            if (k < 2 || k == i_dk[i]){ //In Daume model, only 3 Ks are valid.
-                pp = MAX(1e-100, pp); //general lm and query lm
-                checkPP(pp, w);
-                probs[k] = pp;
-                probsum += pp;
-            } else {
-                probs[k] = 0.0;
-            }
+            //if (k < 2 || k == i_dk[i]){ //In Daume model, only 3 Ks are valid.
+            
+            pp = MAX(1e-100, pp); //general lm and query lm
+            checkPP(pp, w);
+            probs[k] = pp;
+            probsum += pp;
+            //} else {
+            //    probs[k] = 0.0;
+            //}
         }
         
 
-        for (int k=0; k<K; k++) {
+        for (int k_ix=0; k_ix<3; k_ix++) {
+            int k = ks[k_ix];
             Q_ik[ind2(K, i,k)] = probs[k] / probsum;
-            if (k < 2 || k == i_dk[i]){
-                checkQQ(Q_ik[ind2(K, i,k)], probs[k], probsum);
-            }
+            checkQQ(Q_ik[ind2(K, i,k)], probs[k], probsum);
         }
 
         // increment
-        update(+1, K,i,d,w, Q_ik, N_wk, N_k, N_dk, i_dk);
+        update(+1, K,i,d,w, Q_ik, N_wk, N_k, N_dk, ks);
 
     }
 }

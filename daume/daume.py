@@ -168,7 +168,7 @@ def build_dataset():
     raw_sents = {}
     alpha_is = []
     for docid,line in enumerate(open("lens.anno")):
-        if docid > 25: break 
+        if docid > 500: break 
         doc = json.loads(line)["text"]
         hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
@@ -344,9 +344,7 @@ mm = make_model(dd)
 
 fill_qi_randomly_and_count(dd, mm)
 
-pickle.dump(mm, open("lens.mm", "wb"))
 
-mm = pickle.load(open("lens.mm", "r"))
 
 print "[*] Prelims complete"
 for itr in range(100):
@@ -357,10 +355,8 @@ for itr in range(100):
     assert len(np.where(mm.N_wk < 0)[0]) == 0
     print itr
     run_sweep(dd,mm,0,Ntok)
-    try:
-        assert len(np.where(mm.N_wk < 0)[0]) == 0
-    except AssertionError:
-        ipdb.set_trace()
+    assert len(np.where(mm.N_wk < 0)[0]) == 0
+
 
     if itr % 5 == 0:
         print loglik(dd,mm)
