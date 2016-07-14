@@ -52,6 +52,7 @@ class Dataset:
 
 
 
+
 def run_sweep(dd, mm,starttok, endtok):
 
     mm.A_sk.dtype == "float32"
@@ -62,7 +63,7 @@ def run_sweep(dd, mm,starttok, endtok):
     mm.N_k.dtype == "float32"
     mm.N_sk.dtype == "float32"
 
-
+    # print "here"
     libc.sweep(
             c_int(starttok), 
             c_int(endtok),
@@ -244,8 +245,8 @@ except IOError:
 K = dd.D + 1 + 1 # i.e. D language models, plus a Q model, plus a G model
 # for any given Q_i, only 3 of these will be relevant
 V = len(dd.word2num)
-ALPHA = .5/(3 * K) # 3 here b/c there are 3 valid options for each Q(i)
-ETA = 1.0/V
+ALPHA = 10.0/(3 * K) # 3 here b/c there are 3 valid options for each Q(i)
+ETA = 100.0/V
 D = dd.D
 S = dd.S
 Ntok = len(dd.tokens)
@@ -284,7 +285,7 @@ def fill_qi_randomly_and_count(dd, mm):
     mm.N_sk = np.zeros((S, K), dtype=np.float32)
     mm.N_wk = np.zeros((V, K), dtype=np.float32)
     print "filling dataset randomly"
-    mm.Q_ik = np.random.dirichlet(np.ones(K), Ntok)
+    mm.Q_ik = np.array(np.random.dirichlet(np.ones(K), Ntok), dtype=np.float32)
     assert mm.Q_ik.shape[0] == Ntok
     for i_ in range(Ntok):
         np.add(mm.N_k, mm.Q_ik[i_], out=mm.N_k)
@@ -344,19 +345,17 @@ mm = make_model(dd)
 
 fill_qi_randomly_and_count(dd, mm)
 
-import copy
-dd_p = copy.deepcopy(dd)
-mm_p = copy.deepcopy(mm)
-
 print "[*] Prelims complete"
-for itr in range(50):
+for itr in range(100):
     #run_sweep_p(dd,mm,0,Ntok)
 
-    run_sweep_p(dd,mm,0,Ntok)
+    #import ipdb
+    #ipdb.set_trace()
+    run_sweep(dd,mm,0,Ntok)
 
     if itr % 10 == 0:
         print loglik(dd,mm)
-    print "=== Iter",itr
+        print "=== Iter",itr
 
 
 def print_sents():
