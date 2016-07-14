@@ -25,8 +25,11 @@ from numpy.ctypeslib import as_ctypes
 from utils import sent_to_string
 import argparse
 import cPickle as pickle
-import ctypes
+from ctypes import c_int
+from numpy.ctypeslib import as_ctypes
+import ctypes as C
 import sys
+import ctypes
 import string
 import ujson as json
 import numpy as np
@@ -60,7 +63,23 @@ class Dataset:
     pass
 
 
-
+# http://stackoverflow.com/questions/23329663/access-np-array-in-ctypes-struct
+class Args(C.Structure):
+    _fields_ = [("starttok", C.c_int),
+                ("endtok", C.c_int),
+                ("tokens", C.POINTER(C.c_uint)),
+                ("docids", C.POINTER(C.c_uint)),
+                ("qfix", C.POINTER(C.c_uint)),
+                ("K", C.c_int),
+                ("V", C.c_int),
+                ("A_dk", C.POINTER(C.c_float)),
+                ("E_wk", C.POINTER(C.c_float)),
+                ("E_k", C.POINTER(C.c_float)),
+                ("Q_ik", C.POINTER(C.c_float)),
+                ("N_wk", C.POINTER(C.c_float)),
+                ("N_k", C.POINTER(C.c_float)),
+                ("N_dk", C.POINTER(C.c_float)),
+                ]
 
 def run_sweep(dd, mm,starttok, endtok):
 
@@ -78,22 +97,24 @@ def run_sweep(dd, mm,starttok, endtok):
     assert len(np.where(mm.N_wk < 0)[0]) == 0
     assert len(np.where(mm.N_k < 0)[0]) == 0
 
-    libc.sweep(
-            c_int(starttok), 
-            c_int(endtok),
-            as_ctypes(dd.tokens),
-            as_ctypes(dd.docids),
-            as_ctypes(dd.i_dk),
-            c_int(K),
-            c_int(V),
-            as_ctypes(mm.A_sk),
-            as_ctypes(mm.E_wk),
-            as_ctypes(mm.E_k),
-            as_ctypes(mm.Q_ik),
-            as_ctypes(mm.N_wk),
-            as_ctypes(mm.N_k),
-            as_ctypes(mm.N_sk),
-    )
+    c_float_p = ctypes.POINTER(ctypes.c_float)
+    args = Args()
+    args.starttok = starttok
+    args.endtok = endtok
+    args.tokens = as_ctypes(dd.tokens)
+    args.docids = as_ctypes(dd.docids)
+    args.qfix = as_ctypes(mm.qfix)
+    args.K = K
+    args.V = V
+    args.A_dk = mm.A_sk.ctypes.data_as(c_float_p)
+    args.E_wk = mm.E_wk.ctypes.data_as(c_float_p)
+    args.E_k = mm.E_k.ctypes.data_as(c_float_p)
+    args.Q_ik = mm.Q_ik.ctypes.data_as(c_float_p)
+    args.N_wk = mm.N_wk.ctypes.data_as(c_float_p)
+    args.N_k = mm.N_k.ctypes.data_as(c_float_p)
+    args.N_dk = mm.N_sk.ctypes.data_as(c_float_p)
+
+    libc.sweep(ctypes.byref(args))
 
     assert np.count_nonzero(np.isnan(mm.N_k)) == 0
     assert np.count_nonzero(np.isnan(mm.N_wk)) == 0
@@ -299,7 +320,7 @@ def make_model(dd):
     mm.A_sk = np.asarray(mm.A_sk, dtype=np.float32)
     mm.Q_ik = np.zeros((Ntok,K), dtype=np.float32) # don't pickle this part
     # just for compatibility. not used in C code.
-    mm.qfix = np.zeros(Ntok, dtype=np.int8)
+    mm.qfix = np.zeros(Ntok, dtype=np.uint32)
     return mm
 
 
