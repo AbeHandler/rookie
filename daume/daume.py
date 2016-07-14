@@ -128,7 +128,7 @@ SW = get_stop_words('en') + ["city", "new", "orleans", "lens", "report", "said",
 SW = SW + [o for o in string.punctuation] + [str(o) for o in range(0, 1000)]
 SW = SW + ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 SW = SW + ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
-SW = SW + ["a.m.", "p.m."]
+SW = SW + ["a.m.", "p.m.", "donors", "we", "cover", "be", "help", "us", "report"]
 
 libc = ctypes.CDLL("./cvb0.so")
 
@@ -168,7 +168,7 @@ def build_dataset():
     raw_sents = {}
     alpha_is = []
     for docid,line in enumerate(open("lens.anno")):
-        if docid > 20: break 
+        if docid > 25: break 
         doc = json.loads(line)["text"]
         hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
@@ -245,8 +245,8 @@ except IOError:
 K = dd.D + 1 + 1 # i.e. D language models, plus a Q model, plus a G model
 # for any given Q_i, only 3 of these will be relevant
 V = len(dd.word2num)
-ALPHA = 10.0/(3 * K) # 3 here b/c there are 3 valid options for each Q(i)
-ETA = 100.0/V
+ALPHA = .1 
+ETA = 1.0/V
 D = dd.D
 S = dd.S
 Ntok = len(dd.tokens)
@@ -286,9 +286,13 @@ def fill_qi_randomly_and_count(dd, mm):
     mm.N_sk = np.zeros((S, K), dtype=np.float32)
     mm.N_wk = np.zeros((V, K), dtype=np.float32)
     print "filling dataset randomly"
-    mm.Q_ik = np.array(np.random.dirichlet(np.ones(K), Ntok), dtype=np.float32)
+    mm.Q_ik = np.zeros((Ntok, K), dtype=np.float32)
+    draws = np.array(np.random.dirichlet(np.ones(3), Ntok), dtype=np.float32)
     assert mm.Q_ik.shape[0] == Ntok
     for i_ in range(Ntok):
+        mm.Q_ik[i_][0] = draws[i_][0]
+        mm.Q_ik[i_][1] = draws[i_][1]
+        mm.Q_ik[i_][dd.i_dk[i_]] = draws[i_][2]
         np.add(mm.N_k, mm.Q_ik[i_], out=mm.N_k)
         np.add(mm.N_sk[dd.i_s[i_]], mm.Q_ik[i_], out=mm.N_sk[dd.i_s[i_]])
         np.add(mm.N_wk[dd.i_w[i_]], mm.Q_ik[i_], out=mm.N_wk[dd.i_w[i_]])
@@ -303,6 +307,7 @@ def infodot(qvec, lpvec):
     # assert not np.isnan(np.sum(xx[qvec != 0]))
     return np.sum(xx[qvec != 0])
 
+
 def loglik(dd,mm):
     ll = 0
     # should hyperparams be added in after Q sums for these? or not?
@@ -310,6 +315,7 @@ def loglik(dd,mm):
     # assert np.all(mm.N_wk > 0)
     # print "\nNum negative entries", np.sum(mm.N_wk < 0), np.min(mm.N_wk), np.sum(mm.Q_ik < 0)
 
+    assert len(np.where(mm.N_wk < 0)[0]) == 0
     topics = mm.N_wk / mm.N_wk.sum(0)
     topics[topics <= 0] = 1e-9
 
@@ -324,23 +330,15 @@ def loglik(dd,mm):
 
         ## ELBO terms
         # E[log P(w|z)]
-
-        # if np.sum(infodot(Q, np.log(topics[w,:]))) == 0:
-        #    import ipdb
-        #    ipdb.set_trace()
         ll += infodot(Q, np.log(topics[w,:]))
         # E[log P(z)]: skip i'm confused. have to eval per doc dirichlets i think
         # E[log Q(z)]
-
         lg_q = np.log(Q)
 
-        lg_q[np.isnan(lg_q)] = 0  # NaNs will cause whole infodot to be a Nan so no LL reading
-        
-        if np.isnan(infodot(Q, lg_q)):
-            import ipdb
-            ipdb.set_trace()
+        lg_q[np.isnan(lg_q)] = 0 
         ll += infodot(Q, lg_q)
-    return np.nan_to_num(ll)
+    return ll
+
 
 mm = make_model(dd)
 
@@ -352,9 +350,12 @@ for itr in range(100):
 
     #import ipdb
     #ipdb.set_trace()
+    assert len(np.where(mm.N_wk < 0)[0]) == 0
+    print itr
     run_sweep(dd,mm,0,Ntok)
+    assert len(np.where(mm.N_wk < 0)[0]) == 0
 
-    if itr % 10 == 0:
+    if itr % 5 == 0:
         print loglik(dd,mm)
         print "=== Iter",itr
 

@@ -14,6 +14,12 @@ int ind2(int numcols, int row, int col) {
     return numcols*row + col;
 }
 
+void check_nwk(double pp, int k, int i){
+    if (pp <= -.00001) { 
+        printf("BAD. nwk %f %d %d\n", pp, k, i); 
+    }
+}
+
 void update(
         int direction,
         int K,
@@ -23,14 +29,34 @@ void update(
         float *Q_ik,   // token-level Q fields
         float *N_wk,   // matrix size (V x K)
         float *N_k,
-        float *N_dk
+        float *N_dk,
+        uint32_t *i_dk
         ) {
 
     for (int k=0; k<K; k++) {
         float qdelta = direction * Q_ik[ind2(K,i,k)];
+        printf("%d %d qdelta = %f, Q_ik= %f\n", i, k, qdelta, Q_ik[ind2(K,i,k)]);
         N_k[k]            += qdelta;
         N_wk[ind2(K,w,k)] += qdelta;
         N_dk[ind2(K,d,k)] += qdelta;
+        check_nwk(N_wk[ind2(K,w,k)], k, i);
+    }
+}
+
+
+
+void checkPP(double pp, uint32_t w){
+    if (pp <= 0.0) { 
+        printf("BAD. under %d\n", w); 
+    }
+}
+
+void checkQQ(double pp, double probs, double probsum){
+    if (pp < 0.0) { 
+        printf("BAD QQ. under %f %f\n", probs, probsum); 
+    }
+    if (pp > 1.0) { 
+        printf("BAD QQ. over %f %f\n", probs, probsum); 
     }
 }
 
@@ -68,68 +94,48 @@ void sweep(
         /* printf("TOK %u %d %d\n", i, w,d); */
 
         // decrement
-        update(-1, K,i,d,w, Q_ik, N_wk, N_k, N_dk);
+        update(-1, K,i,d,w, Q_ik, N_wk, N_k, N_dk, i_dk);
 
         // P(z=k | w) \propto
         //                   n[w,k] + eta[w,k]
         // (a[d,k]+n[d,k]) * -----------------
         //                   n[k]   + eta[k]
-        double probsum = 0;
-        printf("docid = %d\n", d);
+        double probsum = 0.0;
+        //printf("docid = %d\n", d);
         for (int k=0; k<K; k++) {
             double DD = A_dk[ind2(K, d,k)] + N_dk[ind2(K, d,k)];
             double AA = E_wk[ind2(K, w,k)] + N_wk[ind2(K, w,k)];
             double BB = E_k[k] + N_k[k];
             double pp = (DD * AA) / BB;
             
-            if (BB < 0) { 
-                 printf("BAD BB %f\n", BB);
-                 printf("BAD E_k %f\n", E_k[k]); 
-                 printf("BAD N_k %f\n", N_k[k]); 
-            }
-            if (DD < 0) { 
-                 printf("BAD DD %f\n", DD); 
-            }
-            if (AA < 0) { 
-                 printf("BAD AA %f\n", AA); 
-            }
-            if (pp < 0) { 
-                 printf("BAD %d\n", w); 
-            }
-
-            /*
-            if (k == 2){
-                printf("AA %f\n", AA); 
-                printf("BB %f\n", BB); 
-                printf("DD %f\n", DD); 
-                printf("i=%d k=%d A_dk=%f N_dk=%f \n", i, k, A_dk[ind2(K, d,k)], N_dk[ind2(K, d,k)]);
-                printf("i=%d k=%d E_wk=%f N_wk=%f \n", i, k, E_wk[ind2(K, d,k)], N_wk[ind2(K, d,k)]);
-                printf("i=%d k=%d E_k=%f N_k=%f \n", i, k, E_k[ind2(K, d,k)], N_k[ind2(K, d,k)]);
-            }
-            */
-            
             /* printf("%g %g\n", pp, probsum); */
-            if (k < 2){ //In Daume model, only 3 Ks are valid.
+            if (k < 2 || k == i_dk[i]){ //In Daume model, only 3 Ks are valid.
                 pp = MAX(1e-100, pp); //general lm and query lm
+                checkPP(pp, w);
+                probs[k] = pp;
+                probsum += pp;
+                //printf("%d\t", k);
+                //printf("dd %f aa %f bb %f\n", DD, AA, BB);
+                //printf("AA = E_wk %f N_wk %f \n", E_wk[ind2(K, w,k)], N_wk[ind2(K, w,k)]);
+                //printf("%f\n", probs[k]);
+            } else {
+                probs[k] = 0.0;
             }
-            if (k == i_dk[i]){
-                pp = MAX(1e-100, pp);
-            }
-            probs[k] = pp;
-            probsum += pp;
         }
         
         //printf("%d probsum=%f\n", i, probsum);
         // could get another speed gain by folding this into increment step?
         for (int k=0; k<K; k++) {
-            /* printf("k=%d Q=%g\n", k, probs[k]/probsum); */
-            /* Q_ik[ind2(K, i,k)] = MAX(1e-100, probs[k] / probsum); */
-            //printf("i=%d k=%d kval=%f\n", i, k, probs[k]);
             Q_ik[ind2(K, i,k)] = probs[k] / probsum;
+            //printf("%f\n", Q_ik[ind2(K, i,k)]);
+            //printf("%f\n", Q_ik[ind2(K, i,k)]);
+            if (k < 2 || k == i_dk[i]){
+                checkQQ(Q_ik[ind2(K, i,k)], probs[k], probsum);
+            }
         }
 
         // increment
-        update(+1, K,i,d,w, Q_ik, N_wk, N_k, N_dk);
+        update(+1, K,i,d,w, Q_ik, N_wk, N_k, N_dk, i_dk);
 
     }
 }
