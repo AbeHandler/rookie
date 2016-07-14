@@ -14,12 +14,6 @@ int ind2(int numcols, int row, int col) {
     return numcols*row + col;
 }
 
-void check_nwk(double pp, int k, int i){
-    if (pp < 0) { 
-        printf("BAD. nwk %f %d %d\n", pp, k, i); 
-    }
-}
-
 void update(
         int direction,
         int K,
@@ -29,41 +23,23 @@ void update(
         float *Q_ik,   // token-level Q fields
         float *N_wk,   // matrix size (V x K)
         float *N_k,
-        float *N_dk,
-        int* ks
+        float *N_dk
         ) {
 
-
-    for (int k_ix=0; k_ix<3; k_ix++) {
-        int k = ks[k_ix];
+    for (int k=0; k<K; k++) {
         float qdelta = direction * Q_ik[ind2(K,i,k)];
         N_k[k]            += qdelta;
         N_wk[ind2(K,w,k)] += qdelta;
         N_dk[ind2(K,d,k)] += qdelta;
-        //check_nwk(N_wk[ind2(K,w,k)], k, i);
     }
 }
 
-
-
-void checkQQ(double pp, double probs, double probsum){
-    if (pp < 0.0) { 
-        printf("BAD QQ. under %f %f\n", probs, probsum); 
-    }
-    if (pp > 1.0) { 
-        printf("BAD QQ. over %f %f\n", probs, probsum); 
-    }
-}
-
-// many args! maybe should use struct
-
-void sweep(
+void update_i(
         int starttok,    // run on positions [starttok,endtok)
         int endtok,
         uint32_t *tokens,   // wordid per token position, length Ntok
         uint32_t *docids,   // docid per token position, length Ntok
-        uint32_t *i_dk,     // map: token position -> dk (document lm), length Ntok
-        // uint8_t *qfix,   // boolean: fix this position?
+        uint8_t *qfix,   // boolean: fix this position?
         int K,  // num topics
         int V,  // vocab size (num wordtypes) .. oh not necessary?
         float *A_dk,      // doc pseudocounts
@@ -73,7 +49,27 @@ void sweep(
         float *N_wk,   // matrix size (V x K)
         float *N_k,    // vector length K
         float *N_dk    // matrix size (D x K)
-        //float *qfix    // ignore this token? a binary vector of length Ntok
+        ){
+
+}
+
+// many args! maybe should use struct
+
+void sweep(
+        int starttok,    // run on positions [starttok,endtok)
+        int endtok,
+        uint32_t *tokens,   // wordid per token position, length Ntok
+        uint32_t *docids,   // docid per token position, length Ntok
+        uint8_t *qfix,   // boolean: fix this position?
+        int K,  // num topics
+        int V,  // vocab size (num wordtypes) .. oh not necessary?
+        float *A_dk,      // doc pseudocounts
+        float *E_wk,      // lexical pseudocounts
+        float *E_k,       // precomputed sum(E_wk[:,k]) for each k
+        float *Q_ik,      // token-level Q fields size (Ntok x K)
+        float *N_wk,   // matrix size (V x K)
+        float *N_k,    // vector length K
+        float *N_dk    // matrix size (D x K)
         )
 {
     // temp space
@@ -83,47 +79,41 @@ void sweep(
         //if (qfix[i]) {
         //    continue;
         //}
-        int ks[3] = {0,1,i_dk[i]};
+
         uint32_t w = tokens[i];
         uint32_t d = docids[i];
         /* printf("TOK %u %d %d\n", i, w,d); */
 
         // decrement
-        update(-1, K,i,d,w, Q_ik, N_wk, N_k, N_dk, ks);
+        update(-1, K,i,d,w, Q_ik, N_wk, N_k, N_dk);
 
         // P(z=k | w) \propto
         //                   n[w,k] + eta[w,k]
         // (a[d,k]+n[d,k]) * -----------------
         //                   n[k]   + eta[k]
-        double probsum = 0.0;
-        for (int k_ix=0; k_ix<3; k_ix++) {
-            int k = ks[k_ix];
-
+        double probsum = 0;
+        for (int k=0; k<K; k++) {
             double DD = A_dk[ind2(K, d,k)] + N_dk[ind2(K, d,k)];
             double AA = E_wk[ind2(K, w,k)] + N_wk[ind2(K, w,k)];
             double BB = E_k[k] + N_k[k];
-            double pp = (DD * AA) / BB;
-            
-            /* printf("%g %g\n", pp, probsum); */
-            //if (k < 2 || k == i_dk[i]){ //In Daume model, only 3 Ks are valid.
- 
-            pp = MAX(1e-100, pp); //general lm and query lm
+            double pp = DD * AA / BB;
+            pp = MAX(1e-100, pp);
+            /* if (pp <= 0) { */
+            /*     printf("BAD %d\n", w); */
+            /* } */
             probs[k] = pp;
             probsum += pp;
-            //} else {
-            //    probs[k] = 0.0;
-            //}
+            /* printf("%g %g\n", pp, probsum); */
         }
-        
-
-        for (int k_ix=0; k_ix<3; k_ix++) {
-            int k = ks[k_ix];
+        // could get another speed gain by folding this into increment step?
+        for (int k=0; k<K; k++) {
+            /* printf("k=%d Q=%g\n", k, probs[k]/probsum); */
+            /* Q_ik[ind2(K, i,k)] = MAX(1e-100, probs[k] / probsum); */
             Q_ik[ind2(K, i,k)] = probs[k] / probsum;
-            checkQQ(Q_ik[ind2(K, i,k)], probs[k], probsum);
         }
 
         // increment
-        update(+1, K,i,d,w, Q_ik, N_wk, N_k, N_dk, ks);
+        update(+1, K,i,d,w, Q_ik, N_wk, N_k, N_dk);
 
     }
 }
