@@ -39,22 +39,12 @@ void update(
         float qdelta = direction * Q_ik[ind2(K,i,k)];
         N_k[k]            += qdelta;
         N_wk[ind2(K,w,k)] += qdelta;
-        // WHAT IS CAUSING THIS!!!! ??? !!!! TODO. WTF
-        // N_wk is sometimes a little negative. 
-        // this does crazy stuff to the whole algo. how does this happen?
-        N_wk[ind2(K,w,k)] = MAX(0, N_wk[ind2(K,w,k)]); 
         N_dk[ind2(K,d,k)] += qdelta;
         //check_nwk(N_wk[ind2(K,w,k)], k, i);
     }
 }
 
 
-
-void checkPP(double pp, uint32_t w){
-    if (pp <= 0.0) { 
-        printf("BAD. under %d\n", w); 
-    }
-}
 
 void checkQQ(double pp, double probs, double probsum){
     if (pp < 0.0) { 
@@ -108,6 +98,7 @@ void sweep(
         double probsum = 0.0;
         for (int k_ix=0; k_ix<3; k_ix++) {
             int k = ks[k_ix];
+
             double DD = A_dk[ind2(K, d,k)] + N_dk[ind2(K, d,k)];
             double AA = E_wk[ind2(K, w,k)] + N_wk[ind2(K, w,k)];
             double BB = E_k[k] + N_k[k];
@@ -115,9 +106,8 @@ void sweep(
             
             /* printf("%g %g\n", pp, probsum); */
             //if (k < 2 || k == i_dk[i]){ //In Daume model, only 3 Ks are valid.
-            
+ 
             pp = MAX(1e-100, pp); //general lm and query lm
-            checkPP(pp, w);
             probs[k] = pp;
             probsum += pp;
             //} else {
