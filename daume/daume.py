@@ -190,7 +190,7 @@ def build_dataset():
     raw_sents = {}
     alpha_is = []
     for docid,line in enumerate(open("lens.anno")):
-        if docid > 500: break 
+        if docid > 100: break 
         doc = json.loads(line)["text"]
         hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
