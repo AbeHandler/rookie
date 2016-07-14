@@ -15,7 +15,7 @@ int ind2(int numcols, int row, int col) {
 }
 
 void check_nwk(double pp, int k, int i){
-    if (pp <= -.00001) { 
+    if (pp < 0) { 
         printf("BAD. nwk %f %d %d\n", pp, k, i); 
     }
 }
@@ -35,7 +35,6 @@ void update(
 
     for (int k=0; k<K; k++) {
         float qdelta = direction * Q_ik[ind2(K,i,k)];
-        printf("%d %d qdelta = %f, Q_ik= %f\n", i, k, qdelta, Q_ik[ind2(K,i,k)]);
         N_k[k]            += qdelta;
         N_wk[ind2(K,w,k)] += qdelta;
         N_dk[ind2(K,d,k)] += qdelta;
@@ -101,7 +100,6 @@ void sweep(
         // (a[d,k]+n[d,k]) * -----------------
         //                   n[k]   + eta[k]
         double probsum = 0.0;
-        //printf("docid = %d\n", d);
         for (int k=0; k<K; k++) {
             double DD = A_dk[ind2(K, d,k)] + N_dk[ind2(K, d,k)];
             double AA = E_wk[ind2(K, w,k)] + N_wk[ind2(K, w,k)];
@@ -114,21 +112,14 @@ void sweep(
                 checkPP(pp, w);
                 probs[k] = pp;
                 probsum += pp;
-                //printf("%d\t", k);
-                //printf("dd %f aa %f bb %f\n", DD, AA, BB);
-                //printf("AA = E_wk %f N_wk %f \n", E_wk[ind2(K, w,k)], N_wk[ind2(K, w,k)]);
-                //printf("%f\n", probs[k]);
             } else {
                 probs[k] = 0.0;
             }
         }
         
-        //printf("%d probsum=%f\n", i, probsum);
-        // could get another speed gain by folding this into increment step?
+
         for (int k=0; k<K; k++) {
             Q_ik[ind2(K, i,k)] = probs[k] / probsum;
-            //printf("%f\n", Q_ik[ind2(K, i,k)]);
-            //printf("%f\n", Q_ik[ind2(K, i,k)]);
             if (k < 2 || k == i_dk[i]){
                 checkQQ(Q_ik[ind2(K, i,k)], probs[k], probsum);
             }

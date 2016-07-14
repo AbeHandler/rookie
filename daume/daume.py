@@ -344,6 +344,10 @@ mm = make_model(dd)
 
 fill_qi_randomly_and_count(dd, mm)
 
+pickle.dump(mm, open("lens.mm", "wb"))
+
+mm = pickle.load(open("lens.mm", "r"))
+
 print "[*] Prelims complete"
 for itr in range(100):
     #run_sweep_p(dd,mm,0,Ntok)
@@ -353,7 +357,10 @@ for itr in range(100):
     assert len(np.where(mm.N_wk < 0)[0]) == 0
     print itr
     run_sweep(dd,mm,0,Ntok)
-    assert len(np.where(mm.N_wk < 0)[0]) == 0
+    try:
+        assert len(np.where(mm.N_wk < 0)[0]) == 0
+    except AssertionError:
+        ipdb.set_trace()
 
     if itr % 5 == 0:
         print loglik(dd,mm)
