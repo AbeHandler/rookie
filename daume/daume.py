@@ -168,7 +168,7 @@ def build_dataset():
     raw_sents = {}
     alpha_is = []
     for docid,line in enumerate(open("lens.anno")):
-        if docid > 500: break 
+        if docid > 25: break 
         doc = json.loads(line)["text"]
         hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
@@ -179,6 +179,7 @@ def build_dataset():
                     
                     i_s.append(sentences) # building a vector of sentences for each token, i
                     dd.i_dk.append(docid + 2)
+                    
                     word = word.lower()
                     if word in query:
                         hit = 1
@@ -272,7 +273,7 @@ def make_model(dd):
         dk = dd.i_dk[i]
         mm.A_sk[i][0] = ALPHA  # no Alpha for invalid Ks
         mm.A_sk[i][1] = ALPHA
-        mm.A_sk[i][dk] = ALPHA
+        mm.A_sk[dd.i_s[i]][dk] = ALPHA
     mm.A_sk = np.asarray(mm.A_sk, dtype=np.float32)
     mm.Q_ik = np.zeros((Ntok,K), dtype=np.float32) # don't pickle this part
     # just for compatibility. not used in C code.
@@ -354,8 +355,11 @@ for itr in range(100):
     #ipdb.set_trace()
     assert len(np.where(mm.N_wk < 0)[0]) == 0
     print itr
+    import ipdb
+    ipdb.set_trace()
     run_sweep(dd,mm,0,Ntok)
     assert len(np.where(mm.N_wk < 0)[0]) == 0
+    assert len(np.where(mm.N_k < 0)[0]) == 0
 
 
     if itr % 5 == 0:
