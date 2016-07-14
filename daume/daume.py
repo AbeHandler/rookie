@@ -7,7 +7,16 @@ Queries: boolean for now
 
 To-try: supervision for F, like in dict classifier
 
+Bugs and/or weirdness:
+        ** N_wk is sometimes less than 0. 7/14/16. 
+        But these numbers are very low and seem like rounding errors.
+        if you inspect them cell by cell they are 10e-7 less than 0 etc
+
+        ** The elbow term is not always strictly increasing. will bounce around a bit
+
+        ** why does it get hooked on the library? why library sentences? Adjust alpha priors?
 '''
+
 
 from __future__ import division
 from collections import defaultdict
@@ -55,14 +64,19 @@ class Dataset:
 
 def run_sweep(dd, mm,starttok, endtok):
 
-    mm.A_sk.dtype == "float32"
-    mm.E_k.dtype == "float32"
-    mm.E_k.dtype == "float32"
-    mm.Q_ik.dtype == "float32"
-    mm.N_wk.dtype == "float32"
-    mm.N_k.dtype == "float32"
-    mm.N_sk.dtype == "float32"
-
+    assert mm.A_sk.dtype == "float32"
+    assert mm.E_k.dtype == "float32"
+    assert mm.E_k.dtype == "float32"
+    assert mm.Q_ik.dtype == "float32"
+    assert mm.N_wk.dtype == "float32"
+    assert mm.N_k.dtype == "float32"
+    assert mm.N_sk.dtype == "float32"
+    assert np.count_nonzero(np.isnan(mm.N_k)) == 0
+    assert np.count_nonzero(np.isnan(mm.N_wk)) == 0
+    assert np.count_nonzero(np.isnan(mm.N_sk)) == 0
+    assert len(np.where(mm.N_wk < 0)[0]) == 0
+    assert len(np.where(mm.N_wk < 0)[0]) == 0
+    assert len(np.where(mm.N_k < 0)[0]) == 0
 
     libc.sweep(
             c_int(starttok), 
@@ -81,6 +95,12 @@ def run_sweep(dd, mm,starttok, endtok):
             as_ctypes(mm.N_sk),
     )
 
+    assert np.count_nonzero(np.isnan(mm.N_k)) == 0
+    assert np.count_nonzero(np.isnan(mm.N_wk)) == 0
+    assert np.count_nonzero(np.isnan(mm.N_sk)) == 0
+    assert len(np.where(mm.N_wk < 0)[0]) == 0
+    assert len(np.where(mm.N_wk < 0)[0]) == 0
+    assert len(np.where(mm.N_k < 0)[0]) == 0
 
 def run_sweep_p(dd, mm, starttok, endtok):
     '''update tok range'''
@@ -89,38 +109,40 @@ def run_sweep_p(dd, mm, starttok, endtok):
     if endtok != Ntok:
         print "warning. not running on all tokens"
     for i in range(starttok, endtok):
-
-        assert np.count_nonzero(np.isnan(mm.N_k)) == 0
-        assert np.count_nonzero(np.isnan(mm.N_wk)) == 0
-        assert np.count_nonzero(np.isnan(mm.N_sk)) == 0
+        #assert np.count_nonzero(np.isnan(mm.N_k)) == 0
+        #assert np.count_nonzero(np.isnan(mm.N_wk)) == 0
+        #assert np.count_nonzero(np.isnan(mm.N_sk)) == 0
 
         np.subtract(mm.N_k, mm.Q_ik[i], out=mm.N_k)
         np.subtract(mm.N_wk[dd.i_w[i]], mm.Q_ik[i], out=mm.N_wk[dd.i_w[i]])
         np.subtract(mm.N_sk[dd.i_s[i]], mm.Q_ik[i], out=mm.N_sk[dd.i_s[i]])
 
+ 
         #assert (mm.Q_ik < 0).sum() == 0
         #assert (mm.N_k < 0).sum() == 0
         #assert (mm.N_wk < 0).sum() == 0
         #assert (mm.N_sk < 0).sum() == 0
 
-        
         #import ipdb
         #ipdb.set_trace()
         # assert mm.A_sk[i] == ALPHA
-        ks = (mm.N_wk[dd.i_w[i]] + mm.E_wk[dd.i_w[i]])/(mm.N_k + mm.E_k) * (mm.A_sk[i] + mm.N_sk[dd.i_s[i]])
+        ks = (mm.N_wk[dd.i_w[i]] + mm.E_wk[dd.i_w[i]])/(mm.N_k + mm.E_k) * (mm.A_sk[dd.i_s[i]] + mm.N_sk[dd.i_s[i]])
+
+        assert np.where(ks != 0)[0].shape[0] <= 3
+        assert np.where(ks < 0)[0].shape[0] == 0
 
         # occassionnally have nonsense where ks is 0s b/c removed all mass in tn topic
-        ks[dd.i_dk[i]] = max(1e-100, ks[dd.i_dk[i]]) # this avoids the NaNs. 
-        ks[dd.i_dk[i]] = max(1e-100, ks[QLM_K])      # NOTE: ONLY 3 ks set. A dif w/ cvb0 in c
-        ks[dd.i_dk[i]] = max(1e-100, ks[GLM_K])
+        ks[QLM_K] = max(1e-100, ks[QLM_K]) # this avoids the NaNs. 
+        ks[GLM_K] = max(1e-100, ks[GLM_K])      # NOTE: ONLY 3 ks set. A dif w/ cvb0 in c
+        ks[dd.i_dk[i]] = max(1e-100, ks[dd.i_dk[i]])
         ks = ks / np.sum(ks)
 
-
-
+        assert np.where(ks != 0)[0].shape[0] <= 3
         mm.Q_ik[i] = ks
         np.add(mm.N_k, ks, out=mm.N_k)
         np.add(mm.N_wk[dd.i_w[i]], ks, out=mm.N_wk[dd.i_w[i]])
         np.add(mm.N_sk[dd.i_s[i]], ks, out=mm.N_sk[dd.i_s[i]])
+
 
 
 
@@ -168,7 +190,7 @@ def build_dataset():
     raw_sents = {}
     alpha_is = []
     for docid,line in enumerate(open("lens.anno")):
-        # if docid > 500: break 
+        if docid > 500: break 
         doc = json.loads(line)["text"]
         hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
@@ -271,8 +293,8 @@ def make_model(dd):
     mm.A_sk = np.zeros((Ntok,K), dtype=np.float32)
     for i in range(Ntok):
         dk = dd.i_dk[i]
-        mm.A_sk[i][0] = ALPHA  # no Alpha for invalid Ks
-        mm.A_sk[i][1] = ALPHA
+        mm.A_sk[dd.i_s[i]][0] = ALPHA  # no Alpha for invalid Ks
+        mm.A_sk[dd.i_s[i]][1] = ALPHA
         mm.A_sk[dd.i_s[i]][dk] = ALPHA
     mm.A_sk = np.asarray(mm.A_sk, dtype=np.float32)
     mm.Q_ik = np.zeros((Ntok,K), dtype=np.float32) # don't pickle this part
@@ -341,17 +363,20 @@ def loglik(dd,mm):
     return ll
 
 
+#print "USING PICKLED MODEL!!!!"
+
 mm = make_model(dd)
 
 fill_qi_randomly_and_count(dd, mm)
 
-
+# pickle.dump(mm, open("lens.mm", "wb"))
+#mm = pickle.load(open("lens.mm"))
 
 print "[*] Prelims complete"
 for itr in range(100):
-    #run_sweep_p(dd,mm,0,Ntok)
-    assert len(np.where(mm.N_wk < 0)[0]) == 0
-    print itr
+    # run_sweep_p(dd,mm,0,Ntok)
+    #assert len(np.where(mm.N_wk < 0)[0]) == 0
+    print "\t {}".format(itr) 
     run_sweep(dd,mm,0,Ntok)
     assert len(np.where(mm.N_wk < 0)[0]) == 0
     assert len(np.where(mm.N_k < 0)[0]) == 0
@@ -372,6 +397,7 @@ def print_words():
     '''print out top sentences QLM'''
     for i in np.argsort(mm.N_wk[QLM_K])[-10:]:
         print dd.num2word[i] + "," , 
+
 
 print_sents()
 print_words()
