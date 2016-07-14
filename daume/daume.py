@@ -63,7 +63,7 @@ def run_sweep(dd, mm,starttok, endtok):
     mm.N_k.dtype == "float32"
     mm.N_sk.dtype == "float32"
 
-    # print "here"
+
     libc.sweep(
             c_int(starttok), 
             c_int(endtok),
@@ -168,7 +168,7 @@ def build_dataset():
     raw_sents = {}
     alpha_is = []
     for docid,line in enumerate(open("lens.anno")):
-        if docid > 500: break 
+        if docid > 20: break 
         doc = json.loads(line)["text"]
         hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
@@ -273,6 +273,7 @@ def make_model(dd):
         mm.A_sk[i][0] = ALPHA  # no Alpha for invalid Ks
         mm.A_sk[i][1] = ALPHA
         mm.A_sk[i][dk] = ALPHA
+    mm.A_sk = np.asarray(mm.A_sk, dtype=np.float32)
     mm.Q_ik = np.zeros((Ntok,K), dtype=np.float32) # don't pickle this part
     # just for compatibility. not used in C code.
     mm.qfix = np.zeros(Ntok, dtype=np.int8)
