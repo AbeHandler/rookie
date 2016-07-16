@@ -8,7 +8,7 @@ Queries: boolean for now
 To-try: supervision for F, like in dict classifier
 
 Bugs and/or weirdness:
-        ** N_wk is sometimes less than 0. 7/14/16. 
+        ** N_wk is sometimes less than 0. 7/14/16.
         But these numbers are very low and seem like rounding errors.
         if you inspect them cell by cell they are 10e-7 less than 0 etc
 
@@ -52,9 +52,9 @@ QLM_K = 1
 
 BETA = 5  # boost query words in priors for QLM
 
-query = ["jail", "consent", "decree", "gusman"]
+query = ["charter", "schools"]
 
-## set up model.  
+## set up model.
 class Model:
     pass
 
@@ -83,17 +83,16 @@ class Args(C.Structure):
 
 def run_sweep(dd, mm,starttok, endtok):
 
-    assert mm.A_sk.dtype == "float32"
-    assert mm.E_k.dtype == "float32"
-    assert mm.E_k.dtype == "float32"
-    assert mm.Q_ik.dtype == "float32"
-    assert mm.N_wk.dtype == "float32"
-    assert mm.N_k.dtype == "float32"
-    assert mm.N_sk.dtype == "float32"
+    assert mm.A_sk.dtype == "float64"
+    assert mm.E_k.dtype == "float64"
+    assert mm.E_k.dtype == "float64"
+    assert mm.Q_ik.dtype == "float64"
+    assert mm.N_wk.dtype == "float64"
+    assert mm.N_k.dtype == "float64"
+    assert mm.N_sk.dtype == "float64"
     assert np.count_nonzero(np.isnan(mm.N_k)) == 0
     assert np.count_nonzero(np.isnan(mm.N_wk)) == 0
     assert np.count_nonzero(np.isnan(mm.N_sk)) == 0
-    assert len(np.where(mm.N_wk < 0)[0]) == 0
     assert len(np.where(mm.N_wk < 0)[0]) == 0
     assert len(np.where(mm.N_k < 0)[0]) == 0
 
@@ -120,7 +119,6 @@ def run_sweep(dd, mm,starttok, endtok):
     assert np.count_nonzero(np.isnan(mm.N_wk)) == 0
     assert np.count_nonzero(np.isnan(mm.N_sk)) == 0
     assert len(np.where(mm.N_wk < 0)[0]) == 0
-    assert len(np.where(mm.N_wk < 0)[0]) == 0
     assert len(np.where(mm.N_k < 0)[0]) == 0
 
 def run_sweep_p(dd, mm, starttok, endtok):
@@ -138,7 +136,7 @@ def run_sweep_p(dd, mm, starttok, endtok):
         np.subtract(mm.N_wk[dd.i_w[i]], mm.Q_ik[i], out=mm.N_wk[dd.i_w[i]])
         np.subtract(mm.N_sk[dd.i_s[i]], mm.Q_ik[i], out=mm.N_sk[dd.i_s[i]])
 
- 
+
         #assert (mm.Q_ik < 0).sum() == 0
         #assert (mm.N_k < 0).sum() == 0
         #assert (mm.N_wk < 0).sum() == 0
@@ -147,13 +145,12 @@ def run_sweep_p(dd, mm, starttok, endtok):
         #import ipdb
         #ipdb.set_trace()
         # assert mm.A_sk[i] == ALPHA
-        ks = (mm.N_wk[dd.i_w[i]] + mm.E_wk[dd.i_w[i]])/(mm.N_k + mm.E_k) * (mm.A_sk[dd.i_s[i]] + mm.N_sk[dd.i_s[i]])
+        ks = ((mm.N_wk[dd.i_w[i]] + mm.E_wk[dd.i_w[i]])/(mm.N_k + mm.E_k)) * (mm.A_sk[dd.i_s[i]] + mm.N_sk[dd.i_s[i]])
 
         assert np.where(ks != 0)[0].shape[0] <= 3
-        assert np.where(ks < 0)[0].shape[0] == 0
 
         # occassionnally have nonsense where ks is 0s b/c removed all mass in tn topic
-        ks[QLM_K] = max(1e-100, ks[QLM_K]) # this avoids the NaNs. 
+        ks[QLM_K] = max(1e-100, ks[QLM_K]) # this avoids the NaNs.
         ks[GLM_K] = max(1e-100, ks[GLM_K])      # NOTE: ONLY 3 ks set. A dif w/ cvb0 in c
         ks[dd.i_dk[i]] = max(1e-100, ks[dd.i_dk[i]])
         ks = ks / np.sum(ks)
@@ -163,7 +160,7 @@ def run_sweep_p(dd, mm, starttok, endtok):
         np.add(mm.N_k, ks, out=mm.N_k)
         np.add(mm.N_wk[dd.i_w[i]], ks, out=mm.N_wk[dd.i_w[i]])
         np.add(mm.N_sk[dd.i_s[i]], ks, out=mm.N_sk[dd.i_s[i]])
-
+        # mm.N_wk[dd.i_w[i]][np.where(mm.N_wk[dd.i_w[i]] < 0)] = 0 # TODO. Why happens? rounding error?
 
 
 
@@ -199,8 +196,6 @@ def build_dataset():
 
     sentences = 0
 
-    # emprical language model, for initialization
-    doc_counts = defaultdict(lambda: defaultdict(int))
     hits = [] # stores vector of positive or negative: matches query?
     i_s = [] # maps i -> sentence
     i_w = [] # maps i -> w
@@ -211,45 +206,41 @@ def build_dataset():
     raw_sents = {}
     alpha_is = []
     for docid,line in enumerate(open("lens.anno")):
-        if docid > 100: break 
+        if docid > 500: break
         doc = json.loads(line)["text"]
         hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
             reals = [word for word in sent["tokens"] if word.lower() not in SW]
             s_i[sentences] = []
-            if len(reals) > 1: # need more than 1 word for sentence. fixes nan weirdness
-                for word in reals:
-                    
-                    i_s.append(sentences) # building a vector of sentences for each token, i
-                    dd.i_dk.append(docid + 2)
-                    
-                    word = word.lower()
-                    if word in query:
-                        hit = 1
+            for word in reals:
 
-                    wordcount[word] += 1
-                    if word not in word2num:
-                        n = len(word2num)
-                        word2num[word] = n
-                        num2word.append(word)
-                        assert num2word[n] == word
-                    else:
-                        n = word2num[word]
-                    doc_counts[docid + 2][n] += 1
-                    doc_counts[GLM_K][n] += 1
-                    doc_counts[QLM_K][n] = 0
-                    dd.tokens.append(n)
+                i_s.append(sentences) # building a vector of sentences for each token, i
+                dd.i_dk.append(docid + 2)
 
-                    i_w.append(n)
-                    s_i[sentences].append(i)
-                    i += 1
-                    dd.docids.append(sentences)
-                raw_sents[sentences] = sent_to_string(sent)
-                sentences += 1
+                word = word.lower()
+                if word in query:
+                    hit = 1
+
+                wordcount[word] += 1
+                if word not in word2num:
+                    n = len(word2num)
+                    word2num[word] = n
+                    num2word.append(word)
+                    assert num2word[n] == word
+                else:
+                    n = word2num[word]
+                dd.tokens.append(n)
+
+                i_w.append(n)
+                s_i[sentences].append(i)
+                i += 1
+                dd.docids.append(sentences)
+            raw_sents[sentences] = sent_to_string(sent)
+            sentences += 1
         if hit == 1:
-            print "Found hit"
+            print "Found hit", 
         # have to loop 2x here b/c need to see if doc is a hit first
-        for s_ix, sent in enumerate(doc['sentences']): 
+        for s_ix, sent in enumerate(doc['sentences']):
             reals = [word for word in sent["tokens"] if word.lower() not in SW]
             for w in reals:
                 hits.append(hit)
@@ -264,12 +255,11 @@ def build_dataset():
     dd.i_s = np.array(i_s, dtype=np.uint32) # i->s
     dd.s_i = dict(s_i)
     # a S length vector w/ the doc id for each S
-    dd.docids = np.array(dd.docids, dtype=np.uint32) 
+    dd.docids = np.array(dd.docids, dtype=np.uint32)
     dd.tokens = np.array(dd.tokens, dtype=np.uint32)
     dd.D = D_ # cant look at end of array b/c is 2 extra
     dd.V = len(word2num)
     dd.Ntok = len(dd.tokens)
-    dd.doc_counts = default_to_regular(doc_counts)
     dd.word2num = word2num
     dd.num2word = num2word
     dd.raw_sents = raw_sents # this won't scale to corpora that dont fit in memory. TODO, maybe
@@ -289,7 +279,7 @@ except IOError:
 K = dd.D + 1 + 1 # i.e. D language models, plus a Q model, plus a G model
 # for any given Q_i, only 3 of these will be relevant
 V = len(dd.word2num)
-ALPHA = .1 
+ALPHA = .1
 ETA = 1.0/V
 D = dd.D
 S = dd.S
@@ -300,25 +290,26 @@ def make_model(dd):
     '''set up the model'''
     print "Setting up model"
     mm = Model()
-    mm.N_w = np.zeros(V, dtype=np.float32)
+    mm.N_w = np.zeros(V, dtype=np.float64)
 
     ## counting pass could be expensive
     for ww in dd.tokens:
-        mm.N_w[ww] += 1 
+        mm.N_w[ww] += 1
 
     ## priors
-    mm.E_wk = ETA * np.ones((V,K), dtype=np.float32)
+    mm.E_wk = ETA * np.ones((V,K), dtype=np.float64)
     for w in query:
         mm.E_wk[dd.word2num[w]][QLM_K] = BETA
     mm.E_k  = mm.E_wk.sum(0)
-    mm.A_sk = np.zeros((Ntok,K), dtype=np.float32)
+    mm.A_sk = np.zeros((Ntok,K), dtype=np.float64)
     for i in range(Ntok):
         dk = dd.i_dk[i]
-        mm.A_sk[dd.i_s[i]][0] = ALPHA  # no Alpha for invalid Ks
-        mm.A_sk[dd.i_s[i]][1] = ALPHA
+        mm.A_sk[dd.i_s[i]][GLM_K] = ALPHA  # no Alpha for invalid Ks
         mm.A_sk[dd.i_s[i]][dk] = ALPHA
-    mm.A_sk = np.asarray(mm.A_sk, dtype=np.float32)
-    mm.Q_ik = np.zeros((Ntok,K), dtype=np.float32) # don't pickle this part
+        if dd.hits[i] == 1:
+            mm.A_sk[dd.i_s[i]][QLM_K] = ALPHA
+    mm.A_sk = np.asarray(mm.A_sk, dtype=np.float64)
+    mm.Q_ik = np.zeros((Ntok,K), dtype=np.float64) # don't pickle this part
     # just for compatibility. not used in C code.
     mm.qfix = np.zeros(Ntok, dtype=np.uint32)
     return mm
@@ -326,17 +317,22 @@ def make_model(dd):
 
 def fill_qi_randomly_and_count(dd, mm):
     '''i think its faster to let the algo converge than load empirical lm'''
-    mm.N_k = np.zeros(K, dtype=np.float32)
-    mm.N_sk = np.zeros((S, K), dtype=np.float32)
-    mm.N_wk = np.zeros((V, K), dtype=np.float32)
+    mm.N_k = np.zeros(K, dtype=np.float64)
+    mm.N_sk = np.zeros((S, K), dtype=np.float64)
+    mm.N_wk = np.zeros((V, K), dtype=np.float64)
     print "filling dataset randomly"
-    mm.Q_ik = np.zeros((Ntok, K), dtype=np.float32)
-    draws = np.array(np.random.dirichlet(np.ones(3), Ntok), dtype=np.float32)
+    mm.Q_ik = np.zeros((Ntok, K), dtype=np.float64)
     assert mm.Q_ik.shape[0] == Ntok
     for i_ in range(Ntok):
-        mm.Q_ik[i_][0] = draws[i_][0]
-        mm.Q_ik[i_][1] = draws[i_][1]
-        mm.Q_ik[i_][dd.i_dk[i_]] = draws[i_][2]
+        if dd.hits[i_] == 1:
+            draws = np.random.dirichlet(np.ones(3))
+            mm.Q_ik[i_][GLM_K] = draws[0]
+            mm.Q_ik[i_][QLM_K] = draws[1]
+            mm.Q_ik[i_][dd.i_dk[i_]] = draws[2]
+        else:
+            draws = np.random.dirichlet(np.ones(2))
+            mm.Q_ik[i_][GLM_K] = draws[0]
+            mm.Q_ik[i_][dd.i_dk[i_]] = draws[1]
         np.add(mm.N_k, mm.Q_ik[i_], out=mm.N_k)
         np.add(mm.N_sk[dd.i_s[i_]], mm.Q_ik[i_], out=mm.N_sk[dd.i_s[i_]])
         np.add(mm.N_wk[dd.i_w[i_]], mm.Q_ik[i_], out=mm.N_wk[dd.i_w[i_]])
@@ -379,12 +375,11 @@ def loglik(dd,mm):
         # E[log Q(z)]
         lg_q = np.log(Q)
 
-        lg_q[np.isnan(lg_q)] = 0 
+        lg_q[np.isnan(lg_q)] = 0
         ll += infodot(Q, lg_q)
     return ll
 
 
-#print "USING PICKLED MODEL!!!!"
 
 mm = make_model(dd)
 
@@ -397,8 +392,8 @@ print "[*] Prelims complete"
 for itr in range(100):
     # run_sweep_p(dd,mm,0,Ntok)
     #assert len(np.where(mm.N_wk < 0)[0]) == 0
-    print "\t {}".format(itr) 
-    run_sweep(dd,mm,0,Ntok)
+    print "\t {}".format(itr)
+    run_sweep_p(dd,mm,0,Ntok)
     assert len(np.where(mm.N_wk < 0)[0]) == 0
     assert len(np.where(mm.N_k < 0)[0]) == 0
 
@@ -410,15 +405,16 @@ for itr in range(100):
 
 def print_sents():
     '''print out top sentences QLM'''
-    for i in np.argsort(mm.N_sk[QLM_K])[-10:]:
+    for i in np.argsort(mm.N_sk[GLM_K])[-10:]:
         print dd.raw_sents[i]
 
 
-def print_words():
+def print_words(model):
     '''print out top sentences QLM'''
-    for i in np.argsort(mm.N_wk[QLM_K])[-10:]:
-        print dd.num2word[i] + "," , 
+    for i in np.argsort(mm.N_wk[model])[-10:]:
+        print dd.num2word[i] + "," ,
 
 
 print_sents()
-print_words()
+print_words(GLM_K)
+print_words(QLM_K)
