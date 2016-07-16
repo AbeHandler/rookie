@@ -52,7 +52,7 @@ QLM_K = 1
 
 BETA = 5  # boost query words in priors for QLM
 
-query = ["charter", "schools"]
+query = ["coastal", "restoration"]
 
 ## set up model.
 class Model:
@@ -142,9 +142,6 @@ def run_sweep_p(dd, mm, starttok, endtok):
         #assert (mm.N_wk < 0).sum() == 0
         #assert (mm.N_sk < 0).sum() == 0
 
-        #import ipdb
-        #ipdb.set_trace()
-        # assert mm.A_sk[i] == ALPHA
         ks = ((mm.N_wk[dd.i_w[i]] + mm.E_wk[dd.i_w[i]])/(mm.N_k + mm.E_k)) * (mm.A_sk[dd.i_s[i]] + mm.N_sk[dd.i_s[i]])
 
         assert np.where(ks != 0)[0].shape[0] <= 3
@@ -168,7 +165,7 @@ SW = get_stop_words('en') + ["city", "new", "orleans", "lens", "report", "said",
 SW = SW + [o for o in string.punctuation] + [str(o) for o in range(0, 1000)]
 SW = SW + ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 SW = SW + ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
-SW = SW + ["a.m.", "p.m.", "donors", "we", "cover", "be", "help", "us", "report"]
+SW = SW + ["a.m.", "p.m.", "donors", "we", "cover", "be", "help", "us", "report", "feb."]
 
 libc = ctypes.CDLL("./cvb0.so")
 
@@ -279,7 +276,7 @@ except IOError:
 K = dd.D + 1 + 1 # i.e. D language models, plus a Q model, plus a G model
 # for any given Q_i, only 3 of these will be relevant
 V = len(dd.word2num)
-ALPHA = .1
+ALPHA = 1
 ETA = 1.0/V
 D = dd.D
 S = dd.S
@@ -307,7 +304,7 @@ def make_model(dd):
         mm.A_sk[dd.i_s[i]][GLM_K] = ALPHA  # no Alpha for invalid Ks
         mm.A_sk[dd.i_s[i]][dk] = ALPHA
         if dd.hits[i] == 1:
-            mm.A_sk[dd.i_s[i]][QLM_K] = ALPHA
+            mm.A_sk[dd.i_s[i]][QLM_K] = ALPHA * BETA
     mm.A_sk = np.asarray(mm.A_sk, dtype=np.float64)
     mm.Q_ik = np.zeros((Ntok,K), dtype=np.float64) # don't pickle this part
     # just for compatibility. not used in C code.
@@ -390,10 +387,10 @@ fill_qi_randomly_and_count(dd, mm)
 
 print "[*] Prelims complete"
 for itr in range(100):
-    # run_sweep_p(dd,mm,0,Ntok)
+    run_sweep(dd,mm,0,Ntok)
     #assert len(np.where(mm.N_wk < 0)[0]) == 0
     print "\t {}".format(itr)
-    run_sweep_p(dd,mm,0,Ntok)
+    # run_sweep_p(dd,mm,0,Ntok)
     assert len(np.where(mm.N_wk < 0)[0]) == 0
     assert len(np.where(mm.N_k < 0)[0]) == 0
 
@@ -403,18 +400,20 @@ for itr in range(100):
         print "=== Iter",itr
 
 
-def print_sents():
-    '''print out top sentences QLM'''
-    for i in np.argsort(mm.N_sk[GLM_K])[-10:]:
+def print_sents(model):
+    '''print out top sentences'''
+    print "sentences: {}".format(model)
+    for i in np.argsort(mm.N_sk[:,model])[-10:]:
         print dd.raw_sents[i]
 
 
 def print_words(model):
-    '''print out top sentences QLM'''
-    for i in np.argsort(mm.N_wk[model])[-10:]:
+    '''print out top sentences'''
+    print "words: {}".format(model)
+    for i in np.argsort(mm.N_wk[:,model])[-10:]:
         print dd.num2word[i] + "," ,
 
 
-print_sents()
+print_sents(QLM_K)
 print_words(GLM_K)
 print_words(QLM_K)

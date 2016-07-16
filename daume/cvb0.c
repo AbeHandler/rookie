@@ -5,7 +5,7 @@
 // index for a matrix represented row-major.
 // does NOT need to know total number of rows.
 
-// float: 32bit
+// double: 32bit
 // double: 64bit.  note this is the most common default
 
 #define MAX(a, b) ((a>b) ? (a) : (b))
@@ -24,13 +24,13 @@ typedef struct ARGS{
     uint32_t *qfix;   // boolean: fix this position?
     int K;  // num topics
     int V;  // vocab size (num wordtypes) .. oh not necessary?
-    float *A_dk;      // doc pseudocounts
-    float *E_wk;      // lexical pseudocounts
-    float *E_k;       // precomputed sum(E_wk[:;k]) for each k
-    float *Q_ik;      // token-level Q fields size (Ntok x K)
-    float *N_wk;   // matrix size (V x K)
-    float *N_k;    // vector length K
-    float *N_dk;    // matrix size (D x K)
+    double *A_dk;      // doc pseudocounts
+    double *E_wk;      // lexical pseudocounts
+    double *E_k;       // precomputed sum(E_wk[:;k]) for each k
+    double *Q_ik;      // token-level Q fields size (Ntok x K)
+    double *N_wk;   // matrix size (V x K)
+    double *N_k;    // vector length K
+    double *N_dk;    // matrix size (D x K)
 } ARGS;
 
 void update(
@@ -39,14 +39,14 @@ void update(
         int i,
         int d,
         int w,
-        float *Q_ik,   // token-level Q fields
-        float *N_wk,   // matrix size (V x K)
-        float *N_k,
-        float *N_dk
+        double *Q_ik,   // token-level Q fields
+        double *N_wk,   // matrix size (V x K)
+        double *N_k,
+        double *N_dk
         ) {
 
     for (int k=0; k<K; k++) {
-        float qdelta = direction * Q_ik[ind2(K,i,k)];
+        double qdelta = direction * Q_ik[ind2(K,i,k)];
         N_k[k]            += qdelta;
         N_wk[ind2(K,w,k)] += qdelta;
         N_dk[ind2(K,d,k)] += qdelta;
@@ -61,13 +61,13 @@ void update_i(
         uint32_t *qfix,   // boolean: fix this position?
         int K,  // num topics
         int V,  // vocab size (num wordtypes) .. oh not necessary?
-        float *A_dk,      // doc pseudocounts
-        float *E_wk,      // lexical pseudocounts
-        float *E_k,       // precomputed sum(E_wk[:,k]) for each k
-        float *Q_ik,      // token-level Q fields size (Ntok x K)
-        float *N_wk,   // matrix size (V x K)
-        float *N_k,    // vector length K
-        float *N_dk    // matrix size (D x K)
+        double *A_dk,      // doc pseudocounts
+        double *E_wk,      // lexical pseudocounts
+        double *E_k,       // precomputed sum(E_wk[:,k]) for each k
+        double *Q_ik,      // token-level Q fields size (Ntok x K)
+        double *N_wk,   // matrix size (V x K)
+        double *N_k,    // vector length K
+        double *N_dk    // matrix size (D x K)
         ){
 
 }
