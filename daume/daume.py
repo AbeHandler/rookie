@@ -8,13 +8,13 @@ Queries: boolean for now
 To-try: supervision for F, like in dict classifier
 
 Bugs and/or weirdness:
-        ** N_wk is sometimes less than 0. 7/14/16.
-        But these numbers are very low and seem like rounding errors.
-        if you inspect them cell by cell they are 10e-7 less than 0 etc
-
         ** The elbow term is not always strictly increasing. will bounce around a bit
 
-        ** why does it get hooked on the library? why library sentences? Adjust alpha priors?
+Ideas: 
+        ** could you do this in java script? 
+        ** bin QLMs to get summarization for particular timespans?
+        ** or make a LM for a selected range. that is sort of the dream
+
 '''
 
 
@@ -25,10 +25,8 @@ from numpy.ctypeslib import as_ctypes
 from utils import sent_to_string
 import argparse
 import cPickle as pickle
-from ctypes import c_int
 from numpy.ctypeslib import as_ctypes
 import ctypes as C
-import sys
 import ctypes
 import string
 import ujson as json
@@ -38,6 +36,7 @@ import ipdb
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-corpus", type=str, help="corpus")
+parser.add_argument('-NP', action='store_true', default=False)
 ARGS = parser.parse_args()
 
 
@@ -50,9 +49,9 @@ from stop_words import get_stop_words
 GLM_K = 0
 QLM_K = 1
 
-BETA = 5  # boost query words in priors for QLM
+BETA = 3  # boost query words in priors for QLM
 
-query = ["coastal", "restoration"]
+query = ["mitch", "landrieu"]
 
 ## set up model.
 class Model:
@@ -128,19 +127,19 @@ def run_sweep_p(dd, mm, starttok, endtok):
     if endtok != Ntok:
         print "warning. not running on all tokens"
     for i in range(starttok, endtok):
-        #assert np.count_nonzero(np.isnan(mm.N_k)) == 0
-        #assert np.count_nonzero(np.isnan(mm.N_wk)) == 0
-        #assert np.count_nonzero(np.isnan(mm.N_sk)) == 0
+        
+        assert np.count_nonzero(np.isnan(mm.N_k)) == 0
+        assert np.count_nonzero(np.isnan(mm.N_wk)) == 0
+        assert np.count_nonzero(np.isnan(mm.N_sk)) == 0
 
         np.subtract(mm.N_k, mm.Q_ik[i], out=mm.N_k)
         np.subtract(mm.N_wk[dd.i_w[i]], mm.Q_ik[i], out=mm.N_wk[dd.i_w[i]])
         np.subtract(mm.N_sk[dd.i_s[i]], mm.Q_ik[i], out=mm.N_sk[dd.i_s[i]])
 
-
-        #assert (mm.Q_ik < 0).sum() == 0
-        #assert (mm.N_k < 0).sum() == 0
-        #assert (mm.N_wk < 0).sum() == 0
-        #assert (mm.N_sk < 0).sum() == 0
+        assert (mm.Q_ik < 0).sum() == 0
+        assert (mm.N_k < 0).sum() == 0
+        assert (mm.N_wk < 0).sum() == 0
+        assert (mm.N_sk < 0).sum() == 0
 
         ks = ((mm.N_wk[dd.i_w[i]] + mm.E_wk[dd.i_w[i]])/(mm.N_k + mm.E_k)) * (mm.A_sk[dd.i_s[i]] + mm.N_sk[dd.i_s[i]])
 
@@ -157,15 +156,13 @@ def run_sweep_p(dd, mm, starttok, endtok):
         np.add(mm.N_k, ks, out=mm.N_k)
         np.add(mm.N_wk[dd.i_w[i]], ks, out=mm.N_wk[dd.i_w[i]])
         np.add(mm.N_sk[dd.i_s[i]], ks, out=mm.N_sk[dd.i_s[i]])
-        # mm.N_wk[dd.i_w[i]][np.where(mm.N_wk[dd.i_w[i]] < 0)] = 0 # TODO. Why happens? rounding error?
-
 
 
 SW = get_stop_words('en') + ["city", "new", "orleans", "lens", "report", "said", "-lrb-", "-rrb-", "week"]
 SW = SW + [o for o in string.punctuation] + [str(o) for o in range(0, 1000)]
 SW = SW + ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 SW = SW + ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
-SW = SW + ["a.m.", "p.m.", "donors", "we", "cover", "be", "help", "us", "report", "feb."]
+SW = SW + ["a.m.", "p.m.", "donors", "we", "cover", "be", "help", "us", "report", "feb.", "new orleans", "staff writer", "the lens"]
 
 libc = ctypes.CDLL("./cvb0.so")
 
@@ -177,6 +174,14 @@ def default_to_regular(d):
     if isinstance(d, defaultdict):
         d = {k: default_to_regular(v) for k, v in d.iteritems()}
     return d
+
+
+def toks_for_sent(sent):
+    out = []
+    if ARGS.NP:
+        out = out + [phrase["normalized"] for phrase in sent["phrases"]]
+    out = out + [word for word in sent["tokens"] if word.lower()]
+    return [o for o in out if o not in SW]
 
 
 def build_dataset():
@@ -207,8 +212,8 @@ def build_dataset():
         doc = json.loads(line)["text"]
         hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
-            reals = [word for word in sent["tokens"] if word.lower() not in SW]
             s_i[sentences] = []
+            reals = toks_for_sent(sent)
             for word in reals:
 
                 i_s.append(sentences) # building a vector of sentences for each token, i
@@ -234,11 +239,9 @@ def build_dataset():
                 dd.docids.append(sentences)
             raw_sents[sentences] = sent_to_string(sent)
             sentences += 1
-        if hit == 1:
-            print "Found hit", 
         # have to loop 2x here b/c need to see if doc is a hit first
         for s_ix, sent in enumerate(doc['sentences']):
-            reals = [word for word in sent["tokens"] if word.lower() not in SW]
+            reals = toks_for_sent(sent)
             for w in reals:
                 hits.append(hit)
 
@@ -386,7 +389,7 @@ fill_qi_randomly_and_count(dd, mm)
 #mm = pickle.load(open("lens.mm"))
 
 print "[*] Prelims complete"
-for itr in range(100):
+for itr in range(5):
     run_sweep(dd,mm,0,Ntok)
     #assert len(np.where(mm.N_wk < 0)[0]) == 0
     print "\t {}".format(itr)
@@ -395,9 +398,9 @@ for itr in range(100):
     assert len(np.where(mm.N_k < 0)[0]) == 0
 
 
-    if itr % 10 == 0:
-        print loglik(dd,mm)
-        print "=== Iter",itr
+    #if itr % 10 == 0:
+    #    print loglik(dd,mm)
+    #    print "=== Iter",itr
 
 
 def print_sents(model):
@@ -414,6 +417,21 @@ def print_words(model):
         print dd.num2word[i] + "," ,
 
 
-print_sents(QLM_K)
-print_words(GLM_K)
-print_words(QLM_K)
+def print_NPs(model, n):
+    '''print out top sentences'''
+    print "NPs: {}".format(model)
+    counter = 0
+    topnps = np.argsort(mm.N_wk[:,model])
+    topnps = topnps[::-1]
+    for i in topnps:
+        if counter > n:
+            break
+        else:
+            if len(dd.num2word[i].split(" ")) > 1:
+                print dd.num2word[i] + "," ,
+                counter += 1
+
+print_NPs(QLM_K, 15)
+#print_sents(QLM_K)
+#print_words(GLM_K)
+#print_words(QLM_K)
