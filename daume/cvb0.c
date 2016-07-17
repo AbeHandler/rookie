@@ -8,6 +8,9 @@
 // double: 32bit
 // double: 64bit.  note this is the most common default
 
+#include <pthread.h>
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
 #define MAX(a, b) ((a>b) ? (a) : (b))
 
 int ind2(int numcols, int row, int col) {
@@ -15,8 +18,13 @@ int ind2(int numcols, int row, int col) {
 }
 
 struct ARGS;
+struct ARGS_array;
+const int MAX = 10000;
 
+// parameterization for 1 thread. 
+// if no threading, just past this to sweep
 typedef struct ARGS{
+    int nthreads;    // 
     int starttok;    // run on positions [starttok;endtok)
     int endtok;
     uint32_t *tokens;   // wordid per token position; length Ntok
@@ -32,6 +40,12 @@ typedef struct ARGS{
     double *N_k;    // vector length K
     double *N_dk;    // matrix size (D x K)
 } ARGS;
+
+// an array of parameterizations, one for each thread
+typedef struct ARGS_array{
+    short nthread;    // number of structs. each thread gets 1 struct
+    ARGS* all_args[MAX]; 
+} ARGS_array;
 
 void update(
         int direction,
@@ -53,32 +67,12 @@ void update(
     }
 }
 
-void update_i(
-        int starttok,    // run on positions [starttok,endtok)
-        int endtok,
-        uint32_t *tokens,   // wordid per token position, length Ntok
-        uint32_t *docids,   // docid per token position, length Ntok
-        uint32_t *qfix,   // boolean: fix this position?
-        int K,  // num topics
-        int V,  // vocab size (num wordtypes) .. oh not necessary?
-        double *A_dk,      // doc pseudocounts
-        double *E_wk,      // lexical pseudocounts
-        double *E_k,       // precomputed sum(E_wk[:,k]) for each k
-        double *Q_ik,      // token-level Q fields size (Ntok x K)
-        double *N_wk,   // matrix size (V x K)
-        double *N_k,    // vector length K
-        double *N_dk    // matrix size (D x K)
-        ){
 
-}
-
-// many args! maybe should use struct
 
 void sweep(
-        ARGS* args
+        ARGS *args
         )
 {
-    // temp space
     double probs[args->K];  // careful: uninitialized memory to start
 
     for (int i=args->starttok; i<args->endtok; i++) {
@@ -87,8 +81,9 @@ void sweep(
         //}
         uint32_t w = args->tokens[i];
         uint32_t d = args->docids[i];
-        /* printf("TOK %u %d %d\n", i, w,d); */
         // decrement
+
+        pthread_mutex_lock (&mutex);  // this whole update is part of one transaction w/ mutex
         update(-1, args->K,i,d,w, args->Q_ik, args->N_wk, args->N_k, args->N_dk);
 
         // P(z=k | w) \propto
@@ -104,22 +99,51 @@ void sweep(
             double BB = args->E_k[k] + args->N_k[k];
             double pp = DD * AA / BB;
             pp = MAX(1e-100, pp);
-            /* if (pp <= 0) { */
-            /*     printf("BAD %d\n", w); */
-            /* } */
+            // if (pp <= 0) { 
+            //     printf("BAD %d\n", w);
+            // } 
             probs[k] = pp;
             probsum += pp;
-            /* printf("%g %g\n", pp, probsum); */
+            // printf("%g %g\n", pp, probsum); 
         }
         // could get another speed gain by folding this into increment step?
         for (int k=0; k<args->K; k++) {
-            /* printf("k=%d Q=%g\n", k, probs[k]/probsum); */
-            /* Q_ik[ind2(K, i,k)] = MAX(1e-100, probs[k] / probsum); */
+            // printf("k=%d Q=%g\n", k, probs[k]/probsum); 
+            // Q_ik[ind2(K, i,k)] = MAX(1e-100, probs[k] / probsum); 
             args->Q_ik[ind2(args->K, i,k)] = probs[k] / probsum;
         }
         // increment
         update(+1, args->K,i,d,w, args->Q_ik, args->N_wk, args->N_k, args->N_dk);
-
+        pthread_mutex_unlock (&mutex); // release the lock
     }
 }
 
+void threaded_sweep(ARGS* args)
+{
+    pthread_t thr[args->nthreads];
+    int o;
+    int per_thread = args->endtok/args->nthreads;
+    for(int n = 0; n < args->nthreads; n++){
+        struct ARGS a;
+        a.starttok = per_thread * n;
+        a.endtok = MAX(per_thread * n, args->endtok);
+        a.tokens = args->tokens;
+        a.docids = args->docids;
+        a.qfix = NULL;
+        a.K = args->K;
+        a.V = args->V;
+        a.A_dk = args->A_dk;
+        a.E_wk = args->E_wk;
+        a.E_k = args->E_k;
+        a.Q_ik = args->Q_ik;
+        a.N_wk = args->N_wk;
+        a.N_k = args->N_k;
+        a.N_dk = args->N_dk;
+
+        o = pthread_create(&thr[n], NULL, sweep, &a);
+
+    }
+    for(int n = 0; n < args->nthreads; n++){
+        o = pthread_join(thr[n], NULL);
+    }
+}
