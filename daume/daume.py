@@ -51,7 +51,7 @@ QLM_K = 1
 
 BETA = 3  # boost query words in priors for QLM
 
-query = ["mitch", "landrieu"]
+query = ["charter", "school"]
 
 ## set up model.
 class Model:
@@ -64,7 +64,8 @@ class Dataset:
 
 # http://stackoverflow.com/questions/23329663/access-np-array-in-ctypes-struct
 class Args(C.Structure):
-    _fields_ = [("starttok", C.c_int),
+    _fields_ = [("nthreads", C.c_int),
+                ("starttok", C.c_int),
                 ("endtok", C.c_int),
                 ("tokens", C.POINTER(C.c_uint)),
                 ("docids", C.POINTER(C.c_uint)),
@@ -79,6 +80,17 @@ class Args(C.Structure):
                 ("N_k", C.POINTER(C.c_float)),
                 ("N_dk", C.POINTER(C.c_float)),
                 ]
+
+# http://stackoverflow.com/questions/17101845/python-ctypes-array-of-structs
+# class Args_array(C.Structure):
+#    _fields_ = [('nthread', ctypes.c_short),
+#                ('all_args', ctypes.POINTER(Args))]
+#
+#    def __init__(self,n):
+#        elems = (Args * n)()
+#        self.all_args = ctypes.cast(elems, ctypes.POINTER(Args))
+#        self.nthread = n
+
 
 def run_sweep(dd, mm,starttok, endtok):
 
@@ -95,8 +107,13 @@ def run_sweep(dd, mm,starttok, endtok):
     assert len(np.where(mm.N_wk < 0)[0]) == 0
     assert len(np.where(mm.N_k < 0)[0]) == 0
 
+
+    THREADS = 25
+
     c_float_p = ctypes.POINTER(ctypes.c_float)
+
     args = Args()
+    args.nthreads = THREADS
     args.starttok = starttok
     args.endtok = endtok
     args.tokens = as_ctypes(dd.tokens)
@@ -112,7 +129,7 @@ def run_sweep(dd, mm,starttok, endtok):
     args.N_k = mm.N_k.ctypes.data_as(c_float_p)
     args.N_dk = mm.N_sk.ctypes.data_as(c_float_p)
 
-    libc.sweep(ctypes.byref(args))
+    libc.threaded_sweep(ctypes.byref(args))
 
     assert np.count_nonzero(np.isnan(mm.N_k)) == 0
     assert np.count_nonzero(np.isnan(mm.N_wk)) == 0
@@ -207,8 +224,9 @@ def build_dataset():
     i = 0
     raw_sents = {}
     alpha_is = []
+    tot_hits = 0
     for docid,line in enumerate(open("lens.anno")):
-        if docid > 500: break
+        if docid > 50: break
         doc = json.loads(line)["text"]
         hit = 0
         for s_ix, sent in enumerate(doc['sentences']):
@@ -222,6 +240,7 @@ def build_dataset():
                 word = word.lower()
                 if word in query:
                     hit = 1
+                    tot_hits += 1
 
                 wordcount[word] += 1
                 if word not in word2num:
@@ -247,6 +266,7 @@ def build_dataset():
 
         D_ += 1
 
+    print "total hits = {}".format(tot_hits)
     # an I length vector mapping i->hit. hit = i's document matches query
     dd.hits = np.array(hits, dtype=np.uint32)
     dd.S = sentences
