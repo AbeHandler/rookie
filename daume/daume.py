@@ -25,6 +25,7 @@ from numpy.ctypeslib import as_ctypes
 from utils import sent_to_string
 import argparse
 import cPickle as pickle
+import datetime
 from numpy.ctypeslib import as_ctypes
 import ctypes as C
 import ctypes
@@ -36,7 +37,8 @@ import ipdb
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-corpus", type=str, help="corpus")
-parser.add_argument('-NP', action='store_true', default=False)
+parser.add_argument('-NP', action='store_true', help="store NPs along w/ unigrams", default=False)
+parser.add_argument('-JUSTNP', action='store_true', help="just NPs, no unigrams", default=False)
 ARGS = parser.parse_args()
 
 
@@ -51,7 +53,7 @@ QLM_K = 1
 
 BETA = 3  # boost query words in priors for QLM
 
-query = ["charter", "school"]
+query = ["testing"]
 
 ## set up model.
 class Model:
@@ -107,20 +109,17 @@ def run_sweep(dd, mm,starttok, endtok):
     assert len(np.where(mm.N_wk < 0)[0]) == 0
     assert len(np.where(mm.N_k < 0)[0]) == 0
 
-
-    THREADS = 25
-
     c_float_p = ctypes.POINTER(ctypes.c_float)
 
     args = Args()
-    args.nthreads = THREADS
+    args.nthreads = 1
     args.starttok = starttok
     args.endtok = endtok
     args.tokens = as_ctypes(dd.tokens)
     args.docids = as_ctypes(dd.docids)
-    args.qfix = as_ctypes(mm.qfix)
-    args.K = K
-    args.V = V
+    args.qfix = as_ctypes(dd.qfix)
+    args.K = dd.K
+    args.V = dd.V
     args.A_dk = mm.A_sk.ctypes.data_as(c_float_p)
     args.E_wk = mm.E_wk.ctypes.data_as(c_float_p)
     args.E_k = mm.E_k.ctypes.data_as(c_float_p)
@@ -141,7 +140,7 @@ def run_sweep_p(dd, mm, starttok, endtok):
     '''update tok range'''
     # python for now. should be written in a way that makes it be easy to xfer to C
 
-    if endtok != Ntok:
+    if endtok != dd.Ntok:
         print "warning. not running on all tokens"
     for i in range(starttok, endtok):
         
@@ -195,9 +194,13 @@ def default_to_regular(d):
 
 def toks_for_sent(sent):
     out = []
-    if ARGS.NP:
-        out = out + [phrase["normalized"] for phrase in sent["phrases"]]
+    if ARGS.JUSTNP:  # NPs only
+        return [phrase["normalized"] for phrase in sent["phrases"] if len(phrase["normalized"].split()) > 1 and phrase["normalized"] not in SW]   
+    if ARGS.NP:  # NPs and unigrams
+        out = out + [phrase["normalized"] for phrase in sent["phrases"] if len(phrase["normalized"].split()) > 1]
     out = out + [word for word in sent["tokens"] if word.lower()]
+    out  = [o for o in set(out)]
+    
     return [o for o in out if o not in SW]
 
 
@@ -232,15 +235,24 @@ def build_dataset():
         for s_ix, sent in enumerate(doc['sentences']):
             s_i[sentences] = []
             reals = toks_for_sent(sent)
+            # ipdb.set_trace()
             for word in reals:
 
                 i_s.append(sentences) # building a vector of sentences for each token, i
                 dd.i_dk.append(docid + 2)
 
                 word = word.lower()
-                if word in query:
-                    hit = 1
-                    tot_hits += 1
+                if ARGS.JUSTNP:
+                    found = False
+                    for term in query:
+                        if term in word: # in this case, word will be an NP w. len > 1
+                            hit = 1
+                    if found:
+                        tot_hits += 1
+                else:
+                    if word in query:
+                        hit = 1
+                        tot_hits += 1
 
                 wordcount[word] += 1
                 if word not in word2num:
@@ -269,6 +281,9 @@ def build_dataset():
     print "total hits = {}".format(tot_hits)
     # an I length vector mapping i->hit. hit = i's document matches query
     dd.hits = np.array(hits, dtype=np.uint32)
+    def invert(h_):
+        return 0 if h_ is 1 else 1
+    dd.qfix = np.array([invert(h) for h in hits], dtype=np.uint32)
     dd.S = sentences
     dd.i_dk = np.array(dd.i_dk, dtype=np.uint32) # i->dk
     dd.i_w = np.array(i_w, dtype=np.uint32) # i->w
@@ -283,6 +298,7 @@ def build_dataset():
     dd.word2num = word2num
     dd.num2word = num2word
     dd.raw_sents = raw_sents # this won't scale to corpora that dont fit in memory. TODO, maybe
+    dd.K = dd.D + 1 + 1 # i.e. D language models, plus a Q model, plus a G model
     pickle.dump(dd, open(ARGS.corpus + ".dd", "wb"))
 
     print "[*] Built dataset"
@@ -296,54 +312,54 @@ except IOError:
     print "[*] Could not find cached dataset. Building one"
     dd = build_dataset()
 
-K = dd.D + 1 + 1 # i.e. D language models, plus a Q model, plus a G model
+
 # for any given Q_i, only 3 of these will be relevant
-V = len(dd.word2num)
 ALPHA = 1
-ETA = 1.0/V
-D = dd.D
-S = dd.S
-Ntok = len(dd.tokens)
+ETA = 1.0/dd.V
 
 
 def make_model(dd):
     '''set up the model'''
     print "Setting up model"
     mm = Model()
-    mm.N_w = np.zeros(V, dtype=np.float64)
+    mm.N_w = np.zeros(dd.V, dtype=np.float64)
 
     ## counting pass could be expensive
     for ww in dd.tokens:
         mm.N_w[ww] += 1
 
     ## priors
-    mm.E_wk = ETA * np.ones((V,K), dtype=np.float64)
+    mm.E_wk = ETA * np.ones((dd.V,dd.K), dtype=np.float64)
     for w in query:
-        mm.E_wk[dd.word2num[w]][QLM_K] = BETA
+        try:
+            mm.E_wk[dd.word2num[w]][QLM_K] = BETA
+        except KeyError:
+            print "[*] warning: can't find query word, {} in vocab. this only makes sense if -JUSTNP is set".format(w)
+            assert ARGS.JUSTNP == True
     mm.E_k  = mm.E_wk.sum(0)
-    mm.A_sk = np.zeros((Ntok,K), dtype=np.float64)
-    for i in range(Ntok):
+    mm.A_sk = np.zeros((dd.Ntok,dd.K), dtype=np.float64)
+    for i in range(dd.Ntok):
         dk = dd.i_dk[i]
         mm.A_sk[dd.i_s[i]][GLM_K] = ALPHA  # no Alpha for invalid Ks
         mm.A_sk[dd.i_s[i]][dk] = ALPHA
         if dd.hits[i] == 1:
             mm.A_sk[dd.i_s[i]][QLM_K] = ALPHA * BETA
     mm.A_sk = np.asarray(mm.A_sk, dtype=np.float64)
-    mm.Q_ik = np.zeros((Ntok,K), dtype=np.float64) # don't pickle this part
+    mm.Q_ik = np.zeros((dd.Ntok,dd.K), dtype=np.float64) # don't pickle this part
     # just for compatibility. not used in C code.
-    mm.qfix = np.zeros(Ntok, dtype=np.uint32)
+    mm.qfix = np.zeros(dd.Ntok, dtype=np.uint32)
     return mm
 
 
 def fill_qi_randomly_and_count(dd, mm):
     '''i think its faster to let the algo converge than load empirical lm'''
-    mm.N_k = np.zeros(K, dtype=np.float64)
-    mm.N_sk = np.zeros((S, K), dtype=np.float64)
-    mm.N_wk = np.zeros((V, K), dtype=np.float64)
+    mm.N_k = np.zeros(dd.K, dtype=np.float64)
+    mm.N_sk = np.zeros((dd.S, dd.K), dtype=np.float64)
+    mm.N_wk = np.zeros((dd.V, dd.K), dtype=np.float64)
     print "filling dataset randomly"
-    mm.Q_ik = np.zeros((Ntok, K), dtype=np.float64)
-    assert mm.Q_ik.shape[0] == Ntok
-    for i_ in range(Ntok):
+    mm.Q_ik = np.zeros((dd.Ntok, dd.K), dtype=np.float64)
+    assert mm.Q_ik.shape[0] == dd.Ntok
+    for i_ in range(dd.Ntok):
         if dd.hits[i_] == 1:
             draws = np.random.dirichlet(np.ones(3))
             mm.Q_ik[i_][GLM_K] = draws[0]
@@ -399,7 +415,7 @@ def loglik(dd,mm):
         ll += infodot(Q, lg_q)
     return ll
 
-
+print "total tokens {}".format(dd.Ntok)
 
 mm = make_model(dd)
 
@@ -409,13 +425,18 @@ fill_qi_randomly_and_count(dd, mm)
 #mm = pickle.load(open("lens.mm"))
 
 print "[*] Prelims complete"
-for itr in range(5):
-    run_sweep(dd,mm,0,Ntok)
+
+print "total tokens {}".format(dd.Ntok)
+for itr in range(2):
+    a = datetime.datetime.now()
+    run_sweep(dd,mm,0,dd.Ntok)
     #assert len(np.where(mm.N_wk < 0)[0]) == 0
     print "\t {}".format(itr)
     # run_sweep_p(dd,mm,0,Ntok)
     assert len(np.where(mm.N_wk < 0)[0]) == 0
     assert len(np.where(mm.N_k < 0)[0]) == 0
+    b = datetime.datetime.now()
+    print b - a
 
 
     #if itr % 10 == 0:
@@ -452,6 +473,6 @@ def print_NPs(model, n):
                 counter += 1
 
 print_NPs(QLM_K, 15)
-#print_sents(QLM_K)
-#print_words(GLM_K)
-#print_words(QLM_K)
+print_sents(QLM_K)
+print_words(GLM_K)
+print_words(QLM_K)
