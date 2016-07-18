@@ -1,4 +1,5 @@
 '''build connection to db'''
+import ipdb
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from webapp import CONNECTION_STRING
@@ -12,9 +13,14 @@ go("create table ngram_pubdates (ngram text, pubdates jsonb, corpusid integer)")
 go("create table doc_metadata (docid integer, data jsonb, corpusid integer)")
 go("create table corpora (corpusid integer not null primary key, corpusname character(100), first_story date, last_story date)")
 go("create table count_vectors (docid integer, corpusid integer not null, data jsonb)")
-go("insert into corpora values (1, 'lens')")
-go("insert into corpora values (2, 'gawk')")
-go("insert into corpora values (3, 'election')")
+
+import glob
+
+
+for c_ix, corpus in enumerate(glob.glob("/Users/ahandler/research/rookie/corpora/*")):
+    cp = corpus.split("/").pop()
+    go("insert into corpora values ({}, '{}')".format(c_ix, cp))
+
 go("CREATE index on doc_metadata (docid)") # i think these are all the important indexes. added them manually
 go("CREATE index on doc_metadata (corpusid)")
 go("CREATE index on count_vectors (docid)")

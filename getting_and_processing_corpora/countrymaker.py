@@ -5,7 +5,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='args')
 
-ANNO_LOC = "/Users/ahandler/research/posphrases/py/"
+ANNO_LOC = "/Users/ahandler/research/posphrases/py/anno/"
 
 parser.add_argument('-country', action="store")
 
@@ -59,8 +59,9 @@ remove(OUTF)
 
 # nicaraguas is a list preprocessed w/ grep.
 # could easily by a list of all anno files.
-with open("nicaraguas", "r") as inf:
+with open("fns", "r") as inf:
     for ln in inf:
+        print country, ln
         fn = ln.replace("\n", "")
         if "anno_plus" in fn:
             with open(ANNO_LOC + "/" + fn, "r") as newf:
@@ -70,6 +71,8 @@ with open("nicaraguas", "r") as inf:
                     jdoc = json.loads(dt)
                     out = {}
                     out["text"] = jdoc
+                    for sen in out["text"]["sentences"]:
+                        sen["as_string"] = sent_to_string(sen)
                     out["headline"] = "unknown"
                     out["url"] = "unknown"
                     out["pubdate"] = pubdate

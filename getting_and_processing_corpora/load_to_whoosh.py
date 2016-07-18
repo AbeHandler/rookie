@@ -7,7 +7,9 @@ from whoosh import writing
 from collections import defaultdict
 import csv
 import os
+import ipdb
 import sys
+import re
 csv.field_size_limit(sys.maxsize)
 import ujson
 import argparse
@@ -59,15 +61,25 @@ def load(index_location, processed_location):
                     headline = line_json["headline"]
                 except KeyError:
                     headline = "Headline: NA"
-                pubdate = parse(line_json["pubdate"])
+                
+                try:
+                    pubdate = parse(line_json["pubdate"])
+                except TypeError:
+                    # nyt world news date format = 19870101_0000087
+                    nytdate = re.match("[0-9]{8}(?=_)", line_json["pubdate"]).group(0)
+                    assert len(nytdate) == 8
+                    pubdate = parse(nytdate)
+
 
                 try:
                     url = line_json["url"]
                 except KeyError:
                     url = "unknown"
 
+                # ipdb.set_trace()
                 full_text = " ".join(t for s in line_json["text"]["sentences"]
                                      for t in s["tokens"])
+                print "tat"
                 ngrams = []
                 for sent in line_json["text"]["sentences"]:
                     ngrams = ngrams + [o["regular"] for o in sent["phrases"]]

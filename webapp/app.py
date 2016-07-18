@@ -107,6 +107,7 @@ def intro():
     params.q = "INTRO_MODE"
     results = Models.get_results(params)
     out = get_stuff_ui_needs(params, results)
+    out["sents"] = []
     return views.handle_query(out)
 
 '''
