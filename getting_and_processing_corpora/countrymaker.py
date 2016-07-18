@@ -32,6 +32,20 @@ def has_country(jdoc, country):
     return False
 
 
+def sent_to_string(j_doc_sent):
+    '''make string from jdoc sent'''
+    output = []  ## list of unicode objects, both tokens and sometimes whitespace
+    for tokno, tok in enumerate(j_doc_sent["tokens"]):
+        tok_char_start = int(j_doc_sent["char_offsets"][tokno][0])
+        if tokno > 0:
+            prev_tok_char_end = int(j_doc_sent["char_offsets"][tokno - 1][1])
+            if prev_tok_char_end < tok_char_start:
+                output.append(u" ")
+        assert isinstance(tok, unicode)
+        output.append(tok)
+    return u"".join(output)
+
+
 def remove(fn):
     try:
         os.remove(fn)
@@ -54,9 +68,11 @@ with open("nicaraguas", "r") as inf:
                     pubdate = ln2.split("\t")[0]
                     dt = ln2.split("\t")[1]
                     jdoc = json.loads(dt)
-                    jdoc["headline"] = "unknown"
-                    jdoc["url"] = "unknown"
-                    jdoc["pubdate"] = pubdate
+                    out = {}
+                    out["text"] = jdoc
+                    out["headline"] = "unknown"
+                    out["url"] = "unknown"
+                    out["pubdate"] = pubdate
                     if has_country(jdoc, country):
                         with open(OUTF, "a") as outf:
-                            outf.write(json.dumps(jdoc) + "\n")
+                            outf.write(json.dumps(out) + "\n")
