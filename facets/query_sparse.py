@@ -7,19 +7,38 @@ from whoosh.index import open_dir
 from collections import defaultdict
 import operator
 import datetime
+import ipdb
 import time
 import cPickle as pickle
 import argparse
 from Levenshtein import distance
 
 DEBUG = False
-STOPTOKENS = [] # TODO: set this in the db
 
-CUTOFF = 50
+#CUTOFF = 50
 
-stops = ["lens staff", "lens staff writer", "live blog", "#### live", "matt davis", "ariella cohen", "story report", "####", "#### live blog", "the lens", "new orleans", "staff writer", "orleans parish"]
+def make_stops():
+    stops_ = ["lens staff", "last month", "last week", "last year", "lens staff writer", "live blog", "#### live", "matt davis", "ariella cohen", "story report", "####", "#### live blog", "the lens", "new orleans", "staff writer", "orleans parish"]
+    stops_ = stops_ + ["last year", "last week", "last month", "next week", "last week"]
+    for o1 in ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]:
+        for o2 in ["years", "year", "month", "months", "day", "days", "week", "weeks"]:
+            stops_.append(o1 + " " + o2)
+
+
+    stops_ = stops_ + ["first time", "second time", "York Times", "recent years", "same time"]
+
+    return set(stops_)
+
+stops = make_stops()
 
 import whoosh.query
+
+
+def stop(w):
+    if w in stops:
+        return True
+    if "last year" in w:
+        return True
 
 '''build connection to db'''
 from sqlalchemy import create_engine
@@ -91,8 +110,8 @@ def s_check(facet, proposed_new_facet, distance):
 
 
 def get_jaccard(one, two):
-    one = set([i.lower() for i in one.split(" ") if i.lower() not in STOPTOKENS])
-    two = set([i.lower() for i in two.split(" ") if i.lower() not in STOPTOKENS])
+    one = set([i.lower() for i in one.split(" ")])
+    two = set([i.lower() for i in two.split(" ")])
     jacard = float(len(one & two)) / len(one | two)
     return jacard
 
@@ -118,7 +137,7 @@ def heuristic_cleanup(output, proposed_new_facet, structures, q, aliases=default
     debug_print(output)
     dfs = structures["df"]["ngram"]
     decoder = structures["decoders"]["ngram"]
-    if proposed_new_facet.lower() in stops:
+    if stop(proposed_new_facet.lower()):
         return output # dont and the new facet
     if proposed_new_facet in output:
         return output # dont add duplicates
@@ -206,7 +225,7 @@ def get_all_facets(raws, structures, q):
     return output
 
 
-def get_facet_tfidf_cutoff(results, structures, facet_type):
+def get_facet_tfidf_cutoff(results, structures, facet_type, n_facets):
     '''
     get the tfidf score for each facet_type w/ a cutoff
     "tf" = how many queried documents contain f (i.e. boolean: facet occurs or no)
@@ -224,15 +243,16 @@ def get_facet_tfidf_cutoff(results, structures, facet_type):
     idf = structures["idf"][facet_type]
     for t in tfs:
         tfidfs[t] = idf[int(t)] * tfs[t]
-    sorted_x = sorted(tfidfs.items(), key=operator.itemgetter(1), reverse=True)[0:CUTOFF]
+    # ipdb.set_trace()
+    sorted_x = sorted(tfidfs.items(), key=operator.itemgetter(1), reverse=True)[0:n_facets]
     return [(structures["reverse_decoders"][facet_type][int(i[0])], i[1]) for i in sorted_x] # i[0] is ngram, i[1] is tfidf score
 
 
-def get_raw_facets(results, bins, structures):
+def get_raw_facets(results, bins, structures, n_facets):
     '''
     Returns top_n facets per bin + top_n for global bin
     '''
-    return get_facet_tfidf_cutoff(results, structures, "ngram")
+    return get_facet_tfidf_cutoff(results, structures, "ngram", n_facets)
 
 
 def get_facets_for_q(q, results, n_facets, structures):
@@ -242,6 +262,7 @@ def get_facets_for_q(q, results, n_facets, structures):
     Return binned facets. TODO: xrange(2010, 2016) hardcodes bins for now 
     '''
 
+    s = time.time()
     facet_results = defaultdict(list) # results per bin. output.
 
     if len(results) == 0:
@@ -251,15 +272,18 @@ def get_facets_for_q(q, results, n_facets, structures):
     max_yr = max(structures["pubdates"][int(r)].year for r in results)
 
     # tf and idf score + string -- no filtering heutistics
-    raw_facets = get_raw_facets(results, xrange(min_yr, max_yr), structures)
+    raw_facets = get_raw_facets(results, xrange(min_yr, max_yr), structures, n_facets)
 
     # run a filtering heuristic to clean up facets
     ok_facets = get_all_facets(raw_facets, structures, q)
 
+    print "len OK_facets={}".format(len(ok_facets))
     # find the ok_facets in the raw_facets
     filtered_facets = [i for i in raw_facets if i[0] in ok_facets]
 
+    print "len filtered facets={}".format(len(filtered_facets))
     # return the strings, in order of i
+    e = time.time()
     return {"g": [i[0] for i in filtered_facets]}
 
 if __name__ == '__main__':
@@ -278,8 +302,6 @@ if __name__ == '__main__':
 
     CORPUS = args.corpus
     NDOCS = get_ndocs(CORPUS)
-
-    STOPTOKENS = ["new", "orleans", "york"]
 
     aliases = defaultdict(list)
 

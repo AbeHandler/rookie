@@ -13,7 +13,7 @@ parser.add_argument('--nlpjar', help='where is core nlp?', required=True)
 parser.add_argument('--tagset', help='np fst tag set', required=False)
 args = parser.parse_args()
 
-proc = CoreNLP("pos", corenlp_jars=[args.nlpjar + '/*'])
+proc = CoreNLP("parse", corenlp_jars=[args.nlpjar + '/*'])
 
 try:
     os.remove('corpora/' + args.corpus + '/processed/all.anno_plus')
@@ -66,6 +66,7 @@ with open ("corpora/" + args.corpus + "/raw/all.extract") as raw:
         out = {}
         pubdate = line[1]
         headline = line[4]
+        print headline
         text = proc.parse_doc(un_html_ify(line[5]))
         try:
             url = line[6]

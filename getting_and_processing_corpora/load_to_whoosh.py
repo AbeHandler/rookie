@@ -64,7 +64,7 @@ def load(index_location, processed_location):
                 
                 try:
                     pubdate = parse(line_json["pubdate"])
-                except TypeError:
+                except ValueError:
                     # nyt world news date format = 19870101_0000087
                     nytdate = re.match("[0-9]{8}(?=_)", line_json["pubdate"]).group(0)
                     assert len(nytdate) == 8
@@ -79,7 +79,6 @@ def load(index_location, processed_location):
                 # ipdb.set_trace()
                 full_text = " ".join(t for s in line_json["text"]["sentences"]
                                      for t in s["tokens"])
-                print "tat"
                 ngrams = []
                 for sent in line_json["text"]["sentences"]:
                     ngrams = ngrams + [o["regular"] for o in sent["phrases"]]
@@ -104,7 +103,7 @@ def load(index_location, processed_location):
                     s_counter += 1
                     if s_counter % 1000==0:
                         sys.stdout.write("...%s" % s_counter); sys.stdout.flush()
-            except ValueError:
+            except UnicodeError:
                 pass
         # create_pubdate_index(ngram_pubdate_index)
         print "Committing to whoosh"

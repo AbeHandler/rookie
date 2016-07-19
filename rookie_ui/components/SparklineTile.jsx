@@ -27,6 +27,15 @@ module.exports = React.createClass({
   },
 
   render: function() {
+    let facet_title_style = {
+      paddingTop: "10%",
+      paddingLeft: "10%",
+      color:"#621b14",
+      textOverflow:"clip",
+      whiteSpace: "nowrap",
+      fontWeight: "bold",
+      cursor: "pointer"
+    }
     if (this.props.col_no != 0){
       facet_title_style.borderLeft = "1px solid grey";
     }
