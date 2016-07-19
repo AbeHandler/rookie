@@ -290,7 +290,18 @@ module.exports = React.createClass({
   * A handler for when user clicks the X by F. Adjust state so f=-1
   */
   fX: function(){
-    this.setState({f: -1, mode:"overview", start_selected: -1, end_selected: -1, f_counts: []});
+    let min = moment(this.props.chart_bins[0]);
+    let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
+    min = min.format("YYYY-MM-DD");
+    max = max.format("YYYY-MM-DD");
+    this.setState({f: -1,
+                   mode:"overview",
+                   start_selected: -1,
+                   chart_mode: "intro",
+                   end_selected: -1,
+                   start_selected:min,
+                   end_selected:max,
+                   f_counts: []});
   },
 
   turn_on_rect_mode: function(p){
@@ -453,6 +464,7 @@ module.exports = React.createClass({
                          ndocs={this.props.total_docs_for_q}
                          f={this.state.f}
                          requery={this.requery}
+                         unf={this.fX}
                          mode={this.state.mode}
                          q={this.props.q}/>
              </Panel>
