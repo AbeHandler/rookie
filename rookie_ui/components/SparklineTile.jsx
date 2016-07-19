@@ -9,6 +9,9 @@ var _ = require('lodash');
 
 var Sparkline = require('./Sparkline.jsx');
 
+var Row = require('react-bootstrap/lib/Row');
+var Col = require('react-bootstrap/lib/Col');
+
 var ReactDOM = require('react-dom');
 
 module.exports = React.createClass({
@@ -28,8 +31,6 @@ module.exports = React.createClass({
 
   render: function() {
     let facet_title_style = {
-      paddingTop: "10%",
-      paddingLeft: "10%",
       color:"#621b14",
       textOverflow:"clip",
       whiteSpace: "nowrap",
@@ -39,40 +40,27 @@ module.exports = React.createClass({
     if (this.props.col_no != 0){
       facet_title_style.borderLeft = "1px solid grey";
     }
-    let bc = "white";
-    if (this.props.selected){
-      bc = "rgba(100,100,100,0.2)";
-    }
     let w = (this.props.width) - 50;
-    let spark_h = this.props.height;
-    let spark_w = this.props.w_h_ratio * spark_h;
+    let spark_h = w/this.props.w_h_ratio;
+    let spark_w = w; // # this.props.w_h_ratio * spark_h;  =  * h
     return (
-          <div style={{
-                      width:"100%",
-                      backgroundColor:bc,
-                      height:this.props.height}}
-                      onClick={this.handleClick}>
+      <Row onClick={this.handleClick}>
+            <Col xs={12}>
               <div style={{
-                          width:w * .2,
-                          height:this.props.height,
-                          color:"#621b14",
+                     color:"#621b14",
                           fontWeight: "bold",
                           fontSize: ".8em",
                           cursor: "pointer",
                           float: "left"}}>
                           {this.props.facet}
               </div>
-              <div style={{
-                          width: w * .8,
-                          height:this.props.height,
-                          float: "right"}}>
-
-                <Sparkline  q_data={this.props.q_data}
+                <Sparkline  selected={this.props.selected} 
+                            q_data={this.props.q_data}
                             f_data={this.props.f_datas}
                             width={spark_w}
                             height={spark_h}/>
-              </div>
-          </div>
+            </Col>
+        </Row>
     );
   }
 });

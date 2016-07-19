@@ -4,6 +4,7 @@ SparlineGrid.jsx
 */
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var d3 = require('d3');
 var _ = require('lodash');
 var SparklineTile = require('./SparklineTile.jsx');
@@ -15,6 +16,7 @@ var Col = require('react-bootstrap/lib/Col');
 
 module.exports = React.createClass({
 
+
   render: function() {
     let col_range = _.range(this.props.col_no);
     let facet_datas = this.props.facet_datas;
@@ -23,18 +25,24 @@ module.exports = React.createClass({
     let w_h_ratio = this.props.w_h_ratio;
     let intro = this.props.intro;
     let f = this.props.f;
-    let row_range = _.range(this.props.ntile);
+    
     let width = this.props.width;
     let height = this.props.height;
-    let ntile = this.props.ntile;
+
+    let displayed = _.filter(this.props.facet_datas, function(o) { 
+                                                                  return o.rank >= this.props.startdisplay 
+                                                                   && o.rank < this.props.enddisplay }.bind(this));
+
+    let ntile = this.props.enddisplay - this.props.startdisplay;
     return (
             <Grid fluid style={{height:height}}>
-              {this.props.facet_datas.map(function(value, i){
+              {displayed.map(function(value, i){
                      var selected = false;
                      if (f == value["f"]){
                           selected = true;
                      }
-                     return  <SparklineTile selected={selected}
+
+                     return  <SparklineTile ref="tile" selected={selected}
                                                col_no={1}
                                                clickTile={clickTile}
                                                key={value["f"]}
@@ -44,10 +52,8 @@ module.exports = React.createClass({
                                                w_h_ratio={w_h_ratio}
                                                q_data={q_data}
                                                f_datas={value["counts"]}/>
-                      })}
-                  })
-                }
-            </Grid>
+              })}
+            </Grid> 
     );
   }
 });

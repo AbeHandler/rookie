@@ -30,6 +30,19 @@ module.exports = React.createClass({
         let q = this.get_path_string(this.props.q_data);
         let f = this.get_path_string(this.props.f_data);
         let fill;
-        return <svg width={this.props.width} height={this.props.height}><path d={q} fill={"#0028a3"} opacity=".25" stroke="black"/><path d={f} fill="#B33125" opacity=".75" stroke="black"/></svg>;
+        let indicator = "";
+        if (this.props.selected){
+            indicator = <rect width={this.props.width} height={this.props.height} fill="grey" opacity=".25"/>
+        }else{
+            indicator = <path></path>
+        }
+
+        return(
+            <svg width={this.props.width} height={this.props.height}>
+                {indicator}
+                <path d={q} fill={"#0028a3"} opacity=".25" stroke="black"/><path d={f} fill="#B33125" opacity=".75" stroke="black"/>
+            </svg>
+            )
+        
     }
 });

@@ -76,7 +76,8 @@ module.exports = React.createClass({
     return {drag_r: false, drag_l:false, mouse_down_in_chart: false,
            mouse_is_dragging: false, width: 0, height: 0, click_tracker: -1,
            chart_mode: "intro", all_results: sents, start_selected:min,
-           end_selected:max, f_counts:[], f: -1, hovered: -1,
+           end_selected:max, f_counts:[], f: -1, hovered: -1, 
+           startdisplay: 0, //rank of first facet to display... i.e offset by?
            //current_bin_position: -1,
            kind_of_doc_list: "summary_baseline",
            mode:"docs"};
@@ -356,8 +357,11 @@ module.exports = React.createClass({
                      ndocs={this.props.total_docs_for_q}
                      {...this.props}/>
     main_panel = <Panel header={sparkline_h}>
-                                   <SparklineGrid ntile="7" width={this.state.width/2}
-                                   height={lower_h} f={this.state.f}
+                                   <SparklineGrid startdisplay={this.state.startdisplay} 
+                                   enddisplay={5}
+                                   width={this.state.width/2}
+                                   height={lower_h}
+                                   f={this.state.f}
                                    {...this.props} clickTile={this.clickTile}
                                    q_data={q_data} col_no={1}
                                    facet_datas={this.props.facet_datas}/>

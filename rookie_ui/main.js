@@ -10,11 +10,15 @@ var w_h_ratio = 15;  // width % height for sparkline or chart. used to set aspec
 
 ReactDOM.render(
   <UI base_url={base_url}
-      y_axis_width={55} w_h_ratio={w_h_ratio}
+      y_axis_width={55}
+      w_h_ratio={w_h_ratio}
       facet_datas={facet_datas}
+      sparkline_per_panel={7}
       total_docs_for_q={total_docs_for_q}
-      corpus={corpus} chart_bins={chart_bins}
-      q_data={q_data} datas={global_facets}
+      corpus={corpus}
+      chart_bins={chart_bins}
+      q_data={q_data}
+      datas={global_facets}
       q={query}/>,
   document.getElementById('example')
 );
