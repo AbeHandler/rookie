@@ -29,6 +29,7 @@ import datetime
 from numpy.ctypeslib import as_ctypes
 import ctypes as C
 import ctypes
+import random
 import string
 import ujson as json
 import numpy as np
@@ -53,7 +54,7 @@ QLM_K = 1
 
 BETA = 3  # boost query words in priors for QLM
 
-query = ["testing"]
+query = ["charter", "schools"]
 
 ## set up model.
 class Model:
@@ -198,7 +199,7 @@ def toks_for_sent(sent):
         return [phrase["normalized"] for phrase in sent["phrases"] if len(phrase["normalized"].split()) > 1 and phrase["normalized"] not in SW]   
     if ARGS.NP:  # NPs and unigrams
         out = out + [phrase["normalized"] for phrase in sent["phrases"] if len(phrase["normalized"].split()) > 1]
-    out = out + [word for word in sent["tokens"] if word.lower()]
+    out = out + [word for word in sent["tokens"] if word.lower() not in SW]
     out  = [o for o in set(out)]
     
     return [o for o in out if o not in SW]
@@ -228,6 +229,9 @@ def build_dataset():
     raw_sents = {}
     alpha_is = []
     tot_hits = 0
+
+    counter = defaultdict(int)
+
     for docid,line in enumerate(open("lens.anno")):
         if docid > 50: break
         doc = json.loads(line)["text"]
@@ -237,11 +241,10 @@ def build_dataset():
             reals = toks_for_sent(sent)
             # ipdb.set_trace()
             for word in reals:
-
+                word = word.lower()
                 i_s.append(sentences) # building a vector of sentences for each token, i
                 dd.i_dk.append(docid + 2)
-
-                word = word.lower()
+                counter[word] += 1
                 if ARGS.JUSTNP:
                     found = False
                     for term in query:
@@ -278,6 +281,9 @@ def build_dataset():
 
         D_ += 1
 
+    TOT = sum(v for k,v in counter.items())
+    counter_normalized = {k: v/TOT for k, v in counter.items()}
+
     print "total hits = {}".format(tot_hits)
     # an I length vector mapping i->hit. hit = i's document matches query
     dd.hits = np.array(hits, dtype=np.uint32)
@@ -299,7 +305,10 @@ def build_dataset():
     dd.num2word = num2word
     dd.raw_sents = raw_sents # this won't scale to corpora that dont fit in memory. TODO, maybe
     dd.K = dd.D + 1 + 1 # i.e. D language models, plus a Q model, plus a G model
+    dd.glm = {word2num[k]: v for k, v in counter_normalized.items()} # empirical GLM
     pickle.dump(dd, open(ARGS.corpus + ".dd", "wb"))
+    with open(ARGS.corpus + "_glm.p", "w") as outf:
+        pickle.dump(dd.glm, outf)
 
     print "[*] Built dataset"
     return dd
@@ -351,7 +360,7 @@ def make_model(dd):
     return mm
 
 
-def fill_qi_randomly_and_count(dd, mm):
+def fill_and_count(dd, mm):
     '''i think its faster to let the algo converge than load empirical lm'''
     mm.N_k = np.zeros(dd.K, dtype=np.float64)
     mm.N_sk = np.zeros((dd.S, dd.K), dtype=np.float64)
@@ -359,16 +368,23 @@ def fill_qi_randomly_and_count(dd, mm):
     print "filling dataset randomly"
     mm.Q_ik = np.zeros((dd.Ntok, dd.K), dtype=np.float64)
     assert mm.Q_ik.shape[0] == dd.Ntok
+    min_ = min(v for k,v in dd.glm.items())
+    max_ = max(v for k,v in dd.glm.items())
+
     for i_ in range(dd.Ntok):
+        w = dd.i_w[i_]
+        glm = dd.glm[w]
+        dlm = random.uniform(min_, max_)
         if dd.hits[i_] == 1:
-            draws = np.random.dirichlet(np.ones(3))
-            mm.Q_ik[i_][GLM_K] = draws[0]
-            mm.Q_ik[i_][QLM_K] = draws[1]
-            mm.Q_ik[i_][dd.i_dk[i_]] = draws[2]
+            qlm = random.uniform(min_, max_)
+            sum_ = qlm + dlm + glm
+            mm.Q_ik[i_][GLM_K] = glm/sum_
+            mm.Q_ik[i_][QLM_K] = qlm/sum_
+            mm.Q_ik[i_][dd.i_dk[i_]] = dlm/sum_
         else:
-            draws = np.random.dirichlet(np.ones(2))
-            mm.Q_ik[i_][GLM_K] = draws[0]
-            mm.Q_ik[i_][dd.i_dk[i_]] = draws[1]
+            sum_ = dlm + glm
+            mm.Q_ik[i_][GLM_K] = glm/sum_
+            mm.Q_ik[i_][dd.i_dk[i_]] = dlm/sum_
         np.add(mm.N_k, mm.Q_ik[i_], out=mm.N_k)
         np.add(mm.N_sk[dd.i_s[i_]], mm.Q_ik[i_], out=mm.N_sk[dd.i_s[i_]])
         np.add(mm.N_wk[dd.i_w[i_]], mm.Q_ik[i_], out=mm.N_wk[dd.i_w[i_]])
@@ -419,7 +435,7 @@ print "total tokens {}".format(dd.Ntok)
 
 mm = make_model(dd)
 
-fill_qi_randomly_and_count(dd, mm)
+fill_and_count(dd, mm)
 
 # pickle.dump(mm, open("lens.mm", "wb"))
 #mm = pickle.load(open("lens.mm"))
@@ -427,7 +443,7 @@ fill_qi_randomly_and_count(dd, mm)
 print "[*] Prelims complete"
 
 print "total tokens {}".format(dd.Ntok)
-for itr in range(2):
+for itr in range(30):
     a = datetime.datetime.now()
     run_sweep(dd,mm,0,dd.Ntok)
     #assert len(np.where(mm.N_wk < 0)[0]) == 0
@@ -439,9 +455,9 @@ for itr in range(2):
     print b - a
 
 
-    #if itr % 10 == 0:
-    #    print loglik(dd,mm)
-    #    print "=== Iter",itr
+    if itr % 10 == 0:
+        print loglik(dd,mm)
+        print "=== Iter",itr
 
 
 def print_sents(model):
