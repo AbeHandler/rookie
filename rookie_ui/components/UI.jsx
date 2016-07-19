@@ -66,6 +66,21 @@ module.exports = React.createClass({
     this.set_width();
     window.addEventListener("resize", this.set_width);
     window.addEventListener("keydown", this.handleKeyDown);
+    let url = this.props.base_url + "get_facet_datas?q=" + this.props.q + "&corpus=" + this.props.corpus
+    $.ajax({
+              url: url,
+              dataType: 'json',
+              cache: true,
+              method: 'POST',
+              success: function(d) {
+                //count vector for just clicked facet, e (event)
+                this.setState({facet_datas: d});
+              }.bind(this),
+              error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+              }.bind(this)
+    });
+
   },
 
   getInitialState(){
@@ -82,6 +97,7 @@ module.exports = React.createClass({
            startdisplay: 0, //rank of first facet to display... i.e offset by?
            //current_bin_position: -1,
            kind_of_doc_list: "summary_baseline",
+           facet_datas: this.props.facet_datas,
            mode:"docs"};
   },
 
@@ -246,7 +262,7 @@ module.exports = React.createClass({
               cache: true,
               success: function(d) {
                 //count vector for just clicked facet, e (event)
-                let fd = _.find(facet_datas, function(o) { return o.f == e; });
+                let fd = _.find(this.state.facet_datas, function(o) { return o.f == e; });
                 this.setState({start_selected: minbin,
                               end_selected: maxbin,
                               f: e,
@@ -375,7 +391,7 @@ module.exports = React.createClass({
                                    f={this.state.f}
                                    {...this.props} clickTile={this.clickTile}
                                    q_data={q_data} col_no={1}
-                                   facet_datas={this.props.facet_datas}/>
+                                   facet_datas={this.state.facet_datas}/>
                    </Panel>
     let chart;
     let docviewer = <DocViewer kind_of_doc_list={this.state.kind_of_doc_list}

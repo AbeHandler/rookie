@@ -16,6 +16,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from facets.query_sparse import get_facets_for_q, load_all_data_structures
 from pylru import lrudecorator
+from collections import OrderedDict
 import traceback
 
 ENGINE = create_engine(CONNECTION_STRING)
@@ -41,59 +42,66 @@ def get_headline_xpress(corpus):
         return pickle.load(inf)
 
 
-def get_stuff_ui_needs(params, results):
-    try:
-
-        binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
-
-        aliases = [] # TODO
-        stuff_ui_needs = {}
-        q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
-
-        keys = get_keys(params.corpus)
-
-        q_data = []
+def get_facet_datas(binned_facets, results, params, limit=None):
+    '''build the facet_datas for the ui. limit is a cutoff (for time)'''
+    facets = []
+    keys = get_keys(params.corpus)
+    q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
+    qpdset = set(q_pubdates)
+    if limit is not None:
+        loop_over = binned_facets['g'][0:limit]
+    else:
+        loop_over = binned_facets['g']
+    for rank, fac in enumerate(loop_over):
+        counts = []
+        results_f = filter_f(results, fac, params.corpus)
+        facet_pds = [load_all_data_structures(params.corpus)["pubdates"][int(f)] for f in results_f]
         for key in keys:
-            q_data.append(sum(1 for r in q_pubdates if r.year==key.year and r.month==key.month))
+            counts.append(sum(1 for r in facet_pds if 
+                              r.year == key.year and r.month == key.month
+                              and r in qpdset))
+        facets.append({"f":fac, "counts":counts, "rank": rank})
+    return facets
 
-        stuff_ui_needs["keys"] = [k.strftime("%Y-%m") + "-01" for k in keys]
-        display_bins = []
-        for key in binned_facets:
-            if key != "g":
-                display_bins.append({"key": key, "facets": binned_facets[key]})
 
-        stuff_ui_needs["total_docs_for_q"] = len(results)
-        facets = {}
-        
-        qpdset = set(q_pubdates)
-        for fac in binned_facets['g']:
-            counts = []
-            results_f = filter_f(results, fac, params.corpus)
-            facet_pds = [load_all_data_structures(params.corpus)["pubdates"][int(f)] for f in results_f]
-            for key in keys:
-                counts.append(sum(1 for r in facet_pds if 
-                                  r.year == key.year and r.month == key.month
-                                  and r in qpdset))
-            facets[fac] = counts
+def get_stuff_ui_needs(params, results):
+    binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
 
-        stuff_ui_needs["facet_datas"] = facets
+    aliases = [] # TODO
+    stuff_ui_needs = {}
+    q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
+    qpdset = set(q_pubdates)
 
-        dminmax = corpus_min_max(params.corpus)
+    keys = get_keys(params.corpus)
 
-        try:
-            stuff_ui_needs["first_story_pubdate"] = dminmax["min"]
-            stuff_ui_needs["last_story_pubdate"] = dminmax["max"]
-        except ValueError:
-            stuff_ui_needs["first_story_pubdate"] = ""
-            stuff_ui_needs["last_story_pubdate"] = ""
-        stuff_ui_needs["corpus"] = params.corpus
-        stuff_ui_needs["query"] = params.q
-        stuff_ui_needs["q_data"] = q_data
-        stuff_ui_needs["global_facets"] = binned_facets['g']
-        return stuff_ui_needs
-    except:
-        with open('log/error.txt', 'a') as f:
-            traceback.print_exc(file=f)
+    q_data = []
+    for key in keys:
+        q_data.append(sum(1 for r in q_pubdates if r.year==key.year and r.month==key.month))
+
+    stuff_ui_needs["keys"] = [k.strftime("%Y-%m") + "-01" for k in keys]
+    display_bins = []
+    for key in binned_facets:
+        if key != "g":
+            display_bins.append({"key": key, "facets": binned_facets[key]})
+
+    stuff_ui_needs["total_docs_for_q"] = len(results)
+
+    stuff_ui_needs["facet_datas"] = get_facet_datas(binned_facets=binned_facets, 
+                                                    params=params,
+                                                    results=results,
+                                                    limit=5)
+
+    dminmax = corpus_min_max(params.corpus)
+
+    stuff_ui_needs["first_story_pubdate"] = dminmax["min"]
+    stuff_ui_needs["last_story_pubdate"] = dminmax["max"]
+
+    stuff_ui_needs["corpus"] = params.corpus
+    stuff_ui_needs["query"] = params.q
+    stuff_ui_needs["q_data"] = q_data
+    stuff_ui_needs["global_facets"] = binned_facets['g']
+    return stuff_ui_needs
+
 
 def query(qry_string, corpus):
     '''
@@ -122,6 +130,7 @@ def corpus_min_max(corpus):
     res2 = [r for r in res][0]
     return {"min": res2[2], "max": res2[3]}
 
+
 def results_to_doclist(results, q, f, corpus, pubdates, aliases):
     '''
     Start w/ search results. filter based on params. get a doclist back.
@@ -131,18 +140,6 @@ def results_to_doclist(results, q, f, corpus, pubdates, aliases):
     filtered_pubdates = [pubdates[int(r)] for r in results]
     return filtered_pubdates, fdoc_list
 
-
-'''
-AH: I think can be deleted
-def get_pubdates_for_ngram(ngram_str):
-    """used to be PI[ngram_str]"""
-    res = SESSION.connection().execute(
-            u"SELECT pubdates FROM ngram_pubdates WHERE ngram=%s",
-            ngram_str)
-    row = res.fetchone()
-    dates = row[0]
-    return set(datetime.datetime.strptime(date, "%Y-%m-%d") for date in dates)
-'''
 
 def getcorpusid(corpus):
     '''

@@ -13,7 +13,7 @@ ReactDOM.render(
       y_axis_width={55}
       w_h_ratio={w_h_ratio}
       facet_datas={facet_datas}
-      sparkline_per_panel={7}
+      sparkline_per_panel={5}
       total_docs_for_q={total_docs_for_q}
       corpus={corpus}
       chart_bins={chart_bins}

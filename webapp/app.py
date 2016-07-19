@@ -5,10 +5,9 @@ The main web app for rookie
 
 import json
 from flask.ext.compress import Compress
-from webapp.models import results_to_doclist, get_keys, corpus_min_max, get_stuff_ui_needs, filter_f
+from webapp.models import results_to_doclist, get_keys, corpus_min_max, get_stuff_ui_needs, filter_f, get_facet_datas
 from flask import Flask, request
-
-from facets.query_sparse import load_all_data_structures
+from facets.query_sparse import get_facets_for_q, load_all_data_structures
 from webapp.views import Views
 from webapp.models import Models
 from webapp import IP, ROOKIE_JS, ROOKIE_CSS, BASE_URL
@@ -52,6 +51,20 @@ def get_sents():
     results = Models.get_results(params)
     results = filter_f(results, params.f, params.corpus)
     out = Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[])
+    return json.dumps(out)
+
+@app.route("/get_facet_datas", methods=['POST'])
+def post_for_facet_datas():
+    '''
+    post for all time vectors for all facets. only the first 5 are returned on initial GET b/c takes a long time
+    '''
+    params = Models.get_parameters(request)
+    results = Models.get_results(params)
+    binned_facets = get_facets_for_q(params.q, 
+                                     results,
+                                     200,
+                                     load_all_data_structures(params.corpus))
+    out = get_facet_datas(binned_facets, results=results, params=params)
     return json.dumps(out)
 
 
