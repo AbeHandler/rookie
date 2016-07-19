@@ -15,7 +15,6 @@ module.exports = React.createClass({
         }else{
             x_script = ""
         }
-        console.log(this.props.click);
         return (
             <span onClick={()=>this.props.click(this.props.text)} style={{color: this.props.color, fontWeight: "bold"}}>
                 {this.props.text}{x_script}

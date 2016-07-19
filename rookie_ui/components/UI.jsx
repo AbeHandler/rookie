@@ -17,6 +17,8 @@ var QueryBar = require('./QueryBar.jsx');
 var SummaryStatus = require('./SummaryStatus.jsx');
 var $ = require('jquery');
 var Panel = require('react-bootstrap/lib/Panel');
+var Button = require('react-bootstrap/lib/Button');
+var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
 
 let q_color = "#0028a3";
 let f_color = "#b33125";
@@ -110,7 +112,6 @@ module.exports = React.createClass({
     if (this.state.f != -1){
         results = this.state.f_list;
     }
-    console.log(this.state.f_list);
     let start = moment(this.state.start_selected, "YYYY-MM-DD");
     let end = moment(this.state.end_selected, "YYYY-MM-DD");
     let out_results =  _.filter(results, function(value, key) {
@@ -318,7 +319,6 @@ module.exports = React.createClass({
     let qX = this.qX;
     let bin_size = "year"; //default binsize
     let docs = this.resultsToDocs(this.state.all_results);
-    console.log(docs.length);
     let docs_ignoreT = this.n_fdocs(this.state.all_results);
     let y_scroll = {
         overflowY: "scroll",
@@ -353,12 +353,23 @@ module.exports = React.createClass({
     let chart_height = this.state.width / this.props.w_h_ratio;
     let query_bar_height = 50;
     let lower_h = (this.state.height - chart_height - query_bar_height)/2.5;
-    let sparkline_h = <SparklineStatus fX={this.fX} qX={qX}
+
+    let backbutton = "";
+    if (this.state.startdisplay > 0){
+        backbutton = <Button onClick={()=>this.setState({startdisplay: this.state.startdisplay - this.props.sparkline_per_panel})} bsSize="xsmall">Back</Button>
+    }
+    let sparkline_h = <div><SparklineStatus fX={this.fX} qX={qX}
                      ndocs={this.props.total_docs_for_q}
-                     {...this.props}/>
+                     {...this.props}/>    
+                    <ButtonToolbar style={{float:"right"}}>
+                      {backbutton}
+                      <Button onClick={()=>this.setState({startdisplay: this.state.startdisplay + this.props.sparkline_per_panel})} bsSize="xsmall">More subjects</Button>
+                    </ButtonToolbar>
+                     </div>
+    let end_facet_no = this.state.startdisplay + this.props.sparkline_per_panel
     main_panel = <Panel header={sparkline_h}>
                                    <SparklineGrid startdisplay={this.state.startdisplay} 
-                                   enddisplay={5}
+                                   enddisplay={end_facet_no}
                                    width={this.state.width/2}
                                    height={lower_h}
                                    f={this.state.f}
