@@ -71,7 +71,6 @@ class Args(C.Structure):
                 ("starttok", C.c_int),
                 ("endtok", C.c_int),
                 ("tokens", C.POINTER(C.c_uint)),
-                ("test", C.POINTER(C.c_uint)),
                 ("docids", C.POINTER(C.c_uint)),
                 ("qfix", C.POINTER(C.c_uint)),
                 ("K", C.c_int),
@@ -120,7 +119,6 @@ def run_sweep(dd, mm,starttok, endtok):
     args.starttok = starttok
     args.endtok = endtok
     args.tokens = as_ctypes(dd.tokens)
-    args.test = as_ctypes(dd.tokens)
     args.docids = as_ctypes(dd.docids)
     args.I_dk = as_ctypes(dd.i_dk)
     # args.qfix = as_ctypes(dd.qfix)
@@ -135,7 +133,7 @@ def run_sweep(dd, mm,starttok, endtok):
     args.N_dk = mm.N_sk.ctypes.data_as(c_float_p)
 
 
-    libc.threaded_sweep(ctypes.byref(args))
+    libc.sweep(ctypes.byref(args))
 
     assert np.count_nonzero(np.isnan(mm.N_k)) == 0
     assert np.count_nonzero(np.isnan(mm.N_wk)) == 0
@@ -320,7 +318,7 @@ def build_dataset():
     dd.i_dk = np.array(dd.i_dk, dtype=np.uint32) # i->dk
     dd.docids = np.array(dd.docids, dtype=np.uint32)
     dd.tokens = np.array(dd.tokens, dtype=np.uint32)
-    dd.test = np.array(dd.i_dk, dtype=np.uint32)
+    dd.test = np.array(dd.tokens, dtype=np.uint32)
     dd.D = D_ # cant look at end of array b/c is 2 extra
     dd.V = len(glm["word2num"])
     dd.Ntok = i
