@@ -20,7 +20,7 @@ Ideas:
 
 from __future__ import division
 from collections import defaultdict
-from ctypes import c_int
+from ctypes import c_int, c_int32
 from numpy.ctypeslib import as_ctypes
 from utils import sent_to_string
 import argparse
@@ -54,7 +54,7 @@ QLM_K = 1
 
 BETA = 3  # boost query words in priors for QLM
 
-query = ["charter", "schools"]
+query = ["marlin", "gusman"]
 
 ## set up model.
 class Model:
@@ -71,6 +71,7 @@ class Args(C.Structure):
                 ("starttok", C.c_int),
                 ("endtok", C.c_int),
                 ("tokens", C.POINTER(C.c_uint)),
+                ("test", C.POINTER(C.c_uint)),
                 ("docids", C.POINTER(C.c_uint)),
                 ("qfix", C.POINTER(C.c_uint)),
                 ("K", C.c_int),
@@ -82,6 +83,7 @@ class Args(C.Structure):
                 ("N_wk", C.POINTER(C.c_float)),
                 ("N_k", C.POINTER(C.c_float)),
                 ("N_dk", C.POINTER(C.c_float)),
+                ("I_dk", C.POINTER(C.c_uint))
                 ]
 
 # http://stackoverflow.com/questions/17101845/python-ctypes-array-of-structs
@@ -104,6 +106,7 @@ def run_sweep(dd, mm,starttok, endtok):
     assert mm.N_wk.dtype == "float64"
     assert mm.N_k.dtype == "float64"
     assert mm.N_sk.dtype == "float64"
+    assert dd.i_dk.dtype == "uint32"
     assert np.count_nonzero(np.isnan(mm.N_k)) == 0
     assert np.count_nonzero(np.isnan(mm.N_wk)) == 0
     assert np.count_nonzero(np.isnan(mm.N_sk)) == 0
@@ -117,8 +120,10 @@ def run_sweep(dd, mm,starttok, endtok):
     args.starttok = starttok
     args.endtok = endtok
     args.tokens = as_ctypes(dd.tokens)
+    args.test = as_ctypes(dd.tokens)
     args.docids = as_ctypes(dd.docids)
-    args.qfix = as_ctypes(dd.qfix)
+    args.I_dk = as_ctypes(dd.i_dk)
+    # args.qfix = as_ctypes(dd.qfix)
     args.K = dd.K
     args.V = dd.V
     args.A_dk = mm.A_sk.ctypes.data_as(c_float_p)
@@ -128,6 +133,7 @@ def run_sweep(dd, mm,starttok, endtok):
     args.N_wk = mm.N_wk.ctypes.data_as(c_float_p)
     args.N_k = mm.N_k.ctypes.data_as(c_float_p)
     args.N_dk = mm.N_sk.ctypes.data_as(c_float_p)
+
 
     libc.threaded_sweep(ctypes.byref(args))
 
@@ -196,13 +202,54 @@ def default_to_regular(d):
 def toks_for_sent(sent):
     out = []
     if ARGS.JUSTNP:  # NPs only
-        return [phrase["normalized"] for phrase in sent["phrases"] if len(phrase["normalized"].split()) > 1 and phrase["normalized"] not in SW]   
+        return [phrase["normalized"].lower() for phrase in sent["phrases"] if len(phrase["normalized"].split()) > 1 and phrase["normalized"] not in SW]   
     if ARGS.NP:  # NPs and unigrams
         out = out + [phrase["normalized"] for phrase in sent["phrases"] if len(phrase["normalized"].split()) > 1]
     out = out + [word for word in sent["tokens"] if word.lower() not in SW]
-    out  = [o for o in set(out)]
+    out  = [o.lower() for o in set(out)]
     
     return [o for o in out if o not in SW]
+
+
+def hit(jdoc, query_):
+    '''does doc match query?'''
+    for s_ix, sent in enumerate(jdoc['sentences']):
+        reals = toks_for_sent(sent)
+        for word in reals:
+            if ARGS.JUSTNP:
+                for term in query_:
+                    if term in word: # in this case, word will be an NP w. len > 1
+                        return True
+            else:
+                if word in query:
+                    return True
+    return False            
+
+def get_glm():
+    '''make an empirical glm'''
+    try:
+        with open(ARGS.corpus + "_glm.p", "r") as outf:
+            return pickle.load(outf)
+    except:
+        word2num = {}
+        counter = defaultdict(int)
+        for docid,doc in enumerate(open(ARGS.corpus + ".anno")):
+            doc = json.loads(doc)
+            for s_ix, sent in enumerate(doc["text"]['sentences']):
+                for word in toks_for_sent(sent):
+                    if word not in word2num:
+                        n = len(word2num)
+                        word2num[word] = n
+                    else:
+                        n = word2num[word]
+                    counter[n] += 1
+        TOT = sum(v for k,v in counter.items())
+        glm = {k: v/TOT for k, v in counter.items()}
+        V = [k for k, v in word2num.items()]
+        num2word = {v:k for k, v in word2num.items()}
+        with open(ARGS.corpus + "_glm.p", "w") as outf:
+            pickle.dump({"glm": glm, "V": V, "word2num": word2num, "num2word": num2word}, outf)
+        return {"glm": glm, "V": V, "word2num": word2num, "num2word": num2word}
 
 
 def build_dataset():
@@ -210,14 +257,22 @@ def build_dataset():
 
     # docids are offset by 2. First 2 "docids" are reserved for global and query lm
     print "[*] Building dataset"
-    word2num = {}
-    num2word = []
     dd = Dataset()
     dd.docids = []
     dd.tokens = []  ## wordids
     wordcount = defaultdict(int)
 
-    sentences = 0
+    
+    doc_hits = []
+    doc_misses = []
+    # this can be done faster w/ indexes later
+    for docid,line in enumerate(open(ARGS.corpus + ".anno")):
+        if docid > 50: break
+        doc = json.loads(line)["text"]
+        if hit(doc, query):
+            doc_hits.append(doc)
+        else:
+            doc_misses.append(doc)
 
     hits = [] # stores vector of positive or negative: matches query?
     i_s = [] # maps i -> sentence
@@ -232,83 +287,48 @@ def build_dataset():
 
     counter = defaultdict(int)
 
-    for docid,line in enumerate(open("lens.anno")):
-        if docid > 50: break
-        doc = json.loads(line)["text"]
-        hit = 0
+    glm = get_glm() # multiply by empirical probs later on
+
+    sentences = 0
+    for docid,doc in enumerate(doc_hits):
         for s_ix, sent in enumerate(doc['sentences']):
             s_i[sentences] = []
             reals = toks_for_sent(sent)
-            # ipdb.set_trace()
             for word in reals:
-                word = word.lower()
                 i_s.append(sentences) # building a vector of sentences for each token, i
                 dd.i_dk.append(docid + 2)
-                counter[word] += 1
-                if ARGS.JUSTNP:
-                    found = False
-                    for term in query:
-                        if term in word: # in this case, word will be an NP w. len > 1
-                            hit = 1
-                    if found:
-                        tot_hits += 1
-                else:
-                    if word in query:
-                        hit = 1
-                        tot_hits += 1
-
-                wordcount[word] += 1
-                if word not in word2num:
-                    n = len(word2num)
-                    word2num[word] = n
-                    num2word.append(word)
-                    assert num2word[n] == word
-                else:
-                    n = word2num[word]
-                dd.tokens.append(n)
-
-                i_w.append(n)
+                dd.tokens.append(glm["word2num"][word])
+                i_w.append(glm["word2num"][word])
                 s_i[sentences].append(i)
                 i += 1
-                dd.docids.append(sentences)
+                dd.docids.append(sentences) # what is the "docid" (i.e. sentence id) for each token?
             raw_sents[sentences] = sent_to_string(sent)
             sentences += 1
-        # have to loop 2x here b/c need to see if doc is a hit first
-        for s_ix, sent in enumerate(doc['sentences']):
-            reals = toks_for_sent(sent)
-            for w in reals:
-                hits.append(hit)
 
         D_ += 1
-
-    TOT = sum(v for k,v in counter.items())
-    counter_normalized = {k: v/TOT for k, v in counter.items()}
 
     print "total hits = {}".format(tot_hits)
     # an I length vector mapping i->hit. hit = i's document matches query
     dd.hits = np.array(hits, dtype=np.uint32)
     def invert(h_):
         return 0 if h_ is 1 else 1
-    dd.qfix = np.array([invert(h) for h in hits], dtype=np.uint32)
     dd.S = sentences
-    dd.i_dk = np.array(dd.i_dk, dtype=np.uint32) # i->dk
     dd.i_w = np.array(i_w, dtype=np.uint32) # i->w
     dd.i_s = np.array(i_s, dtype=np.uint32) # i->s
     dd.s_i = dict(s_i)
     # a S length vector w/ the doc id for each S
+    dd.i_dk = np.array(dd.i_dk, dtype=np.uint32) # i->dk
     dd.docids = np.array(dd.docids, dtype=np.uint32)
     dd.tokens = np.array(dd.tokens, dtype=np.uint32)
+    dd.test = np.array(dd.i_dk, dtype=np.uint32)
     dd.D = D_ # cant look at end of array b/c is 2 extra
-    dd.V = len(word2num)
-    dd.Ntok = len(dd.tokens)
-    dd.word2num = word2num
-    dd.num2word = num2word
+    dd.V = len(glm["word2num"])
+    dd.Ntok = i
+    dd.word2num = glm["word2num"]
+    dd.num2word = glm["num2word"]
     dd.raw_sents = raw_sents # this won't scale to corpora that dont fit in memory. TODO, maybe
     dd.K = dd.D + 1 + 1 # i.e. D language models, plus a Q model, plus a G model
-    dd.glm = {word2num[k]: v for k, v in counter_normalized.items()} # empirical GLM
     pickle.dump(dd, open(ARGS.corpus + ".dd", "wb"))
-    with open(ARGS.corpus + "_glm.p", "w") as outf:
-        pickle.dump(dd.glm, outf)
 
     print "[*] Built dataset"
     return dd
@@ -351,8 +371,7 @@ def make_model(dd):
         dk = dd.i_dk[i]
         mm.A_sk[dd.i_s[i]][GLM_K] = ALPHA  # no Alpha for invalid Ks
         mm.A_sk[dd.i_s[i]][dk] = ALPHA
-        if dd.hits[i] == 1:
-            mm.A_sk[dd.i_s[i]][QLM_K] = ALPHA * BETA
+        mm.A_sk[dd.i_s[i]][QLM_K] = ALPHA * BETA # all toks are hits
     mm.A_sk = np.asarray(mm.A_sk, dtype=np.float64)
     mm.Q_ik = np.zeros((dd.Ntok,dd.K), dtype=np.float64) # don't pickle this part
     # just for compatibility. not used in C code.
@@ -368,23 +387,14 @@ def fill_and_count(dd, mm):
     print "filling dataset randomly"
     mm.Q_ik = np.zeros((dd.Ntok, dd.K), dtype=np.float64)
     assert mm.Q_ik.shape[0] == dd.Ntok
-    min_ = min(v for k,v in dd.glm.items())
-    max_ = max(v for k,v in dd.glm.items())
 
     for i_ in range(dd.Ntok):
         w = dd.i_w[i_]
-        glm = dd.glm[w]
-        dlm = random.uniform(min_, max_)
-        if dd.hits[i_] == 1:
-            qlm = random.uniform(min_, max_)
-            sum_ = qlm + dlm + glm
-            mm.Q_ik[i_][GLM_K] = glm/sum_
-            mm.Q_ik[i_][QLM_K] = qlm/sum_
-            mm.Q_ik[i_][dd.i_dk[i_]] = dlm/sum_
-        else:
-            sum_ = dlm + glm
-            mm.Q_ik[i_][GLM_K] = glm/sum_
-            mm.Q_ik[i_][dd.i_dk[i_]] = dlm/sum_
+        # 3 b/c 3 possible options for each k
+        draws = np.random.dirichlet(np.ones(3))
+        mm.Q_ik[i_][GLM_K] = draws[0]
+        mm.Q_ik[i_][QLM_K] = draws[1]
+        mm.Q_ik[i_][dd.i_dk[i_]] = draws[2]
         np.add(mm.N_k, mm.Q_ik[i_], out=mm.N_k)
         np.add(mm.N_sk[dd.i_s[i_]], mm.Q_ik[i_], out=mm.N_sk[dd.i_s[i_]])
         np.add(mm.N_wk[dd.i_w[i_]], mm.Q_ik[i_], out=mm.N_wk[dd.i_w[i_]])

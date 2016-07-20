@@ -300,7 +300,7 @@ module.exports = React.createClass({
                    chart_mode: "intro",
                    end_selected: -1,
                    start_selected:min,
-                   end_selected:max,
+                   end_selected:max, 
                    f_counts: []});
   },
 
@@ -341,6 +341,7 @@ module.exports = React.createClass({
   requery: function (arg) {
       location.href= '/?q='+ arg + '&corpus=' + this.props.corpus;
   },
+
 
   render: function() {
     let qX = this.qX;
