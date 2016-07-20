@@ -39,6 +39,7 @@ typedef struct ARGS{
     double *N_wk;   // matrix size (V x K)
     double *N_k;    // vector length K
     double *N_dk;    // matrix size (D x K)
+    uint32_t *I_dk;
 } ARGS;
 
 // an array of parameterizations, one for each thread
@@ -75,10 +76,14 @@ void sweep(
 {
     double probs[args->K];  // careful: uninitialized memory to start
 
+    
     for (int i=args->starttok; i<args->endtok; i++) {
         //if (qfix[i]) {
         //    continue;
         //}
+        //printf("%d tokno \n", i);
+        //printf("%d tokens \n", args->tokens[i]);
+        //printf("%d idk \n", args->I_dk[i]);
         uint32_t w = args->tokens[i];
         uint32_t d = args->docids[i];
         // decrement
@@ -92,8 +97,9 @@ void sweep(
         //                   n[k]   + eta[k]
         
         double probsum = 0;
-        for (int k=0; k<args->K; k++) {
-
+        int valid_ks[3] = {0, 1, args->I_dk[i]};
+        for (int k_ix=0; k_ix<3; k_ix++) {
+            int k = valid_ks[k_ix];
             double DD = args->A_dk[ind2(args->K, d,k)] + args->N_dk[ind2(args->K, d,k)];
             double AA = args->E_wk[ind2(args->K, w,k)] + args->N_wk[ind2(args->K, w,k)];
             double BB = args->E_k[k] + args->N_k[k];
@@ -107,7 +113,8 @@ void sweep(
             // printf("%g %g\n", pp, probsum); 
         }
         // could get another speed gain by folding this into increment step?
-        for (int k=0; k<args->K; k++) {
+        for (int k_ix=0; k_ix<3; k_ix++) {
+            int k = valid_ks[k_ix];
             // printf("k=%d Q=%g\n", k, probs[k]/probsum); 
             // Q_ik[ind2(K, i,k)] = MAX(1e-100, probs[k] / probsum); 
             args->Q_ik[ind2(args->K, i,k)] = probs[k] / probsum;
@@ -118,6 +125,7 @@ void sweep(
     }
 }
 
+/*
 void threaded_sweep(ARGS* args)
 {
     pthread_t thr[args->nthreads];
@@ -147,3 +155,4 @@ void threaded_sweep(ARGS* args)
         o = pthread_join(thr[n], NULL);
     }
 }
+*/
