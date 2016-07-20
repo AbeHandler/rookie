@@ -54,7 +54,7 @@ QLM_K = 1
 
 BETA = 3  # boost query words in priors for QLM
 
-query = ["marlin", "gusman"]
+query = ["charter", "school"]
 
 ## set up model.
 class Model:
@@ -131,7 +131,6 @@ def run_sweep(dd, mm,starttok, endtok):
     args.N_wk = mm.N_wk.ctypes.data_as(c_float_p)
     args.N_k = mm.N_k.ctypes.data_as(c_float_p)
     args.N_dk = mm.N_sk.ctypes.data_as(c_float_p)
-
 
     libc.sweep(ctypes.byref(args))
 

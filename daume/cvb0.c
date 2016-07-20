@@ -57,10 +57,13 @@ void update(
         double *Q_ik,   // token-level Q fields
         double *N_wk,   // matrix size (V x K)
         double *N_k,
-        double *N_dk
+        double *N_dk,
+        uint32_t *I_dk
         ) {
 
-    for (int k=0; k<K; k++) {
+    int valid_ks[3] = {0, 1, I_dk[i]};
+    for (int k_ix=0; k_ix<3; k_ix++) {
+        int k = valid_ks[k_ix];
         double qdelta = direction * Q_ik[ind2(K,i,k)];
         N_k[k]            += qdelta;
         N_wk[ind2(K,w,k)] += qdelta;
@@ -89,7 +92,7 @@ void sweep(
         // decrement
 
         pthread_mutex_lock (&mutex);  // this whole update is part of one transaction w/ mutex
-        update(-1, args->K,i,d,w, args->Q_ik, args->N_wk, args->N_k, args->N_dk);
+        update(-1, args->K,i,d,w, args->Q_ik, args->N_wk, args->N_k, args->N_dk, args->I_dk);
 
         // P(z=k | w) \propto
         //                   n[w,k] + eta[w,k]
@@ -120,7 +123,7 @@ void sweep(
             args->Q_ik[ind2(args->K, i,k)] = probs[k] / probsum;
         }
         // increment
-        update(+1, args->K,i,d,w, args->Q_ik, args->N_wk, args->N_k, args->N_dk);
+        update(+1, args->K,i,d,w, args->Q_ik, args->N_wk, args->N_k, args->N_dk, args->I_dk);
         pthread_mutex_unlock (&mutex); // release the lock
     }
 }
