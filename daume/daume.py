@@ -226,8 +226,10 @@ def get_glm():
     '''make an empirical glm'''
     try:
         with open(ARGS.corpus + "_glm.p", "r") as outf:
+            print "[*] loading pickled glm"
             return pickle.load(outf)
     except:
+        print "[*] making glm"
         word2num = {}
         counter = defaultdict(int)
         for docid,doc in enumerate(open(ARGS.corpus + ".anno")):
@@ -246,7 +248,48 @@ def get_glm():
         num2word = {v:k for k, v in word2num.items()}
         with open(ARGS.corpus + "_glm.p", "w") as outf:
             pickle.dump({"glm": glm, "V": V, "word2num": word2num, "num2word": num2word}, outf)
+        print "[*] made glm"
         return {"glm": glm, "V": V, "word2num": word2num, "num2word": num2word}
+
+
+def count_glm(dd, glm, word2num):
+    '''
+    make N_wk, N_dk and N_k for glm probabilities
+
+    if you want to be really, really accurate you can subtract 
+    query-responsive docs from these numbers
+    '''
+    try:
+        with open(ARGS.corpus + "_g_N_k.p", "r") as outf:
+            g_N_k = pickle.load(outf)
+        with open(ARGS.corpus + "_g_N_wk.p", "r") as outf:
+            g_N_wk = pickle.load(outf)
+        return g_N_k, g_N_wk
+    except IOError:
+        pass
+    print "[*] Could not find roll up counts for glm. Making them"
+    g_N_k = np.zeros(dd.K, dtype=np.float64)
+    # g_N_sk = DOES NOT MATTER. WILL NEVER LOOK AT THESE @ QUERY TIME
+    g_N_wk = np.zeros((dd.V, dd.K), dtype=np.float64)
+    i = 0
+    for docid,doc in enumerate(open(ARGS.corpus + ".anno")):
+            doc = json.loads(doc)
+            for s_ix, sent in enumerate(doc["text"]['sentences']):
+                for word in toks_for_sent(sent):
+                    w = word2num[word]
+                    pp = glm[w]
+                    g_N_k[GLM_K] = pp
+                    g_N_wk[w][GLM_K] = pp
+                    i += 1
+                    if i % 1000 == 0:
+                        print "docid={}, i={}".format(docid, i)
+    with open(ARGS.corpus + "_g_N_k.p", "w") as outf:
+        pickle.dump(g_N_k, outf)
+    with open(ARGS.corpus + "_g_N_wk.p", "w") as outf:
+        pickle.dump(g_N_wk, outf)
+    print "[*] Dumping glm roll up"
+    return g_N_k, g_N_wk
+
 
 
 def build_dataset():
@@ -441,6 +484,10 @@ def loglik(dd,mm):
 print "total tokens {}".format(dd.Ntok)
 
 mm = make_model(dd)
+
+
+glm = get_glm()
+cc = count_glm(dd=dd, glm=glm["glm"], word2num=glm["word2num"]) 
 
 fill_and_count(dd, mm)
 
