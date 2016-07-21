@@ -54,7 +54,7 @@ QLM_K = 1
 
 BETA = 3  # boost query words in priors for QLM
 
-query = ["charter", "school"]
+query = ["charter", "schools"]
 
 ## set up model.
 class Model:
@@ -218,7 +218,7 @@ def hit(jdoc, query_):
                     if term in word: # in this case, word will be an NP w. len > 1
                         return True
             else:
-                if word in query:
+                if word in query_:
                     return True
     return False            
 
@@ -314,6 +314,7 @@ def build_dataset():
         else:
             doc_misses.append(doc)
 
+
     hits = [] # stores vector of positive or negative: matches query?
     i_s = [] # maps i -> sentence
     i_w = [] # maps i -> w
@@ -323,7 +324,6 @@ def build_dataset():
     i = 0
     raw_sents = {}
     alpha_is = []
-    tot_hits = 0
 
     counter = defaultdict(int)
 
@@ -347,7 +347,7 @@ def build_dataset():
 
         D_ += 1
 
-    print "total hits = {}".format(tot_hits)
+    print "total hits = {}".format(len(doc_hits))
     # an I length vector mapping i->hit. hit = i's document matches query
     dd.hits = np.array(hits, dtype=np.uint32)
     def invert(h_):
@@ -419,11 +419,11 @@ def make_model(dd):
     return mm
 
 
-def fill_and_count(dd, mm):
+def fill_and_count(dd, mm, N_k, N_wk):
     '''i think its faster to let the algo converge than load empirical lm'''
-    mm.N_k = np.zeros(dd.K, dtype=np.float64)
+    mm.N_k = N_k
     mm.N_sk = np.zeros((dd.S, dd.K), dtype=np.float64)
-    mm.N_wk = np.zeros((dd.V, dd.K), dtype=np.float64)
+    mm.N_wk = N_wk
     print "filling dataset randomly"
     mm.Q_ik = np.zeros((dd.Ntok, dd.K), dtype=np.float64)
     assert mm.Q_ik.shape[0] == dd.Ntok
@@ -487,9 +487,9 @@ mm = make_model(dd)
 
 
 glm = get_glm()
-cc = count_glm(dd=dd, glm=glm["glm"], word2num=glm["word2num"]) 
+g_N_k, g_N_wk = count_glm(dd=dd, glm=glm["glm"], word2num=glm["word2num"]) 
 
-fill_and_count(dd, mm)
+fill_and_count(dd, mm, N_k=g_N_k, N_wk=g_N_wk)
 
 # pickle.dump(mm, open("lens.mm", "wb"))
 #mm = pickle.load(open("lens.mm"))
@@ -523,14 +523,15 @@ def print_sents(model):
 
 def print_words(model):
     '''print out top sentences'''
-    print "words: {}".format(model)
+    print "\nwords: {}".format(model)
     for i in np.argsort(mm.N_wk[:,model])[-10:]:
         print dd.num2word[i] + "," ,
+    print "\n"
 
 
 def print_NPs(model, n):
     '''print out top sentences'''
-    print "NPs: {}".format(model)
+    print "\nNPs: {}".format(model)
     counter = 0
     topnps = np.argsort(mm.N_wk[:,model])
     topnps = topnps[::-1]
@@ -541,6 +542,7 @@ def print_NPs(model, n):
             if len(dd.num2word[i].split(" ")) > 1:
                 print dd.num2word[i] + "," ,
                 counter += 1
+    print "\n"
 
 print_NPs(QLM_K, 15)
 print_sents(QLM_K)
