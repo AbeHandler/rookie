@@ -54,7 +54,7 @@ QLM_K = 1
 
 BETA = 3  # boost query words in priors for QLM
 
-query = ["charter", "schools"]
+query = ["bobby", "jindal"]
 
 ## set up model.
 class Model:
@@ -84,16 +84,6 @@ class Args(C.Structure):
                 ("N_dk", C.POINTER(C.c_float)),
                 ("I_dk", C.POINTER(C.c_uint))
                 ]
-
-# http://stackoverflow.com/questions/17101845/python-ctypes-array-of-structs
-# class Args_array(C.Structure):
-#    _fields_ = [('nthread', ctypes.c_short),
-#                ('all_args', ctypes.POINTER(Args))]
-#
-#    def __init__(self,n):
-#        elems = (Args * n)()
-#        self.all_args = ctypes.cast(elems, ctypes.POINTER(Args))
-#        self.nthread = n
 
 
 def run_sweep(dd, mm,starttok, endtok):
@@ -183,6 +173,8 @@ SW = SW + [o for o in string.punctuation] + [str(o) for o in range(0, 1000)]
 SW = SW + ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 SW = SW + ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
 SW = SW + ["a.m.", "p.m.", "donors", "we", "cover", "be", "help", "us", "report", "feb.", "new orleans", "staff writer", "the lens"]
+SW = SW + "help us report this story report an error the lens' donors and partners may be mentioned or have a stake in the stories we cover".split()
+
 
 libc = ctypes.CDLL("./cvb0.so")
 
@@ -281,7 +273,7 @@ def count_glm(dd, glm, word2num):
                     g_N_k[GLM_K] = pp
                     g_N_wk[w][GLM_K] = pp
                     i += 1
-                    if i % 1000 == 0:
+                    if i % 60000 == 0:
                         print "docid={}, i={}".format(docid, i)
     with open(ARGS.corpus + "_g_N_k.p", "w") as outf:
         pickle.dump(g_N_k, outf)
@@ -307,7 +299,7 @@ def build_dataset():
     doc_misses = []
     # this can be done faster w/ indexes later
     for docid,line in enumerate(open(ARGS.corpus + ".anno")):
-        if docid > 50: break
+        # if docid > 50: break
         doc = json.loads(line)["text"]
         if hit(doc, query):
             doc_hits.append(doc)
@@ -435,9 +427,10 @@ def fill_and_count(dd, mm, N_k, N_wk):
         mm.Q_ik[i_][GLM_K] = draws[0]
         mm.Q_ik[i_][QLM_K] = draws[1]
         mm.Q_ik[i_][dd.i_dk[i_]] = draws[2]
-        np.add(mm.N_k, mm.Q_ik[i_], out=mm.N_k)
+        # TODO. needed?
+        # np.add(mm.N_k, mm.Q_ik[i_], out=mm.N_k)
         np.add(mm.N_sk[dd.i_s[i_]], mm.Q_ik[i_], out=mm.N_sk[dd.i_s[i_]])
-        np.add(mm.N_wk[dd.i_w[i_]], mm.Q_ik[i_], out=mm.N_wk[dd.i_w[i_]])
+        # np.add(mm.N_wk[dd.i_w[i_]], mm.Q_ik[i_], out=mm.N_wk[dd.i_w[i_]])
         assert round(np.sum(mm.Q_ik[i_]), 5) == 1.
         assert np.where(mm.Q_ik[i_] != 0)[0].shape[0] <= 3 # no more than 3 ks turned on per row
 
@@ -543,6 +536,7 @@ def print_NPs(model, n):
                 print dd.num2word[i] + "," ,
                 counter += 1
     print "\n"
+
 
 print_NPs(QLM_K, 15)
 print_sents(QLM_K)
