@@ -17,7 +17,7 @@ go("create table count_vectors (docid integer, corpusid integer not null, data j
 import glob
 
 
-for c_ix, corpus in enumerate(glob.glob("/Users/ahandler/research/rookie/corpora/*")):
+for c_ix, corpus in enumerate(glob.glob("corpora/*")):
     cp = corpus.split("/").pop()
     go("insert into corpora values ({}, '{}')".format(c_ix, cp))
 
