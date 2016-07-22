@@ -86,7 +86,7 @@ class Args(C.Structure):
                 ]
 
 
-def run_sweep(dd, mm,starttok, endtok):
+def run_sweep(dd, mm,starttok, endtok, glm):
 
     assert mm.A_sk.dtype == "float64"
     assert mm.E_k.dtype == "float64"
@@ -112,7 +112,7 @@ def run_sweep(dd, mm,starttok, endtok):
     args.docids = as_ctypes(dd.docids)
     args.I_dk = as_ctypes(dd.i_dk)
     # args.qfix = as_ctypes(dd.qfix)
-    args.K = dd.K
+    args.K = glm["K"]
     args.V = dd.V
     args.A_dk = mm.A_sk.ctypes.data_as(c_float_p)
     args.E_wk = mm.E_wk.ctypes.data_as(c_float_p)
@@ -360,7 +360,7 @@ def build_dataset():
     dd.word2num = glm["word2num"]
     dd.num2word = glm["num2word"]
     dd.raw_sents = raw_sents # this won't scale to corpora that dont fit in memory. TODO, maybe
-    dd.K = dd.D + 1 + 1 # i.e. D language models, plus a Q model, plus a G model
+    # dd.K = BADDD. Bugs. GLM knows k, not query hits
     pickle.dump(dd, open(ARGS.corpus + ".dd", "wb"))
 
     print "[*] Built dataset"
@@ -380,7 +380,7 @@ ALPHA = 1
 ETA = 1.0/dd.V
 
 
-def make_model(dd):
+def make_model(dd, glm):
     '''set up the model'''
     print "Setting up model"
     mm = Model()
@@ -391,7 +391,7 @@ def make_model(dd):
         mm.N_w[ww] += 1
 
     ## priors
-    mm.E_wk = ETA * np.ones((dd.V,dd.K), dtype=np.float64)
+    mm.E_wk = ETA * np.ones((dd.V,glm["K"]), dtype=np.float64)
     for w in query:
         try:
             mm.E_wk[dd.word2num[w]][QLM_K] = BETA
@@ -399,26 +399,26 @@ def make_model(dd):
             print "[*] warning: can't find query word, {} in vocab. this only makes sense if -JUSTNP is set".format(w)
             assert ARGS.JUSTNP == True
     mm.E_k  = mm.E_wk.sum(0)
-    mm.A_sk = np.zeros((dd.Ntok,dd.K), dtype=np.float64)
+    mm.A_sk = np.zeros((dd.Ntok,glm["K"]), dtype=np.float64)
     for i in range(dd.Ntok):
         dk = dd.i_dk[i]
         mm.A_sk[dd.i_s[i]][GLM_K] = ALPHA  # no Alpha for invalid Ks
         mm.A_sk[dd.i_s[i]][dk] = ALPHA
         mm.A_sk[dd.i_s[i]][QLM_K] = ALPHA * BETA # all toks are hits
     mm.A_sk = np.asarray(mm.A_sk, dtype=np.float64)
-    mm.Q_ik = np.zeros((dd.Ntok,dd.K), dtype=np.float64) # don't pickle this part
+    mm.Q_ik = np.zeros((dd.Ntok,glm["K"]), dtype=np.float64) # don't pickle this part
     # just for compatibility. not used in C code.
     mm.qfix = np.zeros(dd.Ntok, dtype=np.uint32)
     return mm
 
 
-def fill_and_count(dd, mm, N_k, N_wk):
+def fill_and_count(dd, mm, N_k, N_wk, glm):
     '''i think its faster to let the algo converge than load empirical lm'''
     mm.N_k = N_k
-    mm.N_sk = np.zeros((dd.S, dd.K), dtype=np.float64)
+    mm.N_sk = np.zeros((dd.S, glm["K"]), dtype=np.float64)
     mm.N_wk = N_wk
     print "filling dataset randomly"
-    mm.Q_ik = np.zeros((dd.Ntok, dd.K), dtype=np.float64)
+    mm.Q_ik = np.zeros((dd.Ntok, glm["K"]), dtype=np.float64)
     assert mm.Q_ik.shape[0] == dd.Ntok
 
     for i_ in range(dd.Ntok):
@@ -476,13 +476,14 @@ def loglik(dd,mm):
 
 print "total tokens {}".format(dd.Ntok)
 
-mm = make_model(dd)
+
 
 
 glm = get_glm()
+mm = make_model(dd, glm)
 g_N_k, g_N_wk = count_glm(dd=dd, glm=glm["glm"], word2num=glm["word2num"], K=glm["K"]) 
 
-fill_and_count(dd, mm, N_k=g_N_k, N_wk=g_N_wk)
+fill_and_count(dd, mm, N_k=g_N_k, N_wk=g_N_wk, glm=glm)
 
 # pickle.dump(mm, open("lens.mm", "wb"))
 #mm = pickle.load(open("lens.mm"))
@@ -492,7 +493,7 @@ print "[*] Prelims complete"
 print "total tokens {}".format(dd.Ntok)
 for itr in range(30):
     a = datetime.datetime.now()
-    run_sweep(dd,mm,0,dd.Ntok)
+    run_sweep(dd,mm,0,dd.Ntok, glm)
     #assert len(np.where(mm.N_wk < 0)[0]) == 0
     print "\t {}".format(itr)
     # run_sweep_p(dd,mm,0,Ntok)
