@@ -1,0 +1,1 @@
+The GLM rollup counts take a long time to generate, pickle, deserialize. I think need to load into ipython notebook or cached method in python. Will make load time for webapp slow but don't see another easy way to do this. 
