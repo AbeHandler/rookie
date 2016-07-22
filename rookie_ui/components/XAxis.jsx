@@ -31,7 +31,10 @@ module.exports = React.createClass({
         <svg height={this.props.height} width={this.props.width}>
         <line x1="0" y1="10" x2={this.props.width} y2="10" stroke="black" strokeWidth="3"/>
         {ticks.map(function(object, i){
-            return <text key={i} x={lateralize(object, lateral_scale)} y="25" fill="black">{format(object)}</text>
+            return (<g>       
+                   <line key={() => {i + '_l'}} x1={lateralize(object, lateral_scale)} x2={lateralize(object, lateral_scale)} y1="3" y2="10" stroke="black" strokeWidth="1"/>
+                   <text key={() => {i + '_k'}} x={lateralize(object, lateral_scale)} y="25" fill="black">{format(object)}</text>
+                   </g>)
         })}
         <text x={x_label_height} y={y_label_height} fontSize="12px"> Publication date</text>
         </svg>
