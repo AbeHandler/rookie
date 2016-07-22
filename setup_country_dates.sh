@@ -1,0 +1,10 @@
+python getting_and_processing_corpora/fill_min_max_pubdates.py --corpus indonesia --min 1/1/1987 --max 12/1/2007
+python getting_and_processing_corpora/fill_min_max_pubdates.py --corpus cuba --min 1/1/1987 --max 12/1/2007
+python getting_and_processing_corpora/fill_min_max_pubdates.py --corpus slovenia --min 1/1/1987 --max 12/1/2007
+python getting_and_processing_corpora/fill_min_max_pubdates.py --corpus malaysia --min 1/1/1987 --max 12/1/2007
+python getting_and_processing_corpora/fill_min_max_pubdates.py --corpus philippines --min 1/1/1987 --max 12/1/2007
+python getting_and_processing_corpora/fill_min_max_pubdates.py --corpus estonia --min 1/1/1987 --max 12/1/2007
+python getting_and_processing_corpora/fill_min_max_pubdates.py --corpus singapore --min 1/1/1987 --max 12/1/2007
+python getting_and_processing_corpora/fill_min_max_pubdates.py --corpus rwanda --min 1/1/1987 --max 12/1/2007
+python getting_and_processing_corpora/fill_min_max_pubdates.py --corpus haiti --min 1/1/1987 --max 12/1/2007
+python getting_and_processing_corpora/fill_min_max_pubdates.py --corpus colombia --min 1/1/1987 --max 12/1/2007
