@@ -44,7 +44,7 @@ module.exports = React.createClass({
     let spark_h = w/this.props.w_h_ratio;
     let spark_w = w; // # this.props.w_h_ratio * spark_h;  =  * h
     return (
-      <Row onClick={this.handleClick}>
+      <Row onClick={this.handleClick} style={{cursor:"pointer"}}>
             <Col xs={12}>
               <div style={{
                      color:"#621b14",
