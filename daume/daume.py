@@ -54,7 +54,7 @@ QLM_K = 1
 
 BETA = 3  # boost query words in priors for QLM
 
-query = ["bobby", "jindal"]
+query = ["bp"]
 
 ## set up model.
 class Model:
@@ -224,7 +224,9 @@ def get_glm():
         print "[*] making glm"
         word2num = {}
         counter = defaultdict(int)
+        K = 0
         for docid,doc in enumerate(open(ARGS.corpus + ".anno")):
+            print docid
             doc = json.loads(doc)
             for s_ix, sent in enumerate(doc["text"]['sentences']):
                 for word in toks_for_sent(sent):
@@ -234,17 +236,19 @@ def get_glm():
                     else:
                         n = word2num[word]
                     counter[n] += 1
+            K += 1
         TOT = sum(v for k,v in counter.items())
         glm = {k: v/TOT for k, v in counter.items()}
         V = [k for k, v in word2num.items()]
         num2word = {v:k for k, v in word2num.items()}
-        with open(ARGS.corpus + "_glm.p", "w") as outf:
-            pickle.dump({"glm": glm, "V": V, "word2num": word2num, "num2word": num2word}, outf)
         print "[*] made glm"
-        return {"glm": glm, "V": V, "word2num": word2num, "num2word": num2word}
+        with open(ARGS.corpus + "_glm.p", "w") as outf:
+            pickle.dump({"glm": glm, "K": K, "V": V, "word2num": word2num, "num2word": num2word}, outf)
+        
+        return {"glm": glm, "K": K, "V": V, "word2num": word2num, "num2word": num2word}
 
 
-def count_glm(dd, glm, word2num):
+def count_glm(dd, glm, word2num, K):
     '''
     make N_wk, N_dk and N_k for glm probabilities
 
@@ -260,9 +264,10 @@ def count_glm(dd, glm, word2num):
     except IOError:
         pass
     print "[*] Could not find roll up counts for glm. Making them"
-    g_N_k = np.zeros(dd.K, dtype=np.float64)
+    
+    g_N_k = np.zeros(K, dtype=np.float64)
     # g_N_sk = DOES NOT MATTER. WILL NEVER LOOK AT THESE @ QUERY TIME
-    g_N_wk = np.zeros((dd.V, dd.K), dtype=np.float64)
+    g_N_wk = np.zeros((dd.V, K), dtype=np.float64)
     i = 0
     for docid,doc in enumerate(open(ARGS.corpus + ".anno")):
             doc = json.loads(doc)
@@ -270,16 +275,12 @@ def count_glm(dd, glm, word2num):
                 for word in toks_for_sent(sent):
                     w = word2num[word]
                     pp = glm[w]
-                    g_N_k[GLM_K] = pp
-                    g_N_wk[w][GLM_K] = pp
+                    g_N_k[GLM_K] += pp
+                    g_N_wk[w][GLM_K] += pp
                     i += 1
                     if i % 60000 == 0:
                         print "docid={}, i={}".format(docid, i)
-    with open(ARGS.corpus + "_g_N_k.p", "w") as outf:
-        pickle.dump(g_N_k, outf)
-    with open(ARGS.corpus + "_g_N_wk.p", "w") as outf:
-        pickle.dump(g_N_wk, outf)
-    print "[*] Dumping glm roll up"
+    print "[*] GLM is too big to pickle, esp w/ long ngrams. Needs to be built on load. ipython notebook?"
     return g_N_k, g_N_wk
 
 
@@ -427,10 +428,9 @@ def fill_and_count(dd, mm, N_k, N_wk):
         mm.Q_ik[i_][GLM_K] = draws[0]
         mm.Q_ik[i_][QLM_K] = draws[1]
         mm.Q_ik[i_][dd.i_dk[i_]] = draws[2]
-        # TODO. needed?
-        # np.add(mm.N_k, mm.Q_ik[i_], out=mm.N_k)
+        np.add(mm.N_k, mm.Q_ik[i_], out=mm.N_k)
         np.add(mm.N_sk[dd.i_s[i_]], mm.Q_ik[i_], out=mm.N_sk[dd.i_s[i_]])
-        # np.add(mm.N_wk[dd.i_w[i_]], mm.Q_ik[i_], out=mm.N_wk[dd.i_w[i_]])
+        np.add(mm.N_wk[dd.i_w[i_]], mm.Q_ik[i_], out=mm.N_wk[dd.i_w[i_]])
         assert round(np.sum(mm.Q_ik[i_]), 5) == 1.
         assert np.where(mm.Q_ik[i_] != 0)[0].shape[0] <= 3 # no more than 3 ks turned on per row
 
@@ -480,7 +480,7 @@ mm = make_model(dd)
 
 
 glm = get_glm()
-g_N_k, g_N_wk = count_glm(dd=dd, glm=glm["glm"], word2num=glm["word2num"]) 
+g_N_k, g_N_wk = count_glm(dd=dd, glm=glm["glm"], word2num=glm["word2num"], K=glm["K"]) 
 
 fill_and_count(dd, mm, N_k=g_N_k, N_wk=g_N_wk)
 
