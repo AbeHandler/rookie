@@ -91,7 +91,7 @@ void sweep(
         uint32_t d = args->docids[i];
         // decrement
 
-        pthread_mutex_lock (&mutex);  // this whole update is part of one transaction w/ mutex
+        //pthread_mutex_lock (&mutex);  // this whole update is part of one transaction w/ mutex
         update(-1, args->K,i,d,w, args->Q_ik, args->N_wk, args->N_k, args->N_dk, args->I_dk);
 
         // P(z=k | w) \propto
@@ -124,7 +124,7 @@ void sweep(
         }
         // increment
         update(+1, args->K,i,d,w, args->Q_ik, args->N_wk, args->N_k, args->N_dk, args->I_dk);
-        pthread_mutex_unlock (&mutex); // release the lock
+        //pthread_mutex_unlock (&mutex); // release the lock
     }
 }
 
