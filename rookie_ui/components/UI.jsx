@@ -402,7 +402,7 @@ module.exports = React.createClass({
                         
                       </div>
                       <div style={{color:"#808080", fontSize: "10px", float:"right", height:"50%"}}>
-                        {"page " + this.state.startdisplay/this.props.sparkline_per_panel + " of " + Math.floor(global_facets.length/this.props.sparkline_per_panel)}
+                        {"page " + (this.state.startdisplay/this.props.sparkline_per_panel + 1) + " of " + (Math.floor(global_facets.length/this.props.sparkline_per_panel) + 1)}
                       </div>
                       </div>
                      </div>
