@@ -384,15 +384,29 @@ module.exports = React.createClass({
 
     let backbutton = "";
     if (this.state.startdisplay > 0){
-        backbutton = <Button onClick={()=>this.setState({startdisplay: this.state.startdisplay - this.props.sparkline_per_panel})} bsSize="xsmall">Back</Button>
+        backbutton = <span  style={{ textDecoration: "underline", float:"left", cursor: "pointer"}} onClick={()=>this.setState({startdisplay: this.state.startdisplay - this.props.sparkline_per_panel})} bsSize="xsmall">back</span>
     }
     let sparkline_h = <div><SparklineStatus fX={this.fX} qX={qX}
                      ndocs={this.props.total_docs_for_q}
                      {...this.props}/>    
-                    <ButtonToolbar style={{float:"right"}}>
-                      {backbutton}
-                      <Button onClick={()=>this.setState({startdisplay: this.state.startdisplay + this.props.sparkline_per_panel})} bsSize="xsmall">More subjects</Button>
-                    </ButtonToolbar>
+
+                     <div style={{float:"right"}}>
+                     <div style={{backgroundColor:"green", height:"50%"}}>
+                          <span style={{ float:"left",  height: "50%"}}>
+                            {backbutton}
+                          </span>
+                          <span style={{ textDecoration: "underline", float:"right", cursor: "pointer"}} onClick={()=>this.setState({startdisplay: this.state.startdisplay + this.props.sparkline_per_panel})} bsSize="xsmall">
+                            more subjects
+                          </span>
+                        
+                     <span style={{ color:"grey", height: "33%", padding:"5px"}}>
+                      
+                      </span>
+                      </div>
+                      <div style={{backgroundColor:"green", height:"50%"}}>
+                        {"page " + this.state.startdisplay/this.props.sparkline_per_panel + " of " + Math.floor(global_facets.length/this.props.sparkline_per_panel)}
+                      </div>
+                      </div>
                      </div>
     let end_facet_no = this.state.startdisplay + this.props.sparkline_per_panel
     main_panel = <Panel header={sparkline_h}>

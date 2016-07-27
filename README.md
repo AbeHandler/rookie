@@ -11,6 +11,8 @@ This project began at [The Lens](http://www.thelensnola.org "The Lens") with [su
 
 #### Code
 
+You will need a copy of [Brendan O'Connor's wrapper for StanfordCore NLP](https://github.com/brendano/stanford_corenlp_pywrapper) to index Rookie documents.
+
 `facets` the facet engine
 
 `rookie_ui` React UI for rookie. use gulp b to push js to /webapp
