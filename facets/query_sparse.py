@@ -11,6 +11,8 @@ import ipdb
 import time
 import cPickle as pickle
 import argparse
+
+from dateutil.parser import parse
 from Levenshtein import distance
 
 DEBUG = False
@@ -62,6 +64,13 @@ def load_sparse_vector_data_structures(corpus):
         output[unicode(row[0])] = row[2].keys() # raw form ==> [u'34986', u'20174' ... u'6664']
     return output
 
+def filter_by_date(results, corpus, start_d, end_d):
+    '''return results that fall in a date range'''
+    if start is not None and end is not None:
+        return [r for r in results if load_all_data_structures(corpus)["pubdates"][int(r)] > start_d
+                and load_all_data_structures(corpus)["pubdates"][int(r)] < end_d]
+    else:
+        return results
 
 @lrudecorator(100)
 def get_ndocs(corpus):
@@ -239,6 +248,7 @@ def get_facet_tfidf_cutoff(results, structures, facet_type, n_facets):
         n_counts = structures["vectors"][r]
         for n in n_counts:
             tfs[n] += 1
+    
     tfidfs = defaultdict(int)
     idf = structures["idf"][facet_type]
     for t in tfs:
@@ -248,31 +258,21 @@ def get_facet_tfidf_cutoff(results, structures, facet_type, n_facets):
     return [(structures["reverse_decoders"][facet_type][int(i[0])], i[1]) for i in sorted_x] # i[0] is ngram, i[1] is tfidf score
 
 
-def get_raw_facets(results, bins, structures, n_facets):
-    '''
-    Returns top_n facets per bin + top_n for global bin
-    '''
-    return get_facet_tfidf_cutoff(results, structures, "ngram", n_facets)
 
-
-def get_facets_for_q(q, results, n_facets, structures):
+def get_facets_for_q(q, results, n_facets, structures, start=None, end=None):
     '''
     Provide q, set of results and n_facets. 
 
     Return binned facets. TODO: xrange(2010, 2016) hardcodes bins for now 
     '''
 
-    s = time.time()
     facet_results = defaultdict(list) # results per bin. output.
 
     if len(results) == 0:
         return facet_results
 
-    min_yr = min(structures["pubdates"][int(r)].year for r in results)
-    max_yr = max(structures["pubdates"][int(r)].year for r in results)
-
     # tf and idf score + string -- no filtering heutistics
-    raw_facets = get_raw_facets(results, xrange(min_yr, max_yr), structures, n_facets)
+    raw_facets = get_facet_tfidf_cutoff(results, structures, "ngram", n_facets) 
 
     # run a filtering heuristic to clean up facets
     ok_facets = get_all_facets(raw_facets, structures, q)
@@ -283,8 +283,10 @@ def get_facets_for_q(q, results, n_facets, structures):
 
     print "len filtered facets={}".format(len(filtered_facets))
     # return the strings, in order of i
-    e = time.time()
+
     return {"g": [i[0] for i in filtered_facets]}
+
+
 
 if __name__ == '__main__':
 
@@ -293,7 +295,15 @@ if __name__ == '__main__':
     parser.add_argument("-v", action="store_true", default=False, help="verbose")
     parser.add_argument('-q', '--query', dest='query')
     parser.add_argument('-c', '--corpus', dest='corpus')
+    parser.add_argument('-t', '--time', dest='time', default=None, help="parseable dates, split by #")
+
+
     args = parser.parse_args()
+    
+    if args.time is not None:
+        start, end = [parse(a) for a in args.time.split("##")]
+    else:
+        start, end = [None, None]
 
     if args.v:
         DEBUG = True
@@ -308,9 +318,12 @@ if __name__ == '__main__':
     DEBUG = False # by default false. can be set to T w/ arg -v in command line mode
 
     CORPUS_ID = getcorpusid(CORPUS)
-    RESULTZ = query(args.query, args.corpus)
+
+    RESULTZ = filter_by_date(query(args.query, args.corpus), args.corpus, start, end)
+
     structures = load_all_data_structures(CORPUS)
     startTime = time.time()
     facets = get_facets_for_q(args.query, RESULTZ, 9, structures)
+    print facets
 
 session.close()
