@@ -10,7 +10,9 @@ from flask import Flask, request
 from facets.query_sparse import get_facets_for_q, load_all_data_structures
 from webapp.views import Views
 from webapp.models import Models
+from webapp.models import facets_for_t
 from webapp import IP, ROOKIE_JS, ROOKIE_CSS, BASE_URL
+from facets.query_sparse import filter_by_date
 
 app = Flask(__name__)
 Compress(app)
@@ -53,6 +55,23 @@ def get_sents():
     out = Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[])
     return json.dumps(out)
 
+
+@app.route("/get_facets_t", methods=['GET'])
+def get_facets():
+    '''
+    get facets for a T
+    '''
+    params = Models.get_parameters(request)
+    results = Models.get_results(params)
+    print "there are {} before filtering".format(len(results))
+    print params
+    results = filter_by_date(results, params.corpus, params.startdate, params.enddate)
+    print "there are {} after filtering".format(len(results))
+    out = facets_for_t(params, results)
+    # print out
+    return json.dumps(out)
+
+
 @app.route("/get_facet_datas", methods=['POST'])
 def post_for_facet_datas():
     '''
@@ -67,25 +86,6 @@ def post_for_facet_datas():
     out = get_facet_datas(binned_facets, results=results, params=params)
     return json.dumps(out)
 
-
-@app.route("/get_docs", methods=['GET'])
-def get_docs():
-
-    params = Models.get_parameters(request)
-
-    results = Models.get_results(params)
-    pds = load_all_data_structures(params.corpus)["pubdates"]
-    filtered_pubdates, doc_list = results_to_doclist(results, params.q, params.f, params.corpus, pds, aliases=tuple([]))
-    q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][r] for r in results]
-    binsize = "month"
-    df = make_dataframe(params.q, [params.f], results, q_pubdates, aliases=[])
-    df = bin_dataframe(df, binsize)
-    chart_bins = get_keys(params.corpus)
-
-    facet_datas = {}
-    facet_datas[params.f] = [get_val_from_df(params.f, key, df, binsize) for key in chart_bins]
-
-    return json.dumps({"doclist":doc_list, "facet_datas":facet_datas, "min_filtered": None, "max_filtered": None})
 
 '''
 These methods are for IR mode
@@ -123,22 +123,6 @@ def intro():
     out["sents"] = []
     return views.handle_query(out)
 
-'''
-Methods for the quiz
-'''
-
-@app.route('/quiz', methods=['GET'])
-def quiz():
-    return views.quiz()
-
-
-@app.route('/quiz_answers', methods=['POST'])
-def quiz_answers():
-    answers = request.get_json()
-    with open('answers.json', 'a') as outfile:
-        json.dump(answers, outfile)
-        outfile.write('\n')
-    return ""
 
 if __name__ == '__main__':
     app.run(debug=True, host=IP, port=5000)

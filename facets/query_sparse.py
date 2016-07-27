@@ -66,10 +66,11 @@ def load_sparse_vector_data_structures(corpus):
 
 def filter_by_date(results, corpus, start_d, end_d):
     '''return results that fall in a date range'''
-    if start is not None and end is not None:
+    if start_d is not None and end_d is not None:
         return [r for r in results if load_all_data_structures(corpus)["pubdates"][int(r)] > start_d
                 and load_all_data_structures(corpus)["pubdates"][int(r)] < end_d]
     else:
+        print "hhuh?", start_d, end_d
         return results
 
 @lrudecorator(100)
@@ -259,7 +260,7 @@ def get_facet_tfidf_cutoff(results, structures, facet_type, n_facets):
 
 
 
-def get_facets_for_q(q, results, n_facets, structures, start=None, end=None):
+def get_facets_for_q(q, results, n_facets, structures):
     '''
     Provide q, set of results and n_facets. 
 

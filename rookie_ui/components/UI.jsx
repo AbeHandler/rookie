@@ -31,36 +31,7 @@ module.exports = React.createClass({
     this.setState({width: width, height: height});
   },
 
-  /**
-  * The UI starts in intro mode, which has sparklines. This turns on doc mode
-  */
-  turnOnDocMode: function(){
-    if (this.state.f == -1){
-        let url = this.props.base_url + "get_sents?q=" + this.props.q + "&corpus=" + this.props.corpus;
-        $.ajax({
-              url: url,
-              dataType: 'json',
-              cache: true,
-              success: function(d) {
-                let minbin = _.head(this.props.chart_bins);
-                let maxbin = _.last(this.props.chart_bins);
-                if (this.state.mode == "overview"){
-                        this.setState({kind_of_doc_list: "no_summary",
-                                       chart_mode: "intro", start_selected: minbin,
-                                       end_selected: maxbin, f: -1,
-                                       mode: "docs", all_results: d, f_counts: []});
-                }
-                if (this.state.chart_mode == "rectangle"){
-                        this.setState({f: -1, mode: "docs", all_results: d, f_counts: []});
-                }
-                this.forceUpdate();
-              }.bind(this),
-              error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-              }.bind(this)
-        });
-    }
-  },
+
 
   componentDidMount: function () {
     this.set_width();
@@ -161,6 +132,7 @@ module.exports = React.createClass({
       if (this.state.drag_l == false && this.state.drag_r == false){
         let start = moment(p).format("YYYY-MM-DD");
         let end = moment(p).format("YYYY-MM-DD");
+
         this.setState({mouse_is_dragging: true,
                       drag_l: false,
                       drag_r: true,
@@ -222,6 +194,22 @@ module.exports = React.createClass({
       let min = moment(this.props.chart_bins[0]);
       if ((d < end) &  (d>min)){
         this.setState({start_selected:d.format("YYYY-MM-DD")});
+        let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + d.format("YYYY-MM-DD") + "&enddate=" + moment(this.state.end_selected).format("YYYY-MM-DD")
+
+        $.ajax({
+                    url: url,
+                    dataType: 'json',
+                    cache: true,
+                    method: 'GET',
+                    success: function(d) {
+                      //count vector for just clicked facet, e (event)
+                      console.log(d);
+                      this.setState({facet_datas: d});
+                    }.bind(this),
+                    error: function(xhr, status, err) {
+                      console.error(this.props.url, status, err.toString());
+                    }.bind(this)
+          });
       }
     }
     if (start_end == "end"){
@@ -229,6 +217,22 @@ module.exports = React.createClass({
       let max = moment(this.props.chart_bins[this.props.chart_bins.length -1]);
       if (d > start & d < max){
          this.setState({end_selected:d.format("YYYY-MM-DD")});
+         let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + moment(this.state.start_selected).format("YYYY-MM-DD") + "&enddate=" + d.format("YYYY-MM-DD")
+
+          $.ajax({
+                    url: url,
+                    dataType: 'json',
+                    cache: true,
+                    method: 'GET',
+                    success: function(d) {
+                      //count vector for just clicked facet, e (event)
+                      console.log(d);
+                      this.setState({facet_datas: d});
+                    }.bind(this),
+                    error: function(xhr, status, err) {
+                      console.error(this.props.url, status, err.toString());
+                    }.bind(this)
+          });
       }
     }
   },
@@ -244,6 +248,25 @@ module.exports = React.createClass({
     if (s <= e  & s > min & e < max) {
       this.setState({start_selected:s.format("YYYY-MM-DD"),
                      end_selected:e.format("YYYY-MM-DD")});
+
+      let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + s.format("YYYY-MM-DD") + "&enddate=" + e.format("YYYY-MM-DD")
+
+      $.ajax({
+                    url: url,
+                    dataType: 'json',
+                    cache: true,
+                    method: 'GET',
+                    success: function(d) {
+                      //count vector for just clicked facet, e (event)
+                      console.log(d);
+                      this.setState({facet_datas: d});
+                    }.bind(this),
+                    error: function(xhr, status, err) {
+                      console.error(this.props.url, status, err.toString());
+                    }.bind(this)
+      });
+
+
     }else{
       console.log("skip");
     }
@@ -270,6 +293,24 @@ module.exports = React.createClass({
                               f_list: d,
                               chart_mode: "intro",
                               f_counts: fd["counts"]});
+
+                let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + moment(minbin).format("YYYY-MM-DD") + "&enddate=" + moment(maxbin).format("YYYY-MM-DD")
+
+                $.ajax({
+                              url: url,
+                              dataType: 'json',
+                              cache: true,
+                              method: 'GET',
+                              success: function(d) {
+                                //count vector for just clicked facet, e (event)
+                                console.log(d);
+                                this.setState({facet_datas: d});
+                              }.bind(this),
+                              error: function(xhr, status, err) {
+                                console.error(this.props.url, status, err.toString());
+                              }.bind(this)
+                });
+
               }.bind(this),
               error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -310,9 +351,6 @@ module.exports = React.createClass({
                   end_selected:-1,
                   mouse_down_in_chart:true,
                   mode: "docs"});
-    if (this.state.f == -1){
-        this.turnOnDocMode();
-    }
   },
 
   /**

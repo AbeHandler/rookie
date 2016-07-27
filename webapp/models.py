@@ -64,6 +64,34 @@ def get_facet_datas(binned_facets, results, params, limit=None):
     return facets
 
 
+def facets_for_t(params, results):
+    '''
+    get facets for a given T
+
+    results are presumed filtred by T already so there is not much more to do
+    '''
+    binned_facets = get_facets_for_q(params.q, results, 200,
+                                  load_all_data_structures(params.corpus))
+    keys = get_keys(params.corpus)
+    
+    q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
+    
+    q_data = []
+    for key in keys:
+        q_data.append(sum(1 for r in q_pubdates if r.year==key.year and r.month==key.month))
+
+    stuff_ui_needs = {}
+    stuff_ui_needs["keys"] = [k.strftime("%Y-%m") + "-01" for k in keys]
+    display_bins = []
+    for key in binned_facets:
+        if key != "g":
+            display_bins.append({"key": key, "facets": binned_facets[key]})
+    return get_facet_datas(binned_facets=binned_facets, 
+                           params=params,
+                           results=results,
+                           limit=5)
+
+
 def get_stuff_ui_needs(params, results):
     binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
 
@@ -128,6 +156,8 @@ def corpus_min_max(corpus):
             u"SELECT * FROM corpora WHERE corpusname=%s",
             corpus)
     res2 = [r for r in res][0]
+    assert res2[3] is not None
+    assert res2[2] is not None
     return {"min": res2[2], "max": res2[3]}
 
 
