@@ -40,9 +40,7 @@ module.exports = React.createClass({
         }
         status = <span>
                   <span>{summary_of} {this.props.ndocs} </span>
-                  <span onClick={()=>this.props.turnOnDoclist()}>
-                  <span style={{cursor: "pointer", textDecoration: "underline"}}>documents</span>
-                  </span>
+                  <span>documents</span>
                   <span> for <span style={{color: this.props.q_color, fontWeight: "bold"}}>
                               {this.props.q}&nbsp;
                             </span>

@@ -92,7 +92,6 @@ module.exports = React.createClass({
 
         let docs;
 
-        console.log(this.props.height);
         docs = this.get_docs_to_render();
         if (docs.length < 1){
             return <div></div>;
