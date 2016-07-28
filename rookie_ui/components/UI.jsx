@@ -7,6 +7,7 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var _ = require('lodash');
 var moment = require('moment');
+require('moment-round');
 
 var DocViewer = require('./DocViewer_generic.jsx');
 var SparklineStatus = require('./SparklineStatus.jsx');
@@ -39,8 +40,8 @@ module.exports = React.createClass({
     window.addEventListener("keydown", this.handleKeyDown);
     let min = moment(this.props.chart_bins[0]);
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
-    min = min.format("YYYY-MM-DD");
-    max = max.format("YYYY-MM-DD");
+    min = min.format("YYYY-MM");
+    max = max.format("YYYY-MM");
     let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + min + "&enddate=" + max
 
     $.ajax({
@@ -64,8 +65,8 @@ module.exports = React.createClass({
     //convention: -1 == null
     let min = moment(this.props.chart_bins[0]);
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
-    min = min.format("YYYY-MM-DD");
-    max = max.format("YYYY-MM-DD");
+    min = min.format("YYYY-MM");
+    max = max.format("YYYY-MM");
     return {drag_r: false, drag_l:false, mouse_down_in_chart: false,
            mouse_is_dragging: false, width: 0, height: 0, click_tracker: -1,
            chart_mode: "intro", all_results: sents, start_selected:min,
@@ -81,8 +82,8 @@ module.exports = React.createClass({
   show_x_for_t_in_sum_status: function(){
     let min = moment(this.props.chart_bins[0]);
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
-    min = min.format("YYYY-MM-DD");
-    max = max.format("YYYY-MM-DD");
+    min = min.format("YYYY-MM");
+    max = max.format("YYYY-MM");
     if (this.state.start_selected == min && this.state.end_selected == max){
       return false;
     }else{
@@ -93,23 +94,40 @@ module.exports = React.createClass({
   resetT: function(){
     let min = moment(this.props.chart_bins[0]);
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
-    min = min.format("YYYY-MM-DD");
-    max = max.format("YYYY-MM-DD");
+    min = min.format("YYYY-MM");
+    max = max.format("YYYY-MM");
     this.setState({start_selected: min,
                   end_selected: max,
-                  chart_mode: "intro"});
+                  chart_mode: "intro",
+                  facet_datas: []});
+    let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + min + "&enddate=" + max
+
+
+    $.ajax({
+              url: url,
+              dataType: 'json',
+              cache: true,
+              method: 'GET',
+              success: function(d) {
+                //count vector for just clicked facet, e (event)
+                this.setState({facet_datas: d["d"]});
+              }.bind(this),
+              error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+              }.bind(this)
+    });
   },
 
   resultsToDocs: function(results){
     if (this.state.f != -1){
         results = this.state.f_list;
     }
-    let start = moment(this.state.start_selected, "YYYY-MM-DD");
-    let end = moment(this.state.end_selected, "YYYY-MM-DD");
+    let start = moment(this.state.start_selected, "YYYY-MM");
+    let end = moment(this.state.end_selected, "YYYY-MM");
     let out_results =  _.filter(results, function(value, key) {
-        //dates come from server as YYYY-MM-DD
-        if (moment(value.pubdate, "YYYY-MM-DD").isAfter(start) || moment(value.pubdate, "YYYY-MM-DD").isSame(start)){
-          if (moment(value.pubdate, "YYYY-MM-DD").isBefore(end) || moment(value.pubdate, "YYYY-MM-DD").isSame(end)){
+        //dates come from server as YYYY-MM
+        if (moment(value.pubdate, "YYYY-MM").isAfter(start) || moment(value.pubdate, "YYYY-MM").isSame(start)){
+          if (moment(value.pubdate, "YYYY-MM").isBefore(end) || moment(value.pubdate, "YYYY-MM").isSame(end)){
             return true;
           }
         }
@@ -135,8 +153,8 @@ module.exports = React.createClass({
   check_drag: function(p) {
     if (this.state.mouse_down_in_chart){
       if (this.state.drag_l == false && this.state.drag_r == false){
-        let start = moment(p).format("YYYY-MM-DD");
-        let end = moment(p).format("YYYY-MM-DD");
+        let start = moment(p).format("YYYY-MM");
+        let end = moment(p).format("YYYY-MM");
 
         this.setState({mouse_is_dragging: true,
                       drag_l: false,
@@ -167,8 +185,8 @@ module.exports = React.createClass({
     if (this.state.start_selected == -1 && this.state.end_selected == -1){
       let s = moment(e_page_X_adjusted).add(-1, 'month');
       let e = moment(e_page_X_adjusted).add(1, 'month');
-      s = s.format("YYYY-MM-DD");
-      e = e.format("YYYY-MM-DD");
+      s = s.format("YYYY-MM");
+      e = e.format("YYYY-MM");
       this.setState({start_selected:s,end_selected:e});
     }
     this.setState({drag_l: false, drag_r: false,
@@ -194,12 +212,13 @@ module.exports = React.createClass({
   */
   set_date: function (date, start_end) {
     let d = moment(date);
+    
     if (start_end == "start"){
-      let end = moment(this.state.end_selected, "YYYY-MM-DD");
+      let end = moment(this.state.end_selected, "YYYY-MM");
       let min = moment(this.props.chart_bins[0]);
       if ((d < end) &  (d>min)){
-        this.setState({start_selected:d.format("YYYY-MM-DD")});
-        let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + d.format("YYYY-MM-DD") + "&enddate=" + moment(this.state.end_selected).format("YYYY-MM-DD")
+        this.setState({start_selected:d.format("YYYY-MM")});
+        let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + d.format("YYYY-MM") + "&enddate=" + moment(this.state.end_selected).format("YYYY-MM")
 
         console.log(this.state.f);
         if (this.state.f == -1){
@@ -222,11 +241,13 @@ module.exports = React.createClass({
       }
     }
     if (start_end == "end"){
-      let start = moment(this.state.start_selected, "YYYY-MM-DD");
+      let start = moment(this.state.start_selected, "YYYY-MM");
+
       let max = moment(this.props.chart_bins[this.props.chart_bins.length -1]);
+
       if (d > start & d < max){
-         this.setState({end_selected:d.format("YYYY-MM-DD")});
-         let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + moment(this.state.start_selected).format("YYYY-MM-DD") + "&enddate=" + d.format("YYYY-MM-DD")
+         this.setState({end_selected:d.format("YYYY-MM")});
+         let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + moment(this.state.start_selected).format("YYYY-MM") + "&enddate=" + d.format("YYYY-MM")
 
          if (this.state.f == -1){
             $.ajax({
@@ -257,10 +278,10 @@ module.exports = React.createClass({
     let min = moment(this.props.chart_bins[0]);
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
     if (s <= e  & s > min & e < max) {
-      this.setState({start_selected:s.format("YYYY-MM-DD"),
-                     end_selected:e.format("YYYY-MM-DD")});
+      this.setState({start_selected:s.format("YYYY-MM"),
+                     end_selected:e.format("YYYY-MM")});
 
-      let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + s.format("YYYY-MM-DD") + "&enddate=" + e.format("YYYY-MM-DD")
+      let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + s.format("YYYY-MM") + "&enddate=" + e.format("YYYY-MM")
 
       if (this.state.f == -1){
         $.ajax({
@@ -299,17 +320,17 @@ module.exports = React.createClass({
               success: function(d) {
                 //count vector for just clicked facet, e (event)
                 let fd = _.find(this.state.facet_datas, function(o) { return o.f == e; });
-                this.setState({start_selected: minbin,
-                              end_selected: maxbin,
+                this.setState({ // start_selected: minbin,
+                              ///end_selected: maxbin,
                               f: e,
                               mode: "docs",
                               f_list: d,
-                              chart_mode: "intro",
+                              //chart_mode: "intro",
                               f_counts: fd["counts"]});
 
 
                 /* DO NOT POST FOR MORE FACETS IF THEY JUST CLICKED ONE
-                let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + moment(minbin).format("YYYY-MM-DD") + "&enddate=" + moment(maxbin).format("YYYY-MM-DD")
+                let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + moment(minbin).format("YYYY-MM") + "&enddate=" + moment(maxbin).format("YYYY-MM")
 
 
                 $.ajax({
@@ -350,11 +371,13 @@ module.exports = React.createClass({
   fX: function(){
     let min = moment(this.props.chart_bins[0]);
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
-    min = min.format("YYYY-MM-DD");
-    max = max.format("YYYY-MM-DD");
+    
+    min = min.format("YYYY-MM");
+    max = max.format("YYYY-MM");
+
     this.setState({f: -1,
                    mode:"overview",
-                   start_selected: -1,
+                   //start_selected: -1,
                    chart_mode: "intro",
                    end_selected: -1,
                    start_selected:min,
@@ -381,14 +404,34 @@ module.exports = React.createClass({
       let granularity = "weeks"; //TODO: this won't scale if span changes
       if (e.keyIdentifier == "Right" || e.keyIdentifier == "Left"){
         if(e.keyIdentifier == "Right"){
-          new_start = moment(this.state.start_selected).add(1, granularity).format("YYYY-MM-DD");
-          new_end = moment(this.state.end_selected).add(1, granularity).format("YYYY-MM-DD");
+          new_start = moment(this.state.start_selected).add(1, granularity).format("YYYY-MM");
+          new_end = moment(this.state.end_selected).add(1, granularity).format("YYYY-MM");
         }
         if(e.keyIdentifier == "Left"){
-          new_start = moment(this.state.start_selected).subtract(1, granularity).format("YYYY-MM-DD");
-          new_end = moment(this.state.end_selected).subtract(1, granularity).format("YYYY-MM-DD");
+          new_start = moment(this.state.start_selected).subtract(1, granularity).format("YYYY-MM");
+          new_end = moment(this.state.end_selected).subtract(1, granularity).format("YYYY-MM");
         }
         this.setState({start_selected:new_start, end_selected: new_end});
+
+      let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + new_start + "&enddate=" + new_end;
+
+      if (this.state.f == -1){
+        $.ajax({
+                    url: url,
+                    dataType: 'json',
+                    cache: true,
+                    method: 'GET',
+                    success: function(d) {
+                      //count vector for just clicked facet, e (event)
+                      this.setState({facet_datas: d["d"], startdisplay: 0});
+                    }.bind(this),
+                    error: function(xhr, status, err) {
+                      console.error(this.props.url, status, err.toString());
+                    }.bind(this)
+        });
+      }
+
+
       }
     }
   },

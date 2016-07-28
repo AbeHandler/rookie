@@ -34,26 +34,30 @@ module.exports = React.createClass({
                                                                    && o.rank < this.props.enddisplay }.bind(this));
 
     let ntile = this.props.enddisplay - this.props.startdisplay;
-    return (
-            <Grid fluid style={{height:height}}>
-              {displayed.map(function(value, i){
-                     var selected = false;
-                     if (f == value["f"]){
-                          selected = true;
-                     }
+    if (displayed.length == 0){
+      return <div>loading</div>
+    }else{
+      return (
+              <Grid fluid style={{height:height}}>
+                {displayed.map(function(value, i){
+                       var selected = false;
+                       if (f == value["f"]){
+                            selected = true;
+                       }
 
-                     return  <SparklineTile ref="tile" selected={selected}
-                                               col_no={1}
-                                               clickTile={clickTile}
-                                               key={value["f"]}
-                                               facet={value["f"]}
-                                               width={width}
-                                               height={height/ntile}
-                                               w_h_ratio={w_h_ratio}
-                                               q_data={q_data}
-                                               f_datas={value["counts"]}/>
-              })}
-            </Grid> 
-    );
+                       return  <SparklineTile ref="tile" selected={selected}
+                                                 col_no={1}
+                                                 clickTile={clickTile}
+                                                 key={value["f"]}
+                                                 facet={value["f"]}
+                                                 width={width}
+                                                 height={height/ntile}
+                                                 w_h_ratio={w_h_ratio}
+                                                 q_data={q_data}
+                                                 f_datas={value["counts"]}/>
+                })}
+              </Grid> 
+      );
+    }
   }
 });
