@@ -70,7 +70,7 @@ def filter_by_date(results, corpus, start_d, end_d):
         return [r for r in results if load_all_data_structures(corpus)["pubdates"][int(r)] > start_d
                 and load_all_data_structures(corpus)["pubdates"][int(r)] < end_d]
     else:
-        print "hhuh?", start_d, end_d
+        # print "hhuh?", start_d, end_d
         return results
 
 @lrudecorator(100)
@@ -278,11 +278,11 @@ def get_facets_for_q(q, results, n_facets, structures):
     # run a filtering heuristic to clean up facets
     ok_facets = get_all_facets(raw_facets, structures, q)
 
-    print "len OK_facets={}".format(len(ok_facets))
+    # print "len OK_facets={}".format(len(ok_facets))
     # find the ok_facets in the raw_facets
     filtered_facets = [i for i in raw_facets if i[0] in ok_facets]
 
-    print "len filtered facets={}".format(len(filtered_facets))
+    # print "len filtered facets={}".format(len(filtered_facets))
     # return the strings, in order of i
 
     return {"g": [i[0] for i in filtered_facets]}

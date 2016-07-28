@@ -14,7 +14,7 @@ module.exports = React.createClass({
   render: function() {
     let xp = this.props.y_axis_width * .75;
     let yend = this.props.height;
-    var scale = d3.scale.linear()
+    var scale = d3.scale.sqrt()
       .domain([0,this.props.max])
       .range([0,yend]);
     let ticks;

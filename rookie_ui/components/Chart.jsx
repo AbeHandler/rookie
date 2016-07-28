@@ -34,7 +34,7 @@ module.exports = React.createClass({
 
     get_y_scale: function(){
       let h = this.props.w / this.props.w_h_ratio;
-      return d3.scale.linear()
+      return d3.scale.sqrt()
                             .domain([0, _.max(this.props.datas)])
                             .range([0, this.props.height])
     },

@@ -13,7 +13,7 @@ module.exports = React.createClass({
         let x_scale = d3.scale.linear()
                             .domain([0, this.props.q_data.length])
                             .range([0, this.props.width]);
-        let y_scale = d3.scale.linear()
+        let y_scale = d3.scale.sqrt()
                             .domain([0, _.max(this.props.q_data)])
                             .range([0, this.props.height]);
 

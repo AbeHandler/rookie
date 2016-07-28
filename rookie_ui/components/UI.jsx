@@ -37,12 +37,17 @@ module.exports = React.createClass({
     this.set_width();
     window.addEventListener("resize", this.set_width);
     window.addEventListener("keydown", this.handleKeyDown);
-    let url = this.props.base_url + "get_facet_datas?q=" + this.props.q + "&corpus=" + this.props.corpus
+    let min = moment(this.props.chart_bins[0]);
+    let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
+    min = min.format("YYYY-MM-DD");
+    max = max.format("YYYY-MM-DD");
+    let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + min + "&enddate=" + max
+
     $.ajax({
               url: url,
               dataType: 'json',
               cache: true,
-              method: 'POST',
+              method: 'GET',
               success: function(d) {
                 //count vector for just clicked facet, e (event)
                 this.setState({facet_datas: d["d"]});
@@ -196,7 +201,9 @@ module.exports = React.createClass({
         this.setState({start_selected:d.format("YYYY-MM-DD")});
         let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + d.format("YYYY-MM-DD") + "&enddate=" + moment(this.state.end_selected).format("YYYY-MM-DD")
 
-        $.ajax({
+        console.log(this.state.f);
+        if (this.state.f == -1){
+          $.ajax({
                     url: url,
                     dataType: 'json',
                     cache: true,
@@ -204,12 +211,14 @@ module.exports = React.createClass({
                     success: function(d) {
                       //count vector for just clicked facet, e (event)
                       console.log(d);
-                      this.setState({facet_datas: d["d"]});
+                      this.setState({facet_datas: d["d"], startdisplay:0});
                     }.bind(this),
                     error: function(xhr, status, err) {
                       console.error(this.props.url, status, err.toString());
                     }.bind(this)
           });
+        }
+        
       }
     }
     if (start_end == "end"){
@@ -219,20 +228,22 @@ module.exports = React.createClass({
          this.setState({end_selected:d.format("YYYY-MM-DD")});
          let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + moment(this.state.start_selected).format("YYYY-MM-DD") + "&enddate=" + d.format("YYYY-MM-DD")
 
-          $.ajax({
-                    url: url,
-                    dataType: 'json',
-                    cache: true,
-                    method: 'GET',
-                    success: function(d) {
-                      //count vector for just clicked facet, e (event)
-                      console.log(d);
-                      this.setState({facet_datas: d["d"]});
-                    }.bind(this),
-                    error: function(xhr, status, err) {
-                      console.error(this.props.url, status, err.toString());
-                    }.bind(this)
-          });
+         if (this.state.f == -1){
+            $.ajax({
+                      url: url,
+                      dataType: 'json',
+                      cache: true,
+                      method: 'GET',
+                      success: function(d) {
+                        //count vector for just clicked facet, e (event)
+                        this.setState({facet_datas: d["d"], startdisplay: 0});
+                      }.bind(this),
+                      error: function(xhr, status, err) {
+                        console.error(this.props.url, status, err.toString());
+                      }.bind(this)
+            });
+         }
+          
       }
     }
   },
@@ -251,20 +262,22 @@ module.exports = React.createClass({
 
       let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + s.format("YYYY-MM-DD") + "&enddate=" + e.format("YYYY-MM-DD")
 
-      $.ajax({
+      if (this.state.f == -1){
+        $.ajax({
                     url: url,
                     dataType: 'json',
                     cache: true,
                     method: 'GET',
                     success: function(d) {
                       //count vector for just clicked facet, e (event)
-                      console.log(d);
-                      this.setState({facet_datas: d["d"]});
+                      this.setState({facet_datas: d["d"], startdisplay: 0});
                     }.bind(this),
                     error: function(xhr, status, err) {
                       console.error(this.props.url, status, err.toString());
                     }.bind(this)
-      });
+        });
+      }
+
 
 
     }else{
@@ -294,7 +307,10 @@ module.exports = React.createClass({
                               chart_mode: "intro",
                               f_counts: fd["counts"]});
 
+
+                /* DO NOT POST FOR MORE FACETS IF THEY JUST CLICKED ONE
                 let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + moment(minbin).format("YYYY-MM-DD") + "&enddate=" + moment(maxbin).format("YYYY-MM-DD")
+
 
                 $.ajax({
                               url: url,
@@ -310,6 +326,7 @@ module.exports = React.createClass({
                                 console.error(this.props.url, status, err.toString());
                               }.bind(this)
                 });
+                */
 
               }.bind(this),
               error: function(xhr, status, err) {
