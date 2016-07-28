@@ -67,7 +67,8 @@ def get_facets():
     print params
     results = filter_by_date(results, params.corpus, params.startdate, params.enddate)
     print "there are {} after filtering".format(len(results))
-    out = facets_for_t(params, results)
+    out = {}
+    out["d"] = facets_for_t(params, results)
     # print out
     return json.dumps(out)
 

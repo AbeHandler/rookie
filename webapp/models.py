@@ -89,7 +89,7 @@ def facets_for_t(params, results):
     return get_facet_datas(binned_facets=binned_facets, 
                            params=params,
                            results=results,
-                           limit=5)
+                           limit=200)
 
 
 def get_stuff_ui_needs(params, results):

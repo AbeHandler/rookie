@@ -45,7 +45,7 @@ module.exports = React.createClass({
               method: 'POST',
               success: function(d) {
                 //count vector for just clicked facet, e (event)
-                this.setState({facet_datas: d});
+                this.setState({facet_datas: d["d"]});
               }.bind(this),
               error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -204,7 +204,7 @@ module.exports = React.createClass({
                     success: function(d) {
                       //count vector for just clicked facet, e (event)
                       console.log(d);
-                      this.setState({facet_datas: d});
+                      this.setState({facet_datas: d["d"]});
                     }.bind(this),
                     error: function(xhr, status, err) {
                       console.error(this.props.url, status, err.toString());
@@ -227,7 +227,7 @@ module.exports = React.createClass({
                     success: function(d) {
                       //count vector for just clicked facet, e (event)
                       console.log(d);
-                      this.setState({facet_datas: d});
+                      this.setState({facet_datas: d["d"]});
                     }.bind(this),
                     error: function(xhr, status, err) {
                       console.error(this.props.url, status, err.toString());
@@ -259,7 +259,7 @@ module.exports = React.createClass({
                     success: function(d) {
                       //count vector for just clicked facet, e (event)
                       console.log(d);
-                      this.setState({facet_datas: d});
+                      this.setState({facet_datas: d["d"]});
                     }.bind(this),
                     error: function(xhr, status, err) {
                       console.error(this.props.url, status, err.toString());
@@ -304,7 +304,7 @@ module.exports = React.createClass({
                               success: function(d) {
                                 //count vector for just clicked facet, e (event)
                                 console.log(d);
-                                this.setState({facet_datas: d});
+                                this.setState({facet_datas: d["d"]});
                               }.bind(this),
                               error: function(xhr, status, err) {
                                 console.error(this.props.url, status, err.toString());
