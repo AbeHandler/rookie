@@ -484,6 +484,10 @@ module.exports = React.createClass({
     if (this.state.startdisplay > 0){
         backbutton = <span  style={{ textDecoration: "underline", float:"left", cursor: "pointer", paddingRight: "7px"}} onClick={()=>this.setState({startdisplay: this.state.startdisplay - this.props.sparkline_per_panel})} bsSize="xsmall">back</span>
     }
+    let moresubjects = "";
+     if ((this.state.startdisplay/this.props.sparkline_per_panel + 1) < (Math.floor(global_facets.length/this.props.sparkline_per_panel) + 1)){
+        moresubjects = "more subjects"
+    }   
     let sparkline_h = <div>
                      <SparklineStatus fX={this.fX} qX={qX}
                      ndocs={this.props.total_docs_for_q}
@@ -495,7 +499,7 @@ module.exports = React.createClass({
                             {backbutton}
                           </span>
                           <span style={{ textDecoration: "underline", float:"right", cursor: "pointer"}} onClick={()=>this.setState({startdisplay: this.state.startdisplay + this.props.sparkline_per_panel})} bsSize="xsmall">
-                            more subjects
+                            {moresubjects}
                           </span>
                         
                       </div>
