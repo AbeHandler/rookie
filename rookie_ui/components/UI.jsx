@@ -100,22 +100,7 @@ module.exports = React.createClass({
                   end_selected: max,
                   chart_mode: "intro",
                   facet_datas: []});
-    let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + min + "&enddate=" + max
 
-
-    $.ajax({
-              url: url,
-              dataType: 'json',
-              cache: true,
-              method: 'GET',
-              success: function(d) {
-                //count vector for just clicked facet, e (event)
-                this.setState({facet_datas: d["d"]});
-              }.bind(this),
-              error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-              }.bind(this)
-    });
   },
 
   resultsToDocs: function(results){
@@ -186,8 +171,34 @@ module.exports = React.createClass({
       let e = moment(e_page_X_adjusted).add(1, 'month');
       s = s.format("YYYY-MM");
       e = e.format("YYYY-MM");
+
       this.setState({start_selected:s,end_selected:e});
     }
+
+    let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + this.state.start_selected + "&enddate=" + this.state.end_selected;
+
+    if (this.state.f == -1){
+      $.ajax({
+                    url: url,
+                    dataType: 'json',
+                    cache: true,
+                    method: 'GET',
+                    success: function(d) {
+                      //count vector for just clicked facet, e (event)
+                      console.log(d);
+                      this.setState({facet_datas: d["d"], startdisplay:0});
+                    }.bind(this),
+                    error: function(xhr, status, err) {
+                      console.error(this.props.url, status, err.toString());
+                    }.bind(this)
+      });
+    }
+
+    this.setState({drag_l: false, drag_r: false,
+                   mouse_down_in_chart: false, mouse_is_dragging: false});
+  },
+
+  turnoff_drag: function(){
     this.setState({drag_l: false, drag_r: false,
                    mouse_down_in_chart: false, mouse_is_dragging: false});
   },
@@ -218,25 +229,6 @@ module.exports = React.createClass({
       if ((d < end) &  (d>min)){
 
         this.setState({start_selected:d.format("YYYY-MM")});
-
-        let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + d.format("YYYY-MM") + "&enddate=" + moment(this.state.end_selected).format("YYYY-MM");
-
-        if (this.state.f == -1){
-          $.ajax({
-                    url: url,
-                    dataType: 'json',
-                    cache: true,
-                    method: 'GET',
-                    success: function(d) {
-                      //count vector for just clicked facet, e (event)
-                      console.log(d);
-                      this.setState({facet_datas: d["d"], startdisplay:0});
-                    }.bind(this),
-                    error: function(xhr, status, err) {
-                      console.error(this.props.url, status, err.toString());
-                    }.bind(this)
-          });
-        }
         
       }
     }
@@ -247,23 +239,7 @@ module.exports = React.createClass({
 
       if (d > start & d < max){
          this.setState({end_selected:d.format("YYYY-MM")});
-         let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + moment(this.state.start_selected).format("YYYY-MM") + "&enddate=" + d.format("YYYY-MM");
 
-         if (this.state.f == -1){
-            $.ajax({
-                      url: url,
-                      dataType: 'json',
-                      cache: true,
-                      method: 'GET',
-                      success: function(d) {
-                        //count vector for just clicked facet, e (event)
-                        this.setState({facet_datas: d["d"], startdisplay: 0});
-                      }.bind(this),
-                      error: function(xhr, status, err) {
-                        console.error(this.props.url, status, err.toString());
-                      }.bind(this)
-            });
-         }
           
       }
     }
@@ -280,25 +256,6 @@ module.exports = React.createClass({
     if (s <= e  & s > min & e < max) {
       this.setState({start_selected:s.format("YYYY-MM"),
                      end_selected:e.format("YYYY-MM")});
-
-      let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + s.format("YYYY-MM") + "&enddate=" + e.format("YYYY-MM")
-
-      if (this.state.f == -1){
-        $.ajax({
-                    url: url,
-                    dataType: 'json',
-                    cache: true,
-                    method: 'GET',
-                    success: function(d) {
-                      //count vector for just clicked facet, e (event)
-                      this.setState({facet_datas: d["d"], startdisplay: 0});
-                    }.bind(this),
-                    error: function(xhr, status, err) {
-                      console.error(this.props.url, status, err.toString());
-                    }.bind(this)
-        });
-      }
-
 
 
     }else{
@@ -327,27 +284,6 @@ module.exports = React.createClass({
                               f_list: d,
                               //chart_mode: "intro",
                               f_counts: fd["counts"]});
-
-
-                /* DO NOT POST FOR MORE FACETS IF THEY JUST CLICKED ONE
-                let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + moment(minbin).format("YYYY-MM") + "&enddate=" + moment(maxbin).format("YYYY-MM")
-
-
-                $.ajax({
-                              url: url,
-                              dataType: 'json',
-                              cache: true,
-                              method: 'GET',
-                              success: function(d) {
-                                //count vector for just clicked facet, e (event)
-                                console.log(d);
-                                this.setState({facet_datas: d["d"]});
-                              }.bind(this),
-                              error: function(xhr, status, err) {
-                                console.error(this.props.url, status, err.toString());
-                              }.bind(this)
-                });
-                */
 
               }.bind(this),
               error: function(xhr, status, err) {
@@ -403,33 +339,33 @@ module.exports = React.createClass({
       let new_end, new_start;
       let granularity = "weeks"; //TODO: this won't scale if span changes
       if (e.keyIdentifier == "Right" || e.keyIdentifier == "Left"){
-        if(e.keyIdentifier == "Right"){
-          new_start = moment(this.state.start_selected).add(1, granularity).format("YYYY-MM");
-          new_end = moment(this.state.end_selected).add(1, granularity).format("YYYY-MM");
-        }
-        if(e.keyIdentifier == "Left"){
-          new_start = moment(this.state.start_selected).subtract(1, granularity).format("YYYY-MM");
-          new_end = moment(this.state.end_selected).subtract(1, granularity).format("YYYY-MM");
-        }
-        this.setState({start_selected:new_start, end_selected: new_end});
+          if(e.keyIdentifier == "Right"){
+            new_start = moment(this.state.start_selected).add(1, granularity).format("YYYY-MM");
+            new_end = moment(this.state.end_selected).add(1, granularity).format("YYYY-MM");
+          }
+          if(e.keyIdentifier == "Left"){
+            new_start = moment(this.state.start_selected).subtract(1, granularity).format("YYYY-MM");
+            new_end = moment(this.state.end_selected).subtract(1, granularity).format("YYYY-MM");
+          }
+          this.setState({start_selected:new_start, end_selected: new_end});
 
-      let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + new_start + "&enddate=" + new_end;
+        let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + new_start + "&enddate=" + new_end;
 
-      if (this.state.f == -1){
-        $.ajax({
-                    url: url,
-                    dataType: 'json',
-                    cache: true,
-                    method: 'GET',
-                    success: function(d) {
-                      //count vector for just clicked facet, e (event)
-                      this.setState({facet_datas: d["d"], startdisplay: 0});
-                    }.bind(this),
-                    error: function(xhr, status, err) {
-                      console.error(this.props.url, status, err.toString());
-                    }.bind(this)
-        });
-      }
+        if (this.state.f == -1){
+          $.ajax({
+                      url: url,
+                      dataType: 'json',
+                      cache: true,
+                      method: 'GET',
+                      success: function(d) {
+                        //count vector for just clicked facet, e (event)
+                        this.setState({facet_datas: d["d"], startdisplay: 0});
+                      }.bind(this),
+                      error: function(xhr, status, err) {
+                        console.error(this.props.url, status, err.toString());
+                      }.bind(this)
+          });
+        }
 
 
       }
@@ -538,6 +474,7 @@ module.exports = React.createClass({
                mouse_move_in_chart={this.mouse_move_in_chart}
                f={this.state.f}
                q={this.props.q}
+               turnoff_drag={this.turnoff_drag}
                handle_mouse_up_in_rect_mode={this.handle_mouse_up_in_rect_mode}
                toggle_both_drags_start={() => this.setState({drag_l: true, drag_r: true}) }
                toggle_drag_start_l={this.toggle_drag_start_l}

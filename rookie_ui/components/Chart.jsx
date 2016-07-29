@@ -311,6 +311,11 @@ module.exports = React.createClass({
       }
    },
 
+   turnoff_drag: function(){
+    this.setState({ mouse_to_r_d: -1, mouse_to_l_d: -1, mouse_to_r_d: -1, mouse_to_l_d: -1}); 
+    this.props.turnoff_drag();
+  },
+
   render: function() {
     let lateral_scale = this.get_x_scale();
     let height_scale = this.get_y_scale();
@@ -343,7 +348,7 @@ module.exports = React.createClass({
     let tooltip = this.get_tooltip();
     let hilite = this.get_path_hilite(this.props.q_data);
     return (
-        <Panel ref="chart_panel" onMouseMove={e=> handle_mouse_move(e.pageX, lateral_scale)} onMouseLeave={e=>this.toggle_drag_stop(e.pageX, lateral_scale)} onMouseUp={e => handle_mouseup(e.pageX, lateral_scale)} onMouseDown={e => this.handle_mouse_down(e, lateral_scale)} >
+        <Panel ref="chart_panel" onMouseMove={e=> handle_mouse_move(e.pageX, lateral_scale)} onMouseLeave={this.turnoff_drag} onMouseUp={e => handle_mouseup(e.pageX, lateral_scale)} onMouseDown={e => this.handle_mouse_down(e, lateral_scale)} >
         <Row>
         <Col xs={12}>
         <YAxis max={max} height={this.props.height} y_axis_width={this.props.y_axis_width}/>
