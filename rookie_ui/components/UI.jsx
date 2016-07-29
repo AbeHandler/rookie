@@ -155,7 +155,6 @@ module.exports = React.createClass({
       if (this.state.drag_l == false && this.state.drag_r == false){
         let start = moment(p).format("YYYY-MM");
         let end = moment(p).format("YYYY-MM");
-
         this.setState({mouse_is_dragging: true,
                       drag_l: false,
                       drag_r: true,
@@ -217,10 +216,11 @@ module.exports = React.createClass({
       let end = moment(this.state.end_selected, "YYYY-MM");
       let min = moment(this.props.chart_bins[0]);
       if ((d < end) &  (d>min)){
-        this.setState({start_selected:d.format("YYYY-MM")});
-        let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + d.format("YYYY-MM") + "&enddate=" + moment(this.state.end_selected).format("YYYY-MM")
 
-        console.log(this.state.f);
+        this.setState({start_selected:d.format("YYYY-MM")});
+
+        let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + d.format("YYYY-MM") + "&enddate=" + moment(this.state.end_selected).format("YYYY-MM");
+
         if (this.state.f == -1){
           $.ajax({
                     url: url,
@@ -247,7 +247,7 @@ module.exports = React.createClass({
 
       if (d > start & d < max){
          this.setState({end_selected:d.format("YYYY-MM")});
-         let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + moment(this.state.start_selected).format("YYYY-MM") + "&enddate=" + d.format("YYYY-MM")
+         let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + moment(this.state.start_selected).format("YYYY-MM") + "&enddate=" + d.format("YYYY-MM");
 
          if (this.state.f == -1){
             $.ajax({
