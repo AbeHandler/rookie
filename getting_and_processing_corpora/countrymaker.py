@@ -52,6 +52,12 @@ def remove(fn):
     except OSError:
         pass
 
+pd_to_headline = {}
+for ln in [k for k in open("getting_and_processing_corpora/docs.tsv")]:
+    dates, metadata, pubdates, headline = ln.split("\t")
+    pd_to_headline[dates] = headline.replace('\n', '').replace('"', '')
+
+
 
 OUTF = BASE + "{}/processed/all.anno_plus".format(country)
 
@@ -73,9 +79,10 @@ with open("fns", "r") as inf:
                     out["text"] = jdoc
                     for sen in out["text"]["sentences"]:
                         sen["as_string"] = sent_to_string(sen)
-                    out["headline"] = "unknown"
+                    out["headline"] = pd_to_headline[pubdate]
                     out["url"] = "unknown"
                     out["pubdate"] = pubdate
-                    if has_country(jdoc, country):
+                    country_words = country.split()
+                    if all(has_country(jdoc, country_word) for country_word in country_words):
                         with open(OUTF, "a") as outf:
                             outf.write(json.dumps(out) + "\n")

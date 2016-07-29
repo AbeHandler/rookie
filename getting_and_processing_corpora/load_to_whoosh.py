@@ -55,6 +55,7 @@ def load(index_location, processed_location):
     session.commit()
     with open("corpora/{}/processed/all.anno_plus".format(args.corpus), "r") as raw:
         for ln, line in enumerate(raw):
+            # print ln
             try:
                 line_json = ujson.loads(line.replace("\n", ""))
                 try:
@@ -62,14 +63,21 @@ def load(index_location, processed_location):
                 except KeyError:
                     headline = "Headline: NA"
                 
+                
                 try:
+                    # ipdb.set_trace()
                     pubdate = parse(line_json["pubdate"])
-                except ValueError:
+
+                except ValueError: # sometimes throws typerror, other times value error. huh?
                     # nyt world news date format = 19870101_0000087
                     nytdate = re.match("[0-9]{8}(?=_)", line_json["pubdate"]).group(0)
                     assert len(nytdate) == 8
                     pubdate = parse(nytdate)
-
+                except TypeError: 
+                    # nyt world news date format = 19870101_0000087
+                    nytdate = re.match("[0-9]{8}(?=_)", line_json["pubdate"]).group(0)
+                    assert len(nytdate) == 8
+                    pubdate = parse(nytdate)
 
                 try:
                     url = line_json["url"]

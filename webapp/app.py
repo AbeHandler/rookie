@@ -92,12 +92,12 @@ def post_for_facet_datas():
 These methods are for IR mode
 '''
 
-@app.route('/search_results', methods=['POST'])
+@app.route('/search_results', methods=['GET'])
 def search_results():
     params = Models.get_parameters(request)
-    params.corpus = "lens"
     results = Models.get_results(params)
     doc_list = Models.get_doclist(results, params.q, params.f, params.corpus)
+    print views.basic_search_results(doc_list)
     return views.basic_search_results(doc_list)
 
 @app.route('/search', methods=['GET'])

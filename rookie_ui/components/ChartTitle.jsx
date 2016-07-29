@@ -20,12 +20,8 @@ module.exports = React.createClass({
 
     render: function() {
 
-        let text_dec = "none";
         let on_click_f = "";
-        if (this.props.mode == "overview"){
-            text_dec = "underline";
-        }
-        let status_start = <span>Found {this.props.ndocs} <span onClick={on_click_f} style={{textDecoration: text_dec}}>{this.getStoryPhrase()}</span> for </span>;
+        let status_start = <span>Found {this.props.ndocs} <span onClick={on_click_f}>{this.getStoryPhrase()}</span> for </span>;
         let f = this.props.f;
         let show = (f != -1 & f != undefined);
         let tot_f_docs = this.props.f_docs;
