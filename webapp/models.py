@@ -6,6 +6,7 @@ import ipdb
 import ujson
 import time
 import cPickle as pickle
+from datetime import datetime
 from dateutil.parser import parse
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser
@@ -246,13 +247,20 @@ class Models(object):
         except AttributeError: # almost certainly b\c q is not given in query
             output.q = ""
 
-        try:
-            output.startdate = parse(request.args.get('startdate'))
-        except:
+
+        if request.args.get('startdate') is not None:
+            print "start"
+            yr, mo = request.args.get('startdate').split("-")
+            print yr, mo
+            output.startdate = datetime(int(yr), int(mo), 1)
+        else:
             output.startdate = None
-        try:
-            output.enddate = parse(request.args.get('enddate'))
-        except:
+        if request.args.get('enddate') is not None:
+            print "end"
+            yr, mo = request.args.get('enddate').split("-")
+            print yr, mo
+            output.enddate = datetime(int(yr), int(mo), 1)
+        else:
             output.enddate = None
 
         try:
