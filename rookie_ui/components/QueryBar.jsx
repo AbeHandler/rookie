@@ -35,8 +35,6 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    let demo = "one";
-    let demo2 = "two";
     let dstyle = {
       width: "100%"
     }

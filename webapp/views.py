@@ -34,25 +34,32 @@ class Views(object):
         return response
 
 
-    def basic_search(self, results):
+    def basic_search(self, results, page, tot_pages, corpus):
         '''
         return IR view
         '''
         response = render_template(
             'search.html',
-            results=results
+            results=results,
+            corpus=corpus,
+            page=page,
+            tot_pages=tot_pages
         )
 
         return response
 
 
-    def basic_search_results(self, results):
+    def basic_search_results(self, results, page, tot_pages, corpus, q):
         '''
         return results list
         '''
         response = render_template(
             'search_results.html',
-            results=results
+            results=results,
+            tot_pages=tot_pages,
+            page=page,
+            corpus=corpus,
+            q=q
         )
 
         return response

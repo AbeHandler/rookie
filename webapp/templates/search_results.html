@@ -1,10 +1,89 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+
+
+<title>Rookie</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.css"></link>
+<script type="text/javascript" src="
+https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
+
+<script>
+
+
+function results(page) {
+    window.location = "/search_results/page/" + page + "?corpus={{corpus}}&q={{q}}";
+}
+
+$( document ).ready(function() {
+
+    $("#search").on("click", function(){
+        results(1);
+    });
+
+    $(document).keypress(function(e) {
+        if(e.keyCode == 13) 
+        {
+          results(1);
+        }
+    });
+
+    $("#prev").on("click", function(){
+        results({{page - 1}})
+    });
+
+    $("#next").on("click", function(){
+        results({{page + 1}})
+    });
+
+});
+
+
+</script>
+
+
+<div class="row" style="padding-bottom: 7px; padding-left: 7px; width: 95%">
+  <div class="col-lg-12">
+    <div class="input-group">
+      <input id="imp" type="text" class="form-control" style="font-weight:bold; color:#0028a3" value="{{q}}">
+      <span class="input-group-btn">
+        <button id="search" class="btn btn-default" type="button">Search</button>
+      </span>
+    </div><!-- /input-group -->
+  </div><!-- /.col-lg-6 -->
+</div><!-- /.row -->
+
+
+<div style="width: 100%">
+    <div style="width: 10%; margin:auto">
+            {% if tot_pages > 1%}
+            Page {{page}} of {{tot_pages }}
+            {% endif %}
+    </div>
+ <div>
+
 <div>
     {% for item in results %}
       <div style="padding-bottom: 7px; padding-left: 7px">
         <h4 style="color:#1b1203;">
-        <a style="color:#1b1203;" target="_blank" href='{{item.url}}'>{{item.headline}}</a>
+        <a style="color:#1b1203;" target="_blank" href='{{item.url}}'>{{item.headline}}</a> | 
+        <span style="color:grey; font-size: 12px">{{item.pubdate}}</span>
         </h3>
         <div style="color:grey; padding-left: 13px"> {{item.snippet.htext | safe }} </div>
       </div>
     {% endfor %}
 </div>
+
+<script type="text/javascript">
+    var page = {{page}};
+</script>
+
+<div style="width: 100%">
+    <div style="width: 10%; margin:auto">
+        {% if page > 1 %} 
+            <span id="prev"> prev </span> || {% endif %} {% if page < tot_pages %}<span id="next">next</span>
+        {% endif %}
+    </div>
+
+<div>

@@ -175,6 +175,7 @@ module.exports = React.createClass({
       this.setState({start_selected:s,end_selected:e});
     }
 
+    console.log(this.state.start_selected, this.state.end_selected);
     let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + this.state.start_selected + "&enddate=" + this.state.end_selected;
 
     if (this.state.f == -1){

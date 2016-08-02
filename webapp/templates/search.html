@@ -13,9 +13,9 @@ https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></scrip
 
 function post() {
     var imp = $("#imp").val();
-    $.post( "/search_results?corpus=lens&q=" + imp, function( data ) {
-      $("#search_results").html(data);
-    });
+    var url = "/search_results/page/1?corpus={{corpus}}&q=" + imp;
+    alert(url);
+    window.location = url;
 }
 
 $( document ).ready(function() {
@@ -46,9 +46,6 @@ $( document ).ready(function() {
   </div><!-- /.col-lg-6 -->
 </div><!-- /.row -->
 
-<div id="search_results">
-{% include 'search_results.html' %}
-</div>
 
 </body>
 </html>
