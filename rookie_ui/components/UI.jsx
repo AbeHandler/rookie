@@ -170,37 +170,39 @@ module.exports = React.createClass({
       e = e.format("YYYY-MM");
 
       this.setState({start_selected:s,end_selected:e});
-    }
+    }else{
+      let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + this.state.start_selected + "&enddate=" + this.state.end_selected;
 
-    let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + this.state.start_selected + "&enddate=" + this.state.end_selected;
+      let max = this.props.chart_bins[this.props.chart_bins.length - 1];
 
-    let max = this.props.chart_bins[this.props.chart_bins.length - 1];
-    if(this.state.start_selected === this.state.end_selected){
-      if (moment(max) > moment(this.state.end_selected, "YYYY-MM")){
-        let e = moment(this.state.end_selected, "YYYY-MM");
-        e.add(1, "months");
-        this.setState({end_selected:e.format("YYYY-MM")});
-        url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + this.state.start_selected + "&enddate=" + e.format("YYYY-MM");
+
+      if(this.state.start_selected === this.state.end_selected){
+        if (moment(max) > moment(this.state.end_selected, "YYYY-MM")){
+          let e = moment(this.state.end_selected, "YYYY-MM");
+          e.add(1, "months");
+          this.setState({end_selected:e.format("YYYY-MM")});
+          url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + this.state.start_selected + "&enddate=" + e.format("YYYY-MM");
+        }
       }
-    }
 
-    console.log(this.state.start_selected, this.state.end_selected, this.state.start_selected === this.state.end_selected, max);
+      console.log(this.state.start_selected, this.state.end_selected, this.state.start_selected === this.state.end_selected, max);
 
-    if (this.state.f == -1){
-      $.ajax({
-                    url: url,
-                    dataType: 'json',
-                    cache: true,
-                    method: 'GET',
-                    success: function(d) {
-                      //count vector for just clicked facet, e (event)
-                      console.log(d);
-                      this.setState({facet_datas: d["d"], startdisplay:0});
-                    }.bind(this),
-                    error: function(xhr, status, err) {
-                      console.error(this.props.url, status, err.toString());
-                    }.bind(this)
-      });
+      if (this.state.f == -1){
+        $.ajax({
+                      url: url,
+                      dataType: 'json',
+                      cache: true,
+                      method: 'GET',
+                      success: function(d) {
+                        //count vector for just clicked facet, e (event)
+                        console.log(d);
+                        this.setState({facet_datas: d["d"], startdisplay:0});
+                      }.bind(this),
+                      error: function(xhr, status, err) {
+                        console.error(this.props.url, status, err.toString());
+                      }.bind(this)
+        });
+      }
     }
 
     this.setState({drag_l: false, drag_r: false,
