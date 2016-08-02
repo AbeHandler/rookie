@@ -132,14 +132,11 @@ module.exports = React.createClass({
   },
 
   mouse_move_in_chart: function(p){
-    this.check_drag(p);
-  },
-
-  check_drag: function(p) {
     if (this.state.mouse_down_in_chart){
       if (this.state.drag_l == false && this.state.drag_r == false){
         let start = moment(p).format("YYYY-MM");
         let end = moment(p).format("YYYY-MM");
+        if (start === end)
         this.setState({mouse_is_dragging: true,
                       drag_l: false,
                       drag_r: true,
@@ -254,11 +251,18 @@ module.exports = React.createClass({
     let e = moment(end_date);
     let min = moment(this.props.chart_bins[0]);
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
-    if (s <= e  & s > min & e < max) {
+    if (s <= e  & s > min & e < max & !(s.format("YYYY-MM") === e.format("YYYY-MM"))) {
       this.setState({start_selected:s.format("YYYY-MM"),
                      end_selected:e.format("YYYY-MM")});
 
 
+    }else if (s <= e  & s > min & e < max & s.format("YYYY-MM") === e.format("YYYY-MM")){
+        // dates are equal
+        e.add(1, "months"); 
+        if (e < max){
+          this.setState({start_selected:s.format("YYYY-MM"),
+                     end_selected:e.format("YYYY-MM")});
+        }
     }else{
       console.log("skip");
     }
@@ -380,7 +384,6 @@ module.exports = React.createClass({
 
   render: function() {
     let qX = this.qX;
-    let bin_size = "year"; //default binsize
     let docs = this.resultsToDocs(this.state.all_results);
     let docs_ignoreT = this.n_fdocs(this.state.all_results);
     let y_scroll = {
@@ -465,7 +468,7 @@ module.exports = React.createClass({
                                 start_selected={this.state.start_selected}
                                 end_selected={this.state.end_selected}
                                 all_results={this.state.all_results}
-                                docs={docs} bin_size={bin_size}
+                                docs={docs}
                                 bins={binned_facets}/>
     if (this.props.total_docs_for_q > 0){
       let buffer = 5;
