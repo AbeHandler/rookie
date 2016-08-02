@@ -348,11 +348,11 @@ module.exports = React.createClass({
     let tooltip = this.get_tooltip();
     let hilite = this.get_path_hilite(this.props.q_data);
     return (
-        <Panel ref="chart_panel" onMouseMove={e=> handle_mouse_move(e.pageX, lateral_scale)} onMouseLeave={this.turnoff_drag} onMouseUp={e => handle_mouseup(e.pageX, lateral_scale)} onMouseDown={e => this.handle_mouse_down(e, lateral_scale)} >
+        <Panel ref="chart_panel" >
         <Row>
         <Col xs={12}>
         <YAxis max={max} height={this.props.height} y_axis_width={this.props.y_axis_width}/>
-        <svg ref="chart" width={this.props.w - this.props.y_axis_width - 5} height={this.props.height}>
+        <svg onMouseMove={e=> handle_mouse_move(e.pageX, lateral_scale)} onMouseLeave={this.turnoff_drag} onMouseUp={e => handle_mouseup(e.pageX, lateral_scale)} onMouseDown={e => this.handle_mouse_down(e, lateral_scale)} ref="chart" width={this.props.w - this.props.y_axis_width - 5} height={this.props.height}>
         <path onMouseLeave={e=>this.setState({mouse_x:-1, mouse_y:-1})} onMouseMove={e =>this.setState({mouse_x:e.pageX})} d={ps} fill="#0028a3" opacity=".25" stroke="grey"/>
         <path d={hilite} fill="rgb(57, 57, 37)" opacity=".6" stroke="black"/>
         <path onMouseLeave={e=>this.setState({mouse_x:-1, mouse_y:-1})} onMouseMove={e =>this.setState({mouse_x:e.pageX})} d={fs} fill="rgb(179, 49, 37)" opacity=".6" stroke="black"/>
