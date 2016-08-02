@@ -172,18 +172,19 @@ module.exports = React.createClass({
       this.setState({start_selected:s,end_selected:e});
     }
 
+    let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + this.state.start_selected + "&enddate=" + this.state.end_selected;
 
     let max = this.props.chart_bins[this.props.chart_bins.length - 1];
     if(this.state.start_selected === this.state.end_selected){
       if (moment(max) > moment(this.state.end_selected, "YYYY-MM")){
         let e = moment(this.state.end_selected, "YYYY-MM");
         e.add(1, "months");
-        this.setState({end_selected:e});
+        this.setState({end_selected:e.format("YYYY-MM")});
+        url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + this.state.start_selected + "&enddate=" + e.format("YYYY-MM");
       }
     }
 
     console.log(this.state.start_selected, this.state.end_selected, this.state.start_selected === this.state.end_selected, max);
-    let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + this.state.start_selected + "&enddate=" + this.state.end_selected;
 
     if (this.state.f == -1){
       $.ajax({
