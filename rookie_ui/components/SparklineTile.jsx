@@ -29,30 +29,25 @@ module.exports = React.createClass({
     this.props.clickTile(this.props.facet);
   },
 
+  gets: function(s){
+    console.log(s);
+    if (s === true){
+      return {color:"#621b14", fontWeight: "bolder", cursor: "pointer", fontSize: "1em", textDecoration: "underline"}
+    }else{
+      return {color:"#621b14", fontWeight: "bold", cursor: "pointer", fontSize: "1em"}
+    }
+  },
+
   render: function() {
-    let facet_title_style = {
-      color:"#621b14",
-      textOverflow:"clip",
-      whiteSpace: "nowrap",
-      fontWeight: "bold",
-      cursor: "pointer"
-    }
-    if (this.props.col_no != 0){
-      facet_title_style.borderLeft = "1px solid grey";
-    }
     let w = (this.props.width) - 50;
     let spark_h = w/this.props.w_h_ratio;
-    let spark_w = w; // # this.props.w_h_ratio * spark_h;  =  * h
+    let spark_w = w; // # this.props.w_h_ratio * spark_h;  =  * 
+    let gets = this.gets;
     return (
       <Row onClick={this.handleClick} style={{cursor:"pointer"}}>
             <Col xs={12}>
-              <div style={{
-                     color:"#621b14",
-                          fontWeight: "bold",
-                          fontSize: ".8em",
-                          cursor: "pointer",
-                          float: "left"}}>
-                          {this.props.facet}
+              <div style={gets(this.props.selected)}>
+                  {this.props.facet}
               </div>
                 <Sparkline  selected={this.props.selected} 
                             q_data={this.props.q_data}
