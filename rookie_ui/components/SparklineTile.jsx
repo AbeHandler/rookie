@@ -32,9 +32,9 @@ module.exports = React.createClass({
   gets: function(s){
     console.log(s);
     if (s === true){
-      return {color:"#621b14", fontWeight: "bolder", cursor: "pointer", fontSize: "1em", textDecoration: "underline"}
+      return {color:"#621b14", fontWeight: "bolder", cursor: "pointer", fontSize: ".8em", textDecoration: "underline"}
     }else{
-      return {color:"#621b14", fontWeight: "bold", cursor: "pointer", fontSize: "1em"}
+      return {color:"#621b14", fontWeight: "bold", cursor: "pointer", fontSize: ".8em"}
     }
   },
 

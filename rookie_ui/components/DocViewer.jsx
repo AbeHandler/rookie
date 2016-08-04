@@ -11,11 +11,22 @@ var Panel = require('react-bootstrap/lib/Panel');
 
 module.exports = React.createClass({
 
+    format_d: function(d){
+        return moment(d).format("MMM. DD YYYY");
+    },
+
+    //need to use this markup thing b/c snippet has html in it
+    markup: function(doc) {
+        let dt = moment(doc.pubdate, "YYYY-MM-DD").format("MM.DD.YYYY");
+        return {__html: "<a style='color:black;' href='" + doc.url + "' target='_blank' >" + doc.snippet.htext + "</a>"};
+    },
+
     render: function(){
         let docs = _.filter(this.props.docs, function(d) {
             return moment(d.pubdate) > moment(this.props.start_selected, "YYYY-MM-DD") &&
                    moment(d.pubdate) < moment(this.props.end_selected, "YYYY-MM-DD")
         }, this);
+
         docs = _.sortBy(docs, function(d){
             return moment(d.pubdate);
         });
@@ -23,24 +34,19 @@ module.exports = React.createClass({
             return <div></div>;
         }
         let f = this.props.f;
-        var markup = function(doc) {
-           return {__html: doc.snippet};
-        };
+
         let props = this.props;
 
         let rowStyle = {
             width:"100%",
             overflow:"hidden"
         };
-
+        let markup = this.markup;
+        let format_d = this.format_d;
         return(
             <div style={rowStyle}>
                 {docs.map(function(doc, n) {
-                    return <div key={n} style={rowStyle}>
-                                <Story url={doc.url}
-                                pubdate={doc.pubdate}
-                                snippet={doc.snippet.htext}/>
-                           </div>;
+                    return <div><span style={{color: "grey"}}>{format_d(doc.pubdate)} | </span><span key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/></div>;
                 })}
            </div>
         );

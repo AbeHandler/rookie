@@ -18,3 +18,8 @@ You will need a copy of [Brendan O'Connor's wrapper for StanfordCore NLP](https:
 `rookie_ui` React UI for rookie. use gulp b to push js to /webapp
 
 `webapp` The Rookie webapp
+
+
+#### Changes
+
+- 8/3/16 Add in all sentences scrolling after user study. Change back to linear scaling. More event-y. See issue.

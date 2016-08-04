@@ -4,7 +4,7 @@ Doc viewer: generic
 */
 
 var React = require('react');
-var DocViewer_baseline = require('./DocViewer_trial.jsx');
+var DocViewer_baseline = require('./DocViewer_baseline.jsx');
 var DocViewer = require('./DocViewer.jsx');
 
 module.exports = React.createClass({
