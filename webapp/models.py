@@ -319,8 +319,10 @@ class Models(object):
         for whoosh_index, result in enumerate(results):
             url = get_urls_xpress(corpus)[int(result)]
             pd = get_pubdates_xpress(corpus)[int(result)]
+            headline = get_headline_xpress(corpus)[int(result)]
             sent_results.append({
                 'docid':result,
+                'headline': headline,
                 'search_engine_index_doc': whoosh_index,
                 'pubdate': pd.strftime("%Y-%m-%d"),
                 'url': url.encode("ascii", "ignore"),

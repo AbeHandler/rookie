@@ -7,6 +7,9 @@ var React = require('react');
 var _ = require('lodash');
 var moment = require('moment');
 var Panel = require('react-bootstrap/lib/Panel');
+var OverlayTrigger = require('react-bootstrap/lib/OverlayTrigger');
+var Button = require('react-bootstrap/lib/Button');
+var Tooltip = require('react-bootstrap/lib/Tooltip');
 
 module.exports = React.createClass({
 
@@ -88,6 +91,11 @@ module.exports = React.createClass({
         return moment(d).format("MMM. DD YYYY");
     },
 
+
+    gettip: function(n, headline){
+        return <Tooltip id={n}>{headline}</Tooltip>
+    },
+
     render: function(){
 
         let docs;
@@ -106,10 +114,16 @@ module.exports = React.createClass({
         };
         let markup = this.markup;
         let format_d = this.format_d;
+        let gettip = this.gettip;
         return(
             <div style={{backgroundColor: "white", overflowY: "hidden", height: this.props.height, overflow: "hidden"}}>
                 {docs.map(function(doc, n) {
-                    return <div><span style={{color: "grey"}}>{format_d(doc.pubdate)} | </span><span key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/></div>;
+                    return  <OverlayTrigger
+                                overlay={gettip(n, doc.headline)} placement="top"
+                                delayShow={300} delayHide={150}
+                              >
+                                <div><span style={{color: "grey"}}>{format_d(doc.pubdate)} | </span><span key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/></div>
+                              </OverlayTrigger>
                 })}
            </div>
         );
