@@ -1,4 +1,5 @@
 from flask import render_template
+import json
 
 class Views(object):
     '''
@@ -40,7 +41,7 @@ class Views(object):
         '''
         response = render_template(
             'search.html',
-            results=results,
+            results=json.dumps(results),
             corpus=corpus,
             page=page,
             tot_pages=tot_pages
@@ -49,15 +50,13 @@ class Views(object):
         return response
 
 
-    def basic_search_results(self, results, page, tot_pages, corpus, q):
+    def basic_search_results(self, results, corpus, q):
         '''
         return results list
         '''
         response = render_template(
             'search_results.html',
             results=results,
-            tot_pages=tot_pages,
-            page=page,
             corpus=corpus,
             q=q
         )

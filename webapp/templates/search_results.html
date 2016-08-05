@@ -29,14 +29,6 @@ $( document ).ready(function() {
         }
     });
 
-    $("#prev").on("click", function(){
-        results({{page - 1}})
-    });
-
-    $("#next").on("click", function(){
-        results({{page + 1}})
-    });
-
 });
 
 
@@ -56,35 +48,56 @@ $( document ).ready(function() {
     </div><!-- /.row -->
 </div>
 
-<div style="width: 100%">
-    <div style="width: 10%; margin:auto">
-            {% if tot_pages > 1%}
-            Page {{page}} of {{tot_pages }}
-            {% endif %}
-    </div>
- <div>
+<nav style="width:100%" aria-label="...">
+  <div style="width:100%"><div id="pages" style="width:10%; margin:auto"></div></div> 
+  <ul class="pager">
+    <li><span style="cursor:pointer" id="previous" >Previous</span></li>
+    <li><span style="cursor:pointer" id="next">Next</span></li>
+  </ul>
+</nav>
 
-<div style="width:100%">
-    {% for item in results %}
-      <div style="padding-bottom: 7px; padding-left: 7px; width: 90%; margin: auto;">
-        <h4 style="color:#1b1203;">
-        <a style="color:#1b1203;" target="_blank" href='{{item.url}}'>{{item.headline}}</a> 
-        <div style="color:grey; font-size: 12px">{{item.pubdate}}</div>
-        </h3>
-        <div style="color:grey; padding-left: 13px"> {{item.snippet.htext | safe }} </div>
+
+  
+      <div style="width:100%">
+        <div style="width:85%;margin:auto" id="results" class="panel-body"></div>
       </div>
-    {% endfor %}
-</div>
+
 
 <script type="text/javascript">
-    var page = {{page}};
+    var results = {{results | safe}}
+    var PER_PAGE = 10;
+    var page = 1;
+    var pages = function(results){
+        return Math.floor(results.length/PER_PAGE);
+    }
+    var put_results = function(results, page){
+        $("#results").html("");
+        var put = [];
+        for (i = 0; i < results.length; i++){
+            if (i > (page * PER_PAGE) && (i < ((page * PER_PAGE) + PER_PAGE))){
+                put.push(results[i]);
+            }
+        }
+        console.log(put);
+        for (i = 0; i < put.length; i++){
+            $("#results").append("<div style='padding-bottom:15px'><div style='font-size:1.1em;font-weight:bold'>" + put[i].headline + "<span style='font-size:.9em;color:grey'> | " + put[i].pubdate +  "</span></div><div style='font-size:1em'>" + put[i].snippet + "</div></div>");
+        }
+    }
+    put_results(results, page);
+    $("#pages").html("page " + page + " of " + pages(results));
+    $("#next").on("click", function(){
+        if (page < pages(results)){
+            page = page + 1;
+            put_results(results, page);
+        }
+        $("#pages").html("page " + page + " of " + pages(results));
+    });
+    $("#previous").on("click", function(){
+        if (page > 1){
+            page = page - 1;
+            put_results(results, page);
+        }
+        $("#pages").html("page " + page + " of " + pages(results));
+    });
+
 </script>
-
-<div style="width: 100%">
-    <div style="width: 10%; margin:auto">
-        {% if page > 1 %} 
-            <span id="prev"> prev </span> || {% endif %} {% if page < tot_pages %}<span id="next">next</span>
-        {% endif %}
-    </div>
-
-<div>

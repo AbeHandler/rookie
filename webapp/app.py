@@ -4,7 +4,7 @@ The main web app for rookie
 '''
 from __future__ import division
 import json
-from math import ceil
+import ipdb
 from flask.ext.compress import Compress
 from webapp.models import results_to_doclist, get_keys, corpus_min_max, get_stuff_ui_needs, filter_f, get_facet_datas
 from flask import Flask, request
@@ -97,22 +97,14 @@ def main():
     out["sents"] = json.dumps(Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[]))
     return views.handle_query(out)
 
+
 '''
 These methods are for IR mode
 '''
 
 
-PER_PAGE = 10
-
-def get_page(results, page):
-    return results[(page - 1) * (PER_PAGE) : (((page - 1) * (PER_PAGE)) + PER_PAGE)]
-
-def tot_pages(results):
-    return int(ceil(len(results)/PER_PAGE))
-
-@app.route('/search_results/', defaults={'page': 1})
-@app.route('/search_results/page/<int:page>')
-def search_results(page):
+@app.route('/search_results/')
+def search_results():
     '''
     get paginated results
 
@@ -120,10 +112,20 @@ def search_results(page):
     '''
     params = Models.get_parameters(request)
     results = Models.get_results(params)
-    pages = tot_pages(results)
-    doc_list = Models.get_doclist(get_page(results, page), params.q, params.f, params.corpus)
-    print page, pages
-    return views.basic_search_results(results=doc_list, page=page, tot_pages=pages, corpus=params.corpus, q=params.q)
+    doc_list = Models.get_doclist(results, params.q, params.f, params.corpus)
+    def shrink(d_):
+        '''only return some items from dict'''
+        return {k:v for k,v in d_.items() if k in ["headline", "pubdate", "snippet"]}
+    def fix_d(d):
+        out = {}
+        out["headline"] = d["headline"]
+        out["pubdate"] = d["pubdate"]
+        out["snippet"] = d["snippet"]["htext"]
+        return out
+    doc_list = [shrink(d) for d in doc_list]
+    doc_list = [fix_d(d) for d in doc_list]
+    return views.basic_search_results(results=doc_list, corpus=params.corpus, q=params.q)
+
 
 @app.route('/search', methods=['GET'])
 def search():
