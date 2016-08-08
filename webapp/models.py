@@ -263,10 +263,7 @@ class Models(object):
         else:
             output.enddate = None
 
-        try:
-            output.f = request.args.get('f')
-        except:
-            output.f = None
+        output.f = request.args.get('f')
 
         try:
             output.corpus = request.args.get('corpus')

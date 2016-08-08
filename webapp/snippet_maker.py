@@ -77,6 +77,7 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
     for sentnum in priority_list:
         toktext = sentences[sentnum]
         hsent = hilite(toktext, q, sentnum, f_aliases, taginfo=taginfo)
+        hsent["htext"] = hsent["htext"].encode('ascii', 'ignore')
         if hsent['has_q'] and hsent['has_f']:
             return hsent
         else:
@@ -85,7 +86,7 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
         
     #default, just return the top
 
-    return hilite(sentences[0], q, "0", f_aliases, taginfo=taginfo)
+    return hilite(sentences[0].encode('ascii', 'ignore'), q, "0", f_aliases, taginfo=taginfo)
 
 
 # regex matching system: always have groups

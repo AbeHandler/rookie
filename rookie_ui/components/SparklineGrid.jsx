@@ -34,6 +34,7 @@ module.exports = React.createClass({
                                                                    && o.rank < this.props.enddisplay }.bind(this));
 
     let ntile = this.props.enddisplay - this.props.startdisplay;
+
     if (displayed.length == 0){
       return <div>loading</div>
     }else{

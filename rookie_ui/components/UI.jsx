@@ -70,7 +70,9 @@ module.exports = React.createClass({
     return {drag_r: false, drag_l:false, mouse_down_in_chart: false,
            mouse_is_dragging: false, width: 0, height: 0, click_tracker: -1,
            chart_mode: "intro", all_results: sents, start_selected:min,
-           end_selected:max, f_counts:[], f: -1, hovered: -1, 
+           end_selected:max, f_counts:[],
+           f: this.props.f,
+           f_list: this.props.f_list,
            startdisplay: 0, //rank of first facet to display... i.e offset by?
            //current_bin_position: -1,
            kind_of_doc_list: "summary_baseline",
@@ -294,12 +296,10 @@ module.exports = React.createClass({
               success: function(d) {
                 //count vector for just clicked facet, e (event)
                 let fd = _.find(this.state.facet_datas, function(o) { return o.f == e; });
-                this.setState({ // start_selected: minbin,
-                              ///end_selected: maxbin,
+                this.setState({
                               f: e,
                               mode: "docs",
                               f_list: d,
-                              //chart_mode: "intro",
                               f_counts: fd["counts"]});
 
               }.bind(this),
@@ -461,13 +461,16 @@ module.exports = React.createClass({
                       </div>
                      </div>
     let end_facet_no = this.state.startdisplay + this.props.sparkline_per_panel
+
+
     main_panel = <Panel header={sparkline_h}>
                                    <SparklineGrid startdisplay={this.state.startdisplay} 
                                    enddisplay={end_facet_no}
                                    width={this.state.width/2}
                                    height={lower_h}
                                    f={this.state.f}
-                                   {...this.props} clickTile={this.clickTile}
+                                   w_h_ratio={this.props.w_h_ratio}
+                                   clickTile={this.clickTile}
                                    q_data={q_data} col_no={1}
                                    facet_datas={this.state.facet_datas}/>
                    </Panel>

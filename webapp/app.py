@@ -64,13 +64,9 @@ def get_facets():
     '''
     params = Models.get_parameters(request)
     results = Models.get_results(params)
-    print "there are {} before filtering".format(len(results))
-    print params
     results = filter_by_date(results, params.corpus, params.startdate, params.enddate)
-    print "there are {} after filtering".format(len(results))
     out = {}
     out["d"] = facets_for_t(params, results)
-    # print out
     return json.dumps(out)
 
 
@@ -95,6 +91,13 @@ def main():
     results = Models.get_results(params)
     out = get_stuff_ui_needs(params, results)
     out["sents"] = json.dumps(Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[]))
+
+    if params.f is not None:
+        out["f_list"] = get_sents()
+        out['f'] = params.f
+    else:
+        out["f_list"] = []
+        out['f'] = -1
     return views.handle_query(out)
 
 
