@@ -95,9 +95,14 @@ def main():
     if params.f is not None:
         out["f_list"] = get_sents()
         out['f'] = params.f
+        binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
+        all_facets = get_facet_datas(binned_facets, results=results, params=params) # this is way slow. just for quizes at this point
+        # get the counts for the selected facet
+        out["f_counts"] = [o for o in all_facets if o["f"]==params.f].pop()["counts"]
     else:
         out["f_list"] = []
         out['f'] = -1
+        out["f_counts"] = []
     return views.handle_query(out)
 
 

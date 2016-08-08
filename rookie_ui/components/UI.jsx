@@ -69,8 +69,11 @@ module.exports = React.createClass({
     max = max.format("YYYY-MM");
     return {drag_r: false, drag_l:false, mouse_down_in_chart: false,
            mouse_is_dragging: false, width: 0, height: 0, click_tracker: -1,
-           chart_mode: "intro", all_results: sents, start_selected:min,
-           end_selected:max, f_counts:[],
+           chart_mode: "intro",
+           all_results: sents,
+           start_selected:min,
+           end_selected:max, 
+           f_counts:this.props.f_counts,
            f: this.props.f,
            f_list: this.props.f_list,
            startdisplay: 0, //rank of first facet to display... i.e offset by?

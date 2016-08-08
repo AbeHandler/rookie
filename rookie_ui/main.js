@@ -8,6 +8,11 @@ var UI = require('./components/UI.jsx');
 var cache = {};
 var w_h_ratio = 15;  // width % height for sparkline or chart. used to set aspect ratio
 
+if (f == "-1"){
+  f = -1;
+}
+
+
 ReactDOM.render(
   <UI base_url={base_url}
       y_axis_width={55}
@@ -16,6 +21,9 @@ ReactDOM.render(
       sparkline_per_panel={5}
       total_docs_for_q={total_docs_for_q}
       corpus={corpus}
+      f = {f}
+      f_counts = {f_counts}
+      f_list = {f_list}
       chart_bins={chart_bins}
       q_data={q_data}
       datas={global_facets}
