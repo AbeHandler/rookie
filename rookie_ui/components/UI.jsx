@@ -21,6 +21,31 @@ var Panel = require('react-bootstrap/lib/Panel');
 var Button = require('react-bootstrap/lib/Button');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
 
+import { Router, Route, Link, browserHistory } from 'react-router' 
+
+const App = React.createClass({
+    render() {
+              return <div>app</div>
+              }
+});
+const About = React.createClass({
+    render() {
+              return <div>app</div>
+              }
+});
+const NoMatch = React.createClass({
+    render() {
+              return <div>app</div>
+              }
+});
+
+const routes = (
+  <Route path="/" component={App}>
+    <Route path="about" component={About} />
+    <Route path="*" component={NoMatch} />
+  </Route>
+)
+
 let q_color = "#0028a3";
 let f_color = "#b33125";
 
@@ -396,27 +421,13 @@ module.exports = React.createClass({
       location.href= '/?q='+ arg + '&corpus=' + this.props.corpus;
   },
 
-
-  render: function() {
-    let qX = this.qX;
+  /**
+  make the status bar for the summary box
+  */
+  summary_status: function(){
     let docs = this.resultsToDocs(this.state.all_results);
-    let docs_ignoreT = this.n_fdocs(this.state.all_results);
-    let y_scroll = {
-        overflowY: "scroll",
-        height:this.props.height
-    };
-    let binned_facets = _.sortBy(this.props.binned_facets, function(item) {
-        return parseInt(item.key);
-    });
-    let selected_binned_facets;
-
-    let row_height = Math.floor(this.props.height/binned_facets.length);
-
-    let main_panel;
-
-    let chart_bins = this.props.chart_bins;
     let show_x_for_t_in_sum_status = this.show_x_for_t_in_sum_status();
-    let summary_status = <SummaryStatus resetT={this.resetT}
+    let out = <SummaryStatus resetT={this.resetT}
                                           show_x = {show_x_for_t_in_sum_status}
                                           kind_of_doc_list={this.state.kind_of_doc_list}
                                           ndocs={docs.length}
@@ -428,23 +439,23 @@ module.exports = React.createClass({
                                           turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})}
                                           start_selected={this.state.start_selected}
                                           end_selected={this.state.end_selected}/>
-    if (this.props.total_docs_for_q == 0 ){
-        summary_status = "";
-    }
-    let chart_height = this.state.width / this.props.w_h_ratio;
-    let query_bar_height = 50;
-    let lower_h = (this.state.height - chart_height - query_bar_height)/2.5;
+    return out;
+  },
 
-    let backbutton = "";
-    if (this.state.startdisplay > 0){
-        backbutton = <span  style={{ textDecoration: "underline", float:"left", cursor: "pointer", paddingRight: "7px"}} onClick={()=>this.setState({startdisplay: this.state.startdisplay - this.props.sparkline_per_panel})} bsSize="xsmall">back</span>
-    }
-    let moresubjects = "";
-     if ((this.state.startdisplay/this.props.sparkline_per_panel + 1) < (Math.floor(global_facets.length/this.props.sparkline_per_panel) + 1)){
-        moresubjects = "more subjects"
-    }   
-    let sparkline_h = <div>
-                     <SparklineStatus fX={this.fX} qX={qX}
+  /**
+  make the status bar for the sparkline panel
+  */
+  sparkline_status: function(){
+      let backbutton = "";
+      if (this.state.startdisplay > 0){
+          backbutton = <span  style={{ textDecoration: "underline", float:"left", cursor: "pointer", paddingRight: "7px"}} onClick={()=>this.setState({startdisplay: this.state.startdisplay - this.props.sparkline_per_panel})} bsSize="xsmall">back</span>
+      }
+      let moresubjects = "";
+       if ((this.state.startdisplay/this.props.sparkline_per_panel + 1) < (Math.floor(global_facets.length/this.props.sparkline_per_panel) + 1)){
+          moresubjects = "more subjects"
+      }   
+      return <div>
+                     <SparklineStatus fX={this.fX} qX={this.qX}
                      ndocs={this.props.total_docs_for_q}
                      {...this.props}/>    
 
@@ -463,6 +474,35 @@ module.exports = React.createClass({
                       </div>
                       </div>
                      </div>
+  },
+
+  render: function() {
+    
+    let docs = this.resultsToDocs(this.state.all_results);
+    let docs_ignoreT = this.n_fdocs(this.state.all_results);
+    let y_scroll = {
+        overflowY: "scroll",
+        height:this.props.height
+    };
+    let binned_facets = _.sortBy(this.props.binned_facets, function(item) {
+        return parseInt(item.key);
+    });
+    let selected_binned_facets;
+
+    let row_height = Math.floor(this.props.height/binned_facets.length);
+
+    let main_panel;
+
+    let chart_bins = this.props.chart_bins;
+    let summary_status = this.summary_status();
+    if (this.props.total_docs_for_q == 0 ){
+        summary_status = "";
+    }
+    let chart_height = this.state.width / this.props.w_h_ratio;
+    let query_bar_height = 50;
+    let lower_h = (this.state.height - chart_height - query_bar_height)/2.5;
+
+    let sparkline_h = this.sparkline_status();
     let end_facet_no = this.state.startdisplay + this.props.sparkline_per_panel
 
 
@@ -510,16 +550,15 @@ module.exports = React.createClass({
                mouse_up_in_chart={this.mouse_up_in_chart}
                mouse_down_in_chart_true={this.mouse_down_in_chart_true}
                chart_mode={this.state.chart_mode}
-               qX={qX} set_date={this.set_date}
+               qX={this.qX} set_date={this.set_date}
                set_dates={this.set_dates}
                start_selected={this.state.start_selected}
                end_selected={this.state.end_selected}
-               {...this.props}
+               q_data={this.props.q_data}
                f_data={this.state.f_counts}
                belowchart="50"
                height={chart_height}
-               keys={chart_bins}
-               datas={q_data}/>
+               keys={chart_bins}/>
 
     }else{
       chart = "";
@@ -534,7 +573,8 @@ module.exports = React.createClass({
                          q_color={q_color}
                          f_color={f_color}
                          chartMode={this.state.chart_mode}
-                         fX={this.fX} qX={qX}
+                         fX={this.fX}
+                         qX={this.qX}
                          ndocs={this.props.total_docs_for_q}
                          f={this.state.f}
                          requery={this.requery}
@@ -553,6 +593,10 @@ module.exports = React.createClass({
                 </div>
               </Panel>
             </div>
-       </div>);
+       </div>
+        /*{ <Router history={browserHistory}>
+          { routes }
+        </Router> }*/
+        );
   }
 });
