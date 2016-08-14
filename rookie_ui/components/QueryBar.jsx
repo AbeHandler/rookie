@@ -13,7 +13,7 @@ var Input = require('./Input.jsx');
 module.exports = React.createClass({
 
   submitter: function(){
-    location.href= '/?q='+this.state.value + '&corpus=' + this.props.corpus;
+    alert("You don't need this feature for this task");
   },
 
   getInitialState: function() {
@@ -23,15 +23,11 @@ module.exports = React.createClass({
   },
 
   changeHandler: function(e) {
-    this.setState({
-      value: e
-    });
+
   },
 
   handleKeyPress: function(e){
-    if (e.which == 13){ //enter key
-      this.submitter();
-    }
+
   },
 
   render: function() {
@@ -46,7 +42,7 @@ module.exports = React.createClass({
     let submitter = this.submitter;
     let changeHandler = this.changeHandler;
     return (
-      <Navbar style={{height:this.props.height, width: "100%"}} onKeyPress={(e)=> this.handleKeyPress(e)}>
+      <Navbar style={{height:this.props.height, width: "100%"}}>
         <Grid>
           <Row className="show-grid">
             <Col xs={10} md={10}><Input q={this.props.q} style={{pstyle}} changeHandler={changeHandler}/></Col>

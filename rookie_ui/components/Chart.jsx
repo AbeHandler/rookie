@@ -35,7 +35,7 @@ module.exports = React.createClass({
     get_y_scale: function(){
       let h = this.props.w / this.props.w_h_ratio;
       return d3.scale.linear()
-                            .domain([0, _.max(this.props.datas)])
+                            .domain([0, _.max(this.props.q_data)])
                             .range([0, this.props.height])
     },
 
@@ -99,9 +99,15 @@ module.exports = React.createClass({
     let mouse_y = -1;
     let panel_width = 0;
             
-    return {w: 0, panel_width: panel_width, mouse_x: mouse_x, x_l: scale(d1), x_r: scale(d2),
-           drag_l: this.props.drag_l, drag_r: this.props.drag_r,
-           mouse_to_r_d: -1, mouse_to_l_d: -1};
+    return {w: 0,
+            panel_width: panel_width, 
+            mouse_x: mouse_x,
+            x_l: scale(d1),
+            x_r: scale(d2),
+            drag_l: this.props.drag_l,
+            drag_r: this.props.drag_r,
+            mouse_to_r_d: -1,
+            mouse_to_l_d: -1};
   },
 
   lateralize: function (i, lateral_scale) {
@@ -337,7 +343,7 @@ module.exports = React.createClass({
         end_pos = lateral_scale(new Date(_.last(this.props.keys)));
     }
     let chart_width = this.props.w - this.props.y_axis_width - 5;
-    let max = _.max(this.props.datas);
+    let max = _.max(this.props.q_data);
     let rec, l_left, l_right, handle_mouseup;
     if (this.props.chart_mode == "rectangle"){
       rec = <rect style={{cursor: "pointer"}} onMouseDown={this.props.toggle_both_drags_start} y="0" x={start_pos} opacity={".2"} height={this.props.height} width={end_pos - start_pos} strokeWidth="3" stroke="black" fill="grey" />

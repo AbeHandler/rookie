@@ -21,30 +21,6 @@ var Panel = require('react-bootstrap/lib/Panel');
 var Button = require('react-bootstrap/lib/Button');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
 
-import { Router, Route, Link, browserHistory } from 'react-router' 
-
-const App = React.createClass({
-    render() {
-              return <div>app</div>
-              }
-});
-const About = React.createClass({
-    render() {
-              return <div>app</div>
-              }
-});
-const NoMatch = React.createClass({
-    render() {
-              return <div>app</div>
-              }
-});
-
-const routes = (
-  <Route path="/" component={App}>
-    <Route path="about" component={About} />
-    <Route path="*" component={NoMatch} />
-  </Route>
-)
 
 let q_color = "#0028a3";
 let f_color = "#b33125";
@@ -594,9 +570,6 @@ module.exports = React.createClass({
               </Panel>
             </div>
        </div>
-        /*{ <Router history={browserHistory}>
-          { routes }
-        </Router> }*/
         );
   }
 });
