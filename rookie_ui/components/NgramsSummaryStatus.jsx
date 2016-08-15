@@ -25,16 +25,8 @@ module.exports = React.createClass({
       inc_x = <sup onClick={this.resetT}
                     style={{cursor: "pointer", fontWeight: "bold"}}>X</sup>;
     }
-    if (this.props.kind_of_doc_list == "summary_baseline"){
-      summary_of = "Summary of ";
-    }else{
-      summary_of = "Showing ";
-      summary_toggle = <span onClick={()=>this.props.turnOnSummary()} style={{float: "right", textDecoration: "underline", cursor: "pointer"}}>summarize</span>
-    }
-    let uline_style =  "underline";
-    if (this.props.kind_of_doc_list != "summary_baseline"){
-       uline_style = ""
-    }
+    summary_of = "Showing ";
+    summary_toggle = <span></span>
     if (moment(this.props.start_selected).isValid() && moment(this.props.end_selected).isValid()){
         let d1 = moment(this.props.start_selected).format("MMM DD, YYYY");
         let d2 = moment(this.props.end_selected).format("MMM DD, YYYY");
@@ -42,10 +34,9 @@ module.exports = React.createClass({
         if (this.props.f != -1){
           f_stuff = <span>mentioning <span style={{color: this.props.f_color, fontWeight: "bold"}}> {this.props.f} </span> </span>;
         }
-
         status = <span>
                   <span>{summary_of}{this.props.ndocs} </span>
-                  <span><span style={{textDecoration: uline_style, cursor: "pointer"}} onClick={()=>this.props.turnOnDoclist()}>documents</span></span>
+                  <span><span>documents</span></span>
                   <span> for <span style={{color: this.props.q_color, fontWeight: "bold"}}>
                               {this.props.q}&nbsp;
                             </span>
