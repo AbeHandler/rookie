@@ -43,21 +43,6 @@ module.exports = React.createClass({
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
     min = min.format("YYYY-MM");
     max = max.format("YYYY-MM");
-    let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + min + "&enddate=" + max
-
-    $.ajax({
-              url: url,
-              dataType: 'json',
-              cache: true,
-              method: 'GET',
-              success: function(d) {
-                //count vector for just clicked facet, e (event)
-                this.setState({facet_datas: d["d"]});
-              }.bind(this),
-              error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-              }.bind(this)
-    });
 
   },
 
@@ -191,24 +176,6 @@ module.exports = React.createClass({
         }
       }
 
-      console.log(this.state.start_selected, this.state.end_selected, this.state.start_selected === this.state.end_selected, max);
-
-      if (this.state.f == -1){
-        $.ajax({
-                      url: url,
-                      dataType: 'json',
-                      cache: true,
-                      method: 'GET',
-                      success: function(d) {
-                        //count vector for just clicked facet, e (event)
-                        console.log(d);
-                        this.setState({facet_datas: d["d"], startdisplay:0});
-                      }.bind(this),
-                      error: function(xhr, status, err) {
-                        console.error(this.props.url, status, err.toString());
-                      }.bind(this)
-        });
-      }
     }
 
     this.setState({drag_l: false, drag_r: false,
@@ -504,12 +471,14 @@ module.exports = React.createClass({
                                 end_selected={this.state.end_selected}
                                 all_results={this.state.all_results}
                                 docs={docs}
+                                experiment_mode={this.props.experiment_mode}
                                 bins={binned_facets}/>
 
     return(
         <div>
             <QueryBar height={query_bar_height}
                       q={this.props.q}
+                      experiment_mode={this.props.experiment_mode}
                       corpus={this.props.corpus}/>
             <div style={{width:(this.state.width-5)}}>
               <Panel header={summary_status}>

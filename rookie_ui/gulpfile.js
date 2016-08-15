@@ -86,6 +86,7 @@ gulp.task('b', ['css', 'sass'], function() {
         // Start piping stream to tasks!
         .pipe(gulp.dest('app/js'))
         .pipe(gulp.dest('../webapp/static/js'))
+        .pipe(gulp.dest('../../papers/chi2017/turk/webapp/static/js')) //send it to turk
         // Reloading the stream
         .pipe(browserSync.reload({
            stream: true

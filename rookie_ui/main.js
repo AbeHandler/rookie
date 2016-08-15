@@ -53,6 +53,7 @@ const irmode = React.createClass({
     render() {
               return <Ir base_url={base_url}
                               y_axis_width={55}
+                              experiment_mode={true}
                               w_h_ratio={w_h_ratio}
                               facet_datas={facet_datas}
                               sparkline_per_panel={5}

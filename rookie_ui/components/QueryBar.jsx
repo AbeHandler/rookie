@@ -13,7 +13,11 @@ var Input = require('./Input.jsx');
 module.exports = React.createClass({
 
   submitter: function(){
-    alert("You don't need this feature for this task");
+    if (this.props.experiment_mode){
+      alert("you dont need this feature for this task");
+    }else{
+      location.href= '/?q='+this.state.value + '&corpus=' + this.props.corpus;
+    }
   },
 
   getInitialState: function() {
@@ -23,14 +27,20 @@ module.exports = React.createClass({
   },
 
   changeHandler: function(e) {
-
+    this.setState({
+      value: e
+    });
   },
 
   handleKeyPress: function(e){
-
+    if (e.which == 13){ //enter key
+      this.submitter();
+    }
   },
 
   render: function() {
+    let demo = "one";
+    let demo2 = "two";
     let dstyle = {
       width: "100%"
     }
@@ -41,12 +51,21 @@ module.exports = React.createClass({
     }
     let submitter = this.submitter;
     let changeHandler = this.changeHandler;
+    let sub_button;
+    let col;
+    if (this.props.experiment_mode){
+      sub_button = "";
+      col = 12;
+    }else{
+      sub_button = <Col xs={2} md={2}><Button onClick={submitter} type="submit">Submit</Button></Col>
+      col = 10;
+    }
     return (
-      <Navbar style={{height:this.props.height, width: "100%"}}>
+      <Navbar style={{height:this.props.height, width: "100%"}} onKeyPress={(e)=> this.handleKeyPress(e)}>
         <Grid>
           <Row className="show-grid">
-            <Col xs={10} md={10}><Input q={this.props.q} style={{pstyle}} changeHandler={changeHandler}/></Col>
-            <Col xs={2} md={2}><Button onClick={submitter} type="submit">Submit</Button></Col>
+            <Col xs={col} md={col}><Input q={this.props.q} style={{pstyle}} changeHandler={changeHandler}/></Col>
+            {sub_button}
           </Row>
         </Grid>
       </Navbar>

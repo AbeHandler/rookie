@@ -30,7 +30,11 @@ module.exports = React.createClass({
     //need to use this markup thing b/c snippet has html in it
     markup: function(doc) {
         let dt = moment(doc.pubdate, "YYYY-MM-DD").format("MM.DD.YYYY");
-        return {__html: "<a style='color:black;' href='" + doc.url + "' target='_blank' >" + doc.snippet.htext + "</a>"};
+        if (this.props.experiment_mode){
+            return {__html: "<a style='color:black; text-decoration:none'>" + doc.snippet.htext + "</a>"};
+        }else{
+            return {__html: "<a style='color:black;' href='" + doc.url + "' target='_blank' >" + doc.snippet.htext + "</a>"};
+        }
     },
 
     fake_markup: function(doc) {
@@ -115,20 +119,20 @@ module.exports = React.createClass({
         let next_page = "";
         let page = this.state.page;
         if (page > 1){
-            previous_page = "previous page";
+            previous_page = <div style={{float: "left", cursor: 'pointer', padding: '5px', borderRadius: '3cm', border: '1px solid grey'}} onClick={this.decrement_page} href="#">previous page</div>;
         }
         if (page < this.state.pages){
-            next_page = "next page";
+            next_page = <div style={{float: "right", cursor: 'pointer', padding: '5px', borderRadius: '3cm', border: '1px solid grey'}} onClick={this.increment_page} href="#">next page</div>;
         }
 
         let docs = this.get_docs(this.props.docs, page);
 
         return(
             <div>
-                <div style={{width: "100%", height: "20px"}}>
+                <div style={{width: "100%", height: "40px"}}>
                     <div style={{width: "15%", margin:"auto"}}>
-                        <div style={{float: "left"}} onClick={this.decrement_page} href="#">{previous_page}</div>
-                        <div style={{float: "right"}} onClick={this.increment_page} href="#">{next_page}</div>
+                        {previous_page}
+                        {next_page}
                     </div>
                 </div>
                 <div style={{backgroundColor: "white", overflowY: "hidden", overflow: "hidden"}}>

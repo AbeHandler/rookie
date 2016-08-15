@@ -543,6 +543,7 @@ module.exports = React.createClass({
         <div>
             <QueryBar height={query_bar_height}
                       q={this.props.q}
+                      experiment_mode={false}
                       corpus={this.props.corpus}/>
              <Panel>
              <ChartTitle f_docs={docs_ignoreT}
