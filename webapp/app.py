@@ -85,6 +85,7 @@ def post_for_facet_datas():
     return json.dumps(out)
 
 
+@app.route('/ngrams', methods=['GET'])
 @app.route('/', methods=['GET'])
 def main():
     params = Models.get_parameters(request)
@@ -110,37 +111,92 @@ def main():
 These methods are for IR mode
 '''
 
+from whoosh.index import open_dir
+from whoosh.qparser import QueryParser
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from webapp import CONNECTION_STRING
+from pylru import lrudecorator
+from webapp.models import get_keys
+import cPickle as pickle
 
-@app.route('/search_results/')
-def search_results():
-    '''
-    get paginated results
+@lrudecorator(100)
+def get_pubdates_xpress(corpus):
+    '''load and cache pubdates quick lookup'''
+    with open("indexes/{}/pubdates_xpress.p".format(corpus)) as inf:
+        return pickle.load(inf)
 
-    pages indexed starting at 1, not 0
-    '''
-    params = Models.get_parameters(request)
-    results = Models.get_results(params)
-    doc_list = Models.get_doclist(results, params.q, params.f, params.corpus)
-    def shrink(d_):
-        '''only return some items from dict'''
-        return {k:v for k,v in d_.items() if k in ["headline", "pubdate", "snippet"]}
-    def fix_d(d):
-        out = {}
-        out["headline"] = d["headline"]
-        out["pubdate"] = d["pubdate"]
-        out["snippet"] = d["snippet"]["htext"]
-        return out
-    doc_list = [shrink(d) for d in doc_list]
-    doc_list = [fix_d(d) for d in doc_list]
-    return views.basic_search_results(results=doc_list, corpus=params.corpus, q=params.q)
+@lrudecorator(100)
+def get_headline_xpress(corpus):
+    '''load and cache pubdates headline lookup'''
+    with open("indexes/{}/headlines_xpress.p".format(corpus)) as inf:
+        return pickle.load(inf)
 
-
-@app.route('/search', methods=['GET'])
+@app.route('/ir', methods=['GET'])
 def search():
+    '''
+    Query whoosh
+    '''
+
+    ENGINE = create_engine(CONNECTION_STRING)
+    SESS = sessionmaker(bind=ENGINE)
+    SESSION = SESS()
+    
+
+    def get_sentences(docid, corpus):
+        '''
+        load from postgres
+        '''
+        corpusid = getcorpusid(corpus)
+        return get_preproc_sentences(docid, corpusid)
+    def get_preproc_sentences(docid, corpusid):
+        """
+        load preproc sentences
+        """
+        # print docid, corpusid
+        row = SESSION.connection().execute("select delmited_sentences from sentences_preproc where docid=%s and corpusid=%s", docid, corpusid).fetchone()
+        return row[0].split("###$$$###")
+    def getcorpusid(corpus):
+        '''
+        Get corpus id for corpus name
+        '''
+        go = lambda *args: SESSION.connection().execute(*args)
+        cid = go("select corpusid from corpora where corpusname='{}'".format(corpus)).fetchone()[0]
+        return cid
     params = Models.get_parameters(request)
-    results = []
-    doc_list = Models.get_doclist(results, params.q, params.f, params.corpus)
-    return views.basic_search(doc_list, page=1, tot_pages=1, corpus=params.corpus)
+    index = open_dir("indexes/{}/".format(params.corpus))
+    query_parser = QueryParser("content", schema=index.schema)
+    qry = query_parser.parse(params.q)
+    snippets = []
+    out = {}
+    counter = 0
+    with index.searcher() as srch:
+        for s_ix, a in enumerate(srch.search(qry, limit=None)):
+            path = a.get("path").replace("/", "")
+            sents = get_sentences(path, params.corpus)
+            sss = unicode(" ".join(sents).encode("ascii", "ignore"))
+            sss = str(a.highlights("content", text=sss))
+
+            snippets.append({"headline": get_headline_xpress(params.corpus)[int(path)].encode("ascii", "ignore"),
+                            "pubdate": get_pubdates_xpress(params.corpus)[int(path)].strftime("%Y-%m-%d"),
+                            "url":"unk",
+                            "snippet": {"htext": sss},
+                            "search_engine_index_doc":s_ix
+                            })
+            counter += 1
+    out["sents"] = snippets
+    out["f_list"] = []
+    out['f'] = -1
+    out["f_counts"] = []
+    out["q_data"] = []
+    out["total_docs_for_q"] = counter
+    out["facet_datas"] = []
+    out["global_facets"] = []
+    out["keys"] = [k.strftime("%Y-%m") + "-01" for k in get_keys(params.corpus)]
+    out['corpus'] = params.corpus
+    out['query'] = params.q
+    SESSION.close()
+    return views.handle_query(out)
 
 
 if __name__ == '__main__':

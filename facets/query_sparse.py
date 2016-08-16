@@ -12,6 +12,7 @@ import time
 import cPickle as pickle
 import argparse
 
+from facets.merger import merge_terms
 from dateutil.parser import parse
 from Levenshtein import distance
 
@@ -229,6 +230,11 @@ def get_all_facets(raws, structures, q):
     :param q: query
     :return:
     '''
+    output = []
+
+    #aaa = merge_terms([o[0] for o in raws], 5)
+    #aaa = merge_terms(aaa, 5) # run it 2x   Mikhail S. // Mikhail S. Gorbachev // Gorbachev 
+    # ipdb.set_trace()
     output = []
     for possible_f in raws:
         output = heuristic_cleanup(output, possible_f[0], structures, q)

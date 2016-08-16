@@ -53,12 +53,15 @@ module.exports = React.createClass({
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
     min = min.format("YYYY-MM");
     max = max.format("YYYY-MM");
-    return {drag_r: false, drag_l:false, mouse_down_in_chart: false,
-           mouse_is_dragging: false, width: 0, height: 0, click_tracker: -1,
+    console.log(this.props.sents);
+    return {drag_r: false, drag_l:false,
+           mouse_down_in_chart: false,
+           mouse_is_dragging: false, width: 0,
+           height: 0, click_tracker: -1,
            chart_mode: "intro",
-           all_results: sents,
+           all_results: this.props.sents,
            start_selected:min,
-           end_selected:max, 
+           end_selected:max,
            f_counts:this.props.f_counts,
            f: this.props.f,
            f_list: this.props.f_list,
@@ -96,12 +99,16 @@ module.exports = React.createClass({
 
   resultsToDocs: function(results){
     if (this.state.f != -1){
+        console.log("ending early");
         results = this.state.f_list;
     }
+    console.log("aaaa");
     let start = moment(this.state.start_selected, "YYYY-MM");
     let end = moment(this.state.end_selected, "YYYY-MM");
+    console.log(start, end, results);
     let out_results =  _.filter(results, function(value, key) {
         //dates come from server as YYYY-MM
+
         if (moment(value.pubdate, "YYYY-MM").isAfter(start) || moment(value.pubdate, "YYYY-MM").isSame(start)){
           if (moment(value.pubdate, "YYYY-MM").isBefore(end) || moment(value.pubdate, "YYYY-MM").isSame(end)){
             return true;
@@ -206,14 +213,14 @@ module.exports = React.createClass({
   */
   set_date: function (date, start_end) {
     let d = moment(date);
-    
+
     if (start_end == "start"){
       let end = moment(this.state.end_selected, "YYYY-MM");
       let min = moment(this.props.chart_bins[0]);
       if ((d < end) &  (d>min)){
 
         this.setState({start_selected:d.format("YYYY-MM")});
-        
+
       }
     }
     if (start_end == "end"){
@@ -223,7 +230,7 @@ module.exports = React.createClass({
 
       console.log(d.format("YYYY-MM") === start.format("YYYY-MM"))
       if (d > start & d < max){
-         this.setState({end_selected:d.format("YYYY-MM")});          
+         this.setState({end_selected:d.format("YYYY-MM")});
       }
     }
   },
@@ -243,7 +250,7 @@ module.exports = React.createClass({
 
     }else if (s <= e  & s > min & e < max & s.format("YYYY-MM") === e.format("YYYY-MM")){
         // dates are equal
-        e.add(1, "months"); 
+        e.add(1, "months");
         if (e < max){
           this.setState({start_selected:s.format("YYYY-MM"),
                      end_selected:e.format("YYYY-MM")});
@@ -295,7 +302,7 @@ module.exports = React.createClass({
   fX: function(){
     let min = moment(this.props.chart_bins[0]);
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
-    
+
     min = min.format("YYYY-MM");
     max = max.format("YYYY-MM");
 
@@ -305,7 +312,7 @@ module.exports = React.createClass({
                    chart_mode: "intro",
                    end_selected: -1,
                    start_selected:min,
-                   end_selected:max, 
+                   end_selected:max,
                    f_counts: []});
   },
 
@@ -376,7 +383,7 @@ module.exports = React.createClass({
                                           ndocs={docs.length}
                                           q={this.props.q}
                                           f={this.state.f}
-                                          q_color={q_color}
+                                          q_color="#1a0dab"
                                           f_color={f_color}
                                           turnOnSummary={() => this.setState({kind_of_doc_list: "summary_baseline"})}
                                           turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})}
@@ -396,11 +403,11 @@ module.exports = React.createClass({
       let moresubjects = "";
        if ((this.state.startdisplay/this.props.sparkline_per_panel + 1) < (Math.floor(global_facets.length/this.props.sparkline_per_panel) + 1)){
           moresubjects = "more subjects"
-      }   
+      }
       return <div>
                      <SparklineStatus fX={this.fX} qX={this.qX}
                      ndocs={this.props.total_docs_for_q}
-                     {...this.props}/>    
+                     {...this.props}/>
 
                      <div style={{float:"right", marginTop: "-5px"}}>
                       <div style={{backgroundColor:"green", height:"50%"}}>
@@ -410,7 +417,7 @@ module.exports = React.createClass({
                           <span style={{ textDecoration: "underline", float:"right", cursor: "pointer"}} onClick={()=>this.setState({startdisplay: this.state.startdisplay + this.props.sparkline_per_panel})} bsSize="xsmall">
                             {moresubjects}
                           </span>
-                        
+
                       </div>
                       <div style={{color:"#808080", fontSize: "10px", float:"right", height:"50%"}}>
                         {"page " + (this.state.startdisplay/this.props.sparkline_per_panel + 1) + " of " + (Math.floor(global_facets.length/this.props.sparkline_per_panel) + 1)}
@@ -420,9 +427,8 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    
-    let docs = this.resultsToDocs(this.state.all_results);
 
+    let docs = this.resultsToDocs(this.state.all_results);
     let docs_ignoreT = this.n_fdocs(this.state.all_results);
     let y_scroll = {
         overflowY: "scroll",
@@ -451,7 +457,7 @@ module.exports = React.createClass({
 
 
     main_panel = <Panel header={sparkline_h}>
-                                   <SparklineGrid startdisplay={this.state.startdisplay} 
+                                   <SparklineGrid startdisplay={this.state.startdisplay}
                                    enddisplay={end_facet_no}
                                    width={this.state.width/2}
                                    height={lower_h}

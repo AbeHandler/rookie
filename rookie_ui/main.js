@@ -60,6 +60,7 @@ const irmode = React.createClass({
                               total_docs_for_q={total_docs_for_q}
                               corpus={corpus}
                               f = {f}
+                              sents = {sents}
                               f_counts = {f_counts}
                               f_list = {f_list}
                               chart_bins={chart_bins}

@@ -72,6 +72,7 @@ module.exports = React.createClass({
 
     getInitialState: function(){
         let per_page = 10;
+        console.log("thisprops docs", this.props.docs);
         let pages = Math.floor(this.props.docs.length/per_page);
         return {page: 1, drag_r: false, PER_PAGE:per_page, pages: pages}
     },
@@ -101,6 +102,7 @@ module.exports = React.createClass({
 
     render: function(){
 
+        console.log("docs", this.props.docs);
         if (this.props.docs.length < 1){
             return <div></div>;
         }
@@ -126,6 +128,7 @@ module.exports = React.createClass({
         }
 
         let docs = this.get_docs(this.props.docs, page);
+        console.log("docs", docs);
 
         return(
             <div>
@@ -138,7 +141,7 @@ module.exports = React.createClass({
                 <div style={{backgroundColor: "white", overflowY: "hidden", overflow: "hidden"}}>
                     {docs.map(function(doc, n) {
                         return <div>
-                                <div style={{fontWeight: "bold"}}>{doc.headline} | <span style={{color: "grey"}}>{format_d(doc.pubdate)}</span></div>
+                                <div style={{fontWeight: "bold", color: "#1a0dab"}}>{doc.headline} | <span style={{color: "grey"}}>{format_d(doc.pubdate)}</span></div>
                                 <span key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/>
                                 </div>
                                   

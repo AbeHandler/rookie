@@ -8,6 +8,8 @@ python getting_and_processing_corpora/countrymaker.py -country singapore
 python getting_and_processing_corpora/countrymaker.py -country rwanda
 python getting_and_processing_corpora/countrymaker.py -country haiti
 python getting_and_processing_corpora/countrymaker.py -country colombia
+python getting_and_processing_corpora/countrymaker.py -country iraq
+python getting_and_processing_corpora/countrymaker.py -country afghanistan
 
 
 
@@ -22,6 +24,8 @@ python getting_and_processing_corpora/load_to_whoosh.py --corpus singapore
 python getting_and_processing_corpora/load_to_whoosh.py --corpus rwanda
 python getting_and_processing_corpora/load_to_whoosh.py --corpus haiti
 python getting_and_processing_corpora/load_to_whoosh.py --corpus colombia
+python getting_and_processing_corpora/load_to_whoosh.py -country iraq
+python getting_and_processing_corpora/load_to_whoosh.py -country afghanistan
 
 py getting_and_processing_corpora/fill_min_max_pubdates.py --corpus indonesia --min 1/1/1987 --max 12/1/2007
 py getting_and_processing_corpora/fill_min_max_pubdates.py --corpus cuba --min 1/1/1987 --max 12/1/2007
@@ -34,6 +38,7 @@ py getting_and_processing_corpora/fill_min_max_pubdates.py --corpus rwanda --min
 py getting_and_processing_corpora/fill_min_max_pubdates.py --corpus haiti --min 1/1/1987 --max 12/1/2007
 py getting_and_processing_corpora/fill_min_max_pubdates.py --corpus colombia --min 1/1/1987 --max 12/1/2007
 
+python facets/build_sparse_matrix.py --corpus afghanistan
 python facets/build_sparse_matrix.py --corpus indonesia
 python facets/build_sparse_matrix.py --corpus cuba
 python facets/build_sparse_matrix.py --corpus slovenia
@@ -44,3 +49,4 @@ python facets/build_sparse_matrix.py --corpus singapore
 python facets/build_sparse_matrix.py --corpus rwanda
 python facets/build_sparse_matrix.py --corpus haiti
 python facets/build_sparse_matrix.py --corpus colombia
+python facets/build_sparse_matrix.py -country iraq
