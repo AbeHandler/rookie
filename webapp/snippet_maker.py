@@ -42,15 +42,15 @@ def getcorpusid(corpus):
     return cid
 
 ############################
-
+'''
 @lrudecorator(1000)
 def get_sentences(docid, corpus):
-    '''
+    
     load from postgres
-    '''
+    
     corpusid = getcorpusid(corpus)
     return get_preproc_sentences(docid, corpusid)
-
+'''
 
 def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
     """
@@ -72,7 +72,8 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
     priority_list = all_n_sentences # you could use an index to save time instead of looping
                                     # over sentences
 
-    sentences = get_sentences(docid, corpus)
+    corpusid = getcorpusid(corpus) 
+    sentences = get_preproc_sentences(docid, corpusid) 
 
     for sentnum in priority_list:
         toktext = sentences[sentnum]
