@@ -54,6 +54,7 @@ def get_sents():
     results = Models.get_results(params)
     results = filter_f(results, params.f, params.corpus)
     out = Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[])
+    print "average snippet length for query", sum([len(f["snippet"]["htext"]) for f in out])/len(out)
     return json.dumps(out)
 
 
@@ -171,7 +172,10 @@ def search():
     out = {}
     counter = 0
     with index.searcher() as srch:
-        for s_ix, a in enumerate(srch.search(qry, limit=None)):
+        results = srch.search(qry, limit=None)
+        results.fragmenter.surround = 50
+        results.fragmenter.maxchars = 250 # AVG FOR CEDRAS ARISTIDE
+        for s_ix, a in enumerate(results):
             path = a.get("path").replace("/", "")
             sents = get_sentences(path, params.corpus)
             sss = unicode(" ".join(sents).encode("ascii", "ignore"))
