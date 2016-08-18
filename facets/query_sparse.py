@@ -270,7 +270,7 @@ def get_facets_for_q(q, results, n_facets, structures):
     '''
     Provide q, set of results and n_facets. 
 
-    Return binned facets. TODO: xrange(2010, 2016) hardcodes bins for now 
+    Return binned facets. 
     '''
 
     facet_results = defaultdict(list) # results per bin. output.
@@ -291,7 +291,8 @@ def get_facets_for_q(q, results, n_facets, structures):
     # print "len filtered facets={}".format(len(filtered_facets))
     # return the strings, in order of i
 
-    return {"g": [i[0] for i in filtered_facets]}
+    # ascii ignore is what jinja2 is doing anyway I think
+    return {"g": [i[0].encode("ascii", "ignore") for i in filtered_facets]}
 
 
 

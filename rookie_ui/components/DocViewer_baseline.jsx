@@ -80,7 +80,7 @@ module.exports = React.createClass({
 
         //console.log(markup(docs[0]).visualHeight());
         if (render.length > 0){
-            return _.sortBy(render, function(d){ return moment(d.pubdate);});
+            return render; // I Think dont sort by pubdate. Sort by goodness .... _.sortBy(render, function(d){ return moment(d.pubdate);});
         }else{
             return [];
         }
@@ -110,7 +110,7 @@ module.exports = React.createClass({
 
         let rowStyle = {
             width:"100%",
-            overflow:"hidden"
+            overflow:"hidden",
         };
         let markup = this.markup;
         let format_d = this.format_d;
@@ -122,7 +122,7 @@ module.exports = React.createClass({
                                 overlay={gettip(n, doc.headline)} placement="top"
                                 delayShow={300} delayHide={150}
                               >
-                                <div><span style={{color: "grey"}}>{format_d(doc.pubdate)} | </span><span key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/></div>
+                                <div style={{borderBottom:"1px solid lightgrey", paddingBottom: "3px"}}><span style={{color: "grey"}}>{format_d(doc.pubdate)} | </span><span key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/></div>
                               </OverlayTrigger>
                 })}
            </div>

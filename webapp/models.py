@@ -107,7 +107,7 @@ def get_stuff_ui_needs(params, results):
     for key in keys:
         q_data.append(sum(1 for r in q_pubdates if r.year==key.year and r.month==key.month))
 
-    stuff_ui_needs["keys"] = [k.strftime("%Y-%m") + "-01" for k in keys]
+    stuff_ui_needs["keys"] = [str(k.strftime("%Y-%m") + "-01") for k in keys]
     display_bins = []
     for key in binned_facets:
         if key != "g":
@@ -159,7 +159,7 @@ def corpus_min_max(corpus):
     res2 = [r for r in res][0]
     assert res2[3] is not None
     assert res2[2] is not None
-    return {"min": res2[2], "max": res2[3]}
+    return {"min": res2[2].strftime("%Y-%m-%d"), "max": res2[3].strftime("%Y-%m-%d")}
 
 
 def results_to_doclist(results, q, f, corpus, pubdates, aliases):
@@ -207,8 +207,9 @@ def get_keys(corpus):
     Returns a set of date keys between a start and stop date. bin = size of step
     '''
     min_max = corpus_min_max(corpus)
-    start = min_max["min"]
-    stop =  min_max["max"]
+    from datetime import datetime
+    start = datetime.strptime(min_max["min"], '%Y-%m-%d')
+    stop =  datetime.strptime(min_max["max"], '%Y-%m-%d')
     output = []
     counter = start
 

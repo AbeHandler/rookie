@@ -87,13 +87,40 @@ def get_avg_snippet_len(params):
     out = Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[])
     return sum([len(f["snippet"]["htext"]) for f in out])/len(out)
 
+def save(params, out):
+    if params.f is None:
+        params.f = "None"
+    print "saving..."
+    with open("save-{}-{}".format(params.q.replace(" ", "_"), params.f.replace(" ", "_")), "w") as outf:
+        pickle.dump(out, outf)
 
-@app.route('/ngrams', methods=['GET'])
+
+@app.route('/tut', methods=['GET'])
+def tut():
+    q = request.args.get('q').replace(" ", "_")
+    f = request.args.get('f').replace(" ", "_")
+
+    with(open("save-{}-{}".format(q, f), "r")) as inf:
+        out = pickle.load(inf)
+    return views.handle_query(out)
+
+# static
+@app.route('/staticr', methods=['GET'])
+def staticr():
+    q = request.args.get('q').replace(" ", "_")
+    f = request.args.get('f').replace(" ", "_")
+
+    with(open("save-{}-{}".format(q, f), "r")) as inf:
+        out = pickle.load(inf)
+    return views.handle_query(out)
+
+
 @app.route('/', methods=['GET'])
 def main():
     params = Models.get_parameters(request)
     results = Models.get_results(params)
     out = get_stuff_ui_needs(params, results)
+
     out["sents"] = json.dumps(Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[]))
 
     if params.f is not None:
@@ -107,6 +134,7 @@ def main():
         out["f_list"] = []
         out['f'] = -1
         out["f_counts"] = []
+    save(params=params, out=out)
     return views.handle_query(out)
 
 
@@ -194,7 +222,8 @@ def search():
         surround = 50 # how much context in a fragment? bigger = more fair b/c rookie has big snippets
         results.fragmenter.surround = surround
         results.fragmenter.maxchars = max_chars # AVG FOR CEDRAS ARISTIDE
-        top = grid_search(AVG_ROOKIE, surround=surround, fragment_char_limit=max_chars, whoosh_results=results, corpus=params.corpus, query_string=params.q)
+        # top = grid_search(AVG_ROOKIE, surround=surround, fragment_char_limit=max_chars, whoosh_results=results, corpus=params.corpus, query_string=params.q)
+        top = 2
         for s_ix, a in enumerate(results):
             path = a.get("path").replace("/", "")
             sents = get_preproc_sentences(path, corpusid)

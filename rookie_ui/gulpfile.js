@@ -94,30 +94,19 @@ gulp.task('b', ['css', 'sass'], function() {
 });
 
 
-
-var webdriver = require('gulp-webdriver');
-
-
-gulp.task('e2e', ['selenium'], function() {
-  return gulp.src('wdio.conf.js')
-    .pipe(webdriver());
-});
-
-gulp.task('selenium', function(done) {
-  selenium.install({logger: console.log}, function(){
-    selenium.start(function(err, child){
-      if (err) { 
-        console.log("eleeee");
-        return done(err);
-      }
-      seleniumServer = child;
-      done();
-    });
-  });
-});
-
-gulp.task('test', ['e2e'], function(){
-  seleniumServer.kill();
+var minify = require('gulp-minify');
+ 
+gulp.task('compress', function() {
+  gulp.src('../webapp/static/js/bundle.js')
+    .pipe(minify({
+        ext:{
+            src:'.js',
+            min:'.min.js'
+        },
+        exclude: ['tasks'],
+        ignoreFiles: ['-min.js']
+    }))
+    .pipe(gulp.dest('../webapp/static/js/'))
 });
 
 
