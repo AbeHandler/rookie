@@ -2,7 +2,9 @@
 /* A list of days */
 "use strict";
 var React = require('react');
-var Input = require('react-bootstrap/lib/Input');
+import {ControlLabel, FormControl} from 'react-bootstrap';
+
+
 
 module.exports = React.createClass({
 
@@ -27,7 +29,7 @@ getInitialState() {
       color: "#0028a3"
     };
     return (
-      <Input
+      <FormControl
         type="text"
         style={qstyle}
         value={this.state.value}

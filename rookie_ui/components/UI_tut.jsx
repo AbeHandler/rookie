@@ -377,6 +377,11 @@ module.exports = React.createClass({
     this.setState({still_looking: false});
   },
 
+
+  onsubmit: function(e){
+      alert(e);
+  },
+
   render: function() {
     {Modal}
     let docs = this.resultsToDocs(this.state.all_results);
@@ -465,23 +470,25 @@ module.exports = React.createClass({
       chart = "";
     }
     let show_success;
+    let question = "";
+      let answers = ["Hamid Karzai was the President of Afghanistan. Pervez Musharraf was leader of Pakistan. The two had disputes over issues on the border between the two countries.", 
+                   "Hamid Karzai and Pervez Musharraf were rivals who each sought to lead the Afghan military.",
+                    "I can't answer this from the resources provided."];
     if (this.state.start_selected === "2003-01" && this.state.end_selected === "2004-01" && this.state.drag_l === false && this.state.drag_r === false && this.state.still_looking){
         show_success = true;
-
     }else{
         show_success = false;
     }
-    let answers = ["Hamid Karzai was the President of Afghanistan. Pervez Musharraf was leader of Pakistan. The two had disputes over issues on the border between the two countries", 
-                   "Hamid Karzai and Pervez Musharraf were rivals who each sought to lead the Afghan military",
-                    "I can't answer this from the resources provided"];
+
+    if (this.state.start_selected === "2003-01" && this.state.end_selected === "2004-01" && this.state.drag_l === false && this.state.drag_r === false){
+        question = <Question onsubmit={this.onsubmit} answers={answers}/>
+    }
+   
     return(
         <div>
          <Modal show={this.state.show_2nd}/>
          <Modal_success close={this.close} show={show_success}/>
-            <QueryBar height={query_bar_height}
-                      q={this.props.q}
-                      experiment_mode={true}
-                      corpus={this.props.corpus}/>
+             <Panel style={{'fontWeight': 'bold'}}>Use the slider to select January 2003 to January 2004</Panel>
              <Panel>
              <ChartTitle f_docs={docs_ignoreT}
                          q_color={q_color}
@@ -498,7 +505,7 @@ module.exports = React.createClass({
              </Panel>
              {chart}
             <div style={{float:"left", width:(this.state.width-5)/2 }}>
-              <Question answers={answers}/>
+              {question}
             </div>
             <div style={{float:"right", width:(this.state.width-5)/2 }}>
               <Panel header={summary_status}>

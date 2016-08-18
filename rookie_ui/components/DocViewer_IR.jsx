@@ -133,7 +133,7 @@ module.exports = React.createClass({
         return(
             <div>
                 <div style={{width: "100%", height: "40px"}}>
-                    <div style={{width: "15%", margin:"auto"}}>
+                    <div style={{width: "40%", margin:"auto"}}>
                         {previous_page}
                         {next_page}
                     </div>

@@ -13,6 +13,7 @@ var DocViewer = require('./DocViewer_IR.jsx');
 var SparklineStatus = require('./SparklineStatus.jsx');
 var Chart = require('./Chart.jsx');
 var ChartTitle = require('./ChartTitle.jsx');
+var Question = require('./Question.jsx');
 var SparklineGrid = require('./SparklineGrid.jsx');
 var QueryBar = require('./QueryBar.jsx');
 var SummaryStatus = require('./NgramsSummaryStatus.jsx');
@@ -426,6 +427,10 @@ module.exports = React.createClass({
                      </div>
   },
 
+  onsubmit: function(e){
+      alert(e);
+  },
+
   render: function() {
 
     let docs = this.resultsToDocs(this.state.all_results);
@@ -480,6 +485,11 @@ module.exports = React.createClass({
                                 experiment_mode={this.props.experiment_mode}
                                 bins={binned_facets}/>
 
+     let answers = ["Gen. Raoul Cedras briefly took over Haiti in 1993 after removing democratically elected leader, Bertrand Aristide in a coup -- but, under international pressure, Cedras quickly was forced to leave Haiti in 1994.", 
+                   "Following a coup in the early 1990s, the Haitian miliary leader Gen. Raoul Cedras (with help from U.S. forces) successfully fought off rival factions within the Haitian army in order to return the democratically elected leader, Bertrand Aristide, to power. Cedras was rewarded with a post in Aristide's government.",
+                    "Raoul Cedras ruled Haiti from 1991 to 1994 after leading a successful coup against democratically elected leader, Bertrand Aristide. He eventually left Haiti under pressure from the United States.",
+                    "I can't answer this from the resources provided."];
+              
     return(
         <div>
             <QueryBar height={query_bar_height}
@@ -488,8 +498,14 @@ module.exports = React.createClass({
                       corpus={this.props.corpus}/>
             <div style={{width:(this.state.width-5)}}>
               <Panel header={summary_status}>
-                <div>
+                <div style={{"width":"100%"}}>
+                  <div style={{"width":"50%", "float": "left"}}> 
+                  <div style={{"height": "40px"}}/>
+                  <Question onsubmit={this.onsubmit} answers={answers}/>
+                  </div>
+                  <div style={{"width":"50%", "float": "right"}}>
                   {docviewer}
+                  </div>
                 </div>
               </Panel>
             </div>
