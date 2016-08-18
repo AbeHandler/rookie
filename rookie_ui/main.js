@@ -61,6 +61,7 @@ const tut = React.createClass({
                               total_docs_for_q={total_docs_for_q}
                               corpus={corpus}
                               f = {f}
+                              runid = {runid}
                               f_counts = {f_counts}
                               f_list = {f_list}
                               chart_bins={chart_bins}
@@ -104,6 +105,7 @@ if (f == "-1"){
 ReactDOM.render(
   <Router history={browserHistory}>
     <Route path="/" component={App}/>
+    <Route path="/rookie" component={App}/>
     <Route path="/staticr" component={RookieStatic}/>
     <Route path="/tut" component={tut} />
     <Route path="/ir" component={irmode} />

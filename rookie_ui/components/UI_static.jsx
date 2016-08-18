@@ -15,7 +15,7 @@ var Chart = require('./Chart.jsx');
 var ChartTitle = require('./ChartTitle.jsx');
 var SparklineGrid = require('./SparklineGrid.jsx');
 var QueryBar = require('./QueryBar.jsx');
-var SummaryStatus = require('./SummaryStatus.jsx');
+var SummaryStatus_static = require('./SummaryStatus_static.jsx');
 var $ = require('jquery');
 var Panel = require('react-bootstrap/lib/Panel');
 var Button = require('react-bootstrap/lib/Button');
@@ -43,21 +43,7 @@ module.exports = React.createClass({
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
     min = min.format("YYYY-MM");
     max = max.format("YYYY-MM");
-    let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + min + "&enddate=" + max
 
-    $.ajax({
-              url: url,
-              dataType: 'json',
-              cache: true,
-              method: 'GET',
-              success: function(d) {
-                //count vector for just clicked facet, e (event)
-                this.setState({facet_datas: d["d"]});
-              }.bind(this),
-              error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-              }.bind(this)
-    });
 
   },
 
@@ -191,24 +177,6 @@ module.exports = React.createClass({
         }
       }
 
-      console.log(this.state.start_selected, this.state.end_selected, this.state.start_selected === this.state.end_selected, max);
-
-      if (this.state.f == -1){
-        $.ajax({
-                      url: url,
-                      dataType: 'json',
-                      cache: true,
-                      method: 'GET',
-                      success: function(d) {
-                        //count vector for just clicked facet, e (event)
-                        console.log(d);
-                        this.setState({facet_datas: d["d"], startdisplay:0});
-                      }.bind(this),
-                      error: function(xhr, status, err) {
-                        console.error(this.props.url, status, err.toString());
-                      }.bind(this)
-        });
-      }
     }
 
     this.setState({drag_l: false, drag_r: false,
@@ -254,7 +222,6 @@ module.exports = React.createClass({
 
       let max = moment(this.props.chart_bins[this.props.chart_bins.length -1]);
 
-      console.log(d.format("YYYY-MM") === start.format("YYYY-MM"))
       if (d > start & d < max){
          this.setState({end_selected:d.format("YYYY-MM")});          
       }
@@ -293,53 +260,20 @@ module.exports = React.createClass({
     let url = this.props.base_url + "get_sents?q=" + this.props.q + "&f=" + e + "&corpus=" + this.props.corpus;
         let minbin = _.head(this.props.chart_bins);
         let maxbin = _.last(this.props.chart_bins);
-        $.ajax({
-              url: url,
-              dataType: 'json',
-              cache: true,
-              success: function(d) {
-                //count vector for just clicked facet, e (event)
-                let fd = _.find(this.state.facet_datas, function(o) { return o.f == e; });
-                this.setState({
-                              f: e,
-                              mode: "docs",
-                              f_list: d,
-                              f_counts: fd["counts"]});
-
-              }.bind(this),
-              error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-              }.bind(this)
-        });
   },
 
   /**
   * A handler for when user clicks the X by Q. Requery with F equal to Q
   */
   qX: function(){
-    if (this.state.f != -1){
-      location.href= this.props.base_url + '?q=' + this.state.f +'&corpus=' + this.props.corpus;
-    }
+    
   },
 
   /**
   * A handler for when user clicks the X by F. Adjust state so f=-1
   */
   fX: function(){
-    let min = moment(this.props.chart_bins[0]);
-    let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
     
-    min = min.format("YYYY-MM");
-    max = max.format("YYYY-MM");
-
-    this.setState({f: -1,
-                   mode:"overview",
-                   //start_selected: -1,
-                   chart_mode: "intro",
-                   end_selected: -1,
-                   start_selected:min,
-                   end_selected:max, 
-                   f_counts: []});
   },
 
   turn_on_rect_mode: function(p){
@@ -370,23 +304,7 @@ module.exports = React.createClass({
           }
           this.setState({start_selected:new_start, end_selected: new_end});
 
-        let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + new_start + "&enddate=" + new_end;
-
-        if (this.state.f == -1){
-          $.ajax({
-                      url: url,
-                      dataType: 'json',
-                      cache: true,
-                      method: 'GET',
-                      success: function(d) {
-                        //count vector for just clicked facet, e (event)
-                        this.setState({facet_datas: d["d"], startdisplay: 0});
-                      }.bind(this),
-                      error: function(xhr, status, err) {
-                        console.error(this.props.url, status, err.toString());
-                      }.bind(this)
-          });
-        }
+       
 
 
       }
@@ -403,7 +321,7 @@ module.exports = React.createClass({
   summary_status: function(){
     let docs = this.resultsToDocs(this.state.all_results);
     let show_x_for_t_in_sum_status = this.show_x_for_t_in_sum_status();
-    let out = <SummaryStatus resetT={this.resetT}
+    let out = <SummaryStatus_static resetT={this.resetT}
                                           show_x = {show_x_for_t_in_sum_status}
                                           kind_of_doc_list={this.state.kind_of_doc_list}
                                           ndocs={docs.length}
@@ -411,8 +329,8 @@ module.exports = React.createClass({
                                           f={this.state.f}
                                           q_color={q_color}
                                           f_color={f_color}
-                                          turnOnSummary={() => this.setState({kind_of_doc_list: "summary_baseline"})}
-                                          turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})}
+                                          turnOnSummary={undefined}
+                                          turnOnDoclist={undefined}
                                           start_selected={this.state.start_selected}
                                           end_selected={this.state.end_selected}/>
     return out;
@@ -428,10 +346,10 @@ module.exports = React.createClass({
       }
       let moresubjects = "";
        if ((this.state.startdisplay/this.props.sparkline_per_panel + 1) < (Math.floor(global_facets.length/this.props.sparkline_per_panel) + 1)){
-          moresubjects = "more subjects"
+          moresubjects = ""
       }   
       return <div>
-                     <SparklineStatus fX={this.fX} qX={this.qX}
+                     <SparklineStatus static_mode={true} fX={this.fX} qX={this.qX}
                      ndocs={this.props.total_docs_for_q}
                      {...this.props}/>    
 
@@ -445,9 +363,7 @@ module.exports = React.createClass({
                           </span>
                         
                       </div>
-                      <div style={{color:"#808080", fontSize: "10px", float:"right", height:"50%"}}>
-                        {"page " + (this.state.startdisplay/this.props.sparkline_per_panel + 1) + " of " + (Math.floor(global_facets.length/this.props.sparkline_per_panel) + 1)}
-                      </div>
+                      
                       </div>
                      </div>
   },
@@ -550,12 +466,13 @@ module.exports = React.createClass({
              <ChartTitle f_docs={docs_ignoreT}
                          q_color={q_color}
                          f_color={f_color}
+                         static_mode={true}
                          chartMode={this.state.chart_mode}
                          fX={this.fX}
                          qX={this.qX}
                          ndocs={this.props.total_docs_for_q}
                          f={this.state.f}
-                         requery={this.requery}
+                         requery={undefined}
                          unf={this.fX}
                          mode={this.state.mode}
                          q={this.props.q}/>

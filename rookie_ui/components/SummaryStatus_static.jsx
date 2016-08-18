@@ -55,15 +55,12 @@ module.exports = React.createClass({
                   <span style={{fontWeight: "bold"}}> &mdash; {d2}</span>
                   {inc_x}{summary_toggle}
                 </span>
-
       }else{
         status = "";
       }
     return (
       <div>
          {status}
-         <p/>
-         <p style={{fontWeight: "bold"}}>Use the slider to select January 2003 to January 2004</p>
       </div>
     )
   }

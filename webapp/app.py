@@ -97,11 +97,11 @@ def save(params, out):
 
 @app.route('/tut', methods=['GET'])
 def tut():
-    q = request.args.get('q').replace(" ", "_")
-    f = request.args.get('f').replace(" ", "_")
-
+    q = "Hamid Karzai".replace(" ", "_")
+    f = "Pervez Musharraf".replace(" ", "_")  # these are saved using the def save method
     with(open("save-{}-{}".format(q, f), "r")) as inf:
         out = pickle.load(inf)
+    out["runid"] = request.args.get('runid')
     return views.handle_query(out)
 
 # static

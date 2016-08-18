@@ -13,6 +13,7 @@ var DocViewer = require('./DocViewer_generic.jsx');
 var SparklineStatus = require('./SparklineStatus.jsx');
 var Chart = require('./Chart.jsx');
 var ChartTitle = require('./ChartTitle.jsx');
+var Question = require('./Question.jsx');
 var SparklineGrid = require('./SparklineGrid.jsx');
 var QueryBar = require('./QueryBar.jsx');
 var SummaryStatus_tut = require('./SummaryStatus_tut.jsx');
@@ -21,7 +22,7 @@ var Modal = require('./Modal.jsx');
 var Modal_success = require('./Modal_success.jsx');
 var Panel = require('react-bootstrap/lib/Panel');
 var Button = require('react-bootstrap/lib/Button');
-var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
+f
 
 
 let q_color = "#0028a3";
@@ -45,21 +46,6 @@ module.exports = React.createClass({
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
     min = min.format("YYYY-MM");
     max = max.format("YYYY-MM");
-    let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + min + "&enddate=" + max
-
-    $.ajax({
-              url: url,
-              dataType: 'json',
-              cache: true,
-              method: 'GET',
-              success: function(d) {
-                //count vector for just clicked facet, e (event)
-                this.setState({facet_datas: d["d"]});
-              }.bind(this),
-              error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-              }.bind(this)
-    });
 
   },
 
@@ -78,6 +64,7 @@ module.exports = React.createClass({
            end_selected:max, 
            f_counts:this.props.f_counts,
            f: this.props.f,
+           still_looking: true,
            f_list: this.props.f_list,
            startdisplay: 0, //rank of first facet to display... i.e offset by?
            //current_bin_position: -1,
@@ -106,8 +93,7 @@ module.exports = React.createClass({
     max = max.format("YYYY-MM");
     this.setState({start_selected: min,
                   end_selected: max,
-                  chart_mode: "intro",
-                  facet_datas: []});
+                  chart_mode: "intro"});
 
   },
 
@@ -193,24 +179,7 @@ module.exports = React.createClass({
         }
       }
 
-      console.log(this.state.start_selected, this.state.end_selected, this.state.start_selected === this.state.end_selected, max);
 
-      if (this.state.f == -1){
-        $.ajax({
-                      url: url,
-                      dataType: 'json',
-                      cache: true,
-                      method: 'GET',
-                      success: function(d) {
-                        //count vector for just clicked facet, e (event)
-                        console.log(d);
-                        this.setState({facet_datas: d["d"], startdisplay:0});
-                      }.bind(this),
-                      error: function(xhr, status, err) {
-                        console.error(this.props.url, status, err.toString());
-                      }.bind(this)
-        });
-      }
     }
 
     this.setState({drag_l: false, drag_r: false,
@@ -295,24 +264,7 @@ module.exports = React.createClass({
     let url = this.props.base_url + "get_sents?q=" + this.props.q + "&f=" + e + "&corpus=" + this.props.corpus;
         let minbin = _.head(this.props.chart_bins);
         let maxbin = _.last(this.props.chart_bins);
-        $.ajax({
-              url: url,
-              dataType: 'json',
-              cache: true,
-              success: function(d) {
-                //count vector for just clicked facet, e (event)
-                let fd = _.find(this.state.facet_datas, function(o) { return o.f == e; });
-                this.setState({
-                              f: e,
-                              mode: "docs",
-                              f_list: d,
-                              f_counts: fd["counts"]});
-
-              }.bind(this),
-              error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-              }.bind(this)
-        });
+        
   },
 
   /**
@@ -357,23 +309,7 @@ module.exports = React.createClass({
           }
           this.setState({start_selected:new_start, end_selected: new_end});
 
-        let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + new_start + "&enddate=" + new_end;
 
-        if (this.state.f == -1){
-          $.ajax({
-                      url: url,
-                      dataType: 'json',
-                      cache: true,
-                      method: 'GET',
-                      success: function(d) {
-                        //count vector for just clicked facet, e (event)
-                        this.setState({facet_datas: d["d"], startdisplay: 0});
-                      }.bind(this),
-                      error: function(xhr, status, err) {
-                        console.error(this.props.url, status, err.toString());
-                      }.bind(this)
-          });
-        }
 
 
       }
@@ -381,7 +317,7 @@ module.exports = React.createClass({
   },
 
   requery: function (arg) {
-      location.href= '/?q='+ arg + '&corpus=' + this.props.corpus;
+    
   },
 
   /**
@@ -411,7 +347,7 @@ module.exports = React.createClass({
   sparkline_status: function(){
       let backbutton = "";
       if (this.state.startdisplay > 0){
-          backbutton = <span  style={{ textDecoration: "underline", float:"left", cursor: "pointer", paddingRight: "7px"}} onClick={()=>this.setState({startdisplay: this.state.startdisplay - this.props.sparkline_per_panel})} bsSize="xsmall">back</span>
+          backbutton = <span bsSize="xsmall">back</span>
       }
       let moresubjects = "";
        if ((this.state.startdisplay/this.props.sparkline_per_panel + 1) < (Math.floor(global_facets.length/this.props.sparkline_per_panel) + 1)){
@@ -423,26 +359,24 @@ module.exports = React.createClass({
                      {...this.props}/>    
 
                      <div style={{float:"right", marginTop: "-5px"}}>
-                      <div style={{backgroundColor:"green", height:"50%"}}>
+                      <div style={{ height:"50%"}}>
                           <span style={{ float:"left",  height: "50%"}}>
                             {backbutton}
                           </span>
-                          <span style={{ textDecoration: "underline", float:"right", cursor: "pointer"}} onClick={()=>this.setState({startdisplay: this.state.startdisplay + this.props.sparkline_per_panel})} bsSize="xsmall">
-                            {moresubjects}
+                          <span bsSize="xsmall">
+                            
                           </span>
                         
                       </div>
-                      <div style={{color:"#808080", fontSize: "10px", float:"right", height:"50%"}}>
-                        {"page " + (this.state.startdisplay/this.props.sparkline_per_panel + 1) + " of " + (Math.floor(global_facets.length/this.props.sparkline_per_panel) + 1)}
-                      </div>
+                      
                       </div>
                      </div>
   },
 
   close: function(){
-    this.setState({start_selected: "4"});
-    window.location = "/quiz?current=4b&runid=&q=4c&answer=|||ans_val";
+    this.setState({still_looking: false});
   },
+
   render: function() {
     {Modal}
     let docs = this.resultsToDocs(this.state.all_results);
@@ -531,15 +465,18 @@ module.exports = React.createClass({
       chart = "";
     }
     let show_success;
-    if (this.state.start_selected === "2003-01" && this.state.end_selected === "2004-01" && this.state.drag_l === false && this.state.drag_r === false){
+    if (this.state.start_selected === "2003-01" && this.state.end_selected === "2004-01" && this.state.drag_l === false && this.state.drag_r === false && this.state.still_looking){
         show_success = true;
 
     }else{
         show_success = false;
     }
+    let answers = ["Hamid Karzai was the President of Afghanistan. Pervez Musharraf was leader of Pakistan. The two had disputes over issues on the border between the two countries", 
+                   "Hamid Karzai and Pervez Musharraf were rivals who each sought to lead the Afghan military",
+                    "I can't answer this from the resources provided"];
     return(
         <div>
-         <Modal/>
+         <Modal show={this.state.show_2nd}/>
          <Modal_success close={this.close} show={show_success}/>
             <QueryBar height={query_bar_height}
                       q={this.props.q}
@@ -561,7 +498,7 @@ module.exports = React.createClass({
              </Panel>
              {chart}
             <div style={{float:"left", width:(this.state.width-5)/2 }}>
-              {main_panel}
+              <Question answers={answers}/>
             </div>
             <div style={{float:"right", width:(this.state.width-5)/2 }}>
               <Panel header={summary_status}>
