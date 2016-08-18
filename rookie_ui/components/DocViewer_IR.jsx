@@ -102,7 +102,6 @@ module.exports = React.createClass({
 
     render: function(){
 
-        console.log("docs", this.props.docs);
         if (this.props.docs.length < 1){
             return <div></div>;
         }
@@ -128,7 +127,6 @@ module.exports = React.createClass({
         }
 
         let docs = this.get_docs(this.props.docs, page);
-        console.log("docs", docs);
 
         return(
             <div>

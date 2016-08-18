@@ -30,7 +30,8 @@ getInitialState() {
           </Modal.Header>
           <Modal.Body>
             Good job! See how the box in the bottom right of the screen now shows what <span style={{color: "#0028a3", fontWeight: "bold"}}>Hamid Karzai</span> has to do with <span style={{color: "#b33125", fontWeight: "bold"}}>Pervez Musharraf</span> from <b>January 2003</b> to <b>January 2004?</b>
-             Use that information to answer the question in the bottom right.
+             <p/>
+             <p>Use that information to answer the question in the bottom right.</p>
           </Modal.Body>
           <Modal.Footer>
             <Button onClick={this.close}>OK</Button>

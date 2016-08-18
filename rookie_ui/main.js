@@ -13,6 +13,9 @@ var cache = {};
 var w_h_ratio = 15;  // width % height for sparkline or chart. used to set aspect ratio
 
 
+var start = new Date(); 
+start = start.toString();
+
 import { Router, Route, Link, browserHistory } from 'react-router' 
 
 const App = React.createClass({
@@ -29,6 +32,7 @@ const App = React.createClass({
                 f_list = {f_list}
                 chart_bins={chart_bins}
                 q_data={q_data}
+                start = {start}
                 datas={global_facets}
                 q={query}/>
               }
@@ -43,6 +47,7 @@ const RookieStatic = React.createClass({
                 total_docs_for_q={total_docs_for_q}
                 corpus={corpus}
                 f = {f}
+                start = {start}
                 f_counts = {f_counts}
                 f_list = {f_list}
                 chart_bins={chart_bins}
@@ -66,6 +71,7 @@ const tut = React.createClass({
                               f_list = {f_list}
                               chart_bins={chart_bins}
                               q_data={q_data}
+                              start = {start}
                               datas={global_facets}
                               q={query}/>
               }
@@ -81,6 +87,7 @@ const irmode = React.createClass({
                               total_docs_for_q={total_docs_for_q}
                               corpus={corpus}
                               f = {f}
+                              start = {start}
                               sents = {sents}
                               f_counts = {f_counts}
                               f_list = {f_list}

@@ -115,7 +115,8 @@ module.exports = React.createClass({
   },
 
   componentDidMount: function(){
-        var width = this.refs.chart_panel.getDOMNode().offsetWidth;
+
+        var width = ReactDOM.findDOMNode(this.refs.chart_panel).offsetWidth;
         this.setState({panel_width:width});
   },
 

@@ -225,7 +225,6 @@ module.exports = React.createClass({
 
       let max = moment(this.props.chart_bins[this.props.chart_bins.length -1]);
 
-      console.log(d.format("YYYY-MM") === start.format("YYYY-MM"))
       if (d > start & d < max){
          this.setState({end_selected:d.format("YYYY-MM")});          
       }
@@ -379,7 +378,8 @@ module.exports = React.createClass({
 
 
   onsubmit: function(e){
-      alert(e);
+    alert(e);
+    
   },
 
   render: function() {
@@ -481,7 +481,7 @@ module.exports = React.createClass({
     }
 
     if (this.state.start_selected === "2003-01" && this.state.end_selected === "2004-01" && this.state.drag_l === false && this.state.drag_r === false){
-        question = <Question onsubmit={this.onsubmit} answers={answers}/>
+        question = <Question start={this.props.start} onsubmit={this.onsubmit} answers={answers}/>
     }
    
     return(

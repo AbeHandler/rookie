@@ -428,7 +428,8 @@ module.exports = React.createClass({
   },
 
   onsubmit: function(e){
-      alert(e);
+      var now = new Date();
+      window.location = "http://hobbes.cs.umass.edu:5001/quiz?current=tool&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + now.toString();
   },
 
   render: function() {
@@ -501,7 +502,7 @@ module.exports = React.createClass({
                 <div style={{"width":"100%"}}>
                   <div style={{"width":"50%", "float": "left"}}> 
                   <div style={{"height": "40px"}}/>
-                  <Question onsubmit={this.onsubmit} answers={answers}/>
+                  <Question start={this.props.start} onsubmit={this.onsubmit} answers={answers}/>
                   </div>
                   <div style={{"width":"50%", "float": "right"}}>
                   {docviewer}
