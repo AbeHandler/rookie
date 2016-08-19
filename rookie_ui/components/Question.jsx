@@ -12,7 +12,7 @@ var Label = require('react-bootstrap/lib/Label');
 
 /*
 
-This API is so annoying. why these 2 
+This API is so annoying. why these 2
 https://github.com/react-bootstrap/react-bootstrap/issues/1610*
 
 */
@@ -34,18 +34,17 @@ module.exports = React.createClass({
   },
 
   check: function(){
-      console.log(this.state.txt);
-      console.log(this.state.txt.length);
-      if (this.state.picked === -1){
-        alert("please make a pick");
-      }
-      else if (this.state.txt.length < 25){
-        alert("Please copy and paste a little bit more of the information you used to support this conclusion");
-      }
-      else {
-        this.props.onsubmit(this.state.picked + "|||" + this.state.txt);
-      }
-
+      this.setState({txt: ReactDOM.findDOMNode(this.refs.input).value}, function(){
+        if (this.state.picked === -1){
+          alert("please make a pick");
+        }
+        else if (this.state.txt.length < 25){
+          alert("Please copy and paste a little bit more of the information you used to support this conclusion");
+        }
+        else {
+          this.props.onsubmit(this.state.picked + "|||" + this.state.txt);
+        }
+      });
   },
 
   getValidationState: function() {
@@ -55,7 +54,7 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    
+
     let width = this.props.width;
     let height = this.props.height;
 
@@ -72,13 +71,12 @@ module.exports = React.createClass({
                         return (<div><input type="radio" name="1" value="1" onClick={() => tmp(v)}/><span style={{paddingLeft: "10px"}}> {k}</span> </div>)
                       })}
                       <ControlLabel>What information did you find to support this conclusion?</ControlLabel>
-                      <FormControl onKeyDown={this.keychange} ref="input" componentClass="textarea" placeholder="Feel free to copy and paste" />
-                      <FormControl.Feedback />
-                     <HelpBlock>Validation is based on string length.</HelpBlock>
+                      <FormControl onMouseDown={this.keychange} onMouseUp={this.keychange} onKeyDown={this.keychange} ref="input" componentClass="textarea" placeholder="Feel free to copy and paste" />
                     </FormGroup>
                     </div>
 
-                    <Button onClick={this.check} bsStyle="primary">Submit</Button>
+                     <Button onClick={this.check} bsStyle="primary">Submit</Button>
+
                 </div>
 
               </div>

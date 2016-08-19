@@ -16,6 +16,11 @@ var w_h_ratio = 15;  // width % height for sparkline or chart. used to set aspec
 var start = new Date(); 
 start = start.toString();
 
+var answers = ["Gen. Raoul Cedras briefly took over Haiti in 1993 after removing democratically elected leader, Bertrand Aristide in a coup -- but, under international pressure, Cedras quickly was forced to leave Haiti in 1994.", 
+                "Following a coup in the early 1990s, the Haitian miliary leader Gen. Raoul Cedras (with help from U.S. forces) successfully fought off rival factions within the Haitian army in order to return the democratically elected leader, Bertrand Aristide, to power. Cedras was rewarded with a post in Aristide's government.",
+                "Raoul Cedras ruled Haiti from 1991 to 1994 after leading a successful coup against democratically elected leader, Bertrand Aristide. He eventually left Haiti under pressure from the United States.",
+                "I can't answer this from the resources provided."];
+
 import { Router, Route, Link, browserHistory } from 'react-router' 
 
 const App = React.createClass({
@@ -47,6 +52,7 @@ const RookieStatic = React.createClass({
                 total_docs_for_q={total_docs_for_q}
                 corpus={corpus}
                 f = {f}
+                answers = {answers}
                 start = {start}
                 f_counts = {f_counts}
                 f_list = {f_list}
@@ -67,6 +73,7 @@ const tut = React.createClass({
                               corpus={corpus}
                               f = {f}
                               runid = {runid}
+                              answers = {answers}
                               f_counts = {f_counts}
                               f_list = {f_list}
                               chart_bins={chart_bins}
@@ -89,6 +96,7 @@ const irmode = React.createClass({
                               f = {f}
                               start = {start}
                               sents = {sents}
+                              answers = {answers}
                               f_counts = {f_counts}
                               f_list = {f_list}
                               chart_bins={chart_bins}

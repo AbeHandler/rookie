@@ -25,7 +25,7 @@ getInitialState() {
       <div >
         <Modal backdrop="static" show={this.state.showModal} onHide={this.close}>
           <Modal.Header closeButton>
-            <Modal.Title>Lets practice using the tool...</Modal.Title>
+            <Modal.Title>Before you do the task, let's practice using the tool...</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <p>When you click close, you will see that there are <span style={{color: "#0028a3", fontWeight: "bold"}}>blue</span> spikes for articles that mention <span style={{color: "#0028a3", fontWeight: "bold"}}>Hamid Karzai</span>.</p>

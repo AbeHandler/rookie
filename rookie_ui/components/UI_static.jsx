@@ -8,7 +8,7 @@ var ReactDOM = require('react-dom');
 var _ = require('lodash');
 var moment = require('moment');
 require('moment-round');
-
+var Question = require('./Question.jsx');
 var DocViewer = require('./DocViewer_generic.jsx');
 var SparklineStatus = require('./SparklineStatus.jsx');
 var Chart = require('./Chart.jsx');
@@ -59,7 +59,7 @@ module.exports = React.createClass({
            chart_mode: "intro",
            all_results: sents,
            start_selected:min,
-           end_selected:max, 
+           end_selected:max,
            f_counts:this.props.f_counts,
            f: this.props.f,
            f_list: this.props.f_list,
@@ -207,14 +207,14 @@ module.exports = React.createClass({
   */
   set_date: function (date, start_end) {
     let d = moment(date);
-    
+
     if (start_end == "start"){
       let end = moment(this.state.end_selected, "YYYY-MM");
       let min = moment(this.props.chart_bins[0]);
       if ((d < end) &  (d>min)){
 
         this.setState({start_selected:d.format("YYYY-MM")});
-        
+
       }
     }
     if (start_end == "end"){
@@ -223,7 +223,7 @@ module.exports = React.createClass({
       let max = moment(this.props.chart_bins[this.props.chart_bins.length -1]);
 
       if (d > start & d < max){
-         this.setState({end_selected:d.format("YYYY-MM")});          
+         this.setState({end_selected:d.format("YYYY-MM")});
       }
     }
   },
@@ -243,7 +243,7 @@ module.exports = React.createClass({
 
     }else if (s <= e  & s > min & e < max & s.format("YYYY-MM") === e.format("YYYY-MM")){
         // dates are equal
-        e.add(1, "months"); 
+        e.add(1, "months");
         if (e < max){
           this.setState({start_selected:s.format("YYYY-MM"),
                      end_selected:e.format("YYYY-MM")});
@@ -266,14 +266,14 @@ module.exports = React.createClass({
   * A handler for when user clicks the X by Q. Requery with F equal to Q
   */
   qX: function(){
-    
+
   },
 
   /**
   * A handler for when user clicks the X by F. Adjust state so f=-1
   */
   fX: function(){
-    
+
   },
 
   turn_on_rect_mode: function(p){
@@ -304,15 +304,12 @@ module.exports = React.createClass({
           }
           this.setState({start_selected:new_start, end_selected: new_end});
 
-       
-
-
       }
     }
   },
 
   requery: function (arg) {
-      location.href= '/?q='+ arg + '&corpus=' + this.props.corpus;
+
   },
 
   /**
@@ -347,11 +344,11 @@ module.exports = React.createClass({
       let moresubjects = "";
        if ((this.state.startdisplay/this.props.sparkline_per_panel + 1) < (Math.floor(global_facets.length/this.props.sparkline_per_panel) + 1)){
           moresubjects = ""
-      }   
+      }
       return <div>
                      <SparklineStatus static_mode={true} fX={this.fX} qX={this.qX}
                      ndocs={this.props.total_docs_for_q}
-                     {...this.props}/>    
+                     {...this.props}/>
 
                      <div style={{float:"right", marginTop: "-5px"}}>
                       <div style={{backgroundColor:"green", height:"50%"}}>
@@ -361,15 +358,20 @@ module.exports = React.createClass({
                           <span style={{ textDecoration: "underline", float:"right", cursor: "pointer"}} onClick={()=>this.setState({startdisplay: this.state.startdisplay + this.props.sparkline_per_panel})} bsSize="xsmall">
                             {moresubjects}
                           </span>
-                        
+
                       </div>
-                      
+
                       </div>
                      </div>
   },
 
+  onsubmit: function(e){
+      var now = new Date();
+      window.location = "http://hobbes.cs.umass.edu:5001/quiz?current=tool&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + now.toString();
+  },
+
   render: function() {
-    
+
     let docs = this.resultsToDocs(this.state.all_results);
     let docs_ignoreT = this.n_fdocs(this.state.all_results);
     let y_scroll = {
@@ -397,18 +399,10 @@ module.exports = React.createClass({
     let sparkline_h = this.sparkline_status();
     let end_facet_no = this.state.startdisplay + this.props.sparkline_per_panel
 
-
-    main_panel = <Panel header={sparkline_h}>
-                                   <SparklineGrid startdisplay={this.state.startdisplay} 
-                                   enddisplay={end_facet_no}
-                                   width={this.state.width/2}
-                                   height={lower_h}
-                                   f={this.state.f}
-                                   w_h_ratio={this.props.w_h_ratio}
-                                   clickTile={this.clickTile}
-                                   q_data={q_data} col_no={1}
-                                   facet_datas={this.state.facet_datas}/>
-                   </Panel>
+   let answers = this.props.answers;
+    main_panel = <Panel>
+                     <Question start={this.props.start} onsubmit={this.onsubmit} answers={answers}/>
+                 </Panel>
     let chart;
     let docviewer = <DocViewer kind_of_doc_list={this.state.kind_of_doc_list}
                                 height={lower_h + 50}
@@ -457,10 +451,10 @@ module.exports = React.createClass({
     }
     return(
         <div>
-             
+
             <QueryBar height={query_bar_height}
                       q={this.props.q}
-                      experiment_mode={false}
+                      experiment_mode={true}
                       corpus={this.props.corpus}/>
              <Panel>
              <ChartTitle f_docs={docs_ignoreT}

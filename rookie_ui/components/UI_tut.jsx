@@ -378,8 +378,7 @@ module.exports = React.createClass({
 
 
   onsubmit: function(e){
-    alert(e);
-    
+    window.location = "http://hobbes.cs.umass.edu:5001/staticr?current=task_screening&runid=" + this.props.runid + "&q=rookie&answer=NA"
   },
 
   render: function() {
