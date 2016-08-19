@@ -432,6 +432,7 @@ module.exports = React.createClass({
                                 end_selected={this.state.end_selected}
                                 all_results={this.state.all_results}
                                 docs={docs}
+                                static_mode={true}
                                 bins={binned_facets}/>
     if (this.props.total_docs_for_q > 0){
       let buffer = 5;
