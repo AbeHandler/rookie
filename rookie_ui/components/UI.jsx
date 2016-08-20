@@ -107,6 +107,23 @@ module.exports = React.createClass({
                   summary_page: 0,
                   facet_datas: []});
 
+    let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + min + "&enddate=" + max;
+
+    if (this.state.f == -1){
+      $.ajax({
+                  url: url,
+                  dataType: 'json',
+                  cache: true,
+                  method: 'GET',
+                  success: function(d) {
+                    //count vector for just clicked facet, e (event)
+                    this.setState({facet_datas: d["d"], summary_page: 0, startdisplay: 0});
+                  }.bind(this),
+                  error: function(xhr, status, err) {
+                    console.error(this.props.url, status, err.toString());
+                  }.bind(this)
+      });
+    }
   },
 
   resultsToDocs: function(results){
@@ -411,7 +428,7 @@ module.exports = React.createClass({
   summary_status: function(){
     let docs = this.resultsToDocs(this.state.all_results);
     let show_x_for_t_in_sum_status = this.show_x_for_t_in_sum_status();
-    let maxpages = Math.ceil(this.props.docs/this.props.docsperpage);
+    let maxpages = Math.ceil(docs.length/this.props.docsperpage);
     let out = <SummaryStatus resetT={this.resetT}
                maxpages={maxpages}
                show_x = {show_x_for_t_in_sum_status}

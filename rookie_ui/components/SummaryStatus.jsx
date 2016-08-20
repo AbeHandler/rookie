@@ -46,11 +46,11 @@ module.exports = React.createClass({
 
         let left = "";
         if (this.props.page > 0){
-          left = <span onClick={() => {this.props.pageupdate(-1)}} style={{float: "left", fontSize: "12px", cursor: "hand"}}>&larr; Back</span>
+          left = <span onClick={() => {this.props.pageupdate(-1)}} style={{float: "left", cursor: "pointer", fontSize: "12px"}}>&larr; Back</span>
         }
-        let right = ""
-        if (this.props.page == this.props.maxpages){
-          right = <span onClick={() => {this.props.pageupdate(+1)}} style={{float: "right", fontSize: "12px"}}>Next Page &rarr;</span>
+        let right = "";
+        if ((this.props.page + 1) != this.props.maxpages){
+          right = <span onClick={() => {this.props.pageupdate(+1)}} style={{float: "right", cursor: "pointer", fontSize: "12px"}}>Next Page &rarr;</span>
         }
 
         status =  <div>
