@@ -6,7 +6,6 @@ var ReactDOM = require('react-dom');
 var UI = require('./components/UI.jsx');
 var UI_static = require('./components/UI_static.jsx');
 var UI_tut = require('./components/UI_tut.jsx');
-var Ngram = require('./components/Ngrams.jsx');
 var Ir = require('./components/Ir.jsx');
 
 var cache = {};
@@ -16,10 +15,10 @@ var w_h_ratio = 15;  // width % height for sparkline or chart. used to set aspec
 var start = new Date(); 
 start = start.toString();
 
-var answers = ["Gen. Raoul Cedras briefly took over Haiti in 1993 after removing democratically elected leader, Bertrand Aristide in a coup -- but, under international pressure, Cedras quickly was forced to leave Haiti in 1994.", 
-                "Following a coup in the early 1990s, the Haitian miliary leader Gen. Raoul Cedras (with help from U.S. forces) successfully fought off rival factions within the Haitian army in order to return the democratically elected leader, Bertrand Aristide, to power. Cedras was rewarded with a post in Aristide's government.",
-                "Raoul Cedras ruled Haiti from 1991 to 1994 after leading a successful coup against democratically elected leader, Bertrand Aristide. He eventually left Haiti under pressure from the United States.",
-                "I can't answer this from the resources provided."];
+var answers = ["The US government has been a longtime opponent of Bertrand Aristide", 
+                "The US government has been a longtime ally of Bertrand Aristide", 
+                "The US government was initially an ally of Bertrand Aristide -- but then became an opponent", 
+                "The US government was initially an opponent of Bertrand Aristide -- but then became an ally"];
 
 import { Router, Route, Link, browserHistory } from 'react-router' 
 
@@ -37,6 +36,7 @@ const App = React.createClass({
                 f_list = {f_list}
                 chart_bins={chart_bins}
                 q_data={q_data}
+                docsperpage={4}
                 start = {start}
                 datas={global_facets}
                 q={query}/>
@@ -56,6 +56,7 @@ const RookieStatic = React.createClass({
                 start = {start}
                 f_counts = {f_counts}
                 f_list = {f_list}
+                docsperpage={4}
                 chart_bins={chart_bins}
                 q_data={q_data}
                 datas={global_facets}
@@ -77,6 +78,7 @@ const tut = React.createClass({
                               f_counts = {f_counts}
                               f_list = {f_list}
                               chart_bins={chart_bins}
+                              docsperpage={4}
                               q_data={q_data}
                               start = {start}
                               datas={global_facets}
@@ -98,6 +100,7 @@ const irmode = React.createClass({
                               sents = {sents}
                               answers = {answers}
                               f_counts = {f_counts}
+                              docsperpage={4}
                               f_list = {f_list}
                               chart_bins={chart_bins}
                               q_data={q_data}

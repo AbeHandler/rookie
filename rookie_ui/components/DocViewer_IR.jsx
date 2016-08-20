@@ -38,11 +38,6 @@ module.exports = React.createClass({
         }
     },
 
-    fake_markup: function(doc) {
-        let dt = moment(doc.pubdate, "YYYY-MM-DD").format("MM.DD.YYYY");
-        return dt + " | " + doc.snippet.htext;
-    },
-
     format_d: function(d){
         return moment(d).format("MMM. DD YYYY");
     },
@@ -53,26 +48,20 @@ module.exports = React.createClass({
     },
 
     get_docs: function(results, page){
-        let put = [];
+        let docs = this.props.docs;
+        let render = [];
         let i;
-        for (i = 0; i < results.length; i++){
-            if (i > (page * this.props.per_page) && (i < ((page * this.props.per_page) + this.props.per_page))){
-                put.push(results[i]);
+        let start = this.props.page * this.props.per_page;
+        let end = (this.props.page * this.props.per_page) + this.props.per_page;
+        if (end > docs.length){
+          end = docs.length;
+        }
+        if (docs.length > 0){
+            for(i = start; i < end; i++){
+                render.push(docs[i]);
             }
         }
-        return put;
-    },
-
-    increment_page: function () {
-        let p = this.state.page + 1;
-        this.setState({page: p});
-        this.forceUpdate();
-    },
-
-    decrement_page: function () {
-        let p = this.state.page - 1;
-        this.setState({page: p});
-        this.forceUpdate();
+        return render;
     },
 
     render: function(){
@@ -93,7 +82,6 @@ module.exports = React.createClass({
         let gettip = this.gettip;
         let previous_page = "";
         let next_page = "";
-        console.log(this.props.page);
         let docs = this.get_docs(this.props.docs, this.props.page);
 
         return(
