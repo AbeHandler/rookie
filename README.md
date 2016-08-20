@@ -24,3 +24,5 @@ You will need a copy of [Brendan O'Connor's wrapper for StanfordCore NLP](https:
 
 - 8/3/16: Add in all sentences scrolling after user study. Change back to linear scaling. More event-y. See issue.
 - 8/4/16: Suggestion from reporter 8/3/16, show headline tooltips
+- 8/17/16: change ranking of snippets in snippet box. QF go higher. Then Q or F. Before was chron order. Easier to see QF relationship
+

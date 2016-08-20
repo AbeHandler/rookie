@@ -130,12 +130,6 @@ module.exports = React.createClass({
 
         return(
             <div>
-                <div style={{width: "100%", height: "40px"}}>
-                    <div style={{width: "40%", margin:"auto"}}>
-                        {previous_page}
-                        {next_page}
-                    </div>
-                </div>
                 <div style={{backgroundColor: "white", overflowY: "hidden", overflow: "hidden"}}>
                     {docs.map(function(doc, n) {
                         return <div>
@@ -145,6 +139,12 @@ module.exports = React.createClass({
                                   
                     })}
                </div>
+               <div style={{width: "100%", height: "40px"}}>
+                    <div style={{width: "40%", margin:"auto"}}>
+                        {previous_page}
+                        {next_page}
+                    </div>
+                </div>
            </div>
         );
        }

@@ -21,6 +21,7 @@ module.exports = React.createClass({
             || nextProps.end_selected != this.props.end_selected
             || nextProps.mode != this.props.mode
             || nextProps.f != this.props.f
+            || nextProps.page != this.props.page
             || nextProps.height != this.props.height
             || nextProps.width != this.props.width;
     },
@@ -29,14 +30,13 @@ module.exports = React.createClass({
     //need to use this markup thing b/c snippet has html in it
     markup: function(doc) {
         let dt = moment(doc.pubdate, "YYYY-MM-DD").format("MM.DD.YYYY");
-        console.log(this.props.static_mode);
         if (this.props.static_mode){
             return {__html: "<span style='color:black;' >" + doc.snippet.htext + "</span>"};
         }
         else{
             return {__html: "<a style='color:black;' href='" + doc.url + "' target='_blank' >" + doc.snippet.htext + "</a>"};
         }
-        
+
     },
 
     fake_markup: function(doc) {
@@ -51,37 +51,42 @@ module.exports = React.createClass({
        let qf = _.filter(docs, function(d){
                    return d.snippet.has_q && d.snippet.has_f;
               });
+       qf = _.sortBy(qf, function(o) { return o.hash; });
        if (qf.length > 0){
-            let out = qf[Math.floor(Math.random() * qf.length)];
+            let out = qf[0];
             return out;
        }
        let q_or_f = _.filter(docs, function(d){return d.snippet.has_q || d.snippet.has_f});
+       q_or_f = _.sortBy(q_or_f, function(o) { return o.hash; });
        if (q_or_f.length > 0){
-           let out = q_or_f[Math.floor(Math.random() * q_or_f.length)];
+           let out = q_or_f[0];
            return out;
        }
-       return docs[Math.floor(Math.random() * docs.length)];
+       docs = _.sortBy(docs, function(d){return o.hash;});
+       return docs[0];
     },
 
     get_docs_to_render: function(){
         let docs = this.props.docs;
-        docs = _.filter(docs, function(d) {
-                return moment(d.pubdate) > moment(this.props.start_selected, "YYYY-MM-DD") &&
-                       moment(d.pubdate) < moment(this.props.end_selected, "YYYY-MM-DD")
-        }, this);
 
         let render = [];
         let ht = 0; //height
+        let start = this.props.page * this.props.per_page;
+        let end = (this.props.page * this.props.per_page) + this.props.per_page;
+        if (end > docs.length){
+          end = docs.length;
+        }
         if (docs.length > 0){
-            while (ht < this.props.height && docs.length > 0){ //pretty hack-y. but apparently this is a weakness in react
-                let picked = this.find_next(docs);
-                _.remove(docs, function(doc) {
-                    return doc.docid == picked.docid;
-                });
-                ht += this.fake_markup(picked).visualHeight();
-                if (ht < this.props.height){
-                    render.push(picked);
-                }
+            for(var i = start; i < end; i++){
+            //while (ht < this.props.height && docs.length > 0){ //pretty hack-y. but apparently this is a weakness in react
+                //let picked = this.find_next(docs);
+                //_.remove(docs, function(doc) {
+                //    return doc.docid == picked.docid;
+                //});
+                //ht += this.fake_markup(picked).visualHeight();
+                //if (ht < this.props.height){
+                render.push(docs[i]);
+                //}
             }
         }
 
@@ -97,7 +102,6 @@ module.exports = React.createClass({
     format_d: function(d){
         return moment(d).format("MMM. DD YYYY");
     },
-
 
     gettip: function(n, headline){
         return <Tooltip id={n}>{headline}</Tooltip>
@@ -123,7 +127,7 @@ module.exports = React.createClass({
         let format_d = this.format_d;
         let gettip = this.gettip;
         return(
-            <div style={{backgroundColor: "white", overflowY: "hidden", height: this.props.height, overflow: "hidden"}}>
+            <div style={{backgroundColor: "white", overflowY: "scroll", height: this.props.height}}>
                 {docs.map(function(doc, n) {
                     return  <OverlayTrigger
                                 overlay={gettip(n, doc.headline)} placement="top"

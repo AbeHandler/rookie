@@ -249,7 +249,7 @@ module.exports = React.createClass({
                      end_selected:e.format("YYYY-MM")});
         }
     }else{
-      console.log("skip");
+      //console.log("skip");
     }
   },
 
@@ -363,11 +363,6 @@ module.exports = React.createClass({
 
                       </div>
                      </div>
-  },
-
-  onsubmit: function(e){
-      var now = new Date();
-      window.location = "http://hobbes.cs.umass.edu:5001/quiz?current=tool&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + now.toString();
   },
 
   render: function() {

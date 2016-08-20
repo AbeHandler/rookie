@@ -9,20 +9,17 @@ var _ = require('lodash');
 var moment = require('moment');
 require('moment-round');
 
-var DocViewer = require('./DocViewer_generic.jsx');
+var DocViewer = require('./DocViewer_IR.jsx');
 var SparklineStatus = require('./SparklineStatus.jsx');
 var Chart = require('./Chart.jsx');
 var ChartTitle = require('./ChartTitle.jsx');
 var Question = require('./Question.jsx');
 var SparklineGrid = require('./SparklineGrid.jsx');
 var QueryBar = require('./QueryBar.jsx');
-var SummaryStatus_tut = require('./SummaryStatus_tut.jsx');
 var $ = require('jquery');
-var Modal = require('./Modal.jsx');
-var Modal_success = require('./Modal_success.jsx');
 var Panel = require('react-bootstrap/lib/Panel');
 var Button = require('react-bootstrap/lib/Button');
-f
+var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
 
 
 let q_color = "#0028a3";
@@ -56,19 +53,21 @@ module.exports = React.createClass({
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
     min = min.format("YYYY-MM");
     max = max.format("YYYY-MM");
-    return {drag_r: false, drag_l:false, mouse_down_in_chart: false,
-           mouse_is_dragging: false, width: 0, height: 0, click_tracker: -1,
+    console.log(this.props.sents);
+    return {drag_r: false, drag_l:false,
+           mouse_down_in_chart: false,
+           mouse_is_dragging: false, width: 0,
+           height: 0, click_tracker: -1,
            chart_mode: "intro",
-           all_results: sents,
+           all_results: this.props.sents,
            start_selected:min,
-           end_selected:max, 
+           end_selected:max,
            f_counts:this.props.f_counts,
            f: this.props.f,
-           still_looking: true,
            f_list: this.props.f_list,
            startdisplay: 0, //rank of first facet to display... i.e offset by?
            //current_bin_position: -1,
-           kind_of_doc_list: "summary_baseline",
+           kind_of_doc_list: "no_summary",
            facet_datas: this.props.facet_datas,
            mode:"docs"};
   },
@@ -93,18 +92,23 @@ module.exports = React.createClass({
     max = max.format("YYYY-MM");
     this.setState({start_selected: min,
                   end_selected: max,
-                  chart_mode: "intro"});
+                  chart_mode: "intro",
+                  facet_datas: []});
 
   },
 
   resultsToDocs: function(results){
     if (this.state.f != -1){
+        console.log("ending early");
         results = this.state.f_list;
     }
+    console.log("aaaa");
     let start = moment(this.state.start_selected, "YYYY-MM");
     let end = moment(this.state.end_selected, "YYYY-MM");
+    console.log(start, end, results);
     let out_results =  _.filter(results, function(value, key) {
         //dates come from server as YYYY-MM
+
         if (moment(value.pubdate, "YYYY-MM").isAfter(start) || moment(value.pubdate, "YYYY-MM").isSame(start)){
           if (moment(value.pubdate, "YYYY-MM").isBefore(end) || moment(value.pubdate, "YYYY-MM").isSame(end)){
             return true;
@@ -113,7 +117,7 @@ module.exports = React.createClass({
         return false;
     });
     return out_results;
-
+    return _.sortBy(out_results, function(o) { return o.search_engine_index_doc; });
   },
 
   n_fdocs: function(results){
@@ -179,7 +183,6 @@ module.exports = React.createClass({
         }
       }
 
-
     }
 
     this.setState({drag_l: false, drag_r: false,
@@ -210,14 +213,14 @@ module.exports = React.createClass({
   */
   set_date: function (date, start_end) {
     let d = moment(date);
-    
+
     if (start_end == "start"){
       let end = moment(this.state.end_selected, "YYYY-MM");
       let min = moment(this.props.chart_bins[0]);
       if ((d < end) &  (d>min)){
 
         this.setState({start_selected:d.format("YYYY-MM")});
-        
+
       }
     }
     if (start_end == "end"){
@@ -225,8 +228,9 @@ module.exports = React.createClass({
 
       let max = moment(this.props.chart_bins[this.props.chart_bins.length -1]);
 
+      console.log(d.format("YYYY-MM") === start.format("YYYY-MM"))
       if (d > start & d < max){
-         this.setState({end_selected:d.format("YYYY-MM")});          
+         this.setState({end_selected:d.format("YYYY-MM")});
       }
     }
   },
@@ -246,13 +250,13 @@ module.exports = React.createClass({
 
     }else if (s <= e  & s > min & e < max & s.format("YYYY-MM") === e.format("YYYY-MM")){
         // dates are equal
-        e.add(1, "months"); 
+        e.add(1, "months");
         if (e < max){
           this.setState({start_selected:s.format("YYYY-MM"),
                      end_selected:e.format("YYYY-MM")});
         }
     }else{
-      //console.log("skip");
+      console.log("skip");
     }
   },
 
@@ -263,21 +267,53 @@ module.exports = React.createClass({
     let url = this.props.base_url + "get_sents?q=" + this.props.q + "&f=" + e + "&corpus=" + this.props.corpus;
         let minbin = _.head(this.props.chart_bins);
         let maxbin = _.last(this.props.chart_bins);
-        
+        $.ajax({
+              url: url,
+              dataType: 'json',
+              cache: true,
+              success: function(d) {
+                //count vector for just clicked facet, e (event)
+                let fd = _.find(this.state.facet_datas, function(o) { return o.f == e; });
+                this.setState({
+                              f: e,
+                              mode: "docs",
+                              f_list: d,
+                              f_counts: fd["counts"]});
+
+              }.bind(this),
+              error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+              }.bind(this)
+        });
   },
 
   /**
   * A handler for when user clicks the X by Q. Requery with F equal to Q
   */
   qX: function(){
-    
+    if (this.state.f != -1){
+      location.href= this.props.base_url + '?q=' + this.state.f +'&corpus=' + this.props.corpus;
+    }
   },
 
   /**
   * A handler for when user clicks the X by F. Adjust state so f=-1
   */
   fX: function(){
-    
+    let min = moment(this.props.chart_bins[0]);
+    let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
+
+    min = min.format("YYYY-MM");
+    max = max.format("YYYY-MM");
+
+    this.setState({f: -1,
+                   mode:"overview",
+                   //start_selected: -1,
+                   chart_mode: "intro",
+                   end_selected: -1,
+                   start_selected:min,
+                   end_selected:max,
+                   f_counts: []});
   },
 
   turn_on_rect_mode: function(p){
@@ -308,7 +344,23 @@ module.exports = React.createClass({
           }
           this.setState({start_selected:new_start, end_selected: new_end});
 
+        let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + new_start + "&enddate=" + new_end;
 
+        if (this.state.f == -1){
+          $.ajax({
+                      url: url,
+                      dataType: 'json',
+                      cache: true,
+                      method: 'GET',
+                      success: function(d) {
+                        //count vector for just clicked facet, e (event)
+                        this.setState({facet_datas: d["d"], startdisplay: 0});
+                      }.bind(this),
+                      error: function(xhr, status, err) {
+                        console.error(this.props.url, status, err.toString());
+                      }.bind(this)
+          });
+        }
 
 
       }
@@ -316,7 +368,7 @@ module.exports = React.createClass({
   },
 
   requery: function (arg) {
-    
+      location.href= '/?q='+ arg + '&corpus=' + this.props.corpus;
   },
 
   /**
@@ -325,13 +377,13 @@ module.exports = React.createClass({
   summary_status: function(){
     let docs = this.resultsToDocs(this.state.all_results);
     let show_x_for_t_in_sum_status = this.show_x_for_t_in_sum_status();
-    let out = <SummaryStatus_tut resetT={this.resetT}
+    let out = <SummaryStatus resetT={this.resetT}
                                           show_x = {show_x_for_t_in_sum_status}
                                           kind_of_doc_list={this.state.kind_of_doc_list}
                                           ndocs={docs.length}
                                           q={this.props.q}
                                           f={this.state.f}
-                                          q_color={q_color}
+                                          q_color="#1a0dab"
                                           f_color={f_color}
                                           turnOnSummary={() => this.setState({kind_of_doc_list: "summary_baseline"})}
                                           turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})}
@@ -346,43 +398,41 @@ module.exports = React.createClass({
   sparkline_status: function(){
       let backbutton = "";
       if (this.state.startdisplay > 0){
-          backbutton = <span bsSize="xsmall">back</span>
+          backbutton = <span  style={{ textDecoration: "underline", float:"left", cursor: "pointer", paddingRight: "7px"}} onClick={()=>this.setState({startdisplay: this.state.startdisplay - this.props.sparkline_per_panel})} bsSize="xsmall">back</span>
       }
       let moresubjects = "";
        if ((this.state.startdisplay/this.props.sparkline_per_panel + 1) < (Math.floor(global_facets.length/this.props.sparkline_per_panel) + 1)){
           moresubjects = "more subjects"
-      }   
+      }
       return <div>
                      <SparklineStatus fX={this.fX} qX={this.qX}
                      ndocs={this.props.total_docs_for_q}
-                     {...this.props}/>    
+                     {...this.props}/>
 
                      <div style={{float:"right", marginTop: "-5px"}}>
-                      <div style={{ height:"50%"}}>
+                      <div style={{backgroundColor:"green", height:"50%"}}>
                           <span style={{ float:"left",  height: "50%"}}>
                             {backbutton}
                           </span>
-                          <span bsSize="xsmall">
-                            
+                          <span style={{ textDecoration: "underline", float:"right", cursor: "pointer"}} onClick={()=>this.setState({startdisplay: this.state.startdisplay + this.props.sparkline_per_panel})} bsSize="xsmall">
+                            {moresubjects}
                           </span>
-                        
+
                       </div>
-                      
+                      <div style={{color:"#808080", fontSize: "10px", float:"right", height:"50%"}}>
+                        {"page " + (this.state.startdisplay/this.props.sparkline_per_panel + 1) + " of " + (Math.floor(global_facets.length/this.props.sparkline_per_panel) + 1)}
+                      </div>
                       </div>
                      </div>
   },
 
-  close: function(){
-    this.setState({still_looking: false});
-  },
-
-
   onsubmit: function(e){
-    window.location = "http://hobbes.cs.umass.edu:5001/staticr?current=task_screening&runid=" + this.props.runid + "&q=rookie&answer=NA"
+      var now = new Date();
+      window.location = "http://hobbes.cs.umass.edu:5001/quiz?current=tool&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + now.toString();
   },
 
   render: function() {
-    {Modal}
+
     let docs = this.resultsToDocs(this.state.all_results);
     let docs_ignoreT = this.n_fdocs(this.state.all_results);
     let y_scroll = {
@@ -412,7 +462,7 @@ module.exports = React.createClass({
 
 
     main_panel = <Panel header={sparkline_h}>
-                                   <SparklineGrid startdisplay={this.state.startdisplay} 
+                                   <SparklineGrid startdisplay={this.state.startdisplay}
                                    enddisplay={end_facet_no}
                                    width={this.state.width/2}
                                    height={lower_h}
@@ -422,7 +472,7 @@ module.exports = React.createClass({
                                    q_data={q_data} col_no={1}
                                    facet_datas={this.state.facet_datas}/>
                    </Panel>
-    let chart;
+
     let docviewer = <DocViewer kind_of_doc_list={this.state.kind_of_doc_list}
                                 height={lower_h + 50}
                                 f={this.state.f}
@@ -432,85 +482,27 @@ module.exports = React.createClass({
                                 end_selected={this.state.end_selected}
                                 all_results={this.state.all_results}
                                 docs={docs}
-                                static_mode={true}
+                                experiment_mode={this.props.experiment_mode}
                                 bins={binned_facets}/>
-    if (this.props.total_docs_for_q > 0){
-      let buffer = 5;
-      chart = <Chart
-               tooltip_width="160"
-               turn_on_rect_mode={this.turn_on_rect_mode}
-               mouse_move_in_chart={this.mouse_move_in_chart}
-               f={this.state.f}
-               q={this.props.q}
-               turnoff_drag={this.turnoff_drag}
-               handle_mouse_up_in_rect_mode={this.handle_mouse_up_in_rect_mode}
-               toggle_both_drags_start={() => this.setState({drag_l: true, drag_r: true}) }
-               toggle_drag_start_l={this.toggle_drag_start_l}
-               toggle_drag_start_r={this.toggle_drag_start_r}
-               drag_l={this.state.drag_l}
-               drag_r={this.state.drag_r}
-               w={this.state.width - this.props.y_axis_width - buffer}
-               buffer={buffer}
-               y_axis_width={this.props.y_axis_width}
-               mode={this.state.mode}
-               mouse_up_in_chart={this.mouse_up_in_chart}
-               mouse_down_in_chart_true={this.mouse_down_in_chart_true}
-               chart_mode={this.state.chart_mode}
-               qX={this.qX} set_date={this.set_date}
-               set_dates={this.set_dates}
-               start_selected={this.state.start_selected}
-               end_selected={this.state.end_selected}
-               q_data={this.props.q_data}
-               f_data={this.state.f_counts}
-               belowchart="50"
-               height={chart_height}
-               keys={chart_bins}/>
 
-    }else{
-      chart = "";
-    }
-    let show_success;
-    let question = "";
-      let answers = ["Hamid Karzai was the President of Afghanistan. Pervez Musharraf was leader of Pakistan. The two had disputes over issues on the border between the two countries.", 
-                   "Hamid Karzai and Pervez Musharraf were rivals who each sought to lead the Afghan military.",
-                    "I can't answer this from the resources provided."];
-    if (this.state.start_selected === "2003-01" && this.state.end_selected === "2004-01" && this.state.drag_l === false && this.state.drag_r === false && this.state.still_looking){
-        show_success = true;
-    }else{
-        show_success = false;
-    }
+                              let answers = this.props.answers;
 
-    if (this.state.start_selected === "2003-01" && this.state.end_selected === "2004-01" && this.state.drag_l === false && this.state.drag_r === false){
-        question = <Question start={this.props.start} onsubmit={this.onsubmit} answers={answers}/>
-    }
-   
     return(
         <div>
-         <Modal show={this.state.show_2nd}/>
-         <Modal_success close={this.close} show={show_success}/>
-             <Panel style={{'fontWeight': 'bold'}}>Use the slider to select January 2003 to January 2004</Panel>
-             <Panel>
-             <ChartTitle f_docs={docs_ignoreT}
-                         q_color={q_color}
-                         f_color={f_color}
-                         chartMode={this.state.chart_mode}
-                         fX={this.fX}
-                         qX={this.qX}
-                         ndocs={this.props.total_docs_for_q}
-                         f={this.state.f}
-                         requery={this.requery}
-                         unf={this.fX}
-                         mode={this.state.mode}
-                         q={this.props.q}/>
-             </Panel>
-             {chart}
-            <div style={{float:"left", width:(this.state.width-5)/2 }}>
-              {question}
-            </div>
-            <div style={{float:"right", width:(this.state.width-5)/2 }}>
+            <QueryBar height={query_bar_height}
+                      q={this.props.q}
+                      experiment_mode={this.props.experiment_mode}
+                      corpus={this.props.corpus}/>
+            <div style={{width:(this.state.width-5)}}>
               <Panel header={summary_status}>
-                <div>
+                <div style={{"width":"100%"}}>
+                  <div style={{"width":"50%", "float": "left"}}>
+                  <div style={{"height": "40px"}}/>
+                  <Question start={this.props.start} onsubmit={this.onsubmit} answers={answers}/>
+                  </div>
+                  <div style={{"width":"50%", "float": "right"}}>
                   {docviewer}
+                  </div>
                 </div>
               </Panel>
             </div>

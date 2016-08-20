@@ -8,6 +8,7 @@ var moment = require('moment');
 var _ = require('lodash');
 var ClickableQF = require('./ClickableQF.jsx');
 
+var Pager = require('react-bootstrap/lib/Pager');
 
 module.exports = React.createClass({
 
@@ -43,7 +44,17 @@ module.exports = React.createClass({
           f_stuff = <span>mentioning <span style={{color: this.props.f_color, fontWeight: "bold"}}> {this.props.f} </span> </span>;
         }
 
-        status = <span>
+        let left = "";
+        if (this.props.page > 0){
+          left = <span onClick={() => {this.props.pageupdate(-1)}} style={{float: "left", fontSize: "12px", cursor: "hand"}}>&larr; Back</span>
+        }
+        let right = ""
+        if (this.props.page == this.props.maxpages){
+          right = <span onClick={() => {this.props.pageupdate(+1)}} style={{float: "right", fontSize: "12px"}}>Next Page &rarr;</span>
+        }
+
+        status =  <div>
+                  <span>
                   <span>{summary_of}{this.props.ndocs} </span>
                   <span><span style={{textDecoration: uline_style, cursor: "pointer"}} onClick={()=>this.props.turnOnDoclist()}>documents</span></span>
                   <span> for <span style={{color: this.props.q_color, fontWeight: "bold"}}>
@@ -55,6 +66,17 @@ module.exports = React.createClass({
                   <span style={{fontWeight: "bold"}}> &mdash; {d2}</span>
                   {inc_x}{summary_toggle}
                 </span>
+                  <div>
+                  <div style={{height: "15px", paddingTop: "5px"}}>
+                    <div style={{width: "100%"}}>
+                    <div style={{width: "99%"}}>
+                    {left}
+                    {right}
+                    </div>
+                    </div>
+                  </div>
+                  </div>
+                </div>
       }else{
         status = "";
       }

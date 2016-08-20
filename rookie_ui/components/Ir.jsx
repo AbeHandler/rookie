@@ -13,10 +13,8 @@ var DocViewer = require('./DocViewer_IR.jsx');
 var SparklineStatus = require('./SparklineStatus.jsx');
 var Chart = require('./Chart.jsx');
 var ChartTitle = require('./ChartTitle.jsx');
-var Question = require('./Question.jsx');
 var SparklineGrid = require('./SparklineGrid.jsx');
 var QueryBar = require('./QueryBar.jsx');
-var SummaryStatus = require('./NgramsSummaryStatus.jsx');
 var $ = require('jquery');
 var Panel = require('react-bootstrap/lib/Panel');
 var Button = require('react-bootstrap/lib/Button');
@@ -497,13 +495,7 @@ module.exports = React.createClass({
             <div style={{width:(this.state.width-5)}}>
               <Panel header={summary_status}>
                 <div style={{"width":"100%"}}>
-                  <div style={{"width":"50%", "float": "left"}}>
-                  <div style={{"height": "40px"}}/>
-                  <Question start={this.props.start} onsubmit={this.onsubmit} answers={answers}/>
-                  </div>
-                  <div style={{"width":"50%", "float": "right"}}>
                   {docviewer}
-                  </div>
                 </div>
               </Panel>
             </div>
