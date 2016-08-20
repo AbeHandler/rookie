@@ -4,10 +4,8 @@ Doc viewer
 */
 
 var React = require('react');
-var Story = require('./Story.jsx');
 var _ = require('lodash');
 var moment = require('moment');
-var Panel = require('react-bootstrap/lib/Panel');
 
 module.exports = React.createClass({
 

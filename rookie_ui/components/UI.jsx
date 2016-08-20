@@ -9,13 +9,13 @@ var _ = require('lodash');
 var moment = require('moment');
 require('moment-round');
 
-var DocViewer = require('./DocViewer_generic.jsx');
 var SparklineStatus = require('./SparklineStatus.jsx');
 var Chart = require('./Chart.jsx');
 var ChartTitle = require('./ChartTitle.jsx');
 var SparklineGrid = require('./SparklineGrid.jsx');
 var QueryBar = require('./QueryBar.jsx');
 var SummaryStatus = require('./SummaryStatus.jsx');
+var DocViewer = require('./DocViewer_generic.jsx');
 var $ = require('jquery');
 var Panel = require('react-bootstrap/lib/Panel');
 var Button = require('react-bootstrap/lib/Button');

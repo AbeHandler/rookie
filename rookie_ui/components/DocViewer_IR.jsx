@@ -23,6 +23,7 @@ module.exports = React.createClass({
             || nextProps.mode != this.props.mode
             || nextProps.f != this.props.f
             || nextProps.height != this.props.height
+            || nextProps.page != this.props.page
             || nextProps.width != this.props.width;
     },
 
@@ -42,25 +43,6 @@ module.exports = React.createClass({
         return dt + " | " + doc.snippet.htext;
     },
 
-    /**
-    * Find the next sentence to render. Don't decide if it will fit yet
-    */
-    find_next: function(docs){
-       let qf = _.filter(docs, function(d){
-                   return d.snippet.has_q && d.snippet.has_f;
-              });
-       if (qf.length > 0){
-            let out = qf[Math.floor(Math.random() * qf.length)];
-            return out;
-       }
-       let q_or_f = _.filter(docs, function(d){return d.snippet.has_q || d.snippet.has_f});
-       if (q_or_f.length > 0){
-           let out = q_or_f[Math.floor(Math.random() * q_or_f.length)];
-           return out;
-       }
-       return docs[Math.floor(Math.random() * docs.length)];
-    },
-
     format_d: function(d){
         return moment(d).format("MMM. DD YYYY");
     },
@@ -70,18 +52,11 @@ module.exports = React.createClass({
         return <Tooltip id={n}>{headline}</Tooltip>
     },
 
-    getInitialState: function(){
-        let per_page = 10;
-        console.log("thisprops docs", this.props.docs);
-        let pages = Math.floor(this.props.docs.length/per_page);
-        return {page: 1, drag_r: false, PER_PAGE:per_page, pages: pages}
-    },
-
     get_docs: function(results, page){
         let put = [];
         let i;
         for (i = 0; i < results.length; i++){
-            if (i > (page * this.state.PER_PAGE) && (i < ((page * this.state.PER_PAGE) + this.state.PER_PAGE))){
+            if (i > (page * this.props.per_page) && (i < ((page * this.props.per_page) + this.props.per_page))){
                 put.push(results[i]);
             }
         }
@@ -118,15 +93,8 @@ module.exports = React.createClass({
         let gettip = this.gettip;
         let previous_page = "";
         let next_page = "";
-        let page = this.state.page;
-        if (page > 1){
-            previous_page = <div style={{float: "left", cursor: 'pointer', padding: '5px', borderRadius: '3cm', border: '1px solid grey'}} onClick={this.decrement_page} href="#">previous page</div>;
-        }
-        if (page < this.state.pages){
-            next_page = <div style={{float: "right", cursor: 'pointer', padding: '5px', borderRadius: '3cm', border: '1px solid grey'}} onClick={this.increment_page} href="#">next page</div>;
-        }
-
-        let docs = this.get_docs(this.props.docs, page);
+        console.log(this.props.page);
+        let docs = this.get_docs(this.props.docs, this.props.page);
 
         return(
             <div>
@@ -136,15 +104,9 @@ module.exports = React.createClass({
                                 <div style={{fontWeight: "bold", color: "#1a0dab"}}>{doc.headline} | <span style={{color: "grey"}}>{format_d(doc.pubdate)}</span></div>
                                 <span key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/>
                                 </div>
-                                  
+
                     })}
                </div>
-               <div style={{width: "100%", height: "40px"}}>
-                    <div style={{width: "40%", margin:"auto"}}>
-                        {previous_page}
-                        {next_page}
-                    </div>
-                </div>
            </div>
         );
        }

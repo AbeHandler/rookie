@@ -30,12 +30,15 @@ module.exports = React.createClass({
       summary_of = "Summary of ";
     }else{
       summary_of = "Showing ";
+    }
+    if (this.props.show_summarize){
       summary_toggle = <span onClick={()=>this.props.turnOnSummary()} style={{float: "right", textDecoration: "underline", cursor: "pointer"}}>summarize</span>
     }
     let uline_style =  "underline";
     if (this.props.kind_of_doc_list != "summary_baseline"){
        uline_style = ""
     }
+    let page = this.props.page;
     if (moment(this.props.start_selected).isValid() && moment(this.props.end_selected).isValid()){
         let d1 = moment(this.props.start_selected).format("MMM DD, YYYY");
         let d2 = moment(this.props.end_selected).format("MMM DD, YYYY");
@@ -45,11 +48,12 @@ module.exports = React.createClass({
         }
 
         let left = "";
-        if (this.props.page > 0){
+        if (page > 0){
           left = <span onClick={() => {this.props.pageupdate(-1)}} style={{float: "left", cursor: "pointer", fontSize: "12px"}}>&larr; Back</span>
         }
         let right = "";
-        if ((this.props.page + 1) != this.props.maxpages){
+        let tt = page;
+        if ((page + 1) != this.props.maxpages){
           right = <span onClick={() => {this.props.pageupdate(+1)}} style={{float: "right", cursor: "pointer", fontSize: "12px"}}>Next Page &rarr;</span>
         }
 

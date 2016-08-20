@@ -9,6 +9,7 @@ var _ = require('lodash');
 var moment = require('moment');
 require('moment-round');
 
+var SummaryStatus = require('./SummaryStatus.jsx');
 var DocViewer = require('./DocViewer_IR.jsx');
 var SparklineStatus = require('./SparklineStatus.jsx');
 var Chart = require('./Chart.jsx');
@@ -45,6 +46,11 @@ module.exports = React.createClass({
 
   },
 
+  pageupdate: function(param){
+    let tmp = param + this.state.summary_page;
+    this.setState({summary_page:tmp});
+  },
+
   getInitialState(){
     //Notes.
     //convention: -1 == null
@@ -52,7 +58,6 @@ module.exports = React.createClass({
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
     min = min.format("YYYY-MM");
     max = max.format("YYYY-MM");
-    console.log(this.props.sents);
     return {drag_r: false, drag_l:false,
            mouse_down_in_chart: false,
            mouse_is_dragging: false, width: 0,
@@ -61,6 +66,7 @@ module.exports = React.createClass({
            all_results: this.props.sents,
            start_selected:min,
            end_selected:max,
+           summary_page:0,
            f_counts:this.props.f_counts,
            f: this.props.f,
            f_list: this.props.f_list,
@@ -101,10 +107,8 @@ module.exports = React.createClass({
         console.log("ending early");
         results = this.state.f_list;
     }
-    console.log("aaaa");
     let start = moment(this.state.start_selected, "YYYY-MM");
     let end = moment(this.state.end_selected, "YYYY-MM");
-    console.log(start, end, results);
     let out_results =  _.filter(results, function(value, key) {
         //dates come from server as YYYY-MM
 
@@ -376,18 +380,23 @@ module.exports = React.createClass({
   summary_status: function(){
     let docs = this.resultsToDocs(this.state.all_results);
     let show_x_for_t_in_sum_status = this.show_x_for_t_in_sum_status();
+    let maxpages = Math.ceil(docs.length/this.props.docsperpage);
     let out = <SummaryStatus resetT={this.resetT}
-                                          show_x = {show_x_for_t_in_sum_status}
-                                          kind_of_doc_list={this.state.kind_of_doc_list}
-                                          ndocs={docs.length}
-                                          q={this.props.q}
-                                          f={this.state.f}
-                                          q_color="#1a0dab"
-                                          f_color={f_color}
-                                          turnOnSummary={() => this.setState({kind_of_doc_list: "summary_baseline"})}
-                                          turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})}
-                                          start_selected={this.state.start_selected}
-                                          end_selected={this.state.end_selected}/>
+              show_summarize={false}
+              show_x = {show_x_for_t_in_sum_status}
+              kind_of_doc_list={this.state.kind_of_doc_list}
+              ndocs={docs.length}
+              q={this.props.q}
+              f={this.state.f}
+              page={this.state.summary_page}
+              q_color="#1a0dab"
+              f_color={f_color}
+              maxpages={maxpages}
+              pageupdate={this.pageupdate}
+              turnOnSummary={() => this.setState({kind_of_doc_list: "summary_baseline"})}
+              turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})}
+              start_selected={this.state.start_selected}
+              end_selected={this.state.end_selected}/>
     return out;
   },
 
@@ -481,7 +490,10 @@ module.exports = React.createClass({
                                 end_selected={this.state.end_selected}
                                 all_results={this.state.all_results}
                                 docs={docs}
+                                page={this.state.summary_page}
+                                per_page={this.props.docsperpage}
                                 experiment_mode={this.props.experiment_mode}
+                                per_page={this.props.docsperpage}
                                 bins={binned_facets}/>
 
                               let answers = this.props.answers;
