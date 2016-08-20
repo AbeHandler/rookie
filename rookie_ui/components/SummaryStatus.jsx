@@ -40,8 +40,8 @@ module.exports = React.createClass({
     }
     let page = this.props.page;
     if (moment(this.props.start_selected).isValid() && moment(this.props.end_selected).isValid()){
-        let d1 = moment(this.props.start_selected).format("MMM DD, YYYY");
-        let d2 = moment(this.props.end_selected).format("MMM DD, YYYY");
+        let d1 = moment(this.props.start_selected).format("MMM. YYYY");
+        let d2 = moment(this.props.end_selected).format("MMM. YYYY");
         var f_stuff = "";
         if (this.props.f != -1){
           f_stuff = <span>mentioning <span style={{color: this.props.f_color, fontWeight: "bold"}}> {this.props.f} </span> </span>;
@@ -54,7 +54,7 @@ module.exports = React.createClass({
         let right = "";
         let tt = page;
         if ((page + 1) != this.props.maxpages){
-          right = <span onClick={() => {this.props.pageupdate(+1)}} style={{float: "right", cursor: "pointer", fontSize: "12px"}}>Next Page &rarr;</span>
+          right = <span onClick={() => {this.props.pageupdate(+1)}} style={{float: "right", cursor: "pointer", fontSize: "12px"}}>More &rarr;</span>
         }
 
         status =  <div>

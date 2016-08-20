@@ -8,7 +8,7 @@ var ReactDOM = require('react-dom');
 var _ = require('lodash');
 var moment = require('moment');
 require('moment-round');
-
+var DatePicker = require('react-datepicker');
 var SummaryStatus = require('./SummaryStatus.jsx');
 var DocViewer = require('./DocViewer_IR.jsx');
 var SparklineStatus = require('./SparklineStatus.jsx');
@@ -58,7 +58,9 @@ module.exports = React.createClass({
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
     min = min.format("YYYY-MM");
     max = max.format("YYYY-MM");
-    return {drag_r: false, drag_l:false,
+    return {drag_r: false,
+           drag_l:false,
+           startDate: moment(),
            mouse_down_in_chart: false,
            mouse_is_dragging: false, width: 0,
            height: 0, click_tracker: -1,
@@ -149,18 +151,6 @@ module.exports = React.createClass({
   },
 
   /**
-  * This function will fire on mousedown if chart is in rectangle mode
-  */
-  mouse_down_in_chart_true: function(d){
-    this.setState({
-      mouse_down_in_chart: true, mouse_is_dragging: true}, function(){
-        if (this.state.drag_l == false && this.state.drag_r == false){
-          this.set_dates(d, d);
-        }
-      });
-  },
-
-  /**
   * This function will fire on mouseup if chart is in rectangle mode
   */
   mouse_up_in_chart: function(e_page_X_adjusted){
@@ -235,31 +225,6 @@ module.exports = React.createClass({
       if (d > start & d < max){
          this.setState({end_selected:d.format("YYYY-MM")});
       }
-    }
-  },
-
-  /**
-  * Set both dates at once: start and end
-  */
-  set_dates: function (start_date, end_date) {
-    let s = moment(start_date);
-    let e = moment(end_date);
-    let min = moment(this.props.chart_bins[0]);
-    let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
-    if (s <= e  & s > min & e < max & !(s.format("YYYY-MM") === e.format("YYYY-MM"))) {
-      this.setState({start_selected:s.format("YYYY-MM"),
-                     end_selected:e.format("YYYY-MM")});
-
-
-    }else if (s <= e  & s > min & e < max & s.format("YYYY-MM") === e.format("YYYY-MM")){
-        // dates are equal
-        e.add(1, "months");
-        if (e < max){
-          this.setState({start_selected:s.format("YYYY-MM"),
-                     end_selected:e.format("YYYY-MM")});
-        }
-    }else{
-      console.log("skip");
     }
   },
 
@@ -439,6 +404,17 @@ module.exports = React.createClass({
       window.location = "http://hobbes.cs.umass.edu:5001/quiz?current=tool&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + now.toString();
   },
 
+  setstart: function(date) {
+     this.setState({
+       start_selected: date.format('YYYY-MM')
+     });
+   },
+   setend: function(date) {
+   this.setState({
+     end_selected: date.format('YYYY-MM')
+   });
+ },
+
   render: function() {
 
     let docs = this.resultsToDocs(this.state.all_results);
@@ -504,6 +480,12 @@ module.exports = React.createClass({
                       q={this.props.q}
                       experiment_mode={this.props.experiment_mode}
                       corpus={this.props.corpus}/>
+                    <Panel style={{width:"100%"}}>
+                        <div style={{width:"40%", margin: "auto"}}>
+                        <span style={{float:"left"}}><span style={{marginRight:"10px", fontWeight: "bold"}}>Start</span><span style={{borderTop:"1px solid black"}}><DatePicker minDate={moment("1987-01")} maxDate={moment(this.state.end_selected)} selected={moment(this.state.start_selected)} onChange={this.setstart} /></span></span>
+                        <span style={{float:"right"}}><span style={{marginRight:"10px", fontWeight: "bold"}}>End</span><span style={{borderTop:"1px solid black"}}><DatePicker minDate={moment(this.state.start_selected)} maxDate={moment("2007-12")}  selected={moment(this.state.end_selected)} onChange={this.setend} /></span></span>
+                        </div>
+                  </Panel>
             <div style={{width:(this.state.width-5)}}>
               <Panel header={summary_status}>
                 <div style={{"width":"100%"}}>
