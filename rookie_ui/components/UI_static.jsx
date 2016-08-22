@@ -9,13 +9,13 @@ var _ = require('lodash');
 var moment = require('moment');
 require('moment-round');
 var Question = require('./Question.jsx');
-var DocViewer = require('./DocViewer_generic.jsx');
 var SparklineStatus = require('./SparklineStatus.jsx');
 var Chart = require('./Chart.jsx');
 var ChartTitle = require('./ChartTitle.jsx');
 var SparklineGrid = require('./SparklineGrid.jsx');
 var QueryBar = require('./QueryBar.jsx');
-var SummaryStatus_static = require('./SummaryStatus_static.jsx');
+var SummaryStatus = require('./SummaryStatus.jsx');
+var DocViewer = require('./DocViewer_generic.jsx');
 var $ = require('jquery');
 var Panel = require('react-bootstrap/lib/Panel');
 var Button = require('react-bootstrap/lib/Button');
@@ -33,8 +33,6 @@ module.exports = React.createClass({
     this.setState({width: width, height: height});
   },
 
-
-
   componentDidMount: function () {
     this.set_width();
     window.addEventListener("resize", this.set_width);
@@ -43,7 +41,21 @@ module.exports = React.createClass({
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
     min = min.format("YYYY-MM");
     max = max.format("YYYY-MM");
+    let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + min + "&enddate=" + max
 
+    $.ajax({
+              url: url,
+              dataType: 'json',
+              cache: true,
+              method: 'GET',
+              success: function(d) {
+                //count vector for just clicked facet, e (event)
+                this.setState({facet_datas: d["d"]});
+              }.bind(this),
+              error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+              }.bind(this)
+    });
 
   },
 
@@ -63,6 +75,7 @@ module.exports = React.createClass({
            f_counts:this.props.f_counts,
            f: this.props.f,
            f_list: this.props.f_list,
+           summary_page: 0,
            startdisplay: 0, //rank of first facet to display... i.e offset by?
            //current_bin_position: -1,
            kind_of_doc_list: "summary_baseline",
@@ -91,8 +104,26 @@ module.exports = React.createClass({
     this.setState({start_selected: min,
                   end_selected: max,
                   chart_mode: "intro",
+                  summary_page: 0,
                   facet_datas: []});
 
+    let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + min + "&enddate=" + max;
+
+    if (this.state.f == -1){
+      $.ajax({
+                  url: url,
+                  dataType: 'json',
+                  cache: true,
+                  method: 'GET',
+                  success: function(d) {
+                    //count vector for just clicked facet, e (event)
+                    this.setState({facet_datas: d["d"], summary_page: 0, startdisplay: 0});
+                  }.bind(this),
+                  error: function(xhr, status, err) {
+                    console.error(this.props.url, status, err.toString());
+                  }.bind(this)
+      });
+    }
   },
 
   resultsToDocs: function(results){
@@ -133,6 +164,7 @@ module.exports = React.createClass({
                       drag_l: false,
                       drag_r: true,
                       mode: "docs",
+                      summary_page: 0,
                       start_selected: start,
                       end_selected: end});
       }
@@ -144,7 +176,8 @@ module.exports = React.createClass({
   */
   mouse_down_in_chart_true: function(d){
     this.setState({
-      mouse_down_in_chart: true, mouse_is_dragging: true}, function(){
+      mouse_down_in_chart: true,
+      mouse_is_dragging: true}, function(){
         if (this.state.drag_l == false && this.state.drag_r == false){
           this.set_dates(d, d);
         }
@@ -161,7 +194,7 @@ module.exports = React.createClass({
       s = s.format("YYYY-MM");
       e = e.format("YYYY-MM");
 
-      this.setState({start_selected:s,end_selected:e});
+      this.setState({start_selected:s,end_selected:e, summary_page: 0});
     }else{
       let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + this.state.start_selected + "&enddate=" + this.state.end_selected;
 
@@ -172,34 +205,49 @@ module.exports = React.createClass({
         if (moment(max) > moment(this.state.end_selected, "YYYY-MM")){
           let e = moment(this.state.end_selected, "YYYY-MM");
           e.add(1, "months");
-          this.setState({end_selected:e.format("YYYY-MM")});
+          this.setState({end_selected:e.format("YYYY-MM"), summary_page: 0});
           url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + this.state.start_selected + "&enddate=" + e.format("YYYY-MM");
         }
       }
 
+      if (this.state.f == -1){
+        $.ajax({
+                      url: url,
+                      dataType: 'json',
+                      cache: true,
+                      method: 'GET',
+                      success: function(d) {
+                        //count vector for just clicked facet, e (event)
+                        this.setState({facet_datas: d["d"], summary_page: 0, startdisplay:0});
+                      }.bind(this),
+                      error: function(xhr, status, err) {
+                        console.error(this.props.url, status, err.toString());
+                      }.bind(this)
+        });
+      }
     }
 
     this.setState({drag_l: false, drag_r: false,
-                   mouse_down_in_chart: false, mouse_is_dragging: false});
+                   mouse_down_in_chart: false, summary_page: 0, mouse_is_dragging: false});
   },
 
   turnoff_drag: function(){
     this.setState({drag_l: false, drag_r: false,
-                   mouse_down_in_chart: false, mouse_is_dragging: false});
+                   mouse_down_in_chart: false, summary_page: 0, mouse_is_dragging: false});
   },
 
   /**
   * The chart will now have drag_l is true
   */
   toggle_drag_start_l: function(){
-    this.setState({drag_l : true, mouse_is_dragging: true});
+    this.setState({drag_l : true, summary_page: 0, mouse_is_dragging: true});
   },
 
   /**
   * The chart will now have drag_r is true
   */
   toggle_drag_start_r: function(){
-    this.setState({drag_r : true, mouse_is_dragging: true});
+    this.setState({drag_r : true, summary_page: 0, mouse_is_dragging: true});
   },
 
   /**
@@ -212,9 +260,7 @@ module.exports = React.createClass({
       let end = moment(this.state.end_selected, "YYYY-MM");
       let min = moment(this.props.chart_bins[0]);
       if ((d < end) &  (d>min)){
-
-        this.setState({start_selected:d.format("YYYY-MM")});
-
+        this.setState({start_selected:d.format("YYYY-MM"), summary_page: 0});
       }
     }
     if (start_end == "end"){
@@ -223,7 +269,7 @@ module.exports = React.createClass({
       let max = moment(this.props.chart_bins[this.props.chart_bins.length -1]);
 
       if (d > start & d < max){
-         this.setState({end_selected:d.format("YYYY-MM")});
+         this.setState({end_selected:d.format("YYYY-MM"), summary_page: 0});
       }
     }
   },
@@ -236,17 +282,22 @@ module.exports = React.createClass({
     let e = moment(end_date);
     let min = moment(this.props.chart_bins[0]);
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
-    if (s <= e  & s > min & e < max & !(s.format("YYYY-MM") === e.format("YYYY-MM"))) {
-      this.setState({start_selected:s.format("YYYY-MM"),
-                     end_selected:e.format("YYYY-MM")});
 
+
+    if (s <= e  & s > min & e < max & !(s.format("YYYY-MM") === e.format("YYYY-MM"))) {
+      let newstate = {start_selected:s.format("YYYY-MM"),
+                     end_selected:e.format("YYYY-MM"),
+                     summary_page: 0}
+      this.setState(newstate);
 
     }else if (s <= e  & s > min & e < max & s.format("YYYY-MM") === e.format("YYYY-MM")){
         // dates are equal
         e.add(1, "months");
+        let newstate = {start_selected:s.format("YYYY-MM"), end_selected:e.format("YYYY-MM"), summary_page: 0}
         if (e < max){
           this.setState({start_selected:s.format("YYYY-MM"),
-                     end_selected:e.format("YYYY-MM")});
+                        end_selected:e.format("YYYY-MM"),
+                        summary_page: 0});
         }
     }else{
       //console.log("skip");
@@ -260,20 +311,55 @@ module.exports = React.createClass({
     let url = this.props.base_url + "get_sents?q=" + this.props.q + "&f=" + e + "&corpus=" + this.props.corpus;
         let minbin = _.head(this.props.chart_bins);
         let maxbin = _.last(this.props.chart_bins);
+        $.ajax({
+              url: url,
+              dataType: 'json',
+              cache: true,
+              success: function(d) {
+                //count vector for just clicked facet, e (event)
+                let fd = _.find(this.state.facet_datas, function(o) { return o.f == e; });
+                this.setState({
+                              f: e,
+                              mode: "docs",
+                              f_list: d,
+                              summary_page: 0,
+                              f_counts: fd["counts"]});
+
+              }.bind(this),
+              error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+              }.bind(this)
+        });
   },
 
   /**
   * A handler for when user clicks the X by Q. Requery with F equal to Q
   */
   qX: function(){
-
+    if (this.state.f != -1){
+      location.href= this.props.base_url + '?q=' + this.state.f +'&corpus=' + this.props.corpus;
+    }
   },
 
   /**
   * A handler for when user clicks the X by F. Adjust state so f=-1
   */
   fX: function(){
+    let min = moment(this.props.chart_bins[0]);
+    let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
 
+    min = min.format("YYYY-MM");
+    max = max.format("YYYY-MM");
+
+    this.setState({f: -1,
+                   mode:"overview",
+                   //start_selected: -1,
+                   chart_mode: "intro",
+                   end_selected: -1,
+                   start_selected:min,
+                   end_selected:max,
+                   summary_page: 0,
+                   f_counts: []});
   },
 
   turn_on_rect_mode: function(p){
@@ -281,6 +367,7 @@ module.exports = React.createClass({
                   start_selected:-1,
                   end_selected:-1,
                   mouse_down_in_chart:true,
+                  summary_page: 0,
                   mode: "docs"});
   },
 
@@ -302,14 +389,38 @@ module.exports = React.createClass({
             new_start = moment(this.state.start_selected).subtract(1, granularity).format("YYYY-MM");
             new_end = moment(this.state.end_selected).subtract(1, granularity).format("YYYY-MM");
           }
-          this.setState({start_selected:new_start, end_selected: new_end});
+          this.setState({start_selected:new_start, summary_page: 0, end_selected: new_end});
+
+        let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + new_start + "&enddate=" + new_end;
+
+        if (this.state.f == -1){
+          $.ajax({
+                      url: url,
+                      dataType: 'json',
+                      cache: true,
+                      method: 'GET',
+                      success: function(d) {
+                        //count vector for just clicked facet, e (event)
+                        this.setState({facet_datas: d["d"], summary_page: 0, startdisplay: 0});
+                      }.bind(this),
+                      error: function(xhr, status, err) {
+                        console.error(this.props.url, status, err.toString());
+                      }.bind(this)
+          });
+        }
+
 
       }
     }
   },
 
   requery: function (arg) {
+      location.href= '/?q='+ arg + '&corpus=' + this.props.corpus;
+  },
 
+  pageupdate: function(param){
+    let tmp = param + this.state.summary_page;
+    this.setState({summary_page:tmp});
   },
 
   /**
@@ -318,18 +429,23 @@ module.exports = React.createClass({
   summary_status: function(){
     let docs = this.resultsToDocs(this.state.all_results);
     let show_x_for_t_in_sum_status = this.show_x_for_t_in_sum_status();
-    let out = <SummaryStatus_static resetT={this.resetT}
-                                          show_x = {show_x_for_t_in_sum_status}
-                                          kind_of_doc_list={this.state.kind_of_doc_list}
-                                          ndocs={docs.length}
-                                          q={this.props.q}
-                                          f={this.state.f}
-                                          q_color={q_color}
-                                          f_color={f_color}
-                                          turnOnSummary={undefined}
-                                          turnOnDoclist={undefined}
-                                          start_selected={this.state.start_selected}
-                                          end_selected={this.state.end_selected}/>
+    let maxpages = Math.ceil(docs.length/this.props.docsperpage);
+    let out = <SummaryStatus resetT={this.resetT}
+               maxpages={maxpages}
+               show_x = {show_x_for_t_in_sum_status}
+               kind_of_doc_list={this.state.kind_of_doc_list}
+               ndocs={docs.length}
+               q={this.props.q}
+               static_mode={true}
+               f={this.state.f}
+               q_color={q_color}
+               f_color={f_color}
+               page={this.state.summary_page}
+               pageupdate={this.pageupdate}
+               turnOnSummary={() => this.setState({kind_of_doc_list: "summary_baseline"})}
+               turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})}
+               start_selected={this.state.start_selected}
+               end_selected={this.state.end_selected}/>
     return out;
   },
 
@@ -343,10 +459,10 @@ module.exports = React.createClass({
       }
       let moresubjects = "";
        if ((this.state.startdisplay/this.props.sparkline_per_panel + 1) < (Math.floor(global_facets.length/this.props.sparkline_per_panel) + 1)){
-          moresubjects = ""
+          moresubjects = "more subjects"
       }
       return <div>
-                     <SparklineStatus static_mode={true} fX={this.fX} qX={this.qX}
+                     <SparklineStatus fX={this.fX} qX={this.qX}
                      ndocs={this.props.total_docs_for_q}
                      {...this.props}/>
 
@@ -360,7 +476,9 @@ module.exports = React.createClass({
                           </span>
 
                       </div>
-
+                      <div style={{color:"#808080", fontSize: "10px", float:"right", height:"50%"}}>
+                        {"page " + (this.state.startdisplay/this.props.sparkline_per_panel + 1) + " of " + (Math.floor(global_facets.length/this.props.sparkline_per_panel) + 1)}
+                      </div>
                       </div>
                      </div>
   },
@@ -368,6 +486,7 @@ module.exports = React.createClass({
   render: function() {
 
     let docs = this.resultsToDocs(this.state.all_results);
+
     let docs_ignoreT = this.n_fdocs(this.state.all_results);
     let y_scroll = {
         overflowY: "scroll",
@@ -394,11 +513,20 @@ module.exports = React.createClass({
     let sparkline_h = this.sparkline_status();
     let end_facet_no = this.state.startdisplay + this.props.sparkline_per_panel
 
-   let answers = this.props.answers;
-    main_panel = <Panel>
-                     <Question start={this.props.start} onsubmit={this.onsubmit} answers={answers}/>
-                 </Panel>
+
+    main_panel = <Panel header={sparkline_h}>
+                                   <SparklineGrid startdisplay={this.state.startdisplay}
+                                   enddisplay={end_facet_no}
+                                   width={this.state.width/2}
+                                   height={lower_h}
+                                   f={this.state.f}
+                                   w_h_ratio={this.props.w_h_ratio}
+                                   clickTile={this.clickTile}
+                                   q_data={q_data} col_no={1}
+                                   facet_datas={this.state.facet_datas}/>
+                   </Panel>
     let chart;
+
     let docviewer = <DocViewer kind_of_doc_list={this.state.kind_of_doc_list}
                                 height={lower_h + 50}
                                 f={this.state.f}
@@ -408,7 +536,9 @@ module.exports = React.createClass({
                                 end_selected={this.state.end_selected}
                                 all_results={this.state.all_results}
                                 docs={docs}
-                                static_mode={true}
+                                runid={runid}
+                                page={this.state.summary_page}
+                                per_page={this.props.docsperpage}
                                 bins={binned_facets}/>
     if (this.props.total_docs_for_q > 0){
       let buffer = 5;
@@ -420,7 +550,7 @@ module.exports = React.createClass({
                q={this.props.q}
                turnoff_drag={this.turnoff_drag}
                handle_mouse_up_in_rect_mode={this.handle_mouse_up_in_rect_mode}
-               toggle_both_drags_start={() => this.setState({drag_l: true, drag_r: true}) }
+               toggle_both_drags_start={() => this.setState({drag_l: true, summary_page: 0, drag_r: true}) }
                toggle_drag_start_l={this.toggle_drag_start_l}
                toggle_drag_start_r={this.toggle_drag_start_r}
                drag_l={this.state.drag_l}
@@ -447,34 +577,36 @@ module.exports = React.createClass({
     }
     return(
         <div>
-
             <QueryBar height={query_bar_height}
                       q={this.props.q}
-                      experiment_mode={true}
+                      experiment_mode={false}
                       corpus={this.props.corpus}/>
              <Panel>
              <ChartTitle f_docs={docs_ignoreT}
                          q_color={q_color}
                          f_color={f_color}
-                         static_mode={true}
                          chartMode={this.state.chart_mode}
                          fX={this.fX}
                          qX={this.qX}
                          ndocs={this.props.total_docs_for_q}
                          f={this.state.f}
-                         requery={undefined}
+                         requery={this.requery}
                          unf={this.fX}
                          mode={this.state.mode}
                          q={this.props.q}/>
              </Panel>
              {chart}
-            <div style={{float:"left", width:(this.state.width-5)/2 }}>
-              {main_panel}
-            </div>
-            <div style={{float:"right", width:(this.state.width-5)/2 }}>
+            <div style={{width:"100%" }}>
               <Panel header={summary_status}>
-                <div>
+                <div style={{"width":"100%"}}>
+                  <div style={{"width":"50%", "float": "left"}}>
+                  <Question start={this.props.start} onsubmit={this.onsubmit} answers={this.props.answers}/>
+                  </div>
+                  <div style={{"width":"50%", "float": "right"}}>
+                    <Panel>
                   {docviewer}
+                  </Panel>
+                  </div>
                 </div>
               </Panel>
             </div>

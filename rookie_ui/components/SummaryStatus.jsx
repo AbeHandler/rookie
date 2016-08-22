@@ -36,7 +36,10 @@ module.exports = React.createClass({
     }
     let uline_style =  "underline";
     if (this.props.kind_of_doc_list != "summary_baseline"){
-       uline_style = ""
+       uline_style = "";
+    }
+    if (this.props.static_mode){
+      uline_style = "";
     }
     let page = this.props.page;
     if (moment(this.props.start_selected).isValid() && moment(this.props.end_selected).isValid()){
@@ -57,10 +60,12 @@ module.exports = React.createClass({
           right = <span onClick={() => {this.props.pageupdate(+1)}} style={{float: "right", cursor: "pointer", fontSize: "12px"}}>More &rarr;</span>
         }
 
+        let change;
+
         status =  <div>
                   <span>
                   <span>{summary_of}{this.props.ndocs} </span>
-                  <span><span style={{textDecoration: uline_style, cursor: "pointer"}} onClick={()=>this.props.turnOnDoclist()}>documents</span></span>
+                  <span><span style={{textDecoration: uline_style, cursor: "pointer"}} onClick={()=>{if(!this.props.static_mode){this.props.turnOnDoclist()}}}>documents</span></span>
                   <span> for <span style={{color: this.props.q_color, fontWeight: "bold"}}>
                               {this.props.q}&nbsp;
                             </span>

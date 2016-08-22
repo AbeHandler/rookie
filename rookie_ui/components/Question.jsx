@@ -70,8 +70,10 @@ module.exports = React.createClass({
                       {this.props.answers.map(function(k, v){
                         return (<div><input type="radio" name="1" value="1" onClick={() => tmp(v)}/><span style={{paddingLeft: "10px"}}> {k}</span> </div>)
                       })}
-                      <ControlLabel>What information did you find to support this conclusion?</ControlLabel>
-                      <FormControl onMouseDown={this.keychange} onMouseUp={this.keychange} onKeyDown={this.keychange} ref="input" componentClass="textarea" placeholder="Feel free to copy and paste" />
+                      <ControlLabel>Copy one sentence that supports your answer</ControlLabel>
+                      <FormControl onMouseDown={this.keychange} onMouseUp={this.keychange} onKeyDown={this.keychange} ref="input" componentClass="textarea" placeholder="Copy one sentence here" />
+                      <ControlLabel>Copy a different sentence that supports your answer</ControlLabel>
+                      <FormControl onMouseDown={this.keychange} onMouseUp={this.keychange} onKeyDown={this.keychange} ref="input2" componentClass="textarea" placeholder="Copy a different sentence here" />
                     </FormGroup>
                     </div>
 

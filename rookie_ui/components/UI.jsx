@@ -260,9 +260,7 @@ module.exports = React.createClass({
       let end = moment(this.state.end_selected, "YYYY-MM");
       let min = moment(this.props.chart_bins[0]);
       if ((d < end) &  (d>min)){
-
         this.setState({start_selected:d.format("YYYY-MM"), summary_page: 0});
-
       }
     }
     if (start_end == "end"){
@@ -284,15 +282,18 @@ module.exports = React.createClass({
     let e = moment(end_date);
     let min = moment(this.props.chart_bins[0]);
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
-    if (s <= e  & s > min & e < max & !(s.format("YYYY-MM") === e.format("YYYY-MM"))) {
-      this.setState({start_selected:s.format("YYYY-MM"),
-                     end_selected:e.format("YYYY-MM"),
-                     summary_page: 0});
 
+
+    if (s <= e  & s > min & e < max & !(s.format("YYYY-MM") === e.format("YYYY-MM"))) {
+      let newstate = {start_selected:s.format("YYYY-MM"),
+                     end_selected:e.format("YYYY-MM"),
+                     summary_page: 0}
+      this.setState(newstate);
 
     }else if (s <= e  & s > min & e < max & s.format("YYYY-MM") === e.format("YYYY-MM")){
         // dates are equal
         e.add(1, "months");
+        let newstate = {start_selected:s.format("YYYY-MM"), end_selected:e.format("YYYY-MM"), summary_page: 0}
         if (e < max){
           this.setState({start_selected:s.format("YYYY-MM"),
                         end_selected:e.format("YYYY-MM"),
@@ -524,6 +525,7 @@ module.exports = React.createClass({
                                    facet_datas={this.state.facet_datas}/>
                    </Panel>
     let chart;
+
     let docviewer = <DocViewer kind_of_doc_list={this.state.kind_of_doc_list}
                                 height={lower_h + 50}
                                 f={this.state.f}
@@ -533,6 +535,7 @@ module.exports = React.createClass({
                                 end_selected={this.state.end_selected}
                                 all_results={this.state.all_results}
                                 docs={docs}
+                                runid={runid}
                                 page={this.state.summary_page}
                                 per_page={this.props.docsperpage}
                                 bins={binned_facets}/>

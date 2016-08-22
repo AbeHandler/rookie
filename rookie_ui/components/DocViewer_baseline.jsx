@@ -7,6 +7,7 @@ var React = require('react');
 var _ = require('lodash');
 var moment = require('moment');
 var Panel = require('react-bootstrap/lib/Panel');
+var $ = require('jquery');
 var OverlayTrigger = require('react-bootstrap/lib/OverlayTrigger');
 var Button = require('react-bootstrap/lib/Button');
 var Tooltip = require('react-bootstrap/lib/Tooltip');
@@ -68,7 +69,6 @@ module.exports = React.createClass({
 
     get_docs_to_render: function(){
         let docs = this.props.docs;
-
         let render = [];
         let ht = 0; //height
         let start = this.props.page * this.props.per_page;
@@ -76,6 +76,8 @@ module.exports = React.createClass({
         if (end > docs.length){
           end = docs.length;
         }
+        console.log(this.props);
+        console.log(end);
         if (docs.length > 0){
             for(var i = start; i < end; i++){
             //while (ht < this.props.height && docs.length > 0){ //pretty hack-y. but apparently this is a weakness in react
@@ -110,7 +112,9 @@ module.exports = React.createClass({
     render: function(){
 
         let docs;
-
+        let n = (new Date()).toDateString();
+        let dates = {"start_selected": this.props.start_selected, "end_selected": this.props.end_selected}
+        $.get("/log?runid=" + this.props.runid + "&date=" + n +  "&data=" + JSON.stringify(dates));
         docs = this.get_docs_to_render();
         if (docs.length < 1){
             return <div></div>;

@@ -8,15 +8,16 @@ var ReactDOM = require('react-dom');
 var _ = require('lodash');
 var moment = require('moment');
 require('moment-round');
-
+var DatePicker = require('react-datepicker');
+var SummaryStatus = require('./SummaryStatus.jsx');
 var DocViewer = require('./DocViewer_IR.jsx');
 var SparklineStatus = require('./SparklineStatus.jsx');
 var Chart = require('./Chart.jsx');
 var ChartTitle = require('./ChartTitle.jsx');
-var Question = require('./Question.jsx');
 var SparklineGrid = require('./SparklineGrid.jsx');
 var QueryBar = require('./QueryBar.jsx');
 var $ = require('jquery');
+var Question = require('./Question.jsx');
 var Panel = require('react-bootstrap/lib/Panel');
 var Button = require('react-bootstrap/lib/Button');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
@@ -46,6 +47,11 @@ module.exports = React.createClass({
 
   },
 
+  pageupdate: function(param){
+    let tmp = param + this.state.summary_page;
+    this.setState({summary_page:tmp});
+  },
+
   getInitialState(){
     //Notes.
     //convention: -1 == null
@@ -53,8 +59,9 @@ module.exports = React.createClass({
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
     min = min.format("YYYY-MM");
     max = max.format("YYYY-MM");
-    console.log(this.props.sents);
-    return {drag_r: false, drag_l:false,
+    return {drag_r: false,
+           drag_l:false,
+           startDate: moment(),
            mouse_down_in_chart: false,
            mouse_is_dragging: false, width: 0,
            height: 0, click_tracker: -1,
@@ -62,6 +69,7 @@ module.exports = React.createClass({
            all_results: this.props.sents,
            start_selected:min,
            end_selected:max,
+           summary_page:0,
            f_counts:this.props.f_counts,
            f: this.props.f,
            f_list: this.props.f_list,
@@ -102,10 +110,8 @@ module.exports = React.createClass({
         console.log("ending early");
         results = this.state.f_list;
     }
-    console.log("aaaa");
     let start = moment(this.state.start_selected, "YYYY-MM");
     let end = moment(this.state.end_selected, "YYYY-MM");
-    console.log(start, end, results);
     let out_results =  _.filter(results, function(value, key) {
         //dates come from server as YYYY-MM
 
@@ -143,18 +149,6 @@ module.exports = React.createClass({
                       end_selected: end});
       }
     }
-  },
-
-  /**
-  * This function will fire on mousedown if chart is in rectangle mode
-  */
-  mouse_down_in_chart_true: function(d){
-    this.setState({
-      mouse_down_in_chart: true, mouse_is_dragging: true}, function(){
-        if (this.state.drag_l == false && this.state.drag_r == false){
-          this.set_dates(d, d);
-        }
-      });
   },
 
   /**
@@ -232,31 +226,6 @@ module.exports = React.createClass({
       if (d > start & d < max){
          this.setState({end_selected:d.format("YYYY-MM")});
       }
-    }
-  },
-
-  /**
-  * Set both dates at once: start and end
-  */
-  set_dates: function (start_date, end_date) {
-    let s = moment(start_date);
-    let e = moment(end_date);
-    let min = moment(this.props.chart_bins[0]);
-    let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
-    if (s <= e  & s > min & e < max & !(s.format("YYYY-MM") === e.format("YYYY-MM"))) {
-      this.setState({start_selected:s.format("YYYY-MM"),
-                     end_selected:e.format("YYYY-MM")});
-
-
-    }else if (s <= e  & s > min & e < max & s.format("YYYY-MM") === e.format("YYYY-MM")){
-        // dates are equal
-        e.add(1, "months");
-        if (e < max){
-          this.setState({start_selected:s.format("YYYY-MM"),
-                     end_selected:e.format("YYYY-MM")});
-        }
-    }else{
-      console.log("skip");
     }
   },
 
@@ -377,18 +346,23 @@ module.exports = React.createClass({
   summary_status: function(){
     let docs = this.resultsToDocs(this.state.all_results);
     let show_x_for_t_in_sum_status = this.show_x_for_t_in_sum_status();
+    let maxpages = Math.ceil(docs.length/this.props.docsperpage);
     let out = <SummaryStatus resetT={this.resetT}
-                                          show_x = {show_x_for_t_in_sum_status}
-                                          kind_of_doc_list={this.state.kind_of_doc_list}
-                                          ndocs={docs.length}
-                                          q={this.props.q}
-                                          f={this.state.f}
-                                          q_color="#1a0dab"
-                                          f_color={f_color}
-                                          turnOnSummary={() => this.setState({kind_of_doc_list: "summary_baseline"})}
-                                          turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})}
-                                          start_selected={this.state.start_selected}
-                                          end_selected={this.state.end_selected}/>
+              show_summarize={false}
+              show_x = {show_x_for_t_in_sum_status}
+              kind_of_doc_list={this.state.kind_of_doc_list}
+              ndocs={docs.length}
+              q={this.props.q}
+              f={this.state.f}
+              page={this.state.summary_page}
+              q_color="#1a0dab"
+              f_color={f_color}
+              maxpages={maxpages}
+              pageupdate={this.pageupdate}
+              turnOnSummary={() => this.setState({kind_of_doc_list: "summary_baseline"})}
+              turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})}
+              start_selected={this.state.start_selected}
+              end_selected={this.state.end_selected}/>
     return out;
   },
 
@@ -430,6 +404,17 @@ module.exports = React.createClass({
       var now = new Date();
       window.location = "http://hobbes.cs.umass.edu:5001/quiz?current=tool&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + now.toString();
   },
+
+  setstart: function(date) {
+     this.setState({
+       start_selected: date.format('YYYY-MM')
+     });
+   },
+   setend: function(date) {
+   this.setState({
+     end_selected: date.format('YYYY-MM')
+   });
+ },
 
   render: function() {
 
@@ -482,10 +467,13 @@ module.exports = React.createClass({
                                 end_selected={this.state.end_selected}
                                 all_results={this.state.all_results}
                                 docs={docs}
+                                page={this.state.summary_page}
+                                per_page={this.props.docsperpage}
                                 experiment_mode={this.props.experiment_mode}
+                                per_page={this.props.docsperpage}
                                 bins={binned_facets}/>
 
-                              let answers = this.props.answers;
+    let answers = this.props.answers;
 
     return(
         <div>
@@ -493,15 +481,22 @@ module.exports = React.createClass({
                       q={this.props.q}
                       experiment_mode={this.props.experiment_mode}
                       corpus={this.props.corpus}/>
+                    <Panel style={{width:"100%"}}>
+                        <div style={{width:"40%", margin: "auto"}}>
+                        <span style={{float:"left"}}><span style={{marginRight:"10px", fontWeight: "bold"}}>Start</span><span style={{borderTop:"1px solid black"}}><DatePicker minDate={moment("1987-01")} maxDate={moment(this.state.end_selected)} selected={moment(this.state.start_selected)} onChange={this.setstart} /></span></span>
+                        <span style={{float:"right"}}><span style={{marginRight:"10px", fontWeight: "bold"}}>End</span><span style={{borderTop:"1px solid black"}}><DatePicker minDate={moment(this.state.start_selected)} maxDate={moment("2007-12")}  selected={moment(this.state.end_selected)} onChange={this.setend} /></span></span>
+                        </div>
+                  </Panel>
             <div style={{width:(this.state.width-5)}}>
               <Panel header={summary_status}>
                 <div style={{"width":"100%"}}>
                   <div style={{"width":"50%", "float": "left"}}>
-                  <div style={{"height": "40px"}}/>
-                  <Question start={this.props.start} onsubmit={this.onsubmit} answers={answers}/>
+                  <Question start={this.props.start} onsubmit={this.onsubmit} answers={answers}/>                
                   </div>
                   <div style={{"width":"50%", "float": "right"}}>
+                    <Panel>
                   {docviewer}
+                  </Panel>
                   </div>
                 </div>
               </Panel>
