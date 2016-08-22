@@ -6,21 +6,22 @@ var ReactDOM = require('react-dom');
 var UI = require('./components/UI.jsx');
 var UI_static = require('./components/UI_static.jsx');
 var UI_tut = require('./components/UI_tut.jsx');
-var Ir = require('./components/Ir.jsx');
+var Ir = require('./components/Ir_question_on_left.jsx');
 
 var cache = {};
 var w_h_ratio = 15;  // width % height for sparkline or chart. used to set aspect ratio
 
 
-var start = new Date(); 
+var start = new Date();
 start = start.toString();
 
-var answers = ["The US government has been a longtime opponent of Bertrand Aristide", 
-                "The US government has been a longtime ally of Bertrand Aristide", 
-                "The US government was initially an ally of Bertrand Aristide -- but then became an opponent", 
-                "The US government was initially an opponent of Bertrand Aristide -- but then became an ally"];
+var answers = ["The United States has been a longtime opponent of the Haitian President Jean-Bertrand Aristide",
+                "The United States has been a longtime ally of the Haitian President Jean-Bertrand Aristide",
+                "The United States was initially an ally of Bertrand Aristide -- but then stopped supporting him",
+                "The US government was initially an opponent of Bertrand Aristide -- but then started supporting him"];
 
-import { Router, Route, Link, browserHistory } from 'react-router' 
+import { Router, Route, Link, browserHistory } from 'react-router'
+
 
 const App = React.createClass({
     render() {
@@ -39,6 +40,7 @@ const App = React.createClass({
                 docsperpage={4}
                 start = {start}
                 datas={global_facets}
+                runid={runid}
                 q={query}/>
               }
 });
@@ -57,6 +59,7 @@ const RookieStatic = React.createClass({
                 f_counts = {f_counts}
                 f_list = {f_list}
                 docsperpage={4}
+                runid={runid}
                 chart_bins={chart_bins}
                 q_data={q_data}
                 datas={global_facets}
@@ -104,6 +107,7 @@ const irmode = React.createClass({
                               f_list = {f_list}
                               chart_bins={chart_bins}
                               q_data={q_data}
+                              runid={runid}
                               datas={global_facets}
                               q={query}/>
               }

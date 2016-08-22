@@ -76,28 +76,25 @@ module.exports = React.createClass({
         if (end > docs.length){
           end = docs.length;
         }
-        console.log(this.props);
-        console.log(end);
-        if (docs.length > 0){
+
+        //get the docs in correct order based on Q, F
+        while(docs.length > 0){
+            let picked = this.find_next(docs);
+            render.push(picked);
+            _.remove(docs, function(doc) {
+                return doc.docid == picked.docid;
+            });
+        }
+
+        //find the docs on the current page
+        let out = [];
+        if (render.length > 0){
             for(var i = start; i < end; i++){
-            //while (ht < this.props.height && docs.length > 0){ //pretty hack-y. but apparently this is a weakness in react
-                //let picked = this.find_next(docs);
-                //_.remove(docs, function(doc) {
-                //    return doc.docid == picked.docid;
-                //});
-                //ht += this.fake_markup(picked).visualHeight();
-                //if (ht < this.props.height){
-                render.push(docs[i]);
-                //}
+                out.push(render[i]);
             }
         }
 
-        //console.log(markup(docs[0]).visualHeight());
-        if (render.length > 0){
-            return render; // I Think dont sort by pubdate. Sort by goodness .... _.sortBy(render, function(d){ return moment(d.pubdate);});
-        }else{
-            return [];
-        }
+        return out;
 
     },
 

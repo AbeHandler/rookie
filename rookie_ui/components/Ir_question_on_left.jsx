@@ -405,19 +405,26 @@ module.exports = React.createClass({
       window.location = "http://hobbes.cs.umass.edu:5001/quiz?current=tool&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + now.toString();
   },
 
+  log: function(){
+      let dates = {start: this.state.start_selected, end: this.state.end_selected};
+      let n = (new Date()).toDateString();
+      console.log(this.props.runid);
+      $.get("/log?datepicker||runid=" + this.props.runid + "&date=" + n +  "&data=" + JSON.stringify(dates));
+  },
+
   setstart: function(date) {
      this.setState({
        start_selected: date.format('YYYY-MM')
-     });
+     }, this.log);
    },
    setend: function(date) {
    this.setState({
      end_selected: date.format('YYYY-MM')
-   });
+   }, this.log);
  },
 
   render: function() {
-
+    console.log(this.props.runid);
     let docs = this.resultsToDocs(this.state.all_results);
     let docs_ignoreT = this.n_fdocs(this.state.all_results);
     let y_scroll = {
@@ -467,6 +474,7 @@ module.exports = React.createClass({
                                 end_selected={this.state.end_selected}
                                 all_results={this.state.all_results}
                                 docs={docs}
+                                runid={this.props.runid}
                                 page={this.state.summary_page}
                                 per_page={this.props.docsperpage}
                                 experiment_mode={this.props.experiment_mode}
@@ -488,18 +496,19 @@ module.exports = React.createClass({
                         </div>
                   </Panel>
             <div style={{width:(this.state.width-5)}}>
-              <Panel header={summary_status}>
+
                 <div style={{"width":"100%"}}>
                   <div style={{"width":"50%", "float": "left"}}>
-                  <Question start={this.props.start} onsubmit={this.onsubmit} answers={answers}/>                
-                  </div>
-                  <div style={{"width":"50%", "float": "right"}}>
-                    <Panel>
-                  {docviewer}
+                  <Panel>
+                  <Question start={this.props.start} onsubmit={this.onsubmit} answers={answers}/>
                   </Panel>
                   </div>
+                  <div style={{"width":"50%", "float": "right"}}>
+                      <Panel header={summary_status}>
+                    {docviewer}
+                    </Panel>
+                  </div>
                 </div>
-              </Panel>
             </div>
        </div>
         );

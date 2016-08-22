@@ -6,6 +6,7 @@ Doc viewer _ trial
 var React = require('react');
 var _ = require('lodash');
 var moment = require('moment');
+var $ = require('jquery');
 var Panel = require('react-bootstrap/lib/Panel');
 var OverlayTrigger = require('react-bootstrap/lib/OverlayTrigger');
 var Button = require('react-bootstrap/lib/Button');

@@ -6,6 +6,12 @@ from __future__ import division
 import json
 import ipdb
 import math
+import logging
+
+
+logging.basicConfig(filename='rookie.log',level=logging.DEBUG, format='%(asctime)s###%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+
+
 from flask.ext.compress import Compress
 from webapp.models import results_to_doclist, get_keys, corpus_min_max, get_stuff_ui_needs, filter_f, get_facet_datas
 from flask import Flask, request
@@ -22,7 +28,18 @@ Compress(app)
 
 views = Views(IP, ROOKIE_JS, ROOKIE_CSS, BASE_URL)
 
+'''
+UI logging 
+'''
+@app.route("/log", methods=['GET'])
+def log():
+    runid = request.args.get('runid') if request.args.get('runid') is not None else "NA"
+    logging.info("ui|runid|" + request.args.get('data'))
+    return ""
 
+'''
+Main app
+'''
 @app.route("/get_doclist", methods=['GET'])
 def get_doclist():
     '''
@@ -247,9 +264,10 @@ def search():
     out["keys"] = [k.strftime("%Y-%m") + "-01" for k in get_keys(params.corpus)]
     out['corpus'] = params.corpus
     out['query'] = params.q
+    out['runid'] = "" if request.args.get("runid") is None else request.args.get("runid")
     SESSION.close()
     return views.handle_query(out)
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host=IP, port=5000)
+    app.run(debug=False, host=IP, port=5000)

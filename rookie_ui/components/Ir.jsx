@@ -48,7 +48,11 @@ module.exports = React.createClass({
 
   pageupdate: function(param){
     let tmp = param + this.state.summary_page;
-    this.setState({summary_page:tmp});
+    this.setState({summary_page:tmp}, function(){
+      let dates = {start_selected: this.state.start_selected,
+                   end_selected: this.state.end_selected}
+      $.get("/log?pageupdate||param=" + param.toString() + "&dates=" + JSON.stringify(dates) + "runid=" + this.props.runid + "&date=" + n +  "&summary_page=" + this.state.summary_page);
+    });
   },
 
   getInitialState(){
@@ -106,7 +110,6 @@ module.exports = React.createClass({
 
   resultsToDocs: function(results){
     if (this.state.f != -1){
-        console.log("ending early");
         results = this.state.f_list;
     }
     let start = moment(this.state.start_selected, "YYYY-MM");
@@ -221,7 +224,6 @@ module.exports = React.createClass({
 
       let max = moment(this.props.chart_bins[this.props.chart_bins.length -1]);
 
-      console.log(d.format("YYYY-MM") === start.format("YYYY-MM"))
       if (d > start & d < max){
          this.setState({end_selected:d.format("YYYY-MM")});
       }
@@ -466,6 +468,7 @@ module.exports = React.createClass({
                                 end_selected={this.state.end_selected}
                                 all_results={this.state.all_results}
                                 docs={docs}
+                                runid={this.props.runid}
                                 page={this.state.summary_page}
                                 per_page={this.props.docsperpage}
                                 experiment_mode={this.props.experiment_mode}

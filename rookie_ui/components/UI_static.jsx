@@ -20,6 +20,7 @@ var $ = require('jquery');
 var Panel = require('react-bootstrap/lib/Panel');
 var Button = require('react-bootstrap/lib/Button');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
+var Modalprep = require('./Modal_prep.jsx');
 
 
 let q_color = "#0028a3";
@@ -41,21 +42,6 @@ module.exports = React.createClass({
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
     min = min.format("YYYY-MM");
     max = max.format("YYYY-MM");
-    let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + min + "&enddate=" + max
-
-    $.ajax({
-              url: url,
-              dataType: 'json',
-              cache: true,
-              method: 'GET',
-              success: function(d) {
-                //count vector for just clicked facet, e (event)
-                this.setState({facet_datas: d["d"]});
-              }.bind(this),
-              error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-              }.bind(this)
-    });
 
   },
 
@@ -72,6 +58,7 @@ module.exports = React.createClass({
            all_results: sents,
            start_selected:min,
            end_selected:max,
+           modal:true,
            f_counts:this.props.f_counts,
            f: this.props.f,
            f_list: this.props.f_list,
@@ -107,23 +94,6 @@ module.exports = React.createClass({
                   summary_page: 0,
                   facet_datas: []});
 
-    let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + min + "&enddate=" + max;
-
-    if (this.state.f == -1){
-      $.ajax({
-                  url: url,
-                  dataType: 'json',
-                  cache: true,
-                  method: 'GET',
-                  success: function(d) {
-                    //count vector for just clicked facet, e (event)
-                    this.setState({facet_datas: d["d"], summary_page: 0, startdisplay: 0});
-                  }.bind(this),
-                  error: function(xhr, status, err) {
-                    console.error(this.props.url, status, err.toString());
-                  }.bind(this)
-      });
-    }
   },
 
   resultsToDocs: function(results){
@@ -300,7 +270,7 @@ module.exports = React.createClass({
                         summary_page: 0});
         }
     }else{
-      //console.log("skip");
+      //
     }
   },
 
@@ -392,23 +362,6 @@ module.exports = React.createClass({
           this.setState({start_selected:new_start, summary_page: 0, end_selected: new_end});
 
         let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + new_start + "&enddate=" + new_end;
-
-        if (this.state.f == -1){
-          $.ajax({
-                      url: url,
-                      dataType: 'json',
-                      cache: true,
-                      method: 'GET',
-                      success: function(d) {
-                        //count vector for just clicked facet, e (event)
-                        this.setState({facet_datas: d["d"], summary_page: 0, startdisplay: 0});
-                      }.bind(this),
-                      error: function(xhr, status, err) {
-                        console.error(this.props.url, status, err.toString());
-                      }.bind(this)
-          });
-        }
-
 
       }
     }
@@ -575,8 +528,11 @@ module.exports = React.createClass({
     }else{
       chart = "";
     }
+    if (this.state.modal){
+      return <Modalprep unmodal={()=>{this.setState({modal: false})}} answers={this.props.answers}/>
+    }else{
     return(
-        <div>
+        <div style={{width: "100%", height: "100%"}}>
             <QueryBar height={query_bar_height}
                       q={this.props.q}
                       experiment_mode={false}
@@ -611,6 +567,6 @@ module.exports = React.createClass({
               </Panel>
             </div>
        </div>
-        );
+     );}
   }
 });
