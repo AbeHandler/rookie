@@ -1,6 +1,7 @@
 import re,os,json
 import time
 import itertools
+import hashlib
 import cPickle as pickle
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -74,10 +75,10 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
 
     corpusid = getcorpusid(corpus) 
     sentences = get_preproc_sentences(docid, corpusid) 
-
+    
     for sentnum in priority_list:
         toktext = sentences[sentnum]
-        hsent = hilite(toktext, q, sentnum, f_aliases, taginfo=taginfo)
+        hsent = hilite(toktext, q, sentnum, docid, f_aliases, taginfo=taginfo)
         hsent["htext"] = hsent["htext"].encode('ascii', 'ignore')
         if hsent['has_q'] and hsent['has_f']:
             return hsent
@@ -87,7 +88,7 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
         
     #default, just return the top
 
-    return hilite(sentences[0].encode('ascii', 'ignore'), q, "0", f_aliases, taginfo=taginfo)
+    return hilite(sentences[0].encode('ascii', 'ignore'), q, "0", docid, f_aliases, taginfo=taginfo)
 
 
 # regex matching system: always have groups
@@ -104,7 +105,7 @@ def q_regex(q):
     qregex = r"\b(" + re.escape(q) + r")(\S{0,4})\b"
     return qregex
 
-def hilite(text, q, sentnum, f_aliases=None, taginfo=None):
+def hilite(text, q, sentnum, docid, f_aliases=None, taginfo=None):
     """e.g.
     taginfo=dict(
         q_ltag = "<span style='color:blue'>, q_rtag = "</span>",
@@ -133,8 +134,9 @@ def hilite(text, q, sentnum, f_aliases=None, taginfo=None):
     qregex = q_regex(q)
     text3 = re.sub(qregex, qsub, text2, flags=re.I)
     has_q = text3 != text2
+    docid = str(docid)
 
-    return dict(has_q=has_q, has_f=has_f, htext=text3, sentnum=sentnum)
+    return dict(has_q=has_q, has_f=has_f, htext=text3, sentnum=sentnum, hash = hashlib.md5(docid).hexdigest())
 
 
 ## below is only for offline development

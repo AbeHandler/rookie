@@ -11,13 +11,13 @@ var Button = require('react-bootstrap/lib/Button');
 module.exports = React.createClass({
 
   getInitialState() {
-      return { showModal: true };
+      return { showModal: false };
     },
 
     close() {
-      this.setState({ showModal: false });
+      this.props.close();
     },
-    
+
   render() {
 
     return (
@@ -27,7 +27,7 @@ module.exports = React.createClass({
             <Modal.Title>You got it!</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            Good job! See how the box in the bottom right of the screen now shows what <span style={{color: "#0028a3", fontWeight: "bold"}}>Hamid Karzai</span> has to do with <span style={{color: "#b33125", fontWeight: "bold"}}>Pervez Musharraf</span> from <b>January 2003</b> to <b>January 2004?</b>
+            Good job! See how the box in the bottom right of the screen now shows what the <span style={{color: "#0028a3", fontWeight: "bold"}}>United States</span> has to do with <span style={{color: "#b33125", fontWeight: "bold"}}>President Fidel Castro</span> from <b>January 1994</b> to <b>January 1995?</b>
              <p/>
              <p>Use that information to answer the question in the bottom left.</p>
           </Modal.Body>

@@ -9,7 +9,7 @@ var _ = require('lodash');
 var moment = require('moment');
 require('moment-round');
 
-var DocViewer = require('./DocViewer_generic.jsx');
+var DocViewer = require('./DocViewer_baseline.jsx');
 var SparklineStatus = require('./SparklineStatus.jsx');
 var Chart = require('./Chart.jsx');
 var ChartTitle = require('./ChartTitle.jsx');
@@ -61,7 +61,8 @@ module.exports = React.createClass({
            chart_mode: "intro",
            all_results: sents,
            start_selected:min,
-           end_selected:max, 
+           end_selected:max,
+           summary_page:0,
            f_counts:this.props.f_counts,
            f: this.props.f,
            still_looking: true,
@@ -210,14 +211,14 @@ module.exports = React.createClass({
   */
   set_date: function (date, start_end) {
     let d = moment(date);
-    
+
     if (start_end == "start"){
       let end = moment(this.state.end_selected, "YYYY-MM");
       let min = moment(this.props.chart_bins[0]);
       if ((d < end) &  (d>min)){
 
         this.setState({start_selected:d.format("YYYY-MM")});
-        
+
       }
     }
     if (start_end == "end"){
@@ -226,7 +227,7 @@ module.exports = React.createClass({
       let max = moment(this.props.chart_bins[this.props.chart_bins.length -1]);
 
       if (d > start & d < max){
-         this.setState({end_selected:d.format("YYYY-MM")});          
+         this.setState({end_selected:d.format("YYYY-MM")});
       }
     }
   },
@@ -246,7 +247,7 @@ module.exports = React.createClass({
 
     }else if (s <= e  & s > min & e < max & s.format("YYYY-MM") === e.format("YYYY-MM")){
         // dates are equal
-        e.add(1, "months"); 
+        e.add(1, "months");
         if (e < max){
           this.setState({start_selected:s.format("YYYY-MM"),
                      end_selected:e.format("YYYY-MM")});
@@ -263,21 +264,21 @@ module.exports = React.createClass({
     let url = this.props.base_url + "get_sents?q=" + this.props.q + "&f=" + e + "&corpus=" + this.props.corpus;
         let minbin = _.head(this.props.chart_bins);
         let maxbin = _.last(this.props.chart_bins);
-        
+
   },
 
   /**
   * A handler for when user clicks the X by Q. Requery with F equal to Q
   */
   qX: function(){
-    
+
   },
 
   /**
   * A handler for when user clicks the X by F. Adjust state so f=-1
   */
   fX: function(){
-    
+
   },
 
   turn_on_rect_mode: function(p){
@@ -316,7 +317,13 @@ module.exports = React.createClass({
   },
 
   requery: function (arg) {
-    
+
+  },
+
+
+  pageupdate: function(param){
+      let tmp = param + this.state.summary_page;
+      this.setState({summary_page:tmp});
   },
 
   /**
@@ -333,6 +340,9 @@ module.exports = React.createClass({
                                           f={this.state.f}
                                           q_color={q_color}
                                           f_color={f_color}
+                                          static_mode={true}
+                                          page={this.state.summary_page}
+                                          pageupdate={this.pageupdate}
                                           turnOnSummary={() => this.setState({kind_of_doc_list: "summary_baseline"})}
                                           turnOnDoclist={() => this.setState({kind_of_doc_list: "no_summary"})}
                                           start_selected={this.state.start_selected}
@@ -351,11 +361,11 @@ module.exports = React.createClass({
       let moresubjects = "";
        if ((this.state.startdisplay/this.props.sparkline_per_panel + 1) < (Math.floor(global_facets.length/this.props.sparkline_per_panel) + 1)){
           moresubjects = "more subjects"
-      }   
+      }
       return <div>
                      <SparklineStatus fX={this.fX} qX={this.qX}
                      ndocs={this.props.total_docs_for_q}
-                     {...this.props}/>    
+                     {...this.props}/>
 
                      <div style={{float:"right", marginTop: "-5px"}}>
                       <div style={{ height:"50%"}}>
@@ -363,11 +373,11 @@ module.exports = React.createClass({
                             {backbutton}
                           </span>
                           <span bsSize="xsmall">
-                            
+
                           </span>
-                        
+
                       </div>
-                      
+
                       </div>
                      </div>
   },
@@ -412,7 +422,7 @@ module.exports = React.createClass({
 
 
     main_panel = <Panel header={sparkline_h}>
-                                   <SparklineGrid startdisplay={this.state.startdisplay} 
+                                   <SparklineGrid startdisplay={this.state.startdisplay}
                                    enddisplay={end_facet_no}
                                    width={this.state.width/2}
                                    height={lower_h}
@@ -432,7 +442,9 @@ module.exports = React.createClass({
                                 end_selected={this.state.end_selected}
                                 all_results={this.state.all_results}
                                 docs={docs}
-                                static_mode={true}
+                                runid={runid}
+                                page={this.state.summary_page}
+                                per_page={this.props.docsperpage}
                                 bins={binned_facets}/>
     if (this.props.total_docs_for_q > 0){
       let buffer = 5;
@@ -471,19 +483,19 @@ module.exports = React.createClass({
     }
     let show_success;
     let question = "";
-      let answers = ["Hamid Karzai was the President of Afghanistan. Pervez Musharraf was leader of Pakistan. The two had disputes over issues on the border between the two countries.", 
-                   "Hamid Karzai and Pervez Musharraf were rivals who each sought to lead the Afghan military.",
+      let answers = ["Fidel Castro asdf asdf",
+                    "Hamid Karzai and Pervez Musharraf were rivals who each sought to lead the Afghan military.",
                     "I can't answer this from the resources provided."];
-    if (this.state.start_selected === "2003-01" && this.state.end_selected === "2004-01" && this.state.drag_l === false && this.state.drag_r === false && this.state.still_looking){
+    if (this.state.start_selected === "1994-01" && this.state.end_selected === "1995-01" && this.state.drag_l === false && this.state.drag_r === false && this.state.still_looking){
         show_success = true;
     }else{
         show_success = false;
     }
 
-    if (this.state.start_selected === "2003-01" && this.state.end_selected === "2004-01" && this.state.drag_l === false && this.state.drag_r === false){
+    if (this.state.start_selected === "1994-01" && this.state.end_selected === "1995-01" && this.state.drag_l === false && this.state.drag_r === false){
         question = <Question start={this.props.start} onsubmit={this.onsubmit} answers={answers}/>
     }
-   
+
     return(
         <div>
          <Modal show={this.state.show_2nd}/>
@@ -496,6 +508,7 @@ module.exports = React.createClass({
                          chartMode={this.state.chart_mode}
                          fX={this.fX}
                          qX={this.qX}
+                         static_mode={true}
                          ndocs={this.props.total_docs_for_q}
                          f={this.state.f}
                          requery={this.requery}
