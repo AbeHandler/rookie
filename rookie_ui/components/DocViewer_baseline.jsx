@@ -63,7 +63,7 @@ module.exports = React.createClass({
            let out = q_or_f[0];
            return out;
        }
-       docs = _.sortBy(docs, function(d){return o.hash;});
+       docs = _.sortBy(docs, function(o){return o.hash;});
        return docs[0];
     },
 

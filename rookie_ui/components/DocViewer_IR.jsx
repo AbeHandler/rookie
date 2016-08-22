@@ -43,7 +43,6 @@ module.exports = React.createClass({
         return moment(d).format("MMM. DD YYYY");
     },
 
-
     gettip: function(n, headline){
         return <Tooltip id={n}>{headline}</Tooltip>
     },

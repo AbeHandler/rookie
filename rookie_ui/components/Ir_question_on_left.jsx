@@ -414,17 +414,17 @@ module.exports = React.createClass({
 
   setstart: function(date) {
      this.setState({
-       start_selected: date.format('YYYY-MM')
+       start_selected: date.format('YYYY-MM'), summary_page:0
      }, this.log);
    },
+
    setend: function(date) {
    this.setState({
-     end_selected: date.format('YYYY-MM')
+     end_selected: date.format('YYYY-MM'), summary_page:0
    }, this.log);
  },
 
   render: function() {
-    console.log(this.props.runid);
     let docs = this.resultsToDocs(this.state.all_results);
     let docs_ignoreT = this.n_fdocs(this.state.all_results);
     let y_scroll = {
@@ -491,8 +491,8 @@ module.exports = React.createClass({
                       corpus={this.props.corpus}/>
                     <Panel style={{width:"100%"}}>
                         <div style={{width:"40%", margin: "auto"}}>
-                        <span style={{float:"left"}}><span style={{marginRight:"10px", fontWeight: "bold"}}>Start</span><span style={{borderTop:"1px solid black"}}><DatePicker minDate={moment("1987-01")} maxDate={moment(this.state.end_selected)} selected={moment(this.state.start_selected)} onChange={this.setstart} /></span></span>
-                        <span style={{float:"right"}}><span style={{marginRight:"10px", fontWeight: "bold"}}>End</span><span style={{borderTop:"1px solid black"}}><DatePicker minDate={moment(this.state.start_selected)} maxDate={moment("2007-12")}  selected={moment(this.state.end_selected)} onChange={this.setend} /></span></span>
+                          <span style={{float:"left"}}><span style={{marginRight:"10px", fontWeight: "bold"}}>Start</span><span style={{borderTop:"1px solid black"}}><DatePicker minDate={moment("1987-01")} maxDate={moment(this.state.end_selected)} selected={moment(this.state.start_selected)} onChange={this.setstart} /></span></span>
+                          <span style={{float:"right"}}><span style={{marginRight:"10px", fontWeight: "bold"}}>End</span><span style={{borderTop:"1px solid black"}}><DatePicker minDate={moment(this.state.start_selected)} maxDate={moment("2007-12")}  selected={moment(this.state.end_selected)} onChange={this.setend} /></span></span>
                         </div>
                   </Panel>
             <div style={{width:(this.state.width-5)}}>
@@ -500,7 +500,6 @@ module.exports = React.createClass({
                 <div style={{"width":"100%"}}>
                   <div style={{"width":"50%", "float": "left"}}>
                   <Panel>
-                  <Question start={this.props.start} onsubmit={this.onsubmit} answers={answers}/>
                   </Panel>
                   </div>
                   <div style={{"width":"50%", "float": "right"}}>
