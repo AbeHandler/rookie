@@ -500,7 +500,7 @@ module.exports = React.createClass({
         <div>
          <Modal show={this.state.show_2nd}/>
          <Modal_success close={this.close} show={show_success}/>
-             <Panel style={{'fontWeight': 'bold'}}>Use the slider to select January 2003 to January 2004</Panel>
+             <Panel style={{'fontWeight': 'bold'}}>Use the slider to select January 1994 to January 1995</Panel>
              <Panel>
              <ChartTitle f_docs={docs_ignoreT}
                          q_color={q_color}

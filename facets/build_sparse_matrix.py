@@ -56,6 +56,8 @@ def get_all_doc_ids():
 # get all docids from whoosh
 ALLDOCIDS = get_all_doc_ids()
 
+print len(ALLDOCIDS)
+
 def count_facets():
     '''
     This function counts every ngram in the corpus

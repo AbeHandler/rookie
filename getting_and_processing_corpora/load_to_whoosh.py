@@ -49,6 +49,7 @@ def load(index_location, processed_location):
 
     ngram_pubdate_index = defaultdict(list)
 
+    headlines_so_far = set() # eliminate dupes. eventually fancier methods?
     go = lambda *args: session.connection().execute(*args)
     go('delete from doc_metadata where corpusid={}'.format(CORPUSID))
     go('delete from sentences_preproc where corpusid={}'.format(CORPUSID))
@@ -57,6 +58,7 @@ def load(index_location, processed_location):
         for ln, line in enumerate(raw):
             # print ln
             try:
+                # ipdb.set_trace()
                 line_json = ujson.loads(line.replace("\n", ""))
                 try:
                     headline = line_json["headline"]
@@ -65,7 +67,6 @@ def load(index_location, processed_location):
                 
                 
                 try:
-                    # ipdb.set_trace()
                     pubdate = parse(line_json["pubdate"])
 
                 except ValueError: # sometimes throws typerror, other times value error. huh?
@@ -84,7 +85,6 @@ def load(index_location, processed_location):
                 except KeyError:
                     url = "unknown"
 
-                # ipdb.set_trace()
                 full_text = " ".join(t for s in line_json["text"]["sentences"]
                                      for t in s["tokens"])
                 ngrams = []
@@ -96,7 +96,10 @@ def load(index_location, processed_location):
                 sentences = line_json["text"]["sentences"]
                 preprocsentences = "###$$$###".join([sen["as_string"] for sen
                                                      in line_json["text"]["sentences"]])
-                if len(headline) > 0 and len(full_text) > 0:
+
+
+                if len(headline) > 0 and len(full_text) > 0 and headline not in headlines_so_far:
+                    headlines_so_far.add(headline)
                     writer.add_document(title=headline, path=u"/" + str(s_counter),
                                         content=full_text)
                     per_doc_json_blob = {'headline': headline,
