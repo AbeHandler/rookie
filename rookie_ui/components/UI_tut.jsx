@@ -22,7 +22,7 @@ var Modal = require('./Modal.jsx');
 var Modal_success = require('./Modal_success.jsx');
 var Panel = require('react-bootstrap/lib/Panel');
 var Button = require('react-bootstrap/lib/Button');
-f
+
 
 
 let q_color = "#0028a3";
@@ -388,7 +388,7 @@ module.exports = React.createClass({
 
 
   onsubmit: function(e){
-    window.location = "http://hobbes.cs.umass.edu:5001/staticr?current=task_screening&runid=" + this.props.runid + "&q=rookie&answer=NA"
+    window.location = "/staticr?current=task_screening&runid=" + this.props.runid + "&q=rookie&answer=NA"
   },
 
   render: function() {
@@ -483,8 +483,8 @@ module.exports = React.createClass({
     }
     let show_success;
     let question = "";
-      let answers = ["Fidel Castro asdf asdf",
-                    "Hamid Karzai and Pervez Musharraf were rivals who each sought to lead the Afghan military.",
+      let answers = ["In 1994, like in much of the 1990s, the United States encouraged Cubans to flee the communist government of President Fidel Castro for the U.S.",
+                    "In 1994, the United States worked with the communist government of President Fidel Castro in Cuba to stop Cubans from leaving the island for the U.S.",
                     "I can't answer this from the resources provided."];
     if (this.state.start_selected === "1994-01" && this.state.end_selected === "1995-01" && this.state.drag_l === false && this.state.drag_r === false && this.state.still_looking){
         show_success = true;
@@ -500,7 +500,7 @@ module.exports = React.createClass({
         <div>
          <Modal show={this.state.show_2nd}/>
          <Modal_success close={this.close} show={show_success}/>
-             <Panel style={{'fontWeight': 'bold'}}>Use the slider to select January 1994 to January 1995</Panel>
+       <Panel style={{'fontWeight': 'bold'}}>Use the slider to select January 1994 to January 1995</Panel>
              <Panel>
              <ChartTitle f_docs={docs_ignoreT}
                          q_color={q_color}

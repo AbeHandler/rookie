@@ -13,6 +13,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var React = require('react');
 var ReactDOM = require('react-dom');
 
+var debug = require('gulp-debug');
 var watchify = require('watchify');
 var selenium = require('selenium-standalone');
 
@@ -33,7 +34,7 @@ var customOpts = {
 };
 
 var opts = assign({}, watchify.args, customOpts);
-var b = watchify(browserify(opts)); 
+var b = watchify(browserify(opts));
 
 // add transformations here
 // i.e. b.transform(coffeeify);
@@ -46,78 +47,32 @@ function bundle() {
     // log errors if they happen
     .on('error', gutil.log.bind(gutil, 'Browserify Error'))
     .pipe(source('bundle.js'))
+    .pipe(debug({title: 'js:', minimial: 'false'}))
     // optional, remove if you don't need to buffer file contents
     .pipe(buffer())
     // optional, remove if you dont want sourcemaps
     .pipe(sourcemaps.init({loadMaps: true})) // loads map from browserify file
        // Add transformation tasks to the pipeline here.
     .pipe(sourcemaps.write('.')) // writes .map file
-    .pipe(gulp.dest('../webapp/static/js/'));
+    .pipe(gulp.dest('../webapp/static/js/'))
+    .pipe(gulp.dest('../../papers/chi2017/turk/webapp/static/js'));
 }
 
 gulp.task('js', bundle); // so you can run `gulp js` to build the file
 b.on('update', bundle); // on any dep update, runs the bundler
 b.on('log', gutil.log); // output build logs to terminal
 
-gulp.task('css', function() {
-  return gulp.src(['css/*'])
-    .pipe(sourcemaps.init())
-    .pipe(rename({suffix: '.min'}))
-    .pipe(cssnano())
-    .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('app/css'))
-    .pipe(gulp.dest('../webapp/static/css'));
+
+gulp.task('script', function() {
+  return
+    // lint command
+    // uglify and minify commands
+    gulp.pipe(debug({title: 'script', minimial: 'false'}))
+    .pipe(source('../webapp/static/js/bundle.js'))
+    .pipe(debug({huh: 'sdasdf'}))
+    .pipe(gulp.dest('../../papers/chi2017/turk/webapp/static/js')) // <- Destination to one location
 });
 
-gulp.task('sass', function() {
-  return sass('sass', { style: 'expanded' })
-    .pipe(rename({suffix: '.min'}))
-    .pipe(cssnano())
-    .pipe(gulp.dest('app/css'))
-    .pipe(gulp.dest('../webapp/static/css'));
-});
-
-gulp.task('b', ['css', 'sass'], function() {
-    return browserify('main.js')
-        .transform("babelify", {presets: ["react"]})
-        .bundle()
-        //Pass desired output filename to vinyl-source-stream
-        .pipe(source('bundle.js'))
-        // Start piping stream to tasks!
-        .pipe(gulp.dest('app/js'))
-        .pipe(gulp.dest('../webapp/static/js'))
-        .pipe(gulp.dest('../../papers/chi2017/turk/webapp/static/js')) //send it to turk
-        // Reloading the stream
-        .pipe(browserSync.reload({
-           stream: true
-        }));
-});
-
-
-var minify = require('gulp-minify');
- 
-gulp.task('compress', function() {
-  gulp.src('../webapp/static/js/bundle.js')
-    .pipe(minify({
-        ext:{
-            src:'.js',
-            min:'.min.js'
-        },
-        exclude: ['tasks'],
-        ignoreFiles: ['-min.js']
-    }))
-    .pipe(gulp.dest('../webapp/static/js/'))
-});
-
-
-// Start browserSync server
-gulp.task('browserSync', function() {
-  browserSync({
-    server: {
-      baseDir: 'app'
-    }
-  })
-})
 
 gulp.task('w', function() {
   gulp.watch(paths.scripts, ['js']);

@@ -403,7 +403,7 @@ module.exports = React.createClass({
 
   onsubmit: function(e){
       var now = new Date();
-      window.location = "http://hobbes.cs.umass.edu:5001/quiz?current=tool&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + now.toString();
+      window.location = "/quiz?current=tool&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + now.toString();
   },
 
   setstart: function(date) {

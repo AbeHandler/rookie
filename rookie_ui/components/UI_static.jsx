@@ -436,6 +436,10 @@ module.exports = React.createClass({
                      </div>
   },
 
+  onsubmit: function(e){
+    window.location = "/quiz?current=rookie&runid=" + this.props.runid + "&q=5&answer=" + e
+  },
+
   render: function() {
 
     let docs = this.resultsToDocs(this.state.all_results);
@@ -490,6 +494,7 @@ module.exports = React.createClass({
                                 all_results={this.state.all_results}
                                 docs={docs}
                                 runid={runid}
+                                static_mode={true}
                                 page={this.state.summary_page}
                                 per_page={this.props.docsperpage}
                                 bins={binned_facets}/>
@@ -553,18 +558,14 @@ module.exports = React.createClass({
              </Panel>
              {chart}
             <div style={{width:"100%" }}>
-              <Panel header={summary_status}>
-                <div style={{"width":"100%"}}>
                   <div style={{"width":"50%", "float": "left"}}>
                   <Question start={this.props.start} onsubmit={this.onsubmit} answers={this.props.answers}/>
                   </div>
                   <div style={{"width":"50%", "float": "right"}}>
-                    <Panel>
-                  {docviewer}
-                  </Panel>
+                    <Panel header={summary_status}>
+                    {docviewer}
+                    </Panel>
                   </div>
-                </div>
-              </Panel>
             </div>
        </div>
      );}
