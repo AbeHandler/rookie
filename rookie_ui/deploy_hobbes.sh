@@ -1,0 +1,1 @@
+scp ../webapp/static/js/bundle.js ahandler@hobbes.cs.umass.edu:/home/ahandler/chi2017/turk/webapp/static/js/

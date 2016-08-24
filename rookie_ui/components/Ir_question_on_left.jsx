@@ -499,8 +499,7 @@ module.exports = React.createClass({
 
                 <div style={{"width":"100%"}}>
                   <div style={{"width":"50%", "float": "left"}}>
-                  <Panel>
-                  </Panel>
+                  <Question start={this.props.start} onsubmit={this.onsubmit} answers={this.props.answers}/>
                   </div>
                   <div style={{"width":"50%", "float": "right"}}>
                       <Panel header={summary_status}>

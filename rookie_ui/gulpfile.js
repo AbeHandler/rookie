@@ -3,7 +3,6 @@ var gulp = require('gulp');
 var browserify = require('browserify');
 var browserSync = require('browser-sync');
 var source = require('vinyl-source-stream');
-var sass = require('gulp-ruby-sass');
 var autoprefixer = require('gulp-autoprefixer');
 var cssnano = require('gulp-cssnano');
 var rename = require('gulp-rename');
@@ -15,9 +14,8 @@ var ReactDOM = require('react-dom');
 
 var debug = require('gulp-debug');
 var watchify = require('watchify');
-var selenium = require('selenium-standalone');
 
-var seleniumServer; // ref for killing selenium server
+var shell = require('gulp-shell')
 
 var buffer = require('vinyl-buffer');
 
@@ -73,7 +71,10 @@ gulp.task('script', function() {
     .pipe(gulp.dest('../../papers/chi2017/turk/webapp/static/js')) // <- Destination to one location
 });
 
+gulp.task('hobbes', shell.task([
+  './deploy_hobbes.sh'
+]))
 
 gulp.task('w', function() {
-  gulp.watch(paths.scripts, ['js']);
+  gulp.watch(paths.scripts, ['js', 'hobbes']);
 });

@@ -443,6 +443,7 @@ module.exports = React.createClass({
                                 all_results={this.state.all_results}
                                 docs={docs}
                                 runid={runid}
+                                static_mode={true}
                                 page={this.state.summary_page}
                                 per_page={this.props.docsperpage}
                                 bins={binned_facets}/>

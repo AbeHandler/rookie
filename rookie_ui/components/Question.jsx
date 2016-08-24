@@ -49,7 +49,7 @@ module.exports = React.createClass({
           alert("Please use two different sentences");
         }
         else {
-          this.props.onsubmit(this.state.picked + "|||" + this.state.txt);
+          this.props.onsubmit(this.state.picked + "|||" + this.state.txt + "|||" + this.state.txt2);
         }
       });
   },
