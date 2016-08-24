@@ -21,7 +21,7 @@ var Question = require('./Question.jsx');
 var Panel = require('react-bootstrap/lib/Panel');
 var Button = require('react-bootstrap/lib/Button');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
-
+var Modalprep = require('./Modal_prep.jsx');
 
 let q_color = "#0028a3";
 let f_color = "#b33125";
@@ -70,6 +70,7 @@ module.exports = React.createClass({
            start_selected:min,
            end_selected:max,
            summary_page:0,
+           modal:true,
            f_counts:this.props.f_counts,
            f: this.props.f,
            f_list: this.props.f_list,
@@ -483,32 +484,36 @@ module.exports = React.createClass({
 
     let answers = this.props.answers;
 
-    return(
-        <div>
-            <QueryBar height={query_bar_height}
-                      q={this.props.q}
-                      experiment_mode={this.props.experiment_mode}
-                      corpus={this.props.corpus}/>
-                    <Panel style={{width:"100%"}}>
-                        <div style={{width:"40%", margin: "auto"}}>
-                          <span style={{float:"left"}}><span style={{marginRight:"10px", fontWeight: "bold"}}>Start</span><span style={{borderTop:"1px solid black"}}><DatePicker minDate={moment("1987-01")} maxDate={moment(this.state.end_selected)} selected={moment(this.state.start_selected)} onChange={this.setstart} /></span></span>
-                          <span style={{float:"right"}}><span style={{marginRight:"10px", fontWeight: "bold"}}>End</span><span style={{borderTop:"1px solid black"}}><DatePicker minDate={moment(this.state.start_selected)} maxDate={moment("2007-12")}  selected={moment(this.state.end_selected)} onChange={this.setend} /></span></span>
-                        </div>
-                  </Panel>
-            <div style={{width:(this.state.width-5)}}>
-
-                <div style={{"width":"100%"}}>
-                  <div style={{"width":"50%", "float": "left"}}>
-                  <Question start={this.props.start} onsubmit={this.onsubmit} answers={this.props.answers}/>
-                  </div>
-                  <div style={{"width":"50%", "float": "right"}}>
-                      <Panel header={summary_status}>
-                    {docviewer}
+    if (this.state.modal){
+      return <Modalprep unmodal={()=>{this.setState({modal: false})}} answers={this.props.answers}/>
+    }else{
+      return(
+          <div>
+              <QueryBar height={query_bar_height}
+                        q={this.props.q}
+                        experiment_mode={this.props.experiment_mode}
+                        corpus={this.props.corpus}/>
+                      <Panel style={{width:"100%"}}>
+                          <div style={{width:"40%", margin: "auto"}}>
+                            <span style={{float:"left"}}><span style={{marginRight:"10px", fontWeight: "bold"}}>Start</span><span style={{borderTop:"1px solid black"}}><DatePicker minDate={moment("1987-01")} maxDate={moment(this.state.end_selected)} selected={moment(this.state.start_selected)} onChange={this.setstart} /></span></span>
+                            <span style={{float:"right"}}><span style={{marginRight:"10px", fontWeight: "bold"}}>End</span><span style={{borderTop:"1px solid black"}}><DatePicker minDate={moment(this.state.start_selected)} maxDate={moment("2007-12")}  selected={moment(this.state.end_selected)} onChange={this.setend} /></span></span>
+                          </div>
                     </Panel>
+              <div style={{width:(this.state.width-5)}}>
+
+                  <div style={{"width":"100%"}}>
+                    <div style={{"width":"50%", "float": "left"}}>
+                    <Question start={this.props.start} onsubmit={this.onsubmit} answers={this.props.answers}/>
+                    </div>
+                    <div style={{"width":"50%", "float": "right"}}>
+                        <Panel header={summary_status}>
+                      {docviewer}
+                      </Panel>
+                    </div>
                   </div>
-                </div>
-            </div>
-       </div>
-        );
+              </div>
+         </div>
+          );
+      }
   }
 });

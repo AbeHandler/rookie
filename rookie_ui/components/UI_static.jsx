@@ -550,6 +550,7 @@ module.exports = React.createClass({
                          chartMode={this.state.chart_mode}
                          fX={this.fX}
                          qX={this.qX}
+                         static_mode={true}
                          ndocs={this.props.total_docs_for_q}
                          f={this.state.f}
                          requery={this.requery}

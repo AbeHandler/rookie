@@ -121,16 +121,6 @@ def tut():
     out["runid"] = request.args.get('runid')
     return views.handle_query(out)
 
-# static
-@app.route('/staticr', methods=['GET'])
-def staticr():
-    q = request.args.get('q').replace(" ", "_")
-    f = request.args.get('f').replace(" ", "_")
-
-    with(open("save-{}-{}".format(q, f), "r")) as inf:
-        out = pickle.load(inf)
-    return views.handle_query(out)
-
 
 @app.route('/', methods=['GET'])
 def main():
@@ -266,6 +256,13 @@ def search():
     out['query'] = params.q
     out['runid'] = "" if request.args.get("runid") is None else request.args.get("runid")
     SESSION.close()
+    def irsave():
+        q = request.args.get('q').replace(" ", "_")
+
+        fn = "IR-IR-save-{}".format(q)
+        with(open(fn, "w")) as outf:
+            pickle.dump(out, outf)
+    irsave()
     return views.handle_query(out)
 
 

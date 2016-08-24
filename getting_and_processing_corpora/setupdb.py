@@ -14,6 +14,7 @@ go("create table ngram_pubdates (ngram text, pubdates jsonb, corpusid integer)")
 go("create table doc_metadata (docid integer, data jsonb, corpusid integer)")
 go("create table corpora (corpusid integer not null primary key, corpusname character(100), first_story date, last_story date)")
 go("create table count_vectors (docid integer, corpusid integer not null, data jsonb)")
+go("create table subjects (turkid, runid)")
 
 import glob
 
