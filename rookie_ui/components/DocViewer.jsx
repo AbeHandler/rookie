@@ -16,7 +16,6 @@ module.exports = React.createClass({
     //need to use this markup thing b/c snippet has html in it
     markup: function(doc) {
         let dt = moment(doc.pubdate, "YYYY-MM-DD").format("MM.DD.YYYY");
-        console.log(this.props.static_mode);
         if (this.props.static_mode){
             return {__html: "<span style='color:black;' >" + doc.snippet.htext + "</span>"};
         }

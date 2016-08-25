@@ -108,7 +108,6 @@ module.exports = React.createClass({
 
   resultsToDocs: function(results){
     if (this.state.f != -1){
-        console.log("ending early");
         results = this.state.f_list;
     }
     let start = moment(this.state.start_selected, "YYYY-MM");
@@ -223,7 +222,6 @@ module.exports = React.createClass({
 
       let max = moment(this.props.chart_bins[this.props.chart_bins.length -1]);
 
-      console.log(d.format("YYYY-MM") === start.format("YYYY-MM"))
       if (d > start & d < max){
          this.setState({end_selected:d.format("YYYY-MM")});
       }
@@ -402,15 +400,16 @@ module.exports = React.createClass({
   },
 
   onsubmit: function(e){
-      var now = new Date();
-      window.location = "/quiz?current=tool&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + now.toString();
+      let moment_ = moment(new Date());
+      let date_string = moment_.format('MMMM Do YYYY, h:mm:ss a');
+      window.location = "/quiz?current=irtool&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + date_string;
   },
 
   log: function(){
       let dates = {start: this.state.start_selected, end: this.state.end_selected};
-      let n = (new Date()).toDateString();
-      console.log(this.props.runid);
-      $.get("/log?datepicker||runid=" + this.props.runid + "&date=" + n +  "&data=" + JSON.stringify(dates));
+      let moment_ = moment(new Date());
+      let date_string = moment_.format('MMMM Do YYYY, h:mm:ss a');
+      $.get("/log?datepicker||runid=" + this.props.runid + "&date=" + date_string +  "&data=" + JSON.stringify(dates));
   },
 
   setstart: function(date) {

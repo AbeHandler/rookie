@@ -8,12 +8,12 @@ var UI_static = require('./components/UI_static.jsx');
 var UI_tut = require('./components/UI_tut.jsx');
 var Ir = require('./components/Ir_question_on_left.jsx');
 
+var moment = require('moment');
 var cache = {};
 var w_h_ratio = 15;  // width % height for sparkline or chart. used to set aspect ratio
 
-
-var start = new Date();
-start = start.toString();
+let moment_ = moment(new Date());
+let start = moment_.format('MMMM Do YYYY, h:mm:ss a');
 
 var answers = ["The United States has been a longtime opponent of the Haitian President Jean-Bertrand Aristide",
                 "The United States has been a longtime ally of the Haitian President Jean-Bertrand Aristide",

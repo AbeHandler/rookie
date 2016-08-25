@@ -37,6 +37,16 @@ def log():
     logging.info("ui|runid|" + request.args.get('data'))
     return ""
 
+# static
+@app.route('/staticr', methods=['GET'])
+def staticr():
+    q = request.args.get('q').replace(" ", "_")
+    f = request.args.get('f').replace(" ", "_")
+
+    with(open("save-{}-{}".format(q, f), "r")) as inf:
+        out = pickle.load(inf)
+    return views.handle_query(out)
+
 '''
 Main app
 '''
