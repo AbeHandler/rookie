@@ -400,16 +400,12 @@ module.exports = React.createClass({
   },
 
   onsubmit: function(e){
-      let moment_ = moment(new Date());
-      let date_string = moment_.format('MMMM Do YYYY, h:mm:ss a');
-      window.location = "/quiz?current=irtool&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + date_string;
+      window.location = "/quiz?current=irtool&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + window.timestamp();
   },
 
   log: function(){
       let dates = {start: this.state.start_selected, end: this.state.end_selected};
-      let moment_ = moment(new Date());
-      let date_string = moment_.format('MMMM Do YYYY, h:mm:ss a');
-      $.get("/log?datepicker||runid=" + this.props.runid + "&date=" + date_string +  "&data=" + JSON.stringify(dates));
+      $.get("/log?datepicker||runid=" + this.props.runid + "&date=" + window.timestamp() +  "&data=" + JSON.stringify(dates));
   },
 
   setstart: function(date) {

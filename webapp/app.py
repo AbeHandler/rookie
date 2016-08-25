@@ -37,7 +37,7 @@ def log():
     logging.info("ui|runid|" + request.args.get('data'))
     return ""
 
-# static
+# Needed for videos. Dont delete Aug 24, 16
 @app.route('/staticr', methods=['GET'])
 def staticr():
     q = request.args.get('q').replace(" ", "_")

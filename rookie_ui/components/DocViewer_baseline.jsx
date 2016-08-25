@@ -109,10 +109,8 @@ module.exports = React.createClass({
     render: function(){
 
         let docs;
-        let moment_ = moment(new Date());
-        let date_string = moment_.format('MMMM Do YYYY, h:mm:ss a');
         let dates = {"start_selected": this.props.start_selected, "end_selected": this.props.end_selected}
-        $.get("/log?runid=" + this.props.runid + "&date=" + date_string +  "&data=" + JSON.stringify(dates));
+        $.get("/log?runid=" + this.props.runid + "&date=" + window.timestamp() +  "&data=" + JSON.stringify(dates));
         docs = this.get_docs_to_render();
         if (docs.length < 1){
             return <div></div>;

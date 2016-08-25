@@ -76,5 +76,5 @@ gulp.task('hobbes', shell.task([
 ]))
 
 gulp.task('w', function() {
-  gulp.watch(paths.scripts, ['js', 'hobbes']);
+  gulp.watch(paths.scripts, ['js']);
 });

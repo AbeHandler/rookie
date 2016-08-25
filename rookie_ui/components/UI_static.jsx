@@ -437,8 +437,7 @@ module.exports = React.createClass({
   },
 
   onsubmit: function(e){
-    var now = new Date();
-    window.location = "/quiz?current=rookie&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + now.toString()
+    window.location = "/quiz?current=rookie&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + window.timestamp();
   },
 
   render: function() {
