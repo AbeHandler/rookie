@@ -73,6 +73,9 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
     priority_list = all_n_sentences # you could use an index to save time instead of looping
                                     # over sentences
 
+
+    from Queue import PriorityQueue
+    priority_queue = PriorityQueue()                            
     corpusid = getcorpusid(corpus) 
     sentences = get_preproc_sentences(docid, corpusid) 
     
@@ -81,14 +84,15 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
         hsent = hilite(toktext, q, sentnum, docid, f_aliases, taginfo=taginfo)
         hsent["htext"] = hsent["htext"].encode('ascii', 'ignore')
         if hsent['has_q'] and hsent['has_f']:
-            return hsent
+            priority_queue.put((1, sentnum, hsent))
+        elif hsent['has_q'] or hsent['has_f']:
+            priority_queue.put((2, sentnum, hsent))
         else:
-            if hsent['has_q'] or hsent['has_f']:
-                return hsent
+            priority_queue.put((3, sentnum, hsent))
         
     #default, just return the top
 
-    return hilite(sentences[0].encode('ascii', 'ignore'), q, "0", docid, f_aliases, taginfo=taginfo)
+    return priority_queue.get()[2]
 
 
 # regex matching system: always have groups
