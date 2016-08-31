@@ -241,6 +241,35 @@ def get_all_facets(raws, structures, q):
     return output
 
 
+def cluster(raw_facets, structures, q, K):
+    '''K is how many clusters needed'''
+    clusters = []
+
+    for facet in raw_facets:
+        raw, score = facet # just string, no score. raws are tuples: string, score
+        def matching(a, b):
+            if a.lower() in b.lower() or b.lower() in a.lower(): # substring
+                print "substring"
+                return True
+            if get_jaccard(a, b) >= .5:
+                print "jacaard"
+                return True
+            if distance(a, b) < 2:
+                print "leve"
+                return True
+
+        matches = [o for o in clusters for s in o if matching(s[0], raw)]
+        if len(matches) == 0:
+            clusters.append([(raw, score)])
+        elif len(matches) == 1:
+            cluster = matches.pop()
+            cluster.append((raw, score))
+        if len(clusters) == K:
+            return clusters
+    return clusters
+
+
+
 def get_facet_tfidf_cutoff(results, structures, facet_type, n_facets):
     '''
     get the tfidf score for each facet_type w/ a cutoff
@@ -273,26 +302,20 @@ def get_facets_for_q(q, results, n_facets, structures):
     Return binned facets. 
     '''
 
-    facet_results = defaultdict(list) # results per bin. output.
-
     if len(results) == 0:
-        return facet_results
+        return []
 
-    # tf and idf score + string -- no filtering heutistics
-    raw_facets = get_facet_tfidf_cutoff(results, structures, "ngram", n_facets) 
+    raw_facets = get_facet_tfidf_cutoff(results, structures, "ngram", n_facets)
 
-    # run a filtering heuristic to clean up facets
-    ok_facets = get_all_facets(raw_facets, structures, q)
+    # exclude facets that are direct substrings of q
+    raw_facets = [o for o in raw_facets if o[0].lower() not in q and q not in o[0].lower()]
+    clusters = cluster(raw_facets, structures, "ngram", 200)[0:n_facets]
+    out = []
+    for cluster_ in clusters:
+        max_c = max([o[0] for o in cluster_])
+        out.append(max_c)
 
-    # print "len OK_facets={}".format(len(ok_facets))
-    # find the ok_facets in the raw_facets
-    filtered_facets = [i for i in raw_facets if i[0] in ok_facets]
-
-    # print "len filtered facets={}".format(len(filtered_facets))
-    # return the strings, in order of i
-
-    # ascii ignore is what jinja2 is doing anyway I think
-    return {"g": [i[0].encode("ascii", "ignore") for i in filtered_facets]}
+    return {"g": [i.encode("ascii", "ignore") for i in out]}
 
 
 
