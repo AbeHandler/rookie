@@ -14,13 +14,12 @@ getInitialState() {
     };
   },
 
-  handleChange() {
-    // This could also be done using ReactLink:
-    // http://facebook.github.io/react/docs/two-way-binding-helpers.html
+  handleChange(e) {
+    let v = e.target.value;
     this.setState({
-      value: this.refs.input.getValue()
+      value: v
     });
-    this.props.changeHandler(this.refs.input.getValue());
+    this.props.changeHandler(v);
   },
 
   render() {

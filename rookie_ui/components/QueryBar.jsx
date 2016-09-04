@@ -27,6 +27,7 @@ module.exports = React.createClass({
   },
 
   changeHandler: function(e) {
+    console.log(e);
     this.setState({
       value: e
     });
@@ -39,8 +40,6 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    let demo = "one";
-    let demo2 = "two";
     let dstyle = {
       width: "100%"
     }

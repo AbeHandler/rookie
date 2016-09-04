@@ -5,15 +5,14 @@ The main web app for rookie
 from __future__ import division
 import json
 import ipdb
-import math
 import logging
 
 
-logging.basicConfig(filename='rookie.log',level=logging.DEBUG, format='%(asctime)s###%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+# logging.basicConfig(filename='rookie.log',level=logging.DEBUG, format='%(asctime)s###%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 
 from flask.ext.compress import Compress
-from webapp.models import results_to_doclist, get_keys, corpus_min_max, get_stuff_ui_needs, filter_f, get_facet_datas
+from webapp.models import get_keys, corpus_min_max, get_stuff_ui_needs, filter_f, get_facet_datas
 from flask import Flask, request
 from facets.query_sparse import get_facets_for_q, load_all_data_structures
 from webapp.snippet_maker import get_preproc_sentences
@@ -136,6 +135,21 @@ def tut():
 def main():
     params = Models.get_parameters(request)
     results = Models.get_results(params)
+
+    print len(results)
+    if len(results) == 0:
+        out = {'f': -1,
+               "f_list": 0,
+               "f_counts": [],
+               "q_data": [],
+               "global_facets": [],
+               "keys": [], 
+               "corpus": params.corpus, "query": params.q, "sents": [],
+               "total_docs_for_q": 0, "facet_datas": [], "first_story_pubdate": "",
+               "last_story_pubdate": 0,
+               "runid": "" if request.args.get('runid') is None else request.args.get('runid')}
+        return views.handle_query(out)
+
     out = get_stuff_ui_needs(params, results)
 
     out["sents"] = json.dumps(Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[]))

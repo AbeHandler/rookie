@@ -574,6 +574,28 @@ module.exports = React.createClass({
     }else{
       chart = "";
     }
+    if (this.state.all_results.length==0){
+      return(
+          <div>
+          <QueryBar height={query_bar_height}
+                      q={this.props.q}
+                      experiment_mode={false}
+                      corpus={this.props.corpus}/>
+          <ChartTitle f_docs={docs_ignoreT}
+                         q_color={q_color}
+                         f_color={f_color}
+                         chartMode={this.state.chart_mode}
+                         fX={this.fX}
+                         qX={this.qX}
+                         ndocs={this.props.total_docs_for_q}
+                         f={this.state.f}
+                         requery={this.requery}
+                         unf={this.fX}
+                         mode={this.state.mode}
+                         q={this.props.q}/>
+          </div>
+        )
+    }else{
     return(
         <div>
             <QueryBar height={query_bar_height}
@@ -607,5 +629,6 @@ module.exports = React.createClass({
             </div>
        </div>
         );
+    }
   }
 });
