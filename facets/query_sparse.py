@@ -127,8 +127,9 @@ def get_jaccard(one, two):
     return jacard
 
 
+'''
 def heuristic_cleanup(output, proposed_new_facet, structures, q, aliases=defaultdict(list)):
-    '''
+   
     An ugly heuristic that tries to filter out bad/meaningless facets quickly
 
     Facet problems:
@@ -142,7 +143,7 @@ def heuristic_cleanup(output, proposed_new_facet, structures, q, aliases=default
     will replace good facets w/ better param:proposed_new_facet if appropriate
 
     Returns output again, possibly improved/lengthened
-    '''
+    
     debug_print("processing {}".format(proposed_new_facet))
     debug_print("thus far have:")
     debug_print(output)
@@ -221,24 +222,7 @@ def heuristic_cleanup(output, proposed_new_facet, structures, q, aliases=default
         output.append(proposed_new_facet)
 
     return output #sometimes more than 1 facet will be replaced by propsed_new_facet
-
-
-def get_all_facets(raws, structures, q):
-    '''
-    :param structures: data structures for facets
-    :param facet_type: could be people/ngram/org but will always = ngram basically
-    :param q: query
-    :return:
-    '''
-    output = []
-
-    #aaa = merge_terms([o[0] for o in raws], 5)
-    #aaa = merge_terms(aaa, 5) # run it 2x   Mikhail S. // Mikhail S. Gorbachev // Gorbachev 
-    # ipdb.set_trace()
-    output = []
-    for possible_f in raws:
-        output = heuristic_cleanup(output, possible_f[0], structures, q)
-    return output
+'''
 
 
 def cluster(raw_facets, structures, q, K):
@@ -249,13 +233,10 @@ def cluster(raw_facets, structures, q, K):
         raw, score = facet # just string, no score. raws are tuples: string, score
         def matching(a, b):
             if a.lower() in b.lower() or b.lower() in a.lower(): # substring
-                print "substring"
                 return True
             if get_jaccard(a, b) >= .5:
-                print "jacaard"
                 return True
             if distance(a, b) < 2:
-                print "leve"
                 return True
 
         matches = [o for o in clusters for s in o if matching(s[0], raw)]
@@ -312,8 +293,10 @@ def get_facets_for_q(q, results, n_facets, structures):
     clusters = cluster(raw_facets, structures, "ngram", 200)[0:n_facets]
     out = []
     for cluster_ in clusters:
-        max_c = max([o[0] for o in cluster_])
-        out.append(max_c)
+        numbers = [(structures["decoders"]["ngram"][o[0]], o[0]) for o in cluster_]
+        counts = [(structures["df"]["ngram"][c[0]], c[1]) for c in numbers]
+        max_c = max(counts, key=lambda x:x[0])
+        out.append(max_c[1])
 
     return {"g": [i.encode("ascii", "ignore") for i in out]}
 
@@ -354,7 +337,7 @@ if __name__ == '__main__':
 
     structures = load_all_data_structures(CORPUS)
     startTime = time.time()
-    facets = get_facets_for_q(args.query, RESULTZ, 9, structures)
+    facets = get_facets_for_q(args.query, RESULTZ, 25, structures)
     print facets
 
 session.close()

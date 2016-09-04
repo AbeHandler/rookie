@@ -109,8 +109,7 @@ module.exports = React.createClass({
 
     let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + min + "&enddate=" + max;
 
-    if (this.state.f == -1){
-      $.ajax({
+    $.ajax({
                   url: url,
                   dataType: 'json',
                   cache: true,
@@ -123,7 +122,6 @@ module.exports = React.createClass({
                     console.error(this.props.url, status, err.toString());
                   }.bind(this)
       });
-    }
   },
 
   resultsToDocs: function(results){
