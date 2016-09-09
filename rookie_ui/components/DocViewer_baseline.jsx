@@ -31,7 +31,7 @@ module.exports = React.createClass({
     //need to use this markup thing b/c snippet has html in it
     markup: function(doc) {
         let dt = moment(doc.pubdate, "YYYY-MM-DD").format("MM.DD.YYYY");
-        return {__html: "<span style='color:black;' >" + doc.snippet.htext + "</span>"};
+        return {__html: "<a style='color:black;' >" + doc.snippet.htext + "</a>"};
     },
 
     fake_markup: function(doc) {

@@ -33,11 +33,7 @@ module.exports = React.createClass({
     //need to use this markup thing b/c snippet has html in it
     markup: function(doc) {
         let dt = moment(doc.pubdate, "YYYY-MM-DD").format("MM.DD.YYYY");
-        if (this.props.experiment_mode){
-            return {__html: "<a style='color:black; text-decoration:none'>" + doc.snippet.htext + "</a>"};
-        }else{
-            return {__html: "<a style='color:black;' href='" + doc.url + "' target='_blank' >" + doc.snippet.htext + "</a>"};
-        }
+        return {__html: "<a style='color:black;'>" + doc.snippet.htext + "</a>"};
     },
 
     format_d: function(d){
