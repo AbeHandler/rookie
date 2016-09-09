@@ -8,11 +8,11 @@ import ipdb
 import logging
 
 
-# logging.basicConfig(filename='rookie.log',level=logging.DEBUG, format='%(asctime)s###%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(filename='rookie.log',level=logging.DEBUG, format='%(asctime)s###%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 
 from flask.ext.compress import Compress
-from webapp.models import get_keys, corpus_min_max, get_stuff_ui_needs, filter_f, get_facet_datas
+from webapp.models import get_keys, corpus_min_max, get_stuff_ui_needs, filter_f, get_facet_datas, get_doc
 from flask import Flask, request
 from facets.query_sparse import get_facets_for_q, load_all_data_structures
 from webapp.snippet_maker import get_preproc_sentences
@@ -169,6 +169,16 @@ def main():
     return views.handle_query(out)
 
 
+
+'''
+These methods are for in class demo
+'''
+
+@app.route('/intro', methods=['GET'])
+def intro_tut():
+    return views.intro()
+
+
 '''
 These methods are for IR mode
 '''
@@ -226,6 +236,13 @@ def grid_search(rookie_avg, surround, fragment_char_limit, whoosh_results, corpu
 
     print "best top = {}".format(best)
     return best
+
+@app.route('/doc', methods=['GET'])
+def doc():
+    '''get a doc for display in UI'''
+    params = Models.get_parameters(request)
+    doc = get_doc(params.corpus, request.args.get('docid'))
+    return json.dumps(doc)
 
 
 @app.route('/ir', methods=['GET'])

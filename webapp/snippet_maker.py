@@ -43,15 +43,7 @@ def getcorpusid(corpus):
     return cid
 
 ############################
-'''
-@lrudecorator(1000)
-def get_sentences(docid, corpus):
-    
-    load from postgres
-    
-    corpusid = getcorpusid(corpus)
-    return get_preproc_sentences(docid, corpusid)
-'''
+
 
 def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
     """

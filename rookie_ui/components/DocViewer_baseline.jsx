@@ -31,13 +31,7 @@ module.exports = React.createClass({
     //need to use this markup thing b/c snippet has html in it
     markup: function(doc) {
         let dt = moment(doc.pubdate, "YYYY-MM-DD").format("MM.DD.YYYY");
-        if (this.props.static_mode){
-            return {__html: "<span style='color:black;' >" + doc.snippet.htext + "</span>"};
-        }
-        else{
-            return {__html: "<a style='color:black;' href='" + doc.url + "' target='_blank' >" + doc.snippet.htext + "</a>"};
-        }
-
+        return {__html: "<span style='color:black;' >" + doc.snippet.htext + "</span>"};
     },
 
     fake_markup: function(doc) {
@@ -133,7 +127,7 @@ module.exports = React.createClass({
                                 overlay={gettip(n, doc.headline)} placement="top"
                                 delayShow={300} delayHide={150}
                               >
-                                <div style={{borderBottom:"1px solid lightgrey", paddingBottom: "3px"}}><span style={{color: "grey"}}>{format_d(doc.pubdate)} | </span><span key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/></div>
+                                <div onClick={() => props.select(doc.docid, doc.pubdate)} style={{borderBottom:"1px solid lightgrey", paddingBottom: "3px"}}><span style={{color: "grey"}}>{format_d(doc.pubdate)} | </span><span key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/></div>
                               </OverlayTrigger>
                 })}
            </div>

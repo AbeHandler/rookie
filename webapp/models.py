@@ -11,7 +11,7 @@ from dateutil.parser import parse
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser
 from dateutil.relativedelta import relativedelta
-from webapp.snippet_maker import get_snippet3
+from webapp.snippet_maker import get_snippet3, get_preproc_sentences, getcorpusid
 from webapp import CONNECTION_STRING
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -49,6 +49,7 @@ def get_facet_datas(binned_facets, results, params, limit=None):
     keys = get_keys(params.corpus)
     q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
     qpdset = set(q_pubdates)
+    limit = max(limit, len(binned_facets["g"])) # don't request more than in list, two lines down
     if limit is not None:
         loop_over = binned_facets['g'][0:limit]
     else:
@@ -219,6 +220,16 @@ def get_keys(corpus):
     return output
 
 
+def get_doc(corpus, docid):
+    '''return a document for display in the web browser'''
+    docid = int(docid)
+    url = get_urls_xpress(corpus)[docid]
+    pd = get_pubdates_xpress(corpus)[docid]
+    headline = get_headline_xpress(corpus)[docid]
+    sents = get_preproc_sentences(docid, getcorpusid(corpus))
+    return {"headline": headline, "sents": sents}
+
+
 class Parameters(object):
 
     def __init__(self):
@@ -327,31 +338,6 @@ class Models(object):
                 'snippet': Models.get_sent(result, corpus, q, f, aliases=aliases)
             })
         return [i for i in sent_results if len(i["snippet"]) > 0] #filter nulls
-
-    @staticmethod
-    def get_snippet(docid, corpus, q, f=None, aliases=None):
-
-        f_aliases = set() if aliases is None else set(aliases)
-        if f is not None:
-            f_aliases.add(f)
-        hsents = get_snippet2(docid, corpus, q, f_aliases,
-                taginfo=dict(
-                    q_ltag='<span style="font-weight:bold;color:#0028a3">',
-                    q_rtag='</span>',
-                    f_ltag='<span style="font-weight:bold;color:#b33125">',
-                    f_rtag='</span>',)
-                )
-
-        if len(hsents)==0:
-            return ""
-
-        if len(hsents)==1:
-            return hsents[0]['htext']
-
-        assert len(hsents) <= 2
-        dist = hsents[1]['sentnum'] - hsents[0]['sentnum']
-        sep = " " if dist == 1 else " ... "
-        return hsents[0]['htext'] + sep + hsents[1]['htext']
 
 
     @staticmethod

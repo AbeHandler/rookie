@@ -11,6 +11,7 @@ var Panel = require('react-bootstrap/lib/Panel');
 var OverlayTrigger = require('react-bootstrap/lib/OverlayTrigger');
 var Button = require('react-bootstrap/lib/Button');
 var Tooltip = require('react-bootstrap/lib/Tooltip');
+var Modal = require('./Modal.jsx');
 
 
 module.exports = React.createClass({
@@ -72,16 +73,9 @@ module.exports = React.createClass({
         let f = this.props.f;
 
         let props = this.props;
-
-        let rowStyle = {
-            width:"100%",
-            overflow:"hidden"
-        };
         let markup = this.markup;
         let format_d = this.format_d;
         let gettip = this.gettip;
-        let previous_page = "";
-        let next_page = "";
         let docs = this.get_docs(this.props.docs, this.props.page);
 
         return(
@@ -90,7 +84,7 @@ module.exports = React.createClass({
                     {docs.map(function(doc, n) {
                         return <div>
                                 <div style={{fontWeight: "bold", color: "#1a0dab"}}>{doc.headline} | <span style={{color: "grey"}}>{format_d(doc.pubdate)}</span></div>
-                                <span key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/>
+                                <span key={n} style={{width:"100%", overflow:"hidden"}} dangerouslySetInnerHTML={markup(doc)}/>
                                 </div>
 
                     })}
@@ -99,3 +93,4 @@ module.exports = React.createClass({
         );
        }
 });
+

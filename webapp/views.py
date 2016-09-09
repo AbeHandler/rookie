@@ -50,6 +50,18 @@ class Views(object):
         return response
 
 
+    def intro(self):
+        '''
+        return intro (for Rodrigo's class)
+        '''
+        response = render_template(
+            'intro.html',
+            ROOKIE_CSS=self.rookie_css
+        )
+
+        return response
+
+
     def basic_search_results(self, results, corpus, q):
         '''
         return results list
