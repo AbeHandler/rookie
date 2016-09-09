@@ -20,6 +20,7 @@ var $ = require('jquery');
 var Panel = require('react-bootstrap/lib/Panel');
 var Button = require('react-bootstrap/lib/Button');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
+var Modal_doc = require('./Modal_doc.jsx');
 
 
 let q_color = "#0028a3";
@@ -415,7 +416,26 @@ module.exports = React.createClass({
      end_selected: date.format('YYYY-MM')
    });
  },
+ update_selected_doc: function(d, pd){
+   var url = "doc?corpus=" + this.props.corpus + "&docid=" + d;
 
+   $.ajax({
+               url: url,
+               dataType: 'json',
+               cache: true,
+               method: 'GET',
+               success: function(d) {
+                 this.setState({selected_doc: d.docid,
+                               selectedheadline: d.headline,
+                                selectedpubdate: pd,
+                               selectedsents: d.sents});
+
+               }.bind(this),
+               error: function(xhr, status, err) {
+                 console.error(this.props.url, status, err.toString());
+               }.bind(this)
+   });
+ },
   render: function() {
 
     let docs = this.resultsToDocs(this.state.all_results);
@@ -467,6 +487,7 @@ module.exports = React.createClass({
                                 end_selected={this.state.end_selected}
                                 all_results={this.state.all_results}
                                 docs={docs}
+                                select={this.update_selected_doc}
                                 runid={this.props.runid}
                                 page={this.state.summary_page}
                                 per_page={this.props.docsperpage}
@@ -475,6 +496,15 @@ module.exports = React.createClass({
                                 bins={binned_facets}/>
 
                               let answers = this.props.answers;
+
+  let selected_doc = '';
+  if (this.state.selected_doc != -1){
+      selected_doc = <Modal_doc show={true}
+      close={()=> this.setState({selected_doc: -1})}
+      headline={this.state.selectedheadline}
+      pubdate={this.state.selectedpubdate}
+      sents={this.state.selectedsents}/>
+  }
 
     return(
         <div>

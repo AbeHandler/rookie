@@ -22,6 +22,8 @@ var Panel = require('react-bootstrap/lib/Panel');
 var Button = require('react-bootstrap/lib/Button');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
 var Modalprep = require('./Modal_prep.jsx');
+var Modal_doc = require('./Modal_doc.jsx');
+
 
 let q_color = "#0028a3";
 let f_color = "#b33125";
@@ -59,7 +61,12 @@ module.exports = React.createClass({
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
     min = min.format("YYYY-MM");
     max = max.format("YYYY-MM");
-    return {drag_r: false,
+    return {
+           selected_doc: -1,
+           selectedheadline: "",
+           selectedsents: [],
+           selectedpubdate: "",
+           drag_r: false,
            drag_l:false,
            startDate: moment(),
            mouse_down_in_chart: false,
@@ -419,7 +426,26 @@ module.exports = React.createClass({
      end_selected: date.format('YYYY-MM'), summary_page:0
    }, this.log);
  },
+ update_selected_doc: function(d, pd){
+   var url = "doc?corpus=" + this.props.corpus + "&docid=" + d;
 
+   $.ajax({
+               url: url,
+               dataType: 'json',
+               cache: true,
+               method: 'GET',
+               success: function(d) {
+                 this.setState({selected_doc: d.docid,
+                               selectedheadline: d.headline,
+                               selectedpubdate: pd,
+                               selectedsents: d.sents});
+
+               }.bind(this),
+               error: function(xhr, status, err) {
+                 console.error(this.props.url, status, err.toString());
+               }.bind(this)
+   });
+ },
   render: function() {
     let docs = this.resultsToDocs(this.state.all_results);
     let docs_ignoreT = this.n_fdocs(this.state.all_results);
@@ -461,6 +487,15 @@ module.exports = React.createClass({
                                    facet_datas={this.state.facet_datas}/>
                    </Panel>
 
+    let selected_doc = '';
+    if (this.state.selected_doc != -1){
+           selected_doc = <Modal_doc show={true}
+                           close={()=> this.setState({selected_doc: -1})}
+                           headline={this.state.selectedheadline}
+                           pubdate={this.state.selectedpubdate}
+                           sents={this.state.selectedsents}/>
+    }
+
     let docviewer = <DocViewer kind_of_doc_list={this.state.kind_of_doc_list}
                                 height={lower_h + 50}
                                 f={this.state.f}
@@ -470,6 +505,7 @@ module.exports = React.createClass({
                                 end_selected={this.state.end_selected}
                                 all_results={this.state.all_results}
                                 docs={docs}
+                                select={this.update_selected_doc}
                                 runid={this.props.runid}
                                 page={this.state.summary_page}
                                 per_page={this.props.docsperpage}
@@ -479,11 +515,13 @@ module.exports = React.createClass({
 
     let answers = this.props.answers;
 
+
     if (this.state.modal){
       return <Modalprep unmodal={()=>{this.setState({modal: false})}} answers={this.props.answers}/>
     }else{
       return(
           <div>
+              {selected_doc}
               <QueryBar height={query_bar_height}
                         q={this.props.q}
                         experiment_mode={this.props.experiment_mode}

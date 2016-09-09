@@ -22,6 +22,7 @@ var Modal = require('./Modal.jsx');
 var Modal_success = require('./Modal_success.jsx');
 var Panel = require('react-bootstrap/lib/Panel');
 var Button = require('react-bootstrap/lib/Button');
+var Modal_doc = require('./Modal_doc.jsx');
 
 
 
@@ -390,7 +391,26 @@ module.exports = React.createClass({
   onsubmit: function(e){
     window.location = "/staticr?current=task_screening&runid=" + this.props.runid + "&q=rookie&answer=NA"
   },
+  update_selected_doc: function(d, pd){
+    var url = "doc?corpus=" + this.props.corpus + "&docid=" + d;
 
+    $.ajax({
+                url: url,
+                dataType: 'json',
+                cache: true,
+                method: 'GET',
+                success: function(d) {
+                  this.setState({selected_doc: d.docid,
+                                selectedheadline: d.headline,
+                                selectedpubdate: pd,
+                                selectedsents: d.sents});
+
+                }.bind(this),
+                error: function(xhr, status, err) {
+                  console.error(this.props.url, status, err.toString());
+                }.bind(this)
+    });
+  },
   render: function() {
     {Modal}
     let docs = this.resultsToDocs(this.state.all_results);
@@ -444,6 +464,7 @@ module.exports = React.createClass({
                                 docs={docs}
                                 runid={runid}
                                 static_mode={true}
+                                select={this.update_selected_doc}
                                 page={this.state.summary_page}
                                 per_page={this.props.docsperpage}
                                 bins={binned_facets}/>
@@ -500,6 +521,7 @@ module.exports = React.createClass({
     return(
         <div>
          <Modal show={this.state.show_2nd}/>
+         {selected_doc}
          <Modal_success close={this.close} show={show_success}/>
        <Panel style={{'fontWeight': 'bold'}}>Use the slider to select January 1994 to January 1995</Panel>
              <Panel>

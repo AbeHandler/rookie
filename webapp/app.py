@@ -273,7 +273,7 @@ def search():
         # top = grid_search(AVG_ROOKIE, surround=surround, fragment_char_limit=max_chars, whoosh_results=results, corpus=params.corpus, query_string=params.q)
         top = 2
         for s_ix, a in enumerate(results):
-            path = a.get("path").replace("/", "")
+            path = str(a.get("path").replace("/", ""))
             sents = get_preproc_sentences(path, corpusid)
             sss = unicode(" ".join(sents).encode("ascii", "ignore"))
             sss = str(a.highlights("content", text=sss, top=top))
@@ -281,6 +281,7 @@ def search():
                             "pubdate": get_pubdates_xpress(params.corpus)[int(path)].strftime("%Y-%m-%d"),
                             "url":"unk",
                             "snippet": {"htext": sss},
+                            "docid": path,
                             "search_engine_index_doc":s_ix
                             })
             counter += 1

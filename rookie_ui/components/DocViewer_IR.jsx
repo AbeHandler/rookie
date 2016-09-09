@@ -82,7 +82,7 @@ module.exports = React.createClass({
             <div>
                 <div style={{backgroundColor: "white", overflowY: "hidden", overflow: "hidden"}}>
                     {docs.map(function(doc, n) {
-                        return <div>
+                        return <div onClick={() => props.select(doc.docid, doc.pubdate)}>
                                 <div style={{fontWeight: "bold", color: "#1a0dab"}}>{doc.headline} | <span style={{color: "grey"}}>{format_d(doc.pubdate)}</span></div>
                                 <span key={n} style={{width:"100%", overflow:"hidden"}} dangerouslySetInnerHTML={markup(doc)}/>
                                 </div>
@@ -93,4 +93,3 @@ module.exports = React.createClass({
         );
        }
 });
-

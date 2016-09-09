@@ -21,6 +21,7 @@ var Panel = require('react-bootstrap/lib/Panel');
 var Button = require('react-bootstrap/lib/Button');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
 var Modalprep = require('./Modal_prep.jsx');
+var Modal_doc = require('./Modal_doc.jsx');
 
 
 let q_color = "#0028a3";
@@ -439,7 +440,26 @@ module.exports = React.createClass({
   onsubmit: function(e){
     window.location = "/quiz?current=rookie&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + window.timestamp();
   },
+  update_selected_doc: function(d, pd){
+    var url = "doc?corpus=" + this.props.corpus + "&docid=" + d;
 
+    $.ajax({
+                url: url,
+                dataType: 'json',
+                cache: true,
+                method: 'GET',
+                success: function(d) {
+                  this.setState({selected_doc: d.docid,
+                                selectedheadline: d.headline,
+                                selectedpubdate: pd,
+                                selectedsents: d.sents});
+
+                }.bind(this),
+                error: function(xhr, status, err) {
+                  console.error(this.props.url, status, err.toString());
+                }.bind(this)
+    });
+  },
   render: function() {
 
     let docs = this.resultsToDocs(this.state.all_results);
@@ -494,6 +514,7 @@ module.exports = React.createClass({
                                 all_results={this.state.all_results}
                                 docs={docs}
                                 runid={runid}
+                                select={this.update_selected_doc}
                                 static_mode={true}
                                 page={this.state.summary_page}
                                 per_page={this.props.docsperpage}
@@ -533,11 +554,20 @@ module.exports = React.createClass({
     }else{
       chart = "";
     }
+    let selected_doc = '';
+    if (this.state.selected_doc != -1){
+        selected_doc = <Modal_doc show={true}
+        close={()=> this.setState({selected_doc: -1})}
+        headline={this.state.selectedheadline}
+        pubdate={this.state.selectedpubdate}
+        sents={this.state.selectedsents}/>
+    }
     if (this.state.modal){
       return <Modalprep unmodal={()=>{this.setState({modal: false})}} answers={this.props.answers}/>
     }else{
     return(
         <div style={{width: "100%", height: "100%"}}>
+            {selected_doc}
             <QueryBar height={query_bar_height}
                       q={this.props.q}
                       experiment_mode={false}
