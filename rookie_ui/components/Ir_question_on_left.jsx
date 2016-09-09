@@ -407,7 +407,7 @@ module.exports = React.createClass({
   },
 
   onsubmit: function(e){
-      window.location = "/quiz?current=irtool&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + window.timestamp();
+      window.location = "/quiz?current=irtool&runid=" + this.props.runid + "&q=5_ir&answer=" + e + "&start=" + this.props.start + "&end=" + window.timestamp();
   },
 
   log: function(){

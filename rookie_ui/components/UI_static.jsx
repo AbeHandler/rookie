@@ -442,7 +442,7 @@ module.exports = React.createClass({
   },
 
   onsubmit: function(e){
-    window.location = "/quiz?current=rookie&runid=" + this.props.runid + "&q=5&answer=" + e + "&start=" + this.props.start + "&end=" + window.timestamp();
+    window.location = "/quiz?current=rookie&runid=" + this.props.runid + "&q=5_rookie&answer=" + e + "&start=" + this.props.start + "&end=" + window.timestamp();
   },
   update_selected_doc: function(d, pd){
     var url = "doc?corpus=" + this.props.corpus + "&docid=" + d;

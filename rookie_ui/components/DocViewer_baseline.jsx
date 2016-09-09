@@ -127,7 +127,7 @@ module.exports = React.createClass({
                                 overlay={gettip(n, doc.headline)} placement="top"
                                 delayShow={300} delayHide={150}
                               >
-                                <div onClick={() => props.select(doc.docid, doc.pubdate)} style={{borderBottom:"1px solid lightgrey", paddingBottom: "3px"}}><span style={{color: "grey"}}>{format_d(doc.pubdate)} | </span><span key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/></div>
+                                <div style={{borderBottom:"1px solid lightgrey", paddingBottom: "3px"}}><span onClick={() => props.select(doc.docid, doc.pubdate)}  style={{color: "grey"}}>{format_d(doc.pubdate)} | </span><span onClick={() => props.select(doc.docid, doc.pubdate)} key={n} style={rowStyle} dangerouslySetInnerHTML={markup(doc)}/></div>
                               </OverlayTrigger>
                 })}
            </div>
