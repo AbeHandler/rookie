@@ -64,6 +64,10 @@ module.exports = React.createClass({
            start_selected:min,
            end_selected:max,
            summary_page:0,
+           selected_doc:-1,
+           selectedheadline: "",
+           selectedsents: [],
+           selectedpubdate: "",
            f_counts:this.props.f_counts,
            f: this.props.f,
            still_looking: true,
@@ -517,7 +521,14 @@ module.exports = React.createClass({
     if (this.state.start_selected === "1994-01" && this.state.end_selected === "1995-01" && this.state.drag_l === false && this.state.drag_r === false){
         question = <Question start={this.props.start} onsubmit={this.onsubmit} answers={answers}/>
     }
-
+    let selected_doc = '';
+    if (this.state.selected_doc != -1){
+        selected_doc = <Modal_doc show={true}
+                        close={()=> this.setState({selected_doc: -1})}
+                        headline={this.state.selectedheadline}
+                        pubdate={this.state.selectedpubdate}
+                        sents={this.state.selectedsents}/>
+    }
     return(
         <div>
          <Modal show={this.state.show_2nd}/>
