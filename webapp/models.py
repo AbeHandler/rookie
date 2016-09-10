@@ -7,6 +7,7 @@ import ujson
 import time
 import cPickle as pickle
 from datetime import datetime
+from collections import defaultdict
 from dateutil.parser import parse
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser
@@ -49,7 +50,6 @@ def get_facet_datas(binned_facets, results, params, limit=None):
     keys = get_keys(params.corpus)
     q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
     qpdset = set(q_pubdates)
-    limit = max(limit, len(binned_facets["g"])) # don't request more than in list, two lines down
     if limit is not None:
         loop_over = binned_facets['g'][0:limit]
     else:
@@ -94,32 +94,46 @@ def facets_for_t(params, results):
                            limit=200)
 
 
-def get_stuff_ui_needs(params, results):
-    binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
 
-    aliases = [] # TODO
+def get_stuff_ui_needs(params, results):
+
+    start = time.time()
+    binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
+    end = time.time()
+    print "getting facets {}".format(end - start)
+
+    # building keys
+    start = time.time()
     stuff_ui_needs = {}
     q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
-    qpdset = set(q_pubdates)
+    q_pubdates.sort()
+    tracker = defaultdict(int)
+    for qpd in q_pubdates:
+        tracker[qpd.strftime("%Y-%m")] += 1
 
     keys = get_keys(params.corpus)
 
     q_data = []
-    for key in keys:
-        q_data.append(sum(1 for r in q_pubdates if r.year==key.year and r.month==key.month))
+
+    for k in keys:
+        k = k.strftime("%Y-%m")
+        q_data.append(tracker[k])
+    end = time.time()
+    print "building keys {}".format(end - start)
 
     stuff_ui_needs["keys"] = [str(k.strftime("%Y-%m") + "-01") for k in keys]
-    display_bins = []
-    for key in binned_facets:
-        if key != "g":
-            display_bins.append({"key": key, "facets": binned_facets[key]})
 
     stuff_ui_needs["total_docs_for_q"] = len(results)
 
+    # building keys
+    start = time.time()
+    # ipdb.set_trace()
     stuff_ui_needs["facet_datas"] = get_facet_datas(binned_facets=binned_facets, 
                                                     params=params,
                                                     results=results,
                                                     limit=5)
+    end = time.time()
+    print "get facet datas={}".format(end - start)
 
     dminmax = corpus_min_max(params.corpus)
 
@@ -130,9 +144,11 @@ def get_stuff_ui_needs(params, results):
     stuff_ui_needs["query"] = params.q
     stuff_ui_needs["q_data"] = q_data
     stuff_ui_needs["global_facets"] = binned_facets['g']
+
     return stuff_ui_needs
 
 
+@lrudecorator(1000)
 def query(qry_string, corpus):
     '''
     Query whoosh
@@ -163,6 +179,7 @@ def corpus_min_max(corpus):
     return {"min": res2[2].strftime("%Y-%m-%d"), "max": res2[3].strftime("%Y-%m-%d")}
 
 
+@lrudecorator(1000)
 def results_to_doclist(results, q, f, corpus, pubdates, aliases):
     '''
     Start w/ search results. filter based on params. get a doclist back.
@@ -173,6 +190,7 @@ def results_to_doclist(results, q, f, corpus, pubdates, aliases):
     return filtered_pubdates, fdoc_list
 
 
+@lrudecorator(1000)
 def getcorpusid(corpus):
     '''
     Get corpus id for corpus name
@@ -203,6 +221,7 @@ def filter_f(results, f, corpus):
             unicode(f_ngram_no) in ds[r]]
 
 
+@lrudecorator(100)
 def get_keys(corpus):
     '''
     Returns a set of date keys between a start and stop date. bin = size of step
