@@ -71,7 +71,6 @@ def filter_by_date(results, corpus, start_d, end_d):
         return [r for r in results if load_all_data_structures(corpus)["pubdates"][int(r)] > start_d
                 and load_all_data_structures(corpus)["pubdates"][int(r)] < end_d]
     else:
-        # print "hhuh?", start_d, end_d
         return results
 
 @lrudecorator(100)
@@ -179,7 +178,7 @@ def get_facets_for_q(q, results, n_facets, structures):
 
     # exclude facets that are direct substrings of q
     raw_facets = [o for o in raw_facets if o[0].lower() not in q and q not in o[0].lower()]
-    clusters = cluster(raw_facets, structures, "ngram", 200)[0:n_facets]
+    clusters = cluster(raw_facets, structures, "ngram", n_facets)
     out = []
     for cluster_ in clusters:
         numbers = [(structures["decoders"]["ngram"][o[0]], o[0]) for o in cluster_]

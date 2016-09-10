@@ -47,6 +47,8 @@ CONNECTION_STRING = 'postgresql://%s:%s@%s:5432/%s' % (
      'rookie', # db
 )
 
+SAVEMODE = False
+
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
