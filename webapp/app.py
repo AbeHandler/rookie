@@ -10,7 +10,6 @@ import logging
 
 logging.basicConfig(filename='rookie.log',level=logging.DEBUG, format='%(asctime)s###%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
-
 from flask.ext.compress import Compress
 from webapp.models import get_keys, corpus_min_max, get_stuff_ui_needs, filter_f, get_facet_datas, get_doc
 from flask import Flask, request
@@ -19,7 +18,7 @@ from webapp.snippet_maker import get_preproc_sentences
 from webapp.views import Views
 from webapp.models import Models
 from webapp.models import facets_for_t, getcorpusid
-from webapp import IP, ROOKIE_JS, ROOKIE_CSS, BASE_URL
+from webapp import IP, ROOKIE_JS, ROOKIE_CSS, BASE_URL, SAVEMODE
 from facets.query_sparse import filter_by_date
 
 app = Flask(__name__)
@@ -75,7 +74,7 @@ def get_sents():
     results = Models.get_results(params)
     results = filter_f(results, params.f, params.corpus)
     out = Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[])
-    print "average snippet length for query", sum([len(f["snippet"]["htext"]) for f in out])/len(out)
+    # print "average snippet length for query", sum([len(f["snippet"]["htext"]) for f in out])/len(out)
     return json.dumps(out)
 
 
@@ -90,21 +89,6 @@ def get_facets():
     return json.dumps({"d": facets_for_t(params, results)})
 
 
-@app.route("/get_facet_datas", methods=['POST'])
-def post_for_facet_datas():
-    '''
-    post for all time vectors for all facets. only the first 5 are returned on initial GET b/c takes a long time
-    '''
-    params = Models.get_parameters(request)
-    results = Models.get_results(params)
-    binned_facets = get_facets_for_q(params.q, 
-                                     results,
-                                     200,
-                                     load_all_data_structures(params.corpus))
-    out = get_facet_datas(binned_facets, results=results, params=params)
-    return json.dumps(out)
-
-
 def get_avg_snippet_len(params):
     '''how long is the avg rookie snippet?'''
     params = Models.get_parameters(request)
@@ -112,6 +96,7 @@ def get_avg_snippet_len(params):
     results = filter_f(results, params.f, params.corpus)
     out = Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[])
     return sum([len(f["snippet"]["htext"]) for f in out])/len(out)
+
 
 def save(params, out):
     if params.f is None:
@@ -131,12 +116,12 @@ def tut():
     return views.handle_query(out)
 
 
+
 @app.route('/', methods=['GET'])
 def main():
     params = Models.get_parameters(request)
     results = Models.get_results(params)
 
-    print len(results)
     if len(results) == 0:
         out = {'f': -1,
                "f_list": 0,
@@ -144,28 +129,36 @@ def main():
                "q_data": [],
                "global_facets": [],
                "keys": [], 
-               "corpus": params.corpus, "query": params.q, "sents": [],
-               "total_docs_for_q": 0, "facet_datas": [], "first_story_pubdate": "",
+               "corpus": params.corpus,
+               "query": params.q,
+               "sents": [],
+               "total_docs_for_q": 0,
+               "facet_datas": [],
+               "first_story_pubdate": "",
                "last_story_pubdate": 0,
                "runid": "" if request.args.get('runid') is None else request.args.get('runid')}
         return views.handle_query(out)
 
+    
     out = get_stuff_ui_needs(params, results)
+
 
     out["sents"] = json.dumps(Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[]))
 
-    if params.f is not None:
+    # top if statement just for quizes at this point
+    if params.f is not None:  # This is really slow but params.f is basically always None in interactive mode
         out["f_list"] = get_sents()
         out['f'] = params.f
         binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
-        all_facets = get_facet_datas(binned_facets, results=results, params=params) # this is way slow. just for quizes at this point
+        all_facets = get_facet_datas(binned_facets, results=results, params=params) 
         # get the counts for the selected facet
         out["f_counts"] = [o for o in all_facets if o["f"]==params.f].pop()["counts"]
     else:
         out["f_list"] = []
         out['f'] = -1
         out["f_counts"] = []
-    save(params=params, out=out)
+    if SAVEMODE:
+        save(params=params, out=out)
     return views.handle_query(out)
 
 
@@ -304,9 +297,10 @@ def search():
         fn = "IR-IR-save-{}".format(q)
         with(open(fn, "w")) as outf:
             pickle.dump(out, outf)
-    irsave()
+    if SAVEMODE:
+        irsave()
     return views.handle_query(out)
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host=IP, port=5000)
+    app.run(debug=True, host=IP, port=5000)

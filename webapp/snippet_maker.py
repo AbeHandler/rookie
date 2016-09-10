@@ -13,7 +13,7 @@ ENGINE = create_engine(CONNECTION_STRING)
 SESS = sessionmaker(bind=ENGINE)
 SESSION = SESS()
 
-@lrudecorator(1000)
+@lrudecorator(10000)
 def get_preproc_sentences(docid, corpusid):
     """
     load preproc sentences
@@ -44,8 +44,13 @@ def getcorpusid(corpus):
 
 ############################
 
+taginfo = dict(q_ltag='<span style="font-weight:bold;color:#0028a3">',
+                                     q_rtag='</span>',
+                                     f_ltag='<span style="font-weight:bold;color:#b33125">',
+                                     f_rtag='</span>')
 
-def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
+@lrudecorator(10000)
+def get_snippet3(docid, corpus, q, f):
     """
     returns single "highlighted sentence" dictionary.
     supply taginfo in accordance with docs in hilite()
@@ -59,7 +64,9 @@ def get_snippet3(docid, corpus, q, f_aliases=None, taginfo=None):
 
     if neither, return sentence 1 in doc (this is news!)
     """
-
+    f_aliases = [] # get rid of this eventually
+    if f is not None:
+        f_aliases.append(f)
     all_n_sentences = range(get_nsentences_key(corpus)[int(docid)])
 
     priority_list = all_n_sentences # you could use an index to save time instead of looping

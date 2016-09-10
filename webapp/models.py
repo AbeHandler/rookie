@@ -97,13 +97,9 @@ def facets_for_t(params, results):
 
 def get_stuff_ui_needs(params, results):
 
-    start = time.time()
     binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
-    end = time.time()
-    print "getting facets {}".format(end - start)
 
     # building keys
-    start = time.time()
     stuff_ui_needs = {}
     q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
     q_pubdates.sort()
@@ -118,22 +114,17 @@ def get_stuff_ui_needs(params, results):
     for k in keys:
         k = k.strftime("%Y-%m")
         q_data.append(tracker[k])
-    end = time.time()
-    print "building keys {}".format(end - start)
 
     stuff_ui_needs["keys"] = [str(k.strftime("%Y-%m") + "-01") for k in keys]
 
     stuff_ui_needs["total_docs_for_q"] = len(results)
 
-    # building keys
-    start = time.time()
-    # ipdb.set_trace()
+
+    # this next call builds the count vectors for the time series
     stuff_ui_needs["facet_datas"] = get_facet_datas(binned_facets=binned_facets, 
                                                     params=params,
                                                     results=results,
                                                     limit=5)
-    end = time.time()
-    print "get facet datas={}".format(end - start)
 
     dminmax = corpus_min_max(params.corpus)
 
@@ -251,6 +242,15 @@ def get_doc(corpus, docid):
     return d
 
 
+
+def get_sent(docid, corpus, q, f=None, aliases=None):
+    """similar to get_snipppet but gives a 1 sentence snippet instead of 2"""
+    #f_aliases = set() if aliases is None else set(aliases)
+    #if f is not None:
+    #    f_aliases.add(f)
+    return get_snippet3(docid, corpus, q, f)
+
+
 class Parameters(object):
 
     def __init__(self):
@@ -282,16 +282,12 @@ class Models(object):
 
 
         if request.args.get('startdate') is not None:
-            print "start"
             yr, mo = request.args.get('startdate').split("-")
-            print yr, mo
             output.startdate = datetime(int(yr), int(mo), 1)
         else:
             output.startdate = None
         if request.args.get('enddate') is not None:
-            print "end"
             yr, mo = request.args.get('enddate').split("-")
-            print yr, mo
             output.enddate = datetime(int(yr), int(mo), 1)
         else:
             output.enddate = None
@@ -344,6 +340,8 @@ class Models(object):
            TODO: tokens? pos?
         """
         sent_results = []
+        #if len(results) > 250: # dont bother making more than 250 sentence snippets. Tip from john F.
+        #    results = results[0:250]
 
         # AH: assuming the order of results is not changed since coming out from IR system
         for whoosh_index, result in enumerate(results):
@@ -356,23 +354,9 @@ class Models(object):
                 'search_engine_index_doc': whoosh_index,
                 'pubdate': pd.strftime("%Y-%m-%d"),
                 'url': url.encode("ascii", "ignore"),
-                'snippet': Models.get_sent(result, corpus, q, f, aliases=aliases)
+                'snippet': get_sent(result, corpus, q, f, aliases=aliases)
             })
         return [i for i in sent_results if len(i["snippet"]) > 0] #filter nulls
 
-
-    @staticmethod
-    def get_sent(docid, corpus, q, f=None, aliases=None):
-        """similar to get_snipppet but gives a 1 sentence snippet instead of 2"""
-        f_aliases = set() if aliases is None else set(aliases)
-        if f is not None:
-            f_aliases.add(f)
-        return get_snippet3(docid, corpus, q, f_aliases,
-                            taginfo=dict(
-                                    q_ltag='<span style="font-weight:bold;color:#0028a3">',
-                                    q_rtag='</span>',
-                                    f_ltag='<span style="font-weight:bold;color:#b33125">',
-                                    f_rtag='</span>',)
-                            )
 
 SESSION.close()
