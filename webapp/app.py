@@ -238,6 +238,7 @@ def doc():
     return json.dumps(doc)
 
 
+@app.route('/search', methods=['GET'])
 @app.route('/ir', methods=['GET'])
 def search():
     '''
@@ -256,7 +257,7 @@ def search():
     snippets = []
     out = {}
     counter = 0
-    corpusid = getcorpusid(params.corpus) 
+    corpusid = getcorpusid(params.corpus)
     with index.searcher() as srch:
         results = srch.search(qry, limit=None)
         max_chars = 200 # i.e. how many is the biggest thing that can be a fragment. i think this param is irrelevant bc our unigrams are 16 chars etc
@@ -303,4 +304,4 @@ def search():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host=IP, port=5000)
+    app.run(debug=True, host=IP, port=5000, threaded=True)
