@@ -445,7 +445,8 @@ module.exports = React.createClass({
     window.location = "/quiz?current=rookie&runid=" + this.props.runid + "&q=5_rookie&answer=" + e + "&start=" + this.props.start + "&end=" + window.timestamp();
   },
   update_selected_doc: function(d, pd){
-    var url = "doc?corpus=" + this.props.corpus + "&docid=" + d;
+    var runid = this.props.runid ;
+    var url = "doc?corpus=" + this.props.corpus + "&docid=" + d + "&runid=" + runid;
 
     $.ajax({
                 url: url,

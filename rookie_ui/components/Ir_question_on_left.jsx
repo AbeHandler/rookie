@@ -427,7 +427,8 @@ module.exports = React.createClass({
    }, this.log);
  },
  update_selected_doc: function(d, pd){
-   var url = "doc?corpus=" + this.props.corpus + "&docid=" + d;
+   var runid = this.props.runid;
+   var url = "doc?corpus=" + this.props.corpus + "&docid=" + d + "&runid=" + runid;
 
    $.ajax({
                url: url,

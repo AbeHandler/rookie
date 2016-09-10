@@ -514,7 +514,7 @@ module.exports = React.createClass({
         <div>
             <QueryBar height={query_bar_height}
                       q={this.props.q}
-                      experiment_mode={this.props.experiment_mode}
+                      experiment_mode={this.props.false}
                       corpus={this.props.corpus}/>
                     <Panel style={{width:"100%"}}>
                         <div style={{width:"40%", margin: "auto"}}>
