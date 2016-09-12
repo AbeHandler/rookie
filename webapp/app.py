@@ -51,7 +51,6 @@ def staticr():
 Main app
 '''
 @app.route("/get_doclist", methods=['GET'])
-@lrudecorator(10000)
 def get_doclist():
     '''
     Just post for Q's doclist
@@ -121,7 +120,6 @@ def tut():
 
 
 @app.route('/', methods=['GET'])
-@lrudecorator(10000)
 def main():
     params = Models.get_parameters(request)
     results = Models.get_results(params)
@@ -235,7 +233,6 @@ def grid_search(rookie_avg, surround, fragment_char_limit, whoosh_results, corpu
     return best
 
 @app.route('/doc', methods=['GET'])
-@lrudecorator(10000)
 def doc():
     '''get a doc for display in UI'''
     params = Models.get_parameters(request)
