@@ -6,6 +6,7 @@ from __future__ import division
 import json
 import ipdb
 import logging
+import sys
 
 
 logging.basicConfig(filename='rookie.log',level=logging.DEBUG, format='%(asctime)s###%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
@@ -244,7 +245,6 @@ def doc():
 
 @app.route('/search', methods=['GET'])
 @app.route('/ir', methods=['GET'])
-@lrudecorator(10000)
 def search():
     '''
     Query whoosh
@@ -309,4 +309,4 @@ def search():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host=IP, port=5000, threaded=True)
+    app.run(debug=True, host=IP, port=int(sys.argv[1]), threaded=True)
