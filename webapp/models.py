@@ -50,6 +50,8 @@ def get_facet_datas(binned_facets, results, params, limit=None):
     keys = get_keys(params.corpus)
     q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
     qpdset = set(q_pubdates)
+    if len(binned_facets)==0:
+        return []
     if limit is not None:
         loop_over = binned_facets['g'][0:limit]
     else:
@@ -191,7 +193,7 @@ def getcorpusid(corpus):
     return cid
         
 
-@lrudecorator(3000)
+@lrudecorator(10000)
 def get_doc_metadata(docid, corpus):
     '''
     Just query db for function metatdata
