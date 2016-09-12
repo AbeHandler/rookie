@@ -40,25 +40,17 @@ module.exports = React.createClass({
     },
 
     /**
-    * Find the next sentence to render. Don't decide if it will fit yet
+    * order the sentences for display
     */
-    find_next: function(docs){
+    order: function(docs){
        let qf = _.filter(docs, function(d){
                    return d.snippet.has_q && d.snippet.has_f;
               });
        qf = _.sortBy(qf, function(o) { return o.hash; });
-       if (qf.length > 0){
-            let out = qf[0];
-            return out;
-       }
        let q_or_f = _.filter(docs, function(d){return d.snippet.has_q || d.snippet.has_f});
        q_or_f = _.sortBy(q_or_f, function(o) { return o.hash; });
-       if (q_or_f.length > 0){
-           let out = q_or_f[0];
-           return out;
-       }
        docs = _.sortBy(docs, function(o){return o.hash;});
-       return docs[0];
+       return qf.concat(q_or_f).concat(docs);
     },
 
     get_docs_to_render: function(){
@@ -71,14 +63,8 @@ module.exports = React.createClass({
           end = docs.length;
         }
 
-        //get the docs in correct order based on Q, F
-        while(docs.length > 0){
-            let picked = this.find_next(docs);
-            render.push(picked);
-            _.remove(docs, function(doc) {
-                return doc.docid == picked.docid;
-            });
-        }
+        render = this.order(docs);
+
 
         //find the docs on the current page
         let out = [];

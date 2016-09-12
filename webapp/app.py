@@ -10,6 +10,7 @@ import logging
 
 logging.basicConfig(filename='rookie.log',level=logging.DEBUG, format='%(asctime)s###%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
+from pylru import lrudecorator
 from flask.ext.compress import Compress
 from webapp.models import get_keys, corpus_min_max, get_stuff_ui_needs, filter_f, get_facet_datas, get_doc
 from flask import Flask, request
@@ -35,7 +36,7 @@ def log():
     logging.info("ui|runid|" + request.args.get('data'))
     return ""
 
-# Needed for videos. Dont delete Aug 24, 16
+# Needed for videos. Dont delete Aug 24, '16
 @app.route('/staticr', methods=['GET'])
 def staticr():
     q = request.args.get('q').replace(" ", "_")
@@ -49,6 +50,7 @@ def staticr():
 Main app
 '''
 @app.route("/get_doclist", methods=['GET'])
+@lrudecorator(10000)
 def get_doclist():
     '''
     Just post for Q's doclist
@@ -79,6 +81,7 @@ def get_sents():
 
 
 @app.route("/get_facets_t", methods=['GET'])
+@lrudecorator(10000)
 def get_facets():
     '''
     get facets for a T
@@ -118,6 +121,7 @@ def tut():
 
 
 @app.route('/', methods=['GET'])
+@lrudecorator(10000)
 def main():
     params = Models.get_parameters(request)
     results = Models.get_results(params)
@@ -231,6 +235,7 @@ def grid_search(rookie_avg, surround, fragment_char_limit, whoosh_results, corpu
     return best
 
 @app.route('/doc', methods=['GET'])
+@lrudecorator(10000)
 def doc():
     '''get a doc for display in UI'''
     params = Models.get_parameters(request)
@@ -240,6 +245,7 @@ def doc():
 
 @app.route('/search', methods=['GET'])
 @app.route('/ir', methods=['GET'])
+@lrudecorator(10000)
 def search():
     '''
     Query whoosh
