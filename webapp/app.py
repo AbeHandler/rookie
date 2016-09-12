@@ -81,7 +81,6 @@ def get_sents():
 
 
 @app.route("/get_facets_t", methods=['GET'])
-@lrudecorator(10000)
 def get_facets():
     '''
     get facets for a T
