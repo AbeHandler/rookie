@@ -16,18 +16,17 @@ module.exports = React.createClass({
     if (this.props.experiment_mode){
       alert("you dont need this feature for this task");
     }else{
-      location.href= '/?q='+this.state.value + '&corpus=' + this.props.corpus;
+      location.href= '/' + this.props.url_method + '?q='+this.state.value + '&corpus=' + this.props.corpus;
     }
   },
 
   getInitialState: function() {
     return {
-      value: ''
+      value: this.props.q
     };
   },
 
   changeHandler: function(e) {
-    console.log(e);
     this.setState({
       value: e
     });
@@ -40,14 +39,7 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    let dstyle = {
-      width: "100%"
-    }
     let p_w = $(document).width() * .8;
-    let pstyle = {
-      width:p_w,
-      backgroundColor: "blue"
-    }
     let submitter = this.submitter;
     let changeHandler = this.changeHandler;
     let sub_button;
@@ -63,7 +55,7 @@ module.exports = React.createClass({
       <Navbar style={{height:this.props.height, width: "100%"}} onKeyPress={(e)=> this.handleKeyPress(e)}>
         <Grid>
           <Row className="show-grid">
-            <Col xs={col} md={col}><Input q={this.props.q} style={{pstyle}} changeHandler={changeHandler}/></Col>
+            <Col xs={col} md={col}><Input q={this.props.q} style={{width:p_w, backgroundColor: "blue"}} changeHandler={changeHandler}/></Col>
             {sub_button}
           </Row>
         </Grid>

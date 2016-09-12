@@ -343,7 +343,7 @@ module.exports = React.createClass({
   },
 
   requery: function (arg) {
-      location.href= '/?q='+ arg + '&corpus=' + this.props.corpus;
+      location.href= '/search?q='+ arg + '&corpus=' + this.props.corpus;
   },
 
   /**
@@ -514,6 +514,7 @@ module.exports = React.createClass({
         <div>
             <QueryBar height={query_bar_height}
                       q={this.props.q}
+                      url_method={"search"}
                       experiment_mode={this.props.false}
                       corpus={this.props.corpus}/>
                     <Panel style={{width:"100%"}}>

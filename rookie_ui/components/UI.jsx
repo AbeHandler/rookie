@@ -615,6 +615,7 @@ module.exports = React.createClass({
           <div>
           <QueryBar height={query_bar_height}
                       q={this.props.q}
+                      url_method={""}
                       experiment_mode={false}
                       corpus={this.props.corpus}/>
           <ChartTitle f_docs={docs_ignoreT}
@@ -637,6 +638,7 @@ module.exports = React.createClass({
             {selected_doc}
             <QueryBar height={query_bar_height}
                       q={this.props.q}
+                      url_method={""}
                       experiment_mode={false}
                       corpus={this.props.corpus}/>
              <Panel>
