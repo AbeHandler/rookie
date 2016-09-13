@@ -512,6 +512,7 @@ module.exports = React.createClass({
 
     return(
         <div>
+            {selected_doc}
             <QueryBar height={query_bar_height}
                       q={this.props.q}
                       url_method={"search"}

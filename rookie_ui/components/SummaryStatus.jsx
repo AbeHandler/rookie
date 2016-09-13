@@ -34,7 +34,7 @@ module.exports = React.createClass({
     if (this.props.show_summarize){
       summary_toggle = <span onClick={()=>this.props.turnOnSummary()} style={{float: "right", textDecoration: "underline", cursor: "pointer"}}>summarize</span>
     }
-    let uline_style =  "underline";
+    let uline_style =  "";
     if (this.props.kind_of_doc_list != "summary_baseline"){
        uline_style = "";
     }
@@ -65,7 +65,7 @@ module.exports = React.createClass({
         status =  <div>
                   <span>
                   <span>{summary_of}{this.props.ndocs} </span>
-                  <span><span style={{textDecoration: uline_style, cursor: "pointer"}} onClick={()=>{if(!this.props.static_mode){this.props.turnOnDoclist()}}}>documents</span></span>
+                  <span><span style={{textDecoration: uline_style}}>documents</span></span>
                   <span> for <span style={{color: this.props.q_color, fontWeight: "bold"}}>
                               {this.props.q}&nbsp;
                             </span>

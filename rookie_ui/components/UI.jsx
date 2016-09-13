@@ -441,6 +441,7 @@ module.exports = React.createClass({
                q={this.props.q}
                f={this.state.f}
                q_color={q_color}
+               static_mode={false}
                f_color={f_color}
                page={this.state.summary_page}
                pageupdate={this.pageupdate}
