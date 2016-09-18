@@ -47,7 +47,9 @@ module.exports = React.createClass({
                    return d.snippet.has_q && d.snippet.has_f;
               });
        qf = _.sortBy(qf, function(o) { return o.hash; });
-       let q_or_f = _.filter(docs, function(d){return d.snippet.has_q || d.snippet.has_f});
+       let q_or_f = _.filter(docs, function(d){return (d.snippet.has_q || d.snippet.has_f)
+                                                       && !(d.snippet.has_q && d.snippet.has_f)
+                                               });
        q_or_f = _.sortBy(q_or_f, function(o) { return o.hash; });
        docs = _.sortBy(docs, function(o){return o.hash;});
        return qf.concat(q_or_f).concat(docs);
