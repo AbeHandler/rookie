@@ -113,19 +113,21 @@ def get_jaccard(one, two):
     return jacard
 
 
+def matching(a, b):
+    if a.lower() in b.lower() or b.lower() in a.lower(): # substring
+        return True
+    if get_jaccard(a, b) >= .3:
+        return True
+    if distance(a, b) < 3:
+        return True
+    return False
+
 def cluster(raw_facets, structures, q, K):
     '''K is how many clusters needed'''
     clusters = []
 
     for facet in raw_facets:
         raw, score = facet # just string, no score. raws are tuples: string, score
-        def matching(a, b):
-            if a.lower() in b.lower() or b.lower() in a.lower(): # substring
-                return True
-            if get_jaccard(a, b) >= .5:
-                return True
-            if distance(a, b) < 2:
-                return True
 
         matches = [o for o in clusters for s in o if matching(s[0], raw)]
         if len(matches) == 0:
@@ -184,7 +186,11 @@ def get_facets_for_q(q, results, n_facets, structures):
         numbers = [(structures["decoders"]["ngram"][o[0]], o[0]) for o in cluster_]
         counts = [(structures["df"]["ngram"][c[0]], c[1]) for c in numbers]
         max_c = max(counts, key=lambda x:x[0])
-        out.append(max_c[1])
+        if max_c[1] == "Bashar Assad":
+            ipdb.set_trace()
+        dd = q.lower().encode("ascii", "ignore")
+        if not matching(max_c[1].lower(), dd):
+            out.append(max_c[1])
 
     return {"g": [i.encode("ascii", "ignore") for i in out]}
 
@@ -225,7 +231,7 @@ if __name__ == '__main__':
 
     structures = load_all_data_structures(CORPUS)
     startTime = time.time()
-    facets = get_facets_for_q(args.query, RESULTZ, 25, structures)
+    facets = get_facets_for_q(args.query, RESULTZ, 50, structures)
     print facets
 
 session.close()

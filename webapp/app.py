@@ -87,8 +87,9 @@ def get_facets():
     '''
     params = Models.get_parameters(request)
     results = Models.get_results(params)
-    results = filter_by_date(results, params.corpus, params.startdate, params.enddate)
-    return json.dumps({"d": facets_for_t(params, results)})
+    results_filtered = filter_by_date(results, params.corpus, params.startdate, params.enddate)
+    print len(results), len(results_filtered)
+    return json.dumps({"d": facets_for_t(params, results_filtered, unfiltered_results=results)})
 
 
 def get_avg_snippet_len(params):

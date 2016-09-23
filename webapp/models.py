@@ -44,11 +44,17 @@ def get_headline_xpress(corpus):
         return pickle.load(inf)
 
 
-def get_facet_datas(binned_facets, results, params, limit=None):
+def get_facet_datas(binned_facets, results, params, limit=None, unfiltered_results=None):
     '''build the facet_datas for the ui. limit is a cutoff (for time)'''
     facets = []
     keys = get_keys(params.corpus)
-    q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
+
+    if unfiltered_results is None:
+        q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
+    else:
+        # unfiltered = ignore T in params. Facets show whole time range.
+        print "unfiltered"
+        q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in unfiltered_results]
     qpdset = set(q_pubdates)
     if len(binned_facets)==0:
         return []
@@ -58,7 +64,10 @@ def get_facet_datas(binned_facets, results, params, limit=None):
         loop_over = binned_facets['g']
     for rank, fac in enumerate(loop_over):
         counts = []
-        results_f = filter_f(results, fac, params.corpus)
+        if unfiltered_results is None:
+            results_f = filter_f(results, fac, params.corpus)
+        else:
+            results_f = filter_f(unfiltered_results, fac, params.corpus)
         facet_pds = [load_all_data_structures(params.corpus)["pubdates"][int(f)] for f in results_f]
         for key in keys:
             counts.append(sum(1 for r in facet_pds if 
@@ -68,7 +77,7 @@ def get_facet_datas(binned_facets, results, params, limit=None):
     return facets
 
 
-def facets_for_t(params, results):
+def facets_for_t(params, results, unfiltered_results):
     '''
     get facets for a given T
 
@@ -76,24 +85,11 @@ def facets_for_t(params, results):
     '''
     binned_facets = get_facets_for_q(params.q, results, 200,
                                   load_all_data_structures(params.corpus))
-    keys = get_keys(params.corpus)
-    
-    q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
-    
-    q_data = []
-    for key in keys:
-        q_data.append(sum(1 for r in q_pubdates if r.year==key.year and r.month==key.month))
-
-    stuff_ui_needs = {}
-    stuff_ui_needs["keys"] = [k.strftime("%Y-%m") + "-01" for k in keys]
-    display_bins = []
-    for key in binned_facets:
-        if key != "g":
-            display_bins.append({"key": key, "facets": binned_facets[key]})
     return get_facet_datas(binned_facets=binned_facets, 
                            params=params,
                            results=results,
-                           limit=200)
+                           limit=200,
+                           unfiltered_results=unfiltered_results)
 
 
 
