@@ -19,6 +19,18 @@ You will need a copy of [Brendan O'Connor's wrapper for StanfordCore NLP](https:
 
 `webapp` The Rookie webapp
 
+#### Import new corpora
+
+To import a new corpus you need to have a user=rookie and database=rookie on a local postgres install w/ default ports. 
+
+You will need a file: `corpora/[corpus]/raw/all.extract` which is a tsv, where [corpus] is a corpus name like   h`haiti`.
+
+The format of the tsv is indexed at 0. 
+- Field 1 should be the publication date in the format `YYYYMMDD_0000000` where the 0s dont matter. 
+- Field 4 should be the headline. 
+- Field 5 should be the raw document text.
+
+Then run `getting_and_processing_corpora/load_corpus.sh [corpus]`. The import process requires python2 and a bunch of old dependencies specified in requirements.txt. At some point this might be updated, maybe.
 
 #### Changes
 
