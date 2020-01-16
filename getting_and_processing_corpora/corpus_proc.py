@@ -5,6 +5,7 @@ import os
 import fstphrases
 
 from stanford_corenlp_pywrapper import CoreNLP
+from tqdm import tqdm
 
 import argparse
 parser = argparse.ArgumentParser()
@@ -13,7 +14,7 @@ parser.add_argument('--nlpjar', help='where is core nlp?', required=True)
 parser.add_argument('--tagset', help='np fst tag set', required=False)
 args = parser.parse_args()
 
-proc = CoreNLP("parse", corenlp_jars=[args.nlpjar + '/*'])
+proc = CoreNLP("pos", corenlp_jars=[args.nlpjar + '/*'])
 
 try:
     os.remove('corpora/' + args.corpus + '/processed/all.anno_plus')
@@ -61,7 +62,9 @@ def sent_to_string(j_doc_sent):
 
 with open ("corpora/" + args.corpus + "/raw/all.extract") as raw:
     count = 0
-    for line in csv.reader(raw, delimiter="\t"):
+    import sys
+    csv.field_size_limit(sys.maxsize)
+    for line in tqdm(csv.reader(raw, delimiter="\t")):
         count += 1
         out = {}
         pubdate = line[1]

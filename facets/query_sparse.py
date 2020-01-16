@@ -155,7 +155,7 @@ def get_facet_tfidf_cutoff(results, structures, facet_type, n_facets):
         n_counts = structures["vectors"][r]
         for n in n_counts:
             tfs[n] += 1
-    
+
     tfidfs = defaultdict(int)
     idf = structures["idf"][facet_type]
     for t in tfs:

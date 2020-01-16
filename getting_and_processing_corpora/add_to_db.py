@@ -14,13 +14,13 @@ session = Session()
 
 
 rows = session.connection().execute("select * from corpora")
-   
+
 all_corpora = []
 for r in rows:
     all_corpora.append(r[1].strip())
 
 rows = session.connection().execute("select * from corpora")
-   
+
 allids = []
 for r in rows:
     allids.append(r[0])
