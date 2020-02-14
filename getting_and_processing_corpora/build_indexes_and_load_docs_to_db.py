@@ -117,7 +117,7 @@ def load(index_location, processed_location):
             except UnicodeError:
                 pass
         # create_pubdate_index(ngram_pubdate_index)
-        print "Committing to whoosh"
+        #print "Committing to whoosh"
         writer.commit(mergetype=writing.CLEAR)
 
 if __name__ == '__main__':

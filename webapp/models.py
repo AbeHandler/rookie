@@ -2,10 +2,9 @@
 Application logic for webapp should be in here
 '''
 import datetime
-import ipdb
 import ujson
 import time
-import cPickle as pickle
+import pickle
 from datetime import datetime
 from collections import defaultdict
 from dateutil.parser import parse
@@ -18,8 +17,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from facets.query_sparse import get_facets_for_q, load_all_data_structures
 from pylru import lrudecorator
-from collections import OrderedDict
-import traceback
+
 
 ENGINE = create_engine(CONNECTION_STRING)
 SESS = sessionmaker(bind=ENGINE)
@@ -53,7 +51,6 @@ def get_facet_datas(binned_facets, results, params, limit=None, unfiltered_resul
         q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
     else:
         # unfiltered = ignore T in params. Facets show whole time range.
-        print "unfiltered"
         q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in unfiltered_results]
     qpdset = set(q_pubdates)
     if len(binned_facets)==0:

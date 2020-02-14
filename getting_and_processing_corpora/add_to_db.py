@@ -29,6 +29,6 @@ newmax = max(allids) + 1
 
 if args.corpus not in all_corpora:
     session.connection().execute("INSERT into corpora (corpusid, corpusname) VALUES ('{}', '{}');".format(newmax, args.corpus))
-    print "added to db"
+    print("added to db")
 
 session.commit()

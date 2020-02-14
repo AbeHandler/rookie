@@ -6,9 +6,10 @@ THRESHOLD = .7
 
 DEBUG = True
 
+
 def debug_print(*args):
     if DEBUG:
-        print "\t".join(args)
+        print("\t".join(args))
 
 
 def find_canonical(a, b, counter):
@@ -100,7 +101,7 @@ def merge_terms(counter, n):
     tracker = 1
     try:
         while len(cluster_list) < n:
-            print counter[tracker]
+            print(counter[tracker])
             new_one = counter[tracker]
             tracker += 1
             accepted = False
@@ -115,13 +116,10 @@ def merge_terms(counter, n):
                     pass
                     # print "rejected", new_one, cluster
             if not accepted:
-                #if new_one == "oil science":
-                #    import ipdb
-                #    ipdb.set_trace()
                 debug_print("cant find a cluster for {}. Making a new one".format(new_one))
                 cluster_list.append([new_one])
     except IndexError:
-        print "Cant get up to N. Ending early"
+        print("Cant get up to N. Ending early")
         return [coronate(cluster) for cluster in cluster_list]
 
     return [coronate(cluster) for cluster in cluster_list]

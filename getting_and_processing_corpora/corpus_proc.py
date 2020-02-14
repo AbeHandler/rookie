@@ -22,8 +22,10 @@ except:
     pass
 
 
+
+
 if args.tagset is None:
-    print "[*] using default tagset for npfst"
+    print("[*] using default tagset for npfst")
 
 
 def get_phrases(tags, toks):
@@ -69,7 +71,7 @@ with open ("corpora/" + args.corpus + "/raw/all.extract") as raw:
         out = {}
         pubdate = line[1]
         headline = line[4]
-        print headline
+        print(headline)
         text = proc.parse_doc(un_html_ify(line[5]))
         try:
             url = line[6]

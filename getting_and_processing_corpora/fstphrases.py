@@ -92,16 +92,16 @@ def draw_pdf(transducer, outfile=None, symfile=None): #osymbolfile, isymbolfile)
         osymbolfile = "%s.osyms" % tmp
         with open(isymbolfile,'w') as f:
             for k,v in transducer.isyms.items():
-                print>>f, (u"%s\t%d" % (k,v)).encode("utf8")
+                #print>>f, (u"%s\t%d" % (k,v)).encode("utf8")
         with open(osymbolfile,'w') as f:
             for k,v in transducer.osyms.items():
-                print>>f, (u"%s\t%d" % (k,v)).encode("utf8")
+                pass#print>>f, (u"%s\t%d" % (k,v)).encode("utf8")
     transducer.write("%s.bin" % tmp)
     os.system("""
         fstdraw --portrait --osymbols={osymbolfile}  --isymbols={isymbolfile}
         {tmp}.bin {tmp}.dot""".format(**locals()).replace("\n"," "))
     os.system("dot -Tpdf %s.dot > %s" % (tmp, outfile))
-    print>>sys.stderr, "Output to", outfile
+    #print>>sys.stderr, "Output to", outfile
 
 def dump_paths(t):
     # from http://pyfst.github.io/user_guide.html
@@ -111,7 +111,7 @@ def dump_paths(t):
         path_ostring = ' '.join(t.osyms.find(arc.olabel) for arc in path)
         # path_weight = reduce(operator.mul, (arc.weight for arc in path))
         path_weight=0
-        print(u'{:5} | {:4} | {} / {}'.format(i, path_istring, path_ostring, path_weight))
+        #print(u'{:5} | {:4} | {} / {}'.format(i, path_istring, path_ostring, path_weight))
 
 
 def findstarts2(t):
@@ -286,12 +286,12 @@ def view_multipos():
         toks,tagprobs,text = line.split("\t")
         toks = toks.decode("utf-8").split()
         tagprobs=json.loads(tagprobs)
-        print "TEXT\t%s" % (text.strip())
+        #print "TEXT\t%s" % (text.strip())
         for tok,probs in zip(toks,tagprobs):
             items = sorted(probs.items(), key=lambda (t,p): (-p,t))
             rankprobs = ["%s:%.3f" % (t,p) for t,p in items]
             rankprobs = ' '.join(rankprobs)
-            print u"\t%s\t%s" % (tok, rankprobs)
+            #print u"\t%s\t%s" % (tok, rankprobs)
 
 def run_multipos(thresh=0.1):
     import ujson as json
@@ -300,16 +300,16 @@ def run_multipos(thresh=0.1):
         toks,tagprobs,text = line.split("\t")
         toks = toks.split()
         tagprobs=json.loads(tagprobs)
-        print "TEXT\t%s" % (text.strip())
+        #print "TEXT\t%s" % (text.strip())
         for span in extract_from_pos_posterior(tagprobs, absthresh=float(thresh)):
-            print "P\t%s\t%s" % (json.dumps(span), ' '.join(toks[span[0]:span[-1]+1]))
+            pass #print "P\t%s\t%s" % (json.dumps(span), ' '.join(toks[span[0]:span[-1]+1]))
 
 def run_multipos2():
     import ujson as json
     ## sys.stdin are lines from the uncertain_tagging/ tagger
     for line in sys.stdin:
         toks,tagprobs,text = line.split("\t")
-        print toks
+        #print toks
         toks = toks.split()
         tagprobs=json.loads(tagprobs)
 
@@ -355,9 +355,9 @@ def view_phrases_from_text(text, phrase_transducer):
     jdoc = extract_from_text(text, phrase_transducer)
     for sent in jdoc['sentences']:
         # print "===", u' '.join(sent['tokens'])
-        print "===", u' '.join(u"%s_%d" % (sent['tokens'][i],i) for i in range(len(sent['tokens'])))
+        #print "===", u' '.join(u"%s_%d" % (sent['tokens'][i],i) for i in range(len(sent['tokens'])))
         for phrase in sent['phrases']:
-            print u"\t%s\t%s\t%s" % (phrase['normalized'], u' '.join(sent['pos'][i] for i in phrase['positions']), dumps(phrase['positions']))
+            pass #print u"\t%s\t%s\t%s" % (phrase['normalized'], u' '.join(sent['pos'][i] for i in phrase['positions']), dumps(phrase['positions']))
 
 if __name__=='__main__':
     eval(sys.argv[1])(*sys.argv[2:])

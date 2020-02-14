@@ -12,7 +12,6 @@ import sys
 logging.basicConfig(filename='rookie.log',level=logging.DEBUG, format='%(asctime)s###%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 from pylru import lrudecorator
-from flask.ext.compress import Compress
 from webapp.models import get_keys, corpus_min_max, get_stuff_ui_needs, filter_f, get_facet_datas, get_doc
 from flask import Flask, request
 from facets.query_sparse import get_facets_for_q, load_all_data_structures
@@ -24,7 +23,7 @@ from webapp import IP, ROOKIE_JS, ROOKIE_CSS, BASE_URL, SAVEMODE
 from facets.query_sparse import filter_by_date
 
 app = Flask(__name__)
-Compress(app)
+
 
 views = Views(IP, ROOKIE_JS, ROOKIE_CSS, BASE_URL)
 
@@ -88,7 +87,6 @@ def get_facets():
     params = Models.get_parameters(request)
     results = Models.get_results(params)
     results_filtered = filter_by_date(results, params.corpus, params.startdate, params.enddate)
-    print len(results), len(results_filtered)
     return json.dumps({"d": facets_for_t(params, results_filtered, unfiltered_results=results)})
 
 
@@ -104,7 +102,6 @@ def get_avg_snippet_len(params):
 def save(params, out):
     if params.f is None:
         params.f = "None"
-    print "saving..."
     with open("save-{}-{}".format(params.q.replace(" ", "_"), params.f.replace(" ", "_")), "w") as outf:
         pickle.dump(out, outf)
 
@@ -117,7 +114,6 @@ def tut():
         out = pickle.load(inf)
     out["runid"] = request.args.get('runid')
     return views.handle_query(out)
-
 
 
 @app.route('/', methods=['GET'])
@@ -186,7 +182,7 @@ from sqlalchemy.orm import sessionmaker
 from webapp import CONNECTION_STRING
 from pylru import lrudecorator
 from webapp.models import get_keys
-import cPickle as pickle
+import pickle
 
 @lrudecorator(100)
 def get_pubdates_xpress(corpus):
@@ -225,13 +221,12 @@ def grid_search(rookie_avg, surround, fragment_char_limit, whoosh_results, corpu
                 sss = str(a.highlights("content", text=sss, top=top))
                 sum_ += len(sss)
             diff = abs(rookie_avg - sum_/len(results))
-            print "top of {} gives diff of {}".format(top, diff)
         if diff < best_distance_so_far:
             best = top
             best_distance_so_far = diff
 
-    print "best top = {}".format(best)
     return best
+
 
 @app.route('/doc', methods=['GET'])
 def doc():

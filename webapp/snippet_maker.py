@@ -1,8 +1,7 @@
-import re,os,json
+import re
 import time
-import itertools
 import hashlib
-import cPickle as pickle
+import pickle
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from webapp import CONNECTION_STRING
@@ -12,6 +11,7 @@ from pylru import lrudecorator
 ENGINE = create_engine(CONNECTION_STRING)
 SESS = sessionmaker(bind=ENGINE)
 SESSION = SESS()
+
 
 @lrudecorator(10000)
 def get_preproc_sentences(docid, corpusid):
@@ -156,42 +156,21 @@ def runq(q):
     from experiment.models import Models
     params = FakeParams(q=q)
     q_docids = Models.get_results(params)
-    facets,aliases = Models.get_facets(params, q_docids)
-    print "QUERY",q
-    print "FACETS", facets
-    for f in facets:
-        print f, sorted(aliases[f])
-    print "%s q docs" % len(q_docids)
+    facets, aliases = Models.get_facets(params, q_docids)
 
     for f in facets:
-        runf(q,f,q_docids,aliases[f])
+        runf(q, f, q_docids, aliases[f])
+
 
 def runf(q,f,q_docids,aliases):
     from experiment.models import get_doc_metadata, Models
     aliases = set([f] + list(aliases))
 
-    print
     f_docids = Models.f_occurs_filter(q_docids, facet=f, aliases=aliases)
-    print
-    print "-----------------------------------------"
-    print "Q = %-15s\tF = %-30s has %d docids" % (q,f, len(f_docids))
-    print "ALIASES", aliases
 
     for docid in f_docids[:5]:
         d = get_doc_metadata(docid)
-        print
-        print "== doc%s\t%s\t%s" % (docid, d['pubdate'], d.get('headline',""))
-        print "   DOC&FA: ", sorted(set(d['ngram']) & set(aliases))
-
 
         t0 = time.time()
-
-        # hsents = get_snippet1(docid, q=q, f_aliases=[f])
-        # hsents = get_snippet2(docid, q=q, f_aliases=[f])
-        hsents = get_snippet2(docid, q=q, f_aliases=aliases)
-
-        # print "  snippet time", time.time()-t0
-        for h in hsents:
-            print "  s%s\tq=%d f=%d\t%s" % (h['sentnum'], h['has_q'], h['has_f'], h['htext'])
 
 SESSION.close()

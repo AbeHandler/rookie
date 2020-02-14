@@ -9,7 +9,7 @@ import operator
 import datetime
 import ipdb
 import time
-import cPickle as pickle
+import pickle
 import argparse
 
 from facets.merger import merge_terms
@@ -83,7 +83,7 @@ def get_ndocs(corpus):
 
 def debug_print(msg):
     if DEBUG:
-        print msg
+        print(msg)
 
 @lrudecorator(100)
 def load_all_data_structures(corpus):
@@ -232,6 +232,6 @@ if __name__ == '__main__':
     structures = load_all_data_structures(CORPUS)
     startTime = time.time()
     facets = get_facets_for_q(args.query, RESULTZ, 50, structures)
-    print facets
+    print(facets)
 
 session.close()
