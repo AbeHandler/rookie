@@ -5,6 +5,7 @@ from whoosh.index import create_in
 from whoosh.fields import Schema, TEXT, ID
 from whoosh import writing
 from collections import defaultdict
+from unidecode import unidecode
 import csv
 import os
 import ipdb
@@ -29,6 +30,7 @@ session = Session()
 
 import spacy
 nlp = spacy.load("en_core_web_sm")
+nlp.add_pipe(nlp.create_pipe('sentencizer'))
 
 
 def getcorpusid():
@@ -47,15 +49,13 @@ def load(index_location, processed_location):
     '''
 
     s_counter = 0 # only increments when doc actually added to whoosh
-    # w/o this kludge, doc ids cause index errors b/c loop counter higher b/c ~15 docs error on load
+    # w/o this doc ids cause index errors b/c loop counter higher b/c ~15 docs error on load
 
     schema = Schema(title=TEXT(stored=True), path=ID(stored=True), content=TEXT)
     ix = create_in(index_location, schema)
     writer = ix.writer()
 
-    ngram_pubdate_index = defaultdict(list)
-
-    headlines_so_far = set() # eliminate dupes. eventually fancier methods?
+    headlines_so_far = set()
     go = lambda *args: session.connection().execute(*args)
     go('delete from doc_metadata where corpusid={}'.format(CORPUSID))
     go('delete from sentences_preproc where corpusid={}'.format(CORPUSID))
@@ -92,34 +92,35 @@ def load(index_location, processed_location):
 
                 full_text = line_json["text"]
 
-                doc = nlp(line_json["text"])
+                doc = nlp(line_json["text"], disable=["parser", "ner"])
 
                 tokens = [token.text for token in doc]
                 pos = [token.pos_ for token in doc]
 
                 ngrams = list(phrasemachine.get_phrases(tokens=tokens, postags=pos)['counts'].keys())
 
+                ngrams = [unidecode(i) for i in ngrams]
+
                 #sentences = line_json["text"]["sentences"]
-                preprocsentences = "###$$$###".join([str(i) for i in doc.sents])
+                preprocsentences = "###$$$###".join([unidecode(str(i)) for i in doc.sents])
 
                 if len(headline) > 0 and len(full_text) > 0 and headline not in headlines_so_far:
                     headlines_so_far.add(headline)
                     writer.add_document(title=headline, path=u"/" + str(s_counter),
                                         content=full_text)
-                    per_doc_json_blob = {'headline': headline,
+                    per_doc_json_blob = {'headline': unidecode(headline),
                                          'pubdate': pubdate.strftime('%Y-%m-%d'),
                                          'ngrams': ngrams,
+                                         "unigrams": tokens,
                                          "url": url,
                                          "sentences": ""}
                     go("""INSERT INTO doc_metadata (docid, data, corpusid) VALUES (%s, %s, %s)""", s_counter, ujson.dumps(per_doc_json_blob), CORPUSID)
                     go("""INSERT INTO sentences_preproc (corpusid, docid, delmited_sentences) VALUES (%s, %s, %s)""", CORPUSID, s_counter, preprocsentences)
-                    for ngram in ngrams:
-                        ngram_pubdate_index[ngram].append(pubdate.strftime('%Y-%m-%d'))
+                    #for ngram in ngrams:
+                    #    ngram_pubdate_index[ngram].append(pubdate.strftime('%Y-%m-%d'))
                     s_counter += 1
-                    if s_counter % 1000 == 0:
-                        sys.stdout.write("...%s" % s_counter); sys.stdout.flush()
             except UnicodeError:
-                pass
+                print("o")
         writer.commit(mergetype=writing.CLEAR)
 
 

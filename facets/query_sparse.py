@@ -62,7 +62,7 @@ def load_sparse_vector_data_structures(corpus):
     results = session.connection().execute("select * from count_vectors where corpusid='{}'".format(corpusid))
     for i, row in enumerate(results):
         # row = (doc id, corpus id, data)
-        output[unicode(row[0])] = row[2].keys() # raw form ==> [u'34986', u'20174' ... u'6664']
+        output[row[0]] = row[2].keys() # raw form ==> [u'34986', u'20174' ... u'6664']
     return output
 
 def filter_by_date(results, corpus, start_d, end_d):
@@ -152,6 +152,7 @@ def get_facet_tfidf_cutoff(results, structures, facet_type, n_facets):
     '''
     tfs = defaultdict(int)
     for r in results:
+        print(structures['vectors'])
         n_counts = structures["vectors"][r]
         for n in n_counts:
             tfs[n] += 1

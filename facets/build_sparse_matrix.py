@@ -4,7 +4,6 @@ Create a sparse matrix for every doc showing what ngrams it has.
 These should be very small b.c gonna try to fit them all in memory
 '''
 from collections import defaultdict
-from pylru import lrudecorator
 from tempfile import mkdtemp
 import ujson
 import datetime
@@ -14,7 +13,8 @@ import glob
 import sys
 import time
 import ipdb
-import cPickle as pickle
+from tqdm import tqdm
+import pickle
 import numpy as np
 import argparse
 from webapp.models import get_doc_metadata
@@ -56,7 +56,7 @@ def get_all_doc_ids():
 # get all docids from whoosh
 ALLDOCIDS = get_all_doc_ids()
 
-print len(ALLDOCIDS)
+print(len(ALLDOCIDS))
 
 def count_facets():
     '''
@@ -65,19 +65,17 @@ def count_facets():
     ngram_count = defaultdict(int)
 
     counter = 0
-    print "looping over all docids to count ngrams"
+    print("looping over all docids to count ngrams")
 
     for docid in ALLDOCIDS:
         try:
             counter += 1
-            if counter % 1000 == 0:
-                sys.stdout.write("...%s" % counter); sys.stdout.flush()
             ngram = get_doc_metadata(docid, args.corpus)["ngrams"]
             for n in ngram:
                 ngram_count[n] += 1
 
         except UnicodeError:
-            print "error"
+            print("error")
 
     return ngram_count
 
@@ -97,14 +95,14 @@ def df_vec(counter, decoder, noccurs):
 # http://stackoverflow.com/questions/26496831/how-to-convert-defaultdict-of-defaultdicts-of-defaultdicts-to-dict-of-dicts-o
 def default_to_regular(d):
     if isinstance(d, defaultdict):
-        d = {k: default_to_regular(v) for k, v in d.iteritems()}
+        d = {k: default_to_regular(v) for k, v in d.items()}
     return d
 
 def build_matrix(docids, ok_ngrams, all_unigrams):
     '''
     This function builds sparse count vectors for each doc, held in memory
     '''
-    print "[*] Building sparse vectors, putting them in postgres ... "
+    print("[*] Building sparse vectors, putting them in postgres ... ")
 
     string_to_pubdate_index = defaultdict(list)
 
@@ -126,14 +124,14 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
     headlines_xpress = defaultdict(str)
 
     ngrams_sentences = defaultdict(lambda : defaultdict(list))
-    for dinex, docid in enumerate(docids):
+    for dinex, docid in enumerate(tqdm(docids)):
         docid = int(docid)
-        if dinex % 1000 == 0:
-            sys.stdout.write("...%s" % dinex); sys.stdout.flush()
         mdata = get_doc_metadata(docid, args.corpus)
         pubdate = datetime.datetime.strptime(mdata["pubdate"], '%Y-%m-%d')
         pubdates[docid] = pubdate
-        ngram = set([str(j) for j in get_doc_metadata(docid, args.corpus)["ngrams"] if j in ok_ngrams])
+
+        doc_ngrams = get_doc_metadata(docid, args.corpus)["ngrams"]
+        ngram = set([j for j in doc_ngrams if j in ok_ngrams])
 
         urls_xpress[docid] = mdata["url"]
         headlines_xpress[docid] = mdata["headline"]
@@ -151,9 +149,9 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
             string_to_pubdate_index[n].append(get_doc_metadata(docid, args.corpus)["pubdate"])
             ngram_counter[n] += 1
         go("""INSERT INTO count_vectors (docid, CORPUSID, data) VALUES (%s, %s, %s)""", dinex, int(CORPUSID), ujson.dumps(ngrams_in_doc))
-    print "\ncommitting to db"
+    print("\ncommitting to db")
     session.commit()
-    print "\ndumping pickled stuff..."
+    print("\ndumping pickled stuff...")
 
     NDOCS = len(docids)
 
@@ -167,7 +165,11 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
 
     pickle.dump(df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams)), open("indexes/{}/ngram_df.p".format(args.corpus), "wb" ))
 
-    pickle.dump(np.log(NDOCS / df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams))), open("indexes/{}/ngram_idf.p".format(args.corpus), "wb" ))
+    dfs = df_vec(ngram_counter, ngram_to_slot, len(ok_ngrams))
+
+    ou = np.log(NDOCS / dfs)
+
+    pickle.dump(ou, open("indexes/{}/ngram_idf.p".format(args.corpus), "wb"))
 
     pickle.dump(dict(string_to_pubdate_index), open("indexes/{}/string_to_pubdate_index.p".format(args.corpus), "wb" ))
 
@@ -176,24 +178,19 @@ def filter(input, n):
     '''
     Filter input to cases where v > n
     '''
-    return set([k.encode('ascii', 'ignore') for k, v in input.iteritems() if v >= n])
+    return set([k for k, v in input.items() if v >= n])
 
 
 def get_all_unigrams(docids):
     unigrams = set()
-    print "[*] looping over unigrams"
+    print("[*] looping over unigrams")
     for dinex, docid in enumerate(docids):
-        if dinex % 1000 == 0:
-            sys.stdout.write("...%s" % dinex); sys.stdout.flush()
-        sents = get_doc_metadata(docid, args.corpus)["sentences"]
-        for s in sents:
-            for u in s["tokens"]:
-                unigrams.add(u)
+        for u in get_doc_metadata(docid, args.corpus)["unigrams"]:
+            unigrams.add(u)
     return list(unigrams)
 
 
 if __name__ == '__main__':
-    print "Running facets"
     all_facets = count_facets()
     ngram = filter(all_facets, 5)
     all_unigrams = get_all_unigrams(ALLDOCIDS)
