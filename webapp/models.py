@@ -67,11 +67,13 @@ def get_facet_datas(binned_facets, results, params, limit=None, unfiltered_resul
         else:
             results_f = filter_f(unfiltered_results, fac, params.corpus)
         facet_pds = [load_all_data_structures(params.corpus)["pubdates"][int(f)] for f in results_f]
+        print(facet_pds, results_f)
         for key in keys:
             counts.append(sum(1 for r in facet_pds if
                               r.year == key.year and r.month == key.month
                               and r in qpdset))
-        facets.append({"f": fac, "counts": counts, "rank": rank})
+        a = {"f": fac, "counts": counts, "rank": rank}
+        facets.append(a)
     return facets
 
 
@@ -209,7 +211,7 @@ def filter_f(results, f, corpus):
         return results
     ds = load_all_data_structures(corpus)["vectors"]
     f_ngram_no = load_all_data_structures(corpus)["decoders"]["ngram"][f]
-    return [r for r in results if f_ngram_no in ds[int(r)]]
+    return [r for r in results if str(f_ngram_no) in ds[int(r)]]
 
 
 @lrudecorator(100)
