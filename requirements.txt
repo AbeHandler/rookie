@@ -106,7 +106,7 @@ srsly==0.1.0
 stanford-corenlp-pywrapper==0.1.0
 stop-words==2018.7.23
 tensorboard==1.15.0
-tensorflow==1.15.0
+tensorflow==1.15.2
 tensorflow-estimator==1.15.1
 termcolor==1.1.0
 terminado==0.8.2
