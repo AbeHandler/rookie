@@ -104,6 +104,12 @@ def load(index_location, processed_location):
                 #sentences = line_json["text"]["sentences"]
                 preprocsentences = "###$$$###".join([unidecode(str(i)) for i in doc.sents])
 
+
+                sentences = []
+                for s in doc.sents:
+                    toks = [str(i) for i in s]
+                    sentences.append({"tokens": toks})
+
                 if len(headline) > 0 and len(full_text) > 0 and headline not in headlines_so_far:
                     headlines_so_far.add(headline)
                     writer.add_document(title=headline, path=u"/" + str(s_counter),
@@ -113,7 +119,8 @@ def load(index_location, processed_location):
                                          'ngrams': ngrams,
                                          "unigrams": tokens,
                                          "url": url,
-                                         "sentences": ""}
+                                         "sentences": sentences,
+                                         "nsentences": sum(1 for i in doc.sents)}
                     go("""INSERT INTO doc_metadata (docid, data, corpusid) VALUES (%s, %s, %s)""", s_counter, ujson.dumps(per_doc_json_blob), CORPUSID)
                     go("""INSERT INTO sentences_preproc (corpusid, docid, delmited_sentences) VALUES (%s, %s, %s)""", CORPUSID, s_counter, preprocsentences)
                     #for ngram in ngrams:

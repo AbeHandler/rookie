@@ -136,7 +136,7 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
         urls_xpress[docid] = mdata["url"]
         headlines_xpress[docid] = mdata["headline"]
         sents = get_doc_metadata(docid, args.corpus)["sentences"]
-        docid_n_sentences[docid] = len(sents)
+        docid_n_sentences[docid] = get_doc_metadata(docid, args.corpus)["nsentences"]
         for s_no, sent in enumerate(sents):
             for sent_unigram in sent["tokens"]:
                 try:

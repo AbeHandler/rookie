@@ -24,12 +24,12 @@ def get_preproc_sentences(docid, corpusid):
 
 @lrudecorator(100)
 def get_unigram_key(corpus):
-    with open("indexes/{}/unigram_key.p".format(corpus)) as inf:
+    with open("indexes/{}/unigram_key.p".format(corpus), "rb") as inf:
         return pickle.load(inf)
 
 @lrudecorator(100)
 def get_nsentences_key(corpus):
-    with open("indexes/{}/how_many_sents_in_doc.p".format(corpus)) as inf:
+    with open("indexes/{}/how_many_sents_in_doc.p".format(corpus), "rb") as inf:
         return pickle.load(inf)
 
 # a new copy here to avoid circular import w/ models
@@ -69,28 +69,34 @@ def get_snippet3(docid, corpus, q, f):
         f_aliases.append(f)
     all_n_sentences = range(get_nsentences_key(corpus)[int(docid)])
 
+    print(all_n_sentences)
+
     priority_list = all_n_sentences # you could use an index to save time instead of looping
                                     # over sentences
 
-
-    from Queue import PriorityQueue
-    priority_queue = PriorityQueue()                            
+    print("i")
+    from queue import PriorityQueue
+    priority_queue = PriorityQueue()
     corpusid = getcorpusid(corpus) 
     sentences = get_preproc_sentences(docid, corpusid) 
-    
+
+    print("j", priority_list)
     for sentnum in priority_list:
         toktext = sentences[sentnum]
         hsent = hilite(toktext, q, sentnum, docid, f_aliases, taginfo=taginfo)
-        hsent["htext"] = hsent["htext"].encode('ascii', 'ignore')
+        hsent["htext"] = hsent["htext"]
         if hsent['has_q'] and hsent['has_f']:
             priority_queue.put((1, sentnum, hsent))
         elif hsent['has_q'] or hsent['has_f']:
             priority_queue.put((2, sentnum, hsent))
         else:
             priority_queue.put((3, sentnum, hsent))
-        
-    #default, just return the top
 
+    print("k")
+    print("opopo")
+    print(priority_queue.get(timeout=3))
+    print(priority_queue.get()[2])
+    print("l")
     return priority_queue.get()[2]
 
 
@@ -139,6 +145,7 @@ def hilite(text, q, sentnum, docid, f_aliases=None, taginfo=None):
     has_q = text3 != text2
     docid = str(docid)
 
+    docid = docid.encode()
     return dict(has_q=has_q, has_f=has_f, htext=text3, sentnum=sentnum, hash = hashlib.md5(docid).hexdigest())
 
 

@@ -122,6 +122,7 @@ def matching(a, b):
         return True
     return False
 
+
 def cluster(raw_facets, structures, q, K):
     '''K is how many clusters needed'''
     clusters = []
@@ -152,8 +153,7 @@ def get_facet_tfidf_cutoff(results, structures, facet_type, n_facets):
     '''
     tfs = defaultdict(int)
     for r in results:
-        print(structures['vectors'])
-        n_counts = structures["vectors"][r]
+        n_counts = structures["vectors"][int(r)]
         for n in n_counts:
             tfs[n] += 1
 
@@ -186,15 +186,12 @@ def get_facets_for_q(q, results, n_facets, structures):
     for cluster_ in clusters:
         numbers = [(structures["decoders"]["ngram"][o[0]], o[0]) for o in cluster_]
         counts = [(structures["df"]["ngram"][c[0]], c[1]) for c in numbers]
-        max_c = max(counts, key=lambda x:x[0])
-        if max_c[1] == "Bashar Assad":
-            ipdb.set_trace()
-        dd = q.lower().encode("ascii", "ignore")
+        max_c = max(counts, key=lambda x: x[0])
+        dd = q.lower()
         if not matching(max_c[1].lower(), dd):
             out.append(max_c[1])
 
-    return {"g": [i.encode("ascii", "ignore") for i in out]}
-
+    return {"g": [i for i in out]}
 
 
 if __name__ == '__main__':
@@ -224,15 +221,13 @@ if __name__ == '__main__':
 
     aliases = defaultdict(list)
 
-    DEBUG = False # by default false. can be set to T w/ arg -v in command line mode
-
     CORPUS_ID = getcorpusid(CORPUS)
 
-    RESULTZ = filter_by_date(query(args.query, args.corpus), args.corpus, start, end)
+    results = filter_by_date(query(args.query, args.corpus), args.corpus, start, end)
 
     structures = load_all_data_structures(CORPUS)
     startTime = time.time()
-    facets = get_facets_for_q(args.query, RESULTZ, 50, structures)
+    facets = get_facets_for_q(args.query, results, 50, structures)
     print(facets)
 
 session.close()

@@ -5,6 +5,7 @@ import datetime
 import ujson
 import time
 import pickle
+from tqdm import tqdm
 from datetime import datetime
 from collections import defaultdict
 from dateutil.parser import parse
@@ -26,19 +27,19 @@ SESSION = SESS()
 @lrudecorator(100)
 def get_urls_xpress(corpus):
     '''load and cache url quick lookup'''
-    with open("indexes/{}/urls_xpress.p".format(corpus)) as inf:
+    with open("indexes/{}/urls_xpress.p".format(corpus), "rb") as inf:
         return pickle.load(inf)
 
 @lrudecorator(100)
 def get_pubdates_xpress(corpus):
     '''load and cache pubdates quick lookup'''
-    with open("indexes/{}/pubdates_xpress.p".format(corpus)) as inf:
+    with open("indexes/{}/pubdates_xpress.p".format(corpus), "rb") as inf:
         return pickle.load(inf)
 
 @lrudecorator(100)
 def get_headline_xpress(corpus):
     '''load and cache pubdates headline lookup'''
-    with open("indexes/{}/headlines_xpress.p".format(corpus)) as inf:
+    with open("indexes/{}/headlines_xpress.p".format(corpus), "rb") as inf:
         return pickle.load(inf)
 
 
@@ -67,10 +68,10 @@ def get_facet_datas(binned_facets, results, params, limit=None, unfiltered_resul
             results_f = filter_f(unfiltered_results, fac, params.corpus)
         facet_pds = [load_all_data_structures(params.corpus)["pubdates"][int(f)] for f in results_f]
         for key in keys:
-            counts.append(sum(1 for r in facet_pds if 
+            counts.append(sum(1 for r in facet_pds if
                               r.year == key.year and r.month == key.month
                               and r in qpdset))
-        facets.append({"f":fac, "counts":counts, "rank": rank})
+        facets.append({"f": fac, "counts": counts, "rank": rank})
     return facets
 
 
@@ -81,18 +82,21 @@ def facets_for_t(params, results, unfiltered_results):
     results are presumed filtred by T already so there is not much more to do
     '''
     binned_facets = get_facets_for_q(params.q, results, 200,
-                                  load_all_data_structures(params.corpus))
-    return get_facet_datas(binned_facets=binned_facets, 
+                                     load_all_data_structures(params.corpus))
+    return get_facet_datas(binned_facets=binned_facets,
                            params=params,
                            results=results,
                            limit=200,
                            unfiltered_results=unfiltered_results)
 
 
-
 def get_stuff_ui_needs(params, results):
 
+    print("as")
+
     binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
+
+    print("234")
 
     # building keys
     stuff_ui_needs = {}
@@ -109,6 +113,8 @@ def get_stuff_ui_needs(params, results):
     for k in keys:
         k = k.strftime("%Y-%m")
         q_data.append(tracker[k])
+
+    print("oosososo")
 
     stuff_ui_needs["keys"] = [str(k.strftime("%Y-%m") + "-01") for k in keys]
 
@@ -184,7 +190,7 @@ def getcorpusid(corpus):
     go = lambda *args: SESSION.connection().execute(*args)
     cid = go("select corpusid from corpora where corpusname='{}'".format(corpus)).fetchone()[0]
     return cid
-        
+
 
 @lrudecorator(10000)
 def get_doc_metadata(docid, corpus):
@@ -203,8 +209,7 @@ def filter_f(results, f, corpus):
         return results
     ds = load_all_data_structures(corpus)["vectors"]
     f_ngram_no = load_all_data_structures(corpus)["decoders"]["ngram"][f]
-    return [r for r in results if 
-            unicode(f_ngram_no) in ds[r]]
+    return [r for r in results if f_ngram_no in ds[int(r)]]
 
 
 @lrudecorator(100)
@@ -304,7 +309,6 @@ class Models(object):
         '''
         return tuple(query(params.q, params.corpus))
 
-
     @staticmethod
     def get_doclist(results, q, f, corpus, aliases=None):
         doc_results = []
@@ -335,20 +339,18 @@ class Models(object):
            TODO: tokens? pos?
         """
         sent_results = []
-        #if len(results) > 250: # dont bother making more than 250 sentence snippets. Tip from john F.
-        #    results = results[0:250]
 
         # AH: assuming the order of results is not changed since coming out from IR system
-        for whoosh_index, result in enumerate(results):
+        for whoosh_index, result in enumerate(tqdm(results)):
             url = get_urls_xpress(corpus)[int(result)]
             pd = get_pubdates_xpress(corpus)[int(result)]
             headline = get_headline_xpress(corpus)[int(result)]
             sent_results.append({
-                'docid':result,
+                'docid': result,
                 'headline': headline,
                 'search_engine_index_doc': whoosh_index,
                 'pubdate': pd.strftime("%Y-%m-%d"),
-                'url': url.encode("ascii", "ignore"),
+                'url': url,
                 'snippet': get_sent(result, corpus, q, f, aliases=aliases)
             })
         return [i for i in sent_results if len(i["snippet"]) > 0] #filter nulls
