@@ -104,11 +104,28 @@ def load(index_location, processed_location):
                 #sentences = line_json["text"]["sentences"]
                 preprocsentences = "###$$$###".join([unidecode(str(i)) for i in doc.sents])
 
+                def get_sent_phrases(toks, pos):
+                    phrases = phrasemachine.get_phrases(tokens=tok_strings, postags=pos, output="token_spans")
+                    out = []
+                    for p in phrases['token_spans']:
+                        start, end = p
+                        regular = " ".join(toks[start:end])
+                        normalized = regular.lower()
+                        item = {"positions": range(start, end+1),
+                                "regular": regular,
+                                "normalized": normalized}
+                        out.append(item)
+                    return out
 
                 sentences = []
                 for s in doc.sents:
-                    toks = [str(i) for i in s]
-                    sentences.append({"tokens": toks})
+                    tok_strings = [str(i) for i in s]
+                    toks = [t for t in s]
+                    pos = [o.pos_ for o in toks]
+
+                    sentences.append({"tokens": tok_strings,
+                                      "phrases": get_sent_phrases(tok_strings, pos),
+                                      "as_string": str(s)})
 
                 if len(headline) > 0 and len(full_text) > 0 and headline not in headlines_so_far:
                     headlines_so_far.add(headline)
