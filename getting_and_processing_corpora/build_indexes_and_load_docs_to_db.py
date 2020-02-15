@@ -9,6 +9,7 @@ from unidecode import unidecode
 import csv
 import os
 import ipdb
+import json
 from tqdm import tqdm
 import sys
 import re
@@ -140,6 +141,12 @@ def load(index_location, processed_location):
                                          "nsentences": sum(1 for i in doc.sents)}
                     go("""INSERT INTO doc_metadata (docid, data, corpusid) VALUES (%s, %s, %s)""", s_counter, ujson.dumps(per_doc_json_blob), CORPUSID)
                     go("""INSERT INTO sentences_preproc (corpusid, docid, delmited_sentences) VALUES (%s, %s, %s)""", CORPUSID, s_counter, preprocsentences)
+                    
+                    with open("documents/{}-{}".format(CORPUSID, s_counter), "w") as of:
+                        out = {"sents": [i["as_string"] for i in sentences],
+                               "headline": unidecode(headline)}
+                        of.write(json.dumps(out))
+
                     #for ngram in ngrams:
                     #    ngram_pubdate_index[ngram].append(pubdate.strftime('%Y-%m-%d'))
                     s_counter += 1

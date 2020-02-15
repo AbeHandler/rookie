@@ -121,9 +121,6 @@ def main():
     params = Models.get_parameters(request)
     results = Models.get_results(params)
 
-    print("ok")
-    print(len(results))
-
     if len(results) == 0:
         out = {'f': -1,
                "f_list": 0,
@@ -143,11 +140,7 @@ def main():
 
     out = get_stuff_ui_needs(params, results)
 
-    print("oka")
-
     out["sents"] = json.dumps(Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[]))
-
-    print("sdr")
 
     # top if statement just for quizes at this point
     if params.f is not None:  # This is really slow but params.f is basically always None in interactive mode
@@ -164,7 +157,6 @@ def main():
     if SAVEMODE:
         save(params=params, out=out)
 
-    print("ok2")
     return views.handle_query(out)
 
 
