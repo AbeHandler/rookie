@@ -8,10 +8,12 @@ from collections import defaultdict
 import csv
 import os
 import ipdb
+from tqdm import tqdm
 import sys
 import re
 csv.field_size_limit(sys.maxsize)
 import ujson
+import phrasemachine
 import argparse
 from dateutil.parser import parse
 
@@ -23,6 +25,10 @@ from webapp import CONNECTION_STRING
 engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
+
+
+import spacy
+nlp = spacy.load("en_core_web_sm")
 
 
 def getcorpusid():
@@ -55,7 +61,7 @@ def load(index_location, processed_location):
     go('delete from sentences_preproc where corpusid={}'.format(CORPUSID))
     session.commit()
     with open("corpora/{}/processed/all.anno_plus".format(args.corpus), "r") as raw:
-        for ln, line in enumerate(raw):
+        for ln, line in enumerate(tqdm(raw)):
             # print ln
             try:
                 # ipdb.set_trace()
@@ -64,8 +70,7 @@ def load(index_location, processed_location):
                     headline = line_json["headline"]
                 except KeyError:
                     headline = "Headline: NA"
-                
-                
+
                 try:
                     pubdate = parse(line_json["pubdate"])
 
@@ -85,40 +90,38 @@ def load(index_location, processed_location):
                 except KeyError:
                     url = "unknown"
 
-                full_text = " ".join(t for s in line_json["text"]["sentences"]
-                                     for t in s["tokens"])
-                ngrams = []
-                for sent in line_json["text"]["sentences"]:
-                    ngrams = ngrams + [o["regular"] for o in sent["phrases"]]
+                full_text = line_json["text"]
 
-                ngrams = filter(lambda x: len(x.split()) > 1, ngrams)
-      
-                sentences = line_json["text"]["sentences"]
-                preprocsentences = "###$$$###".join([sen["as_string"] for sen
-                                                     in line_json["text"]["sentences"]])
+                doc = nlp(line_json["text"])
 
+                tokens = [token.text for token in doc]
+                pos = [token.pos_ for token in doc]
+
+                ngrams = list(phrasemachine.get_phrases(tokens=tokens, postags=pos)['counts'].keys())
+
+                #sentences = line_json["text"]["sentences"]
+                preprocsentences = "###$$$###".join([str(i) for i in doc.sents])
 
                 if len(headline) > 0 and len(full_text) > 0 and headline not in headlines_so_far:
                     headlines_so_far.add(headline)
                     writer.add_document(title=headline, path=u"/" + str(s_counter),
                                         content=full_text)
                     per_doc_json_blob = {'headline': headline,
-                                        'pubdate': pubdate.strftime('%Y-%m-%d'),
-                                        'ngrams': ngrams,
-                                        "url": url,
-                                        "sentences": sentences}
+                                         'pubdate': pubdate.strftime('%Y-%m-%d'),
+                                         'ngrams': ngrams,
+                                         "url": url,
+                                         "sentences": ""}
                     go("""INSERT INTO doc_metadata (docid, data, corpusid) VALUES (%s, %s, %s)""", s_counter, ujson.dumps(per_doc_json_blob), CORPUSID)
                     go("""INSERT INTO sentences_preproc (corpusid, docid, delmited_sentences) VALUES (%s, %s, %s)""", CORPUSID, s_counter, preprocsentences)
                     for ngram in ngrams:
                         ngram_pubdate_index[ngram].append(pubdate.strftime('%Y-%m-%d'))
                     s_counter += 1
-                    if s_counter % 1000==0:
+                    if s_counter % 1000 == 0:
                         sys.stdout.write("...%s" % s_counter); sys.stdout.flush()
             except UnicodeError:
                 pass
-        # create_pubdate_index(ngram_pubdate_index)
-        #print "Committing to whoosh"
         writer.commit(mergetype=writing.CLEAR)
+
 
 if __name__ == '__main__':
 
@@ -128,7 +131,7 @@ if __name__ == '__main__':
 
     CORPUSID = getcorpusid()
 
-    print "adding {} to whoosh and checking ngrams".format(args.corpus)
+    #print "adding {} to whoosh and checking ngrams".format(args.corpus)
 
     directory = "indexes/" + args.corpus
     if not os.path.exists(directory):

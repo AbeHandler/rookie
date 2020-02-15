@@ -91,10 +91,11 @@ def draw_pdf(transducer, outfile=None, symfile=None): #osymbolfile, isymbolfile)
         isymbolfile = "%s.isyms" % tmp
         osymbolfile = "%s.osyms" % tmp
         with open(isymbolfile,'w') as f:
-            for k,v in transducer.isyms.items():
+            for k, v in transducer.isyms.items():
+                pass
                 #print>>f, (u"%s\t%d" % (k,v)).encode("utf8")
         with open(osymbolfile,'w') as f:
-            for k,v in transducer.osyms.items():
+            for k, v in transducer.osyms.items():
                 pass#print>>f, (u"%s\t%d" % (k,v)).encode("utf8")
     transducer.write("%s.bin" % tmp)
     os.system("""
@@ -288,7 +289,7 @@ def view_multipos():
         tagprobs=json.loads(tagprobs)
         #print "TEXT\t%s" % (text.strip())
         for tok,probs in zip(toks,tagprobs):
-            items = sorted(probs.items(), key=lambda (t,p): (-p,t))
+            items = sorted(probs.items(), key=lambda t,p: (-p,t))
             rankprobs = ["%s:%.3f" % (t,p) for t,p in items]
             rankprobs = ' '.join(rankprobs)
             #print u"\t%s\t%s" % (tok, rankprobs)

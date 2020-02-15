@@ -2,26 +2,30 @@ import csv
 import json
 import sys
 import os
-import fstphrases
 
-from stanford_corenlp_pywrapper import CoreNLP
+#import sys
+
+#sys.path.append("stanford_corenlp_pywrapper/stanford_corenlp_pywrapper")
+
+#import fstphrases
+
+# from stanford_corenlp_pywrapper import CoreNLP
 from tqdm import tqdm
 
+import phrasemachine
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--corpus', help='the thing in the middle of corpus/{}/raw', required=True)
-parser.add_argument('--nlpjar', help='where is core nlp?', required=True)
+#parser.add_argument('--nlpjar', help='where is core nlp?', required=True)
 parser.add_argument('--tagset', help='np fst tag set', required=False)
 args = parser.parse_args()
 
-proc = CoreNLP("pos", corenlp_jars=[args.nlpjar + '/*'])
+#proc = CoreNLP("pos", corenlp_jars=[args.nlpjar + '/*'])
 
 try:
     os.remove('corpora/' + args.corpus + '/processed/all.anno_plus')
 except:
     pass
-
-
 
 
 if args.tagset is None:
@@ -30,19 +34,30 @@ if args.tagset is None:
 
 def get_phrases(tags, toks):
     '''extract phrases with npfst'''
-    phrases = fstphrases.extract_from_poses(tags, 'NP', tagset=args.tagset)
+
+    phrases2 = phrasemachine.get_phrases(tokens=toks, postags=tags, output='token_spans')['token_spans']
+
     phrases_deets = []
-    for phrase in phrases:
+    for phrase in phrases2:
         # phrase = [0,1,2] (token positions)
         start = phrase[0]  # first token position
-        end = phrase[len(phrase) - 1]  # last token position
-        regular = toks[start: end + 1]  # to python slice
+        end = phrase[1]
+        regular = toks[start: end]  # to python slice
         regular = " ".join([o for o in regular]).strip()
         normalized = regular.lower()
+        '''
+        phrase
+        (16, 17, 18, 19, 20)
+        ipdb> regular
+        u'today in a year-end speech'
+        ipdb> normalized
+        u'today in a year-end speech'
+        '''
         phrases_deets.append({"positions": phrase,
                               "regular": regular,
                               "normalized": normalized})
     return phrases_deets
+
 
 def un_html_ify(text):
     """weird offset issues w/ core nlp. seems easiest to just replace"""
@@ -62,6 +77,7 @@ def sent_to_string(j_doc_sent):
     return u"".join(output)
 
 
+
 with open ("corpora/" + args.corpus + "/raw/all.extract") as raw:
     count = 0
     import sys
@@ -71,18 +87,26 @@ with open ("corpora/" + args.corpus + "/raw/all.extract") as raw:
         out = {}
         pubdate = line[1]
         headline = line[4]
-        print(headline)
-        text = proc.parse_doc(un_html_ify(line[5]))
+        # text2 = nlp(un_html_ify(line[5]))
+
+        #text = proc.parse_doc(un_html_ify(line[5]))
+
         try:
             url = line[6]
         except IndexError:
             url = "unknown"
-        for ln in text["sentences"]:
-            ln["as_string"] = sent_to_string(ln)
+
+        '''
+        for sent in text2.sents:
+            toks = [o for o in sent]
+            import ipdb; ipdb.set_trace()
+            ln["as_string"] = str(sent)
             ln["phrases"] = get_phrases(ln["pos"], ln["tokens"])
+        '''
+        out = {}
         out["pubdate"] = pubdate
         out["headline"] = headline
-        out["text"] = text
+        out["text"] = un_html_ify(line[5])
         out["url"] = url
         with open('corpora/' + args.corpus + '/processed/all.anno_plus', 'a') as outfile:
             json.dump(out, outfile)
