@@ -67,7 +67,6 @@ def get_facet_datas(binned_facets, results, params, limit=None, unfiltered_resul
         else:
             results_f = filter_f(unfiltered_results, fac, params.corpus)
         facet_pds = [load_all_data_structures(params.corpus)["pubdates"][int(f)] for f in results_f]
-        print(facet_pds, results_f)
         for key in keys:
             counts.append(sum(1 for r in facet_pds if
                               r.year == key.year and r.month == key.month

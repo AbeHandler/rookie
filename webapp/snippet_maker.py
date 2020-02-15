@@ -68,19 +68,14 @@ def get_snippet3(docid, corpus, q, f):
     if f is not None:
         f_aliases.append(f)
     all_n_sentences = range(get_nsentences_key(corpus)[int(docid)])
-
-    print(all_n_sentences)
-
     priority_list = all_n_sentences # you could use an index to save time instead of looping
                                     # over sentences
 
-    print("i")
     from queue import PriorityQueue
     priority_queue = PriorityQueue()
     corpusid = getcorpusid(corpus) 
     sentences = get_preproc_sentences(docid, corpusid) 
 
-    print("j", priority_list)
     for sentnum in priority_list:
         toktext = sentences[sentnum]
         hsent = hilite(toktext, q, sentnum, docid, f_aliases, taginfo=taginfo)
@@ -92,11 +87,6 @@ def get_snippet3(docid, corpus, q, f):
         else:
             priority_queue.put((3, sentnum, hsent))
 
-    print("k")
-    print("opopo")
-    print(priority_queue.get(timeout=3))
-    print(priority_queue.get()[2])
-    print("l")
     return priority_queue.get()[2]
 
 
