@@ -229,13 +229,11 @@ def get_keys(corpus):
 
 def get_doc(corpus, docid):
     '''return a document for display in the web browser'''
-    docid = int(docid)
-    corpusid = getcorpusid(corpus)
+    docid = str(docid)
     url = get_urls_xpress(corpus)[docid]
     pd = get_pubdates_xpress(corpus)[docid]
-    with open("documents/{}-{}".format(corpusid, docid)) as inf:
+    with open("documents/{}-{}".format(corpus, docid)) as inf:
         d = ujson.load(inf)
-    # d = {"headline": 'stuff', "sents": ["a", "b", "d"]}
     return d
 
 

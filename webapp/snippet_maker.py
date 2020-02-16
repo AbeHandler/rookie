@@ -21,7 +21,7 @@ def get_preproc_sentences(docid, corpus):
     load preproc sentences
     """
     # print docid, corpusid
-    dt = load_preproc_sentences(corpus)[docid].split("$$$")
+    dt = load_preproc_sentences(corpus)[docid].split("###$$$")
     return dt
 
 @lrudecorator(100)

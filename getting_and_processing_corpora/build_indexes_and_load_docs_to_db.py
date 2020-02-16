@@ -35,11 +35,11 @@ nlp = spacy.load("en_core_web_sm")
 nlp.add_pipe(nlp.create_pipe('sentencizer'))
 
 
-def getcorpusid():
+def getcorpusid(corpus):
     with open("db/corpora_numbers.json", "r") as inf:
         dt = json.load(inf)
-        assert args.corpus in dt.keys()
-        return dt[args.corpus]
+        assert corpus in dt.keys()
+        return dt[corpus]
 
 
 def stop_word(w):
@@ -152,7 +152,7 @@ def load(index_location, processed_location):
                     #go("""INSERT INTO doc_metadata (docid, data, corpusid) VALUES (%s, %s, %s)""", s_counter, ujson.dumps(per_doc_json_blob), CORPUSID)
                     #go("""INSERT INTO sentences_preproc (corpusid, docid, delmited_sentences) VALUES (%s, %s, %s)""", CORPUSID, s_counter, preprocsentences)
                     
-                    with open("documents/{}-{}".format(CORPUSID, s_counter), "w") as of:
+                    with open("documents/{}-{}".format(CORPUS, s_counter), "w") as of:
                         out = {"sents": [i["as_string"] for i in sentences],
                                "headline": unidecode(headline)}
                         of.write(json.dumps(out))
@@ -174,9 +174,8 @@ if __name__ == '__main__':
     parser.add_argument('--corpus', help='the thing in the middle of corpus/{}/raw', required=True)
     args = parser.parse_args()
 
-    CORPUSID = getcorpusid()
-
-    #print "adding {} to whoosh and checking ngrams".format(args.corpus)
+    CORPUSID = getcorpusid(args.corpus)
+    CORPUS = args.corpus
 
     directory = "indexes/" + args.corpus
     if not os.path.exists(directory):
