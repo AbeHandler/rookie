@@ -142,8 +142,6 @@ def main():
 
     out = get_stuff_ui_needs(params, results)
 
-    print("ok2")
-
     out["sents"] = json.dumps(Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[]))
 
     # top if statement just for quizes at this point
@@ -237,13 +235,11 @@ def doc():
     doc = get_doc(params.corpus, request.args.get('docid'))
     return json.dumps(doc)
 
-
+'''
+Query whoosh
 @app.route('/search', methods=['GET'])
 @app.route('/ir', methods=['GET'])
 def search():
-    '''
-    Query whoosh
-    '''
 
     ENGINE = create_engine(CONNECTION_STRING)
     SESS = sessionmaker(bind=ENGINE)
@@ -301,6 +297,7 @@ def search():
     if SAVEMODE:
         irsave()
     return views.handle_query(out)
+'''
 
 
 if __name__ == '__main__':

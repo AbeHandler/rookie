@@ -195,10 +195,6 @@ def get_doc_metadata(docid, corpus):
     assert docid in dt
     return json.loads(dt[docid])
 
-    #corpusid = getcorpusid(corpus)
-    #row = SESSION.connection().execute("select data from doc_metadata where docid=%s and corpusid=%s", docid, corpusid).fetchone()
-    #return row[0]
-
 
 def filter_f(results, f, corpus):
     '''filter out only those results that contain f'''
@@ -235,7 +231,6 @@ def get_doc(corpus, docid):
     with open("documents/{}-{}".format(corpus, docid)) as inf:
         d = ujson.load(inf)
     return d
-
 
 
 def get_sent(docid, corpus, q, f=None, aliases=None):
@@ -351,6 +346,3 @@ class Models(object):
             })
         print("[*] done")
         return [i for i in sent_results if len(i["snippet"]) > 0] #filter nulls
-
-
-#SESSION.close()

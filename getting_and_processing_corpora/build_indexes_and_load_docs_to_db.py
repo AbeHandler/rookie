@@ -20,16 +20,6 @@ import argparse
 from dateutil.parser import parse
 
 
-'''build connection to db
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from webapp import CONNECTION_STRING
-engine = create_engine(CONNECTION_STRING)
-Session = sessionmaker(bind=engine)
-session = Session()
-'''
-
-
 import spacy
 nlp = spacy.load("en_core_web_sm")
 nlp.add_pipe(nlp.create_pipe('sentencizer'))
@@ -40,10 +30,6 @@ def getcorpusid(corpus):
         dt = json.load(inf)
         assert corpus in dt.keys()
         return dt[corpus]
-
-
-def stop_word(w):
-    return False # TODO: corpus specific stop words
 
 
 def load(index_location, processed_location):
@@ -59,10 +45,6 @@ def load(index_location, processed_location):
     writer = ix.writer()
 
     headlines_so_far = set()
-    #go = lambda *args: session.connection().execute(*args)
-    #go('delete from doc_metadata where corpusid={}'.format(CORPUSID))
-    #go('delete from sentences_preproc where corpusid={}'.format(CORPUSID))
-    #session.commit()
     
     doc_metadata = {}
     sentences_preproc = {}
@@ -71,7 +53,6 @@ def load(index_location, processed_location):
         for ln, line in enumerate(tqdm(raw)):
             # print ln
             try:
-                # ipdb.set_trace()
                 line_json = ujson.loads(line.replace("\n", ""))
                 try:
                     headline = line_json["headline"]
@@ -149,16 +130,11 @@ def load(index_location, processed_location):
                     doc_metadata[s_counter] = ujson.dumps(per_doc_json_blob)
                     sentences_preproc[s_counter] = preprocsentences
 
-                    #go("""INSERT INTO doc_metadata (docid, data, corpusid) VALUES (%s, %s, %s)""", s_counter, ujson.dumps(per_doc_json_blob), CORPUSID)
-                    #go("""INSERT INTO sentences_preproc (corpusid, docid, delmited_sentences) VALUES (%s, %s, %s)""", CORPUSID, s_counter, preprocsentences)
-                    
                     with open("documents/{}-{}".format(CORPUS, s_counter), "w") as of:
                         out = {"sents": [i["as_string"] for i in sentences],
                                "headline": unidecode(headline)}
                         of.write(json.dumps(out))
 
-                    #for ngram in ngrams:
-                    #    ngram_pubdate_index[ngram].append(pubdate.strftime('%Y-%m-%d'))
                     s_counter += 1
             except UnicodeError:
                 print("o")
