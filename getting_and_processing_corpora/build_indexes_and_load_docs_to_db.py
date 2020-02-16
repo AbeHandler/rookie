@@ -20,13 +20,14 @@ import argparse
 from dateutil.parser import parse
 
 
-'''build connection to db'''
+'''build connection to db
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from webapp import CONNECTION_STRING
 engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
+'''
 
 
 import spacy
@@ -35,9 +36,10 @@ nlp.add_pipe(nlp.create_pipe('sentencizer'))
 
 
 def getcorpusid():
-    go = lambda *args: session.connection().execute(*args)
-    for i in go("select corpusid from corpora where corpusname='{}'".format(args.corpus)):
-        return i[0]
+    with open("db/corpora_numbers.json", "r") as inf:
+        dt = json.load(inf)
+        assert args.corpus in dt.keys()
+        return dt[args.corpus]
 
 
 def stop_word(w):
@@ -57,10 +59,14 @@ def load(index_location, processed_location):
     writer = ix.writer()
 
     headlines_so_far = set()
-    go = lambda *args: session.connection().execute(*args)
-    go('delete from doc_metadata where corpusid={}'.format(CORPUSID))
-    go('delete from sentences_preproc where corpusid={}'.format(CORPUSID))
-    session.commit()
+    #go = lambda *args: session.connection().execute(*args)
+    #go('delete from doc_metadata where corpusid={}'.format(CORPUSID))
+    #go('delete from sentences_preproc where corpusid={}'.format(CORPUSID))
+    #session.commit()
+    
+    doc_metadata = {}
+    sentences_preproc = {}
+
     with open("corpora/{}/processed/all.anno_plus".format(args.corpus), "r") as raw:
         for ln, line in enumerate(tqdm(raw)):
             # print ln
@@ -139,8 +145,12 @@ def load(index_location, processed_location):
                                          "url": url,
                                          "sentences": sentences,
                                          "nsentences": sum(1 for i in doc.sents)}
-                    go("""INSERT INTO doc_metadata (docid, data, corpusid) VALUES (%s, %s, %s)""", s_counter, ujson.dumps(per_doc_json_blob), CORPUSID)
-                    go("""INSERT INTO sentences_preproc (corpusid, docid, delmited_sentences) VALUES (%s, %s, %s)""", CORPUSID, s_counter, preprocsentences)
+                    
+                    doc_metadata[s_counter] = ujson.dumps(per_doc_json_blob)
+                    sentences_preproc[s_counter] = preprocsentences
+
+                    #go("""INSERT INTO doc_metadata (docid, data, corpusid) VALUES (%s, %s, %s)""", s_counter, ujson.dumps(per_doc_json_blob), CORPUSID)
+                    #go("""INSERT INTO sentences_preproc (corpusid, docid, delmited_sentences) VALUES (%s, %s, %s)""", CORPUSID, s_counter, preprocsentences)
                     
                     with open("documents/{}-{}".format(CORPUSID, s_counter), "w") as of:
                         out = {"sents": [i["as_string"] for i in sentences],
@@ -153,7 +163,10 @@ def load(index_location, processed_location):
             except UnicodeError:
                 print("o")
         writer.commit(mergetype=writing.CLEAR)
-
+        with open("db/{}.doc_metadata.json".format(args.corpus), "w") as of:
+            of.write(json.dumps(doc_metadata))
+        with open("db/{}.sentences_preproc.json".format(args.corpus), "w") as of:
+            of.write(json.dumps(sentences_preproc))
 
 if __name__ == '__main__':
 
@@ -169,4 +182,4 @@ if __name__ == '__main__':
     if not os.path.exists(directory):
         os.makedirs(directory)
     load(directory, args.corpus)
-    session.commit()
+

@@ -1,6 +1,7 @@
 '''
 Application logic for webapp should be in here
 '''
+import json
 import datetime
 import ujson
 import time
@@ -19,10 +20,11 @@ from sqlalchemy.orm import sessionmaker
 from facets.query_sparse import get_facets_for_q, load_all_data_structures
 from pylru import lrudecorator
 
-
+'''
 ENGINE = create_engine(CONNECTION_STRING)
 SESS = sessionmaker(bind=ENGINE)
 SESSION = SESS()
+'''
 
 @lrudecorator(100)
 def get_urls_xpress(corpus):
@@ -93,15 +95,11 @@ def facets_for_t(params, results, unfiltered_results):
 
 def get_stuff_ui_needs(params, results):
 
-    print("as")
-
     binned_facets = get_facets_for_q(params.q, results, 200, load_all_data_structures(params.corpus))
-
-    print("234")
 
     # building keys
     stuff_ui_needs = {}
-    q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
+    q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][r] for r in results]
     q_pubdates.sort()
     tracker = defaultdict(int)
     for qpd in q_pubdates:
@@ -114,8 +112,7 @@ def get_stuff_ui_needs(params, results):
     for k in keys:
         k = k.strftime("%Y-%m")
         q_data.append(tracker[k])
-
-    print("oosososo")
+ 
 
     stuff_ui_needs["keys"] = [str(k.strftime("%Y-%m") + "-01") for k in keys]
 
@@ -185,23 +182,30 @@ def results_to_doclist(results, q, f, corpus, pubdates, aliases):
 
 @lrudecorator(1000)
 def getcorpusid(corpus):
-    '''
-    Get corpus id for corpus name
-    '''
-    go = lambda *args: SESSION.connection().execute(*args)
-    cid = go("select corpusid from corpora where corpusname='{}'".format(corpus)).fetchone()[0]
-    return cid
+    with open("db/corpora_numbers.json", "r") as inf:
+        dt = json.load(inf)
+        assert corpus in dt.keys()
+        return dt[corpus]
 
+@lrudecorator(10000000)
+def load_metadata(corpus):
+ 
+    with open("db/{}.doc_metadata.json".format(corpus), "r") as inf:
+        dt = json.load(inf)
+    return dt
 
 @lrudecorator(10000)
 def get_doc_metadata(docid, corpus):
     '''
     Just query db for function metatdata
     '''
+    dt = load_metadata(corpus)
+    assert docid in dt
+    return json.loads(dt[docid])
 
-    corpusid = getcorpusid(corpus)
-    row = SESSION.connection().execute("select data from doc_metadata where docid=%s and corpusid=%s", docid, corpusid).fetchone()
-    return row[0]
+    #corpusid = getcorpusid(corpus)
+    #row = SESSION.connection().execute("select data from doc_metadata where docid=%s and corpusid=%s", docid, corpusid).fetchone()
+    #return row[0]
 
 
 def filter_f(results, f, corpus):
@@ -357,4 +361,4 @@ class Models(object):
         return [i for i in sent_results if len(i["snippet"]) > 0] #filter nulls
 
 
-SESSION.close()
+#SESSION.close()

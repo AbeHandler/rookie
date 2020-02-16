@@ -8,6 +8,7 @@ from collections import defaultdict
 import operator
 import datetime
 import ipdb
+import json
 import time
 import pickle
 import argparse
@@ -43,26 +44,32 @@ def stop(w):
     if "last year" in w:
         return True
 
-'''build connection to db'''
+'''build connection to db
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from webapp import CONNECTION_STRING
 engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
+'''
 
+@lrudecorator(1000)
 def getcorpusid(corpus):
-    go = lambda *args: session.connection().execute(*args)
-    for i in go("select corpusid from corpora where corpusname='{}'".format(corpus)):
-        return i[0]
+    with open("db/corpora_numbers.json", "r") as inf:
+        dt = json.load(inf)
+        assert corpus in dt.keys()
+        return dt[corpus]
 
 def load_sparse_vector_data_structures(corpus):
     corpusid = getcorpusid(corpus)
     output = {}
-    results = session.connection().execute("select * from count_vectors where corpusid='{}'".format(corpusid))
-    for i, row in enumerate(results):
+    with open("indexes/{}/count_vectors.p".format(corpus), "rb" ) as inf:
+        results = pickle.load(inf)
+    #results = session.connection().execute("select * from count_vectors where corpusid='{}'".format(corpusid))
+    
+    for k,v in results.items():
         # row = (doc id, corpus id, data)
-        output[row[0]] = row[2].keys() # raw form ==> [u'34986', u'20174' ... u'6664']
+        output[k] = json.loads(v) # raw form ==> [u'34986', u'20174' ... u'6664']
     return output
 
 def filter_by_date(results, corpus, start_d, end_d):
@@ -230,4 +237,4 @@ if __name__ == '__main__':
     facets = get_facets_for_q(args.query, results, 50, structures)
     print(facets)
 
-session.close()
+#session.close()

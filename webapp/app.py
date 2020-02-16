@@ -46,6 +46,7 @@ def staticr():
         out = pickle.load(inf)
     return views.handle_query(out)
 
+
 '''
 Main app
 '''
@@ -64,7 +65,9 @@ def get_doclist():
 
     minmax = corpus_min_max(params.corpus)
 
-    return json.dumps({"doclist":out, "min_filtered": minmax["min"].strftime("%Y-%m-%d"), "max_filtered": minmax["max"].strftime("%Y-%m-%d")})
+    return json.dumps({"doclist": out,
+                       "min_filtered": minmax["min"].strftime("%Y-%m-%d"),
+                       "max_filtered": minmax["max"].strftime("%Y-%m-%d")})
 
 
 @app.route("/get_sents", methods=['GET'])
@@ -75,7 +78,6 @@ def get_sents():
     results = Models.get_results(params)
     results = filter_f(results, params.f, params.corpus)
     out = Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[])
-    # print "average snippet length for query", sum([len(f["snippet"]["htext"]) for f in out])/len(out)
     return json.dumps(out)
 
 
@@ -158,7 +160,6 @@ def main():
         save(params=params, out=out)
 
     return views.handle_query(out)
-
 
 
 '''
@@ -245,7 +246,7 @@ def search():
     ENGINE = create_engine(CONNECTION_STRING)
     SESS = sessionmaker(bind=ENGINE)
     SESSION = SESS()
-    
+
     AVG_ROOKIE = 305 # set this by hand from printout for now
     params = Models.get_parameters(request)
     index = open_dir("indexes/{}/".format(params.corpus))

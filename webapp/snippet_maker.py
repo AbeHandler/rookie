@@ -1,6 +1,7 @@
 import re
 import time
 import hashlib
+import json
 import pickle
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -8,19 +9,24 @@ from webapp import CONNECTION_STRING
 
 from pylru import lrudecorator
 
+'''
 ENGINE = create_engine(CONNECTION_STRING)
 SESS = sessionmaker(bind=ENGINE)
 SESSION = SESS()
+'''
 
 
 @lrudecorator(10000)
-def get_preproc_sentences(docid, corpusid):
+def get_preproc_sentences(docid, corpus):
     """
     load preproc sentences
     """
     # print docid, corpusid
-    row = SESSION.connection().execute("select delmited_sentences from sentences_preproc where docid=%s and corpusid=%s", docid, corpusid).fetchone()
-    return row[0].split("###$$$###")
+    #row = SESSION.connection().execute("select delmited_sentences from sentences_preproc where docid=%s and corpusid=%s", docid, corpusid).fetchone()
+    with open("db/{}.sentences_preproc.json".format(corpus), "r") as inf:
+        dt = json.load(inf)
+        return dt[docid]
+    #return row[0].split("###$$$###")
 
 @lrudecorator(100)
 def get_unigram_key(corpus):
@@ -170,4 +176,4 @@ def runf(q,f,q_docids,aliases):
 
         t0 = time.time()
 
-SESSION.close()
+#SESSION.close()

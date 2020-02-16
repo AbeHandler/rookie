@@ -8,6 +8,7 @@ from tempfile import mkdtemp
 import ujson
 import datetime
 import os
+import json
 import ipdb
 import glob
 import sys
@@ -29,19 +30,22 @@ args = parser.parse_args()
 
 cachedir = mkdtemp()
 
-'''build connection to db'''
+'''build connection to db
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from webapp import CONNECTION_STRING
 engine = create_engine(CONNECTION_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
+'''
 
 
 def getcorpusid():
-    go = lambda *args: session.connection().execute(*args)
-    for i in go("select corpusid from corpora where corpusname='{}'".format(args.corpus)):
-        return i[0]
+    with open("db/corpora_numbers.json", "r") as inf:
+        dt = json.load(inf)
+        assert args.corpus in dt.keys()
+        return dt[args.corpus]
+
 
 CORPUSID = getcorpusid()
 
@@ -67,10 +71,10 @@ def count_facets():
     counter = 0
     print("looping over all docids to count ngrams")
 
-    for docid in ALLDOCIDS:
+    for docid in tqdm(ALLDOCIDS):
         try:
             counter += 1
-            ngram = get_doc_metadata(docid, args.corpus)["ngrams"]
+            ngram = get_doc_metadata(str(docid), args.corpus)["ngrams"]
             for n in ngram:
                 ngram_count[n] += 1
 
@@ -106,7 +110,7 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
 
     string_to_pubdate_index = defaultdict(list)
 
-    go = lambda *args: session.connection().execute(*args)
+    #go = lambda *args: session.connection().execute(*args)
     # dict to look up correct row #s in array
     ngram_to_slot = {n: i for (i, n) in enumerate(ok_ngrams)}
 
@@ -122,10 +126,10 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
     docid_n_sentences = defaultdict(int)
     urls_xpress = defaultdict(str)
     headlines_xpress = defaultdict(str)
-
+    count_vectors = {}
     ngrams_sentences = defaultdict(lambda : defaultdict(list))
     for dinex, docid in enumerate(tqdm(docids)):
-        docid = int(docid)
+        docid = str(docid)
         mdata = get_doc_metadata(docid, args.corpus)
         pubdate = datetime.datetime.strptime(mdata["pubdate"], '%Y-%m-%d')
         pubdates[docid] = pubdate
@@ -148,12 +152,16 @@ def build_matrix(docids, ok_ngrams, all_unigrams):
             ngrams_in_doc[ngram_to_slot[n]] = 1
             string_to_pubdate_index[n].append(get_doc_metadata(docid, args.corpus)["pubdate"])
             ngram_counter[n] += 1
-        go("""INSERT INTO count_vectors (docid, CORPUSID, data) VALUES (%s, %s, %s)""", dinex, int(CORPUSID), ujson.dumps(ngrams_in_doc))
-    print("\ncommitting to db")
-    session.commit()
+        count_vectors[dinex] = ujson.dumps(ngrams_in_doc)
+        #go("""INSERT INTO count_vectors (docid, CORPUSID, data) VALUES (%s, %s, %s)""", dinex, int(CORPUSID), ujson.dumps(ngrams_in_doc))
+    #print("\ncommitting to db")
+    #session.commit()
+
     print("\ndumping pickled stuff...")
 
     NDOCS = len(docids)
+
+    pickle.dump(count_vectors, open("indexes/{}/count_vectors.p".format(args.corpus), "wb" ))
 
     pickle.dump(docid_n_sentences, open("indexes/{}/how_many_sents_in_doc.p".format(args.corpus), "wb" ))
 

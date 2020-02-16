@@ -5,39 +5,33 @@ from webapp import CONNECTION_STRING
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dateutil import parser as dp
+from tqdm import tqdm
 import argparse
+import json
 import dateutil.parser
+import datetime
 
 
-def main():
-    '''
-    main
-    '''
-    parser = argparse.ArgumentParser()
 
-    parser.add_argument('--corpus',
-                        help='the thing in the middle of corpus/{}/raw',
-                        required=True)
+parser = argparse.ArgumentParser()
 
-    parser.add_argument('--min',
-                        required=False)
-    parser.add_argument('--max',
-                        required=False)
-    args = parser.parse_args()
+parser.add_argument('--corpus',
+                    help='the thing in the middle of corpus/{}/raw',
+                    required=True)
 
-    engine = create_engine(CONNECTION_STRING)
-    ession = sessionmaker(bind=engine)
-    session = ession()
-    if args.min is None or args.max is None: 
-        txt = "select * from doc_metadata"
-        mind = min([dp.parse(i[1]["pubdate"]) for i in session.execute(txt)])
-        maxd = max([dp.parse(i[1]["pubdate"]) for i in session.execute(txt)])
-    else:
-        mind = dateutil.parser.parse(args.min)
-        maxd = dateutil.parser.parse(args.max)
-    strg = "update corpora set first_story ='" + mind.strftime("%Y-%m-%d") + "' where corpusname='" + args.corpus + "'"
-    session.execute(strg)
-    strg2 = "update corpora set last_story ='" + maxd.strftime("%Y-%m-%d") + "' where corpusname='" + args.corpus + "'"
-    session.execute(strg2)
-    session.commit()
-main()
+args = parser.parse_args()
+
+with open("db/{}.doc_metadata.json".format(args.corpus), "r") as inf:
+    dt = json.load(inf)
+
+pds = []
+for d in tqdm(dt):
+    pd = json.loads(dt[d])["pubdate"]
+    y, m, d = pd.split("-")
+    x = datetime.datetime(int(y), int(m), int(d))
+    pds.append(x)
+
+with open("db/{}.pubdates.json", "w") as of:
+    json.dump({"min": min(pds).strftime("%Y-%m-%d"), "max": max(pds).strftime("%Y-%m-%d")}, of)
+
+    
