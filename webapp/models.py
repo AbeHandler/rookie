@@ -13,18 +13,13 @@ from dateutil.parser import parse
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser
 from dateutil.relativedelta import relativedelta
-from webapp.snippet_maker import get_snippet3, get_preproc_sentences, getcorpusid
+from webapp.snippet_maker import get_snippet3, get_preproc_sentences
 from webapp import CONNECTION_STRING
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from facets.query_sparse import get_facets_for_q, load_all_data_structures
 from pylru import lrudecorator
 
-'''
-ENGINE = create_engine(CONNECTION_STRING)
-SESS = sessionmaker(bind=ENGINE)
-SESSION = SESS()
-'''
 
 @lrudecorator(100)
 def get_urls_xpress(corpus):
@@ -51,10 +46,10 @@ def get_facet_datas(binned_facets, results, params, limit=None, unfiltered_resul
     keys = get_keys(params.corpus)
 
     if unfiltered_results is None:
-        q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in results]
+        q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][r] for r in results]
     else:
         # unfiltered = ignore T in params. Facets show whole time range.
-        q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][int(r)] for r in unfiltered_results]
+        q_pubdates = [load_all_data_structures(params.corpus)["pubdates"][r] for r in unfiltered_results]
     qpdset = set(q_pubdates)
     if len(binned_facets)==0:
         return []
@@ -68,7 +63,7 @@ def get_facet_datas(binned_facets, results, params, limit=None, unfiltered_resul
             results_f = filter_f(results, fac, params.corpus)
         else:
             results_f = filter_f(unfiltered_results, fac, params.corpus)
-        facet_pds = [load_all_data_structures(params.corpus)["pubdates"][int(f)] for f in results_f]
+        facet_pds = [load_all_data_structures(params.corpus)["pubdates"][f] for f in results_f]
         for key in keys:
             counts.append(sum(1 for r in facet_pds if
                               r.year == key.year and r.month == key.month
@@ -160,13 +155,10 @@ def query(qry_string, corpus):
 @lrudecorator(10)
 def corpus_min_max(corpus):
     """get the min/max pubdates for a corpus"""
-    res = SESSION.connection().execute(
-            u"SELECT * FROM corpora WHERE corpusname=%s",
-            corpus)
-    res2 = [r for r in res][0]
-    assert res2[3] is not None
-    assert res2[2] is not None
-    return {"min": res2[2].strftime("%Y-%m-%d"), "max": res2[3].strftime("%Y-%m-%d")}
+    
+    with open("db/{}.pubdates.json".format(corpus), "r") as inf:
+        dt = json.load(inf)
+        return dt
 
 
 @lrudecorator(1000)
@@ -348,8 +340,8 @@ class Models(object):
         # AH: assuming the order of results is not changed since coming out from IR system
         for whoosh_index, result in enumerate(tqdm(results)):
             url = get_urls_xpress(corpus)[int(result)]
-            pd = get_pubdates_xpress(corpus)[int(result)]
-            headline = get_headline_xpress(corpus)[int(result)]
+            pd = get_pubdates_xpress(corpus)[result]
+            headline = get_headline_xpress(corpus)[result]
             sent_results.append({
                 'docid': result,
                 'headline': headline,

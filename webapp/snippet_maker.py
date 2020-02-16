@@ -8,13 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from webapp import CONNECTION_STRING
 
 from pylru import lrudecorator
-
-'''
-ENGINE = create_engine(CONNECTION_STRING)
-SESS = sessionmaker(bind=ENGINE)
-SESSION = SESS()
-'''
-
+from queue import PriorityQueue
 
 @lrudecorator(10000)
 def get_preproc_sentences(docid, corpus):
@@ -22,11 +16,9 @@ def get_preproc_sentences(docid, corpus):
     load preproc sentences
     """
     # print docid, corpusid
-    #row = SESSION.connection().execute("select delmited_sentences from sentences_preproc where docid=%s and corpusid=%s", docid, corpusid).fetchone()
     with open("db/{}.sentences_preproc.json".format(corpus), "r") as inf:
         dt = json.load(inf)
         return dt[docid]
-    #return row[0].split("###$$$###")
 
 @lrudecorator(100)
 def get_unigram_key(corpus):
@@ -38,15 +30,6 @@ def get_nsentences_key(corpus):
     with open("indexes/{}/how_many_sents_in_doc.p".format(corpus), "rb") as inf:
         return pickle.load(inf)
 
-# a new copy here to avoid circular import w/ models
-@lrudecorator(5)
-def getcorpusid(corpus):
-    '''
-    Get corpus id for corpus name
-    '''
-    go = lambda *args: SESSION.connection().execute(*args)
-    cid = go("select corpusid from corpora where corpusname='{}'".format(corpus)).fetchone()[0]
-    return cid
 
 ############################
 
@@ -73,16 +56,14 @@ def get_snippet3(docid, corpus, q, f):
     f_aliases = [] # get rid of this eventually
     if f is not None:
         f_aliases.append(f)
-    all_n_sentences = range(get_nsentences_key(corpus)[int(docid)])
-    priority_list = all_n_sentences # you could use an index to save time instead of looping
-                                    # over sentences
+    all_n_sentences = range(get_nsentences_key(corpus)[docid])
 
-    from queue import PriorityQueue
+
+    
     priority_queue = PriorityQueue()
-    corpusid = getcorpusid(corpus) 
-    sentences = get_preproc_sentences(docid, corpusid) 
+    sentences = get_preproc_sentences(docid, corpus) 
 
-    for sentnum in priority_list:
+    for sentnum in all_n_sentences:
         toktext = sentences[sentnum]
         hsent = hilite(toktext, q, sentnum, docid, f_aliases, taginfo=taginfo)
         hsent["htext"] = hsent["htext"]
@@ -93,7 +74,7 @@ def get_snippet3(docid, corpus, q, f):
         else:
             priority_queue.put((3, sentnum, hsent))
 
-    return priority_queue.get()[2]
+    return priority_queue.get(timeout=3)[2]
 
 
 # regex matching system: always have groups
@@ -176,4 +157,3 @@ def runf(q,f,q_docids,aliases):
 
         t0 = time.time()
 
-#SESSION.close()

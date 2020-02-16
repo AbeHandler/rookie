@@ -31,7 +31,7 @@ for d in tqdm(dt):
     x = datetime.datetime(int(y), int(m), int(d))
     pds.append(x)
 
-with open("db/{}.pubdates.json", "w") as of:
+with open("db/{}.pubdates.json".format(args.corpus), "w") as of:
     json.dump({"min": min(pds).strftime("%Y-%m-%d"), "max": max(pds).strftime("%Y-%m-%d")}, of)
 
     

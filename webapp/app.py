@@ -122,7 +122,7 @@ def tut():
 def main():
     params = Models.get_parameters(request)
     results = Models.get_results(params)
-
+    print(len(results))
     if len(results) == 0:
         out = {'f': -1,
                "f_list": 0,
@@ -141,6 +141,8 @@ def main():
         return views.handle_query(out)
 
     out = get_stuff_ui_needs(params, results)
+
+    print("ok2")
 
     out["sents"] = json.dumps(Models.get_sent_list(results, params.q, params.f, params.corpus, aliases=[]))
 
