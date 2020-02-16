@@ -21,8 +21,8 @@ def get_preproc_sentences(docid, corpus):
     load preproc sentences
     """
     # print docid, corpusid
-    dt = load_preproc_sentences(corpus)
-    return dt[docid]
+    dt = load_preproc_sentences(corpus)[docid].split("$$$")
+    return dt
 
 @lrudecorator(100)
 def get_unigram_key(corpus):
@@ -61,16 +61,12 @@ def get_snippet3(docid, corpus, q, f):
     if f is not None:
         f_aliases.append(f)
     all_n_sentences = range(get_nsentences_key(corpus)[docid])
-
-
     
     priority_queue = PriorityQueue()
     sentences = get_preproc_sentences(docid, corpus) 
-
     for sentnum in all_n_sentences:
         toktext = sentences[sentnum]
         hsent = hilite(toktext, q, sentnum, docid, f_aliases, taginfo=taginfo)
-        hsent["htext"] = hsent["htext"]
         if hsent['has_q'] and hsent['has_f']:
             priority_queue.put((1, sentnum, hsent))
         elif hsent['has_q'] or hsent['has_f']:
@@ -101,6 +97,7 @@ def hilite(text, q, sentnum, docid, f_aliases=None, taginfo=None):
         q_ltag = "<span style='color:blue'>, q_rtag = "</span>",
         f_ltag = "<span style='color:red'>, f_rtag = "</span>")
     """
+
     if not taginfo:
         # console-mode defaults
         REDSTART = '\x1b[1m\x1b[31m'

@@ -75,8 +75,8 @@ def load_sparse_vector_data_structures(corpus):
 def filter_by_date(results, corpus, start_d, end_d):
     '''return results that fall in a date range'''
     if start_d is not None and end_d is not None:
-        return [r for r in results if load_all_data_structures(corpus)["pubdates"][int(r)] > start_d
-                and load_all_data_structures(corpus)["pubdates"][int(r)] < end_d]
+        return [r for r in results if load_all_data_structures(corpus)["pubdates"][r] > start_d
+                and load_all_data_structures(corpus)["pubdates"][r] < end_d]
     else:
         return results
 
