@@ -11,14 +11,18 @@ from pylru import lrudecorator
 from queue import PriorityQueue
 
 @lrudecorator(10000)
+def load_preproc_sentences(corpus):
+    with open("db/{}.sentences_preproc.json".format(corpus), "r") as inf:
+        return json.load(inf)
+
+@lrudecorator(10000)
 def get_preproc_sentences(docid, corpus):
     """
     load preproc sentences
     """
     # print docid, corpusid
-    with open("db/{}.sentences_preproc.json".format(corpus), "r") as inf:
-        dt = json.load(inf)
-        return dt[docid]
+    dt = load_preproc_sentences(corpus)
+    return dt[docid]
 
 @lrudecorator(100)
 def get_unigram_key(corpus):

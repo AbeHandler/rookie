@@ -336,6 +336,7 @@ class Models(object):
            TODO: tokens? pos?
         """
         sent_results = []
+        print("[*] gettnig sent list")
 
         # AH: assuming the order of results is not changed since coming out from IR system
         for whoosh_index, result in enumerate(tqdm(results)):
@@ -350,6 +351,7 @@ class Models(object):
                 'url': url,
                 'snippet': get_sent(result, corpus, q, f, aliases=aliases)
             })
+        print("[*] done")
         return [i for i in sent_results if len(i["snippet"]) > 0] #filter nulls
 
 
