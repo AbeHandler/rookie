@@ -1,17 +1,18 @@
 /* jshint node: true */
 /* A list of days */
 "use strict";
-var React = require('react');
+import React from 'react';
 var $ = require('jQuery');
-var Navbar = require('react-bootstrap/Navbar');
-var Button = require('react-bootstrap/Button');
-var Container = require('react-bootstrap/Container');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
+
+import Navbar from 'react-bootstrap/Navbar';
+import Button from 'react-bootstrap/Button';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 var Input = require('./Input.jsx');
 
-export default class QueryBar extends React.Component {
+export default class QueryBar extends React.Component{
 
   submitter(){
     if (this.props.experiment_mode){
@@ -53,14 +54,14 @@ export default class QueryBar extends React.Component {
       col = 10;
     }
     return (
-      <Navbar style={{height:this.props.height, width: "100%"}} onKeyPress={(e)=> this.handleKeyPress(e)}>
+  /*    <Navbar style={{height:this.props.height, width: "100%"}} onKeyPress={(e)=> this.handleKeyPress(e)}>
         <Container>
           <Row className="show-grid">
             <Col xs={col} md={col}><Input q={this.props.q} style={{width:p_w, backgroundColor: "blue"}} changeHandler={changeHandler}/></Col>
             {sub_button}
           </Row>
         </Container>
-      </Navbar>
+      </Navbar>*/<div>s</div>
     )
   }
 
