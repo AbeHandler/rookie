@@ -1,0 +1,32 @@
+{
+  "name": "huh",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --mode development",
+    "start:dev": "webpack-dev-server"
+  },
+  "author": "Abram Handler <abram.handler@gmail.com> (www.abehandler.com)",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.1.0",
+    "@babel/core": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.2",
+    "css-loader": "^1.0.0",
+    "style-loader": "^0.23.0",
+    "webpack": "^4.19.1",
+    "webpack-cli": "^3.1.1",
+    "webpack-dev-server": "^3.1.8"
+  },
+  "dependencies": {
+    "create-react-class": "^15.6.3",
+    "jquery": "^3.4.1",
+    "react": "^16.5.2",
+    "react-bootstrap": "^1.0.0-beta.16",
+    "react-dom": "^16.5.2"
+  }
+}
