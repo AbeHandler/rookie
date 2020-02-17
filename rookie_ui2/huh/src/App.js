@@ -1,6 +1,6 @@
 import React, { Component} from "react";
 import "./App.css";
-import "./QueryBar.jsx";
+import QueryBar from "./QueryBar.jsx";
 
 class App extends Component{
   render(){
