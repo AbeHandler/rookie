@@ -54,14 +54,14 @@ export default class QueryBar extends React.Component{
       col = 10;
     }
     return (
-  /*    <Navbar style={{height:this.props.height, width: "100%"}} onKeyPress={(e)=> this.handleKeyPress(e)}>
+       <Navbar style={{height:this.props.height, width: "100%"}} onKeyPress={(e)=> this.handleKeyPress(e)}>
         <Container>
           <Row className="show-grid">
             <Col xs={col} md={col}><Input q={this.props.q} style={{width:p_w, backgroundColor: "blue"}} changeHandler={changeHandler}/></Col>
             {sub_button}
           </Row>
         </Container>
-      </Navbar>*/<div>s</div>
+      </Navbar>
     )
   }
 
