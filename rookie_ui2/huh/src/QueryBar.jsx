@@ -2,6 +2,7 @@
 /* A list of days */
 "use strict";
 import React from 'react';
+
 var $ = require('jQuery');
 
 import Navbar from 'react-bootstrap/Navbar';
@@ -10,7 +11,8 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-var Input = require('./Input.jsx');
+import Input from './Input.jsx';
+
 
 export default class QueryBar extends React.Component{
 
@@ -53,8 +55,7 @@ export default class QueryBar extends React.Component{
       sub_button = <Col xs={2} md={2}><Button onClick={submitter} type="submit">Submit</Button></Col>
       col = 10;
     }
-    return (
-       <Navbar style={{height:this.props.height, width: "100%"}} onKeyPress={(e)=> this.handleKeyPress(e)}>
+    return (<Navbar style={{height:this.props.height, width: "100%"}} onKeyPress={(e)=> this.handleKeyPress(e)}>
         <Container>
           <Row className="show-grid">
             <Col xs={col} md={col}><Input q={this.props.q} style={{width:p_w, backgroundColor: "blue"}} changeHandler={changeHandler}/></Col>

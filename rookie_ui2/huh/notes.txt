@@ -1,1 +1,5 @@
+https://medium.com/@Zwenza/functional-vs-class-components-in-react-231e3fbd7108
+
+https://blog.usejournal.com/creating-a-react-app-from-scratch-f3c693b84658
+
 https://codesandbox.io/s/github/react-bootstrap/code-sandbox-examples/tree/master/basic

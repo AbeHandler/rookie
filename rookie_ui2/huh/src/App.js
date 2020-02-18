@@ -5,36 +5,29 @@ import Toast from 'react-bootstrap/Toast';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 
+import Card from 'react-bootstrap/Card';
+
+import Sparkline from "./Sparkline.jsx";
+import QueryBar from "./QueryBar.jsx";
+import SparklineGrid from "./SparklineGrid.jsx";
+
+import Chart from './Chart.jsx';
+
+import XAxis from "./XAxis.jsx";
+import YAxis from "./YAxis.jsx";
+import ClickableQF from "./ClickableQF.jsx"
+
+/*
+var ChartTitle = require('./ChartTitle.jsx');
+var SummaryStatus = require('./SummaryStatus.jsx');
+var DocViewer = require('./DocViewer_generic.jsx');
+var Modal_doc = require('./Modal_doc.jsx');
+*/
+
 import './App.css';
 
-const ExampleToast = ({ children }) => {
-  const [show, toggleShow] = useState(true);
-
-  return (
-    <>
-      {!show && <Button onClick={() => toggleShow(true)}>Show Toast</Button>}
-      <Toast show={show} onClose={() => toggleShow(false)}>
-        <Toast.Header>
-          <strong className="mr-auto">React-Bootstrap</strong>
-        </Toast.Header>
-        <Toast.Body>{children}</Toast.Body>
-      </Toast>
-    </>
-  );
-};
-
 const App = () => (
-  <Container className="p-3">
-    <Jumbotron>
-      <h1 className="header">Welcome To React-Bootstrap</h1>
-      <ExampleToast className="toast">
-        We now have Toasts
-        <span role="img" aria-label="tada">
-          🎉
-        </span>
-      </ExampleToast>
-    </Jumbotron>
-  </Container>
+  <div><QueryBar></QueryBar></div>
 );
 
 export default App;
