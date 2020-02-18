@@ -17,12 +17,14 @@ import XAxis from "./XAxis.jsx";
 import YAxis from "./YAxis.jsx";
 import ClickableQF from "./ClickableQF.jsx"
 
-/*
-var ChartTitle = require('./ChartTitle.jsx');
-var SummaryStatus = require('./SummaryStatus.jsx');
-var DocViewer = require('./DocViewer_generic.jsx');
-var Modal_doc = require('./Modal_doc.jsx');
-*/
+import DocViewer from './DocViewer_generic.jsx'
+
+import ChartTitle from './ChartTitle.jsx'
+
+import SummaryStatus from './SummaryStatus.jsx'
+
+import Modal_doc from './Modal_doc.jsx';
+
 
 import './App.css';
 

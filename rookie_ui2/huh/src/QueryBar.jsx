@@ -3,7 +3,7 @@
 "use strict";
 import React from 'react';
 
-var $ = require('jQuery');
+var $ = require('jquery');
 
 import Navbar from 'react-bootstrap/Navbar';
 import Button from 'react-bootstrap/Button';
