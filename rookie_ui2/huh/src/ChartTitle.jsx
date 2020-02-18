@@ -20,8 +20,7 @@ export default class ChartTitle extends React.Component{
     }
 
     render() {
-        let on_click_f = "";
-        let status_start = <span>Found {this.props.ndocs} <span onClick={on_click_f}>{this.getStoryPhrase()}</span> for </span>;
+        let status_start = <span>Found {this.props.ndocs} <span>{this.getStoryPhrase()}</span> for </span>;
         let f = this.props.f;
         let show = (f != -1 && f != undefined);
         let show_f = true;
