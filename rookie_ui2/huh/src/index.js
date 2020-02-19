@@ -5,4 +5,4 @@ import App from './App';
 // Importing the Bootstrap CSS
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-ReactDOM.render(<App chart_bins={chart_bins}/>, document.getElementById('root'));
+ReactDOM.render(<App q={"Q"} chart_bins={chart_bins}/>, document.getElementById('root'));

@@ -103,8 +103,40 @@ export default class App extends React.Component{
       }
     }
   }
-  render() {return(<div>
+  render() {
+      chart = <Chart
+           tooltip_width="160"
+           turn_on_rect_mode={this.turn_on_rect_mode}
+           mouse_move_in_chart={this.mouse_move_in_chart}
+           f={this.state.f}
+           q={this.props.q}
+           turnoff_drag={this.turnoff_drag}
+           handle_mouse_up_in_rect_mode={this.handle_mouse_up_in_rect_mode}
+           toggle_both_drags_start={() => this.setState({drag_l: true, summary_page: 0, drag_r: true}) }
+           toggle_drag_start_l={this.toggle_drag_start_l}
+           toggle_drag_start_r={this.toggle_drag_start_r}
+           drag_l={this.state.drag_l}
+           drag_r={this.state.drag_r}
+           w={600}
+           buffer={buffer}
+           y_axis_width={55}
+           mode={this.state.mode}
+           mouse_move_in_chart={this.mouse_move_in_chart.bind(this)}
+           mouse_up_in_chart={this.mouse_up_in_chart}
+           mouse_down_in_chart_true={this.mouse_down_in_chart_true}
+           chart_mode={this.state.chart_mode}
+           qX={this.qX} set_date={this.set_date}
+           set_dates={this.set_dates}
+           start_selected={this.state.start_selected}
+           end_selected={this.state.end_selected}
+           q_data={this.props.q_data}
+           f_data={f_counts}
+           belowchart="50"
+           height={100}
+           keys={chart_bins}/>
+
+    return(<div>
                   <QueryBar></QueryBar><ChartTitle q={"Q"} f={-1} ndocs={5} fX={this.fX} requery={this.requery}></ChartTitle>
-                  <Chart mouse_move_in_chart={this.mouse_move_in_chart.bind(this)} width={400} w={600} height={100} y_axis_width={55} q_data={q_data} f_data={f_counts} keys={chart_bins}></Chart>
+                  {chart}<Chart></Chart>
                   </div>)}
 }
