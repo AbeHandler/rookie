@@ -232,47 +232,32 @@ export default class App extends React.Component{
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
     let m = moment(mouse_date);
 
-    console.log("*** setting dates ***")
-    console.log("The mouse is at " + m.format("YYYY-MM"))
-    //console.log(e.format("YYYY-MM"))
     let start = moment(this.state.start_selected)
     let end = moment(this.state.end_selected)
     let diff = Math.floor(end.diff(start, "days")/2);
 
-    console.log("The start is at " + start.format("YYYY-MM"))
-    console.log("The end is at " + end.format("YYYY-MM"))
-    console.log("The difference is " + diff)
-
     s = m.clone().subtract(diff, 'days');
     e = m.clone().add(diff, 'days');
 
-    console.log("The new start is " + s.format("YYYY-MM"));
+    if (s < min){
+      s = min;
+    }
+    if (e > max){
+      console.log("iiii")
+      console.log(e)
+      console.log(max)
+      e = max;
+    }
+    if (s.format("YYYY-MM") === e.format("YYYY-MM")){
+      e = e.clone().add(1, 'months');
+    }
 
-    console.log("The new end is " + e.format("YYYY-MM"));
-
-    if (s <= e  & s > min & e < max & !(s.format("YYYY-MM") === e.format("YYYY-MM"))) {
-      let newstate = {start_selected:s.format("YYYY-MM"),
+    let newstate = {start_selected:s.format("YYYY-MM"),
                      end_selected:e.format("YYYY-MM"),
                      summary_page: 0,
                      mouse_date: m.format("YYYY-MM")}
-      this.setState(newstate);
+    this.setState(newstate);
 
-    }else if (s <= e  & s > min & e < max & s.format("YYYY-MM") === e.format("YYYY-MM")){
-        // dates are equal
-        e.add(1, "months");
-        let newstate = {start_selected:s.format("YYYY-MM"),
-                        end_selected:e.format("YYYY-MM"),
-                        mouse_date: m.format("YYYY-MM"),
-                        summary_page: 0}
-        if (e < max){
-          this.setState({start_selected:s.format("YYYY-MM"),
-                        end_selected:e.format("YYYY-MM"),
-                        mouse_date: m.format("YYYY-MM"),
-                        summary_page: 0});
-        }
-    }else{
-      //console.log("skip");
-    }
   }
 
   render() {
@@ -309,7 +294,7 @@ export default class App extends React.Component{
            height={200}
            x_axis_height = {50}
            keys={chart_bins}/>
-    console.log(this.state.mouse_date)
+
     let debug = this.state.mouse_date.toString() // "" + this.state.start_selected.toString() + "-" + "" + this.state.end_selected.toString();
     return(<div><Container>
                   <QueryBar></QueryBar><ChartTitle q={"Q"} f={-1} ndocs={5} fX={this.fX} requery={this.requery}></ChartTitle>
