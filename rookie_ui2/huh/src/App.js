@@ -50,6 +50,20 @@ export default class App extends React.Component{
                    f_counts: []});
   }
 
+  turnoff_drag(){
+    this.setState({drag_l: false, drag_r: false,
+                   mouse_down_in_chart: false, summary_page: 0, mouse_is_dragging: false});
+  }
+
+  turn_on_rect_mode(p){
+    this.setState({chart_mode:"rectangle",
+                  start_selected:-1,
+                  end_selected:-1,
+                  mouse_down_in_chart:true,
+                  summary_page: 0,
+                  mode: "docs"});
+  }
+
   constructor(props) {
     super(props);
     //Notes.
@@ -87,6 +101,104 @@ export default class App extends React.Component{
       location.href= '/?q='+ arg + '&corpus=' + this.props.corpus;
   }
 
+  /**
+  * This function will fire on mouseup if chart is in rectangle mode
+  */
+  mouse_up_in_chart(e_page_X_adjusted){
+    if (this.state.start_selected == -1 && this.state.end_selected == -1){
+      let s = moment(e_page_X_adjusted).add(-1, 'month');
+      let e = moment(e_page_X_adjusted).add(1, 'month');
+      s = s.format("YYYY-MM");
+      e = e.format("YYYY-MM");
+
+      this.setState({start_selected:s,end_selected:e, summary_page: 0});
+    }else{
+      let url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + this.state.start_selected + "&enddate=" + this.state.end_selected;
+
+      let max = this.props.chart_bins[this.props.chart_bins.length - 1];
+
+
+      if(this.state.start_selected === this.state.end_selected){
+        if (moment(max) > moment(this.state.end_selected, "YYYY-MM")){
+          let e = moment(this.state.end_selected, "YYYY-MM");
+          e.add(1, "months");
+          this.setState({end_selected:e.format("YYYY-MM"), summary_page: 0});
+          url = this.props.base_url + "get_facets_t?q=" + this.props.q + "&corpus=" + this.props.corpus + "&startdate=" + this.state.start_selected + "&enddate=" + e.format("YYYY-MM");
+        }
+      }
+
+      if (this.state.f == -1){
+        $.ajax({
+                      url: url,
+                      dataType: 'json',
+                      cache: true,
+                      method: 'GET',
+                      success: function(d) {
+                        //count vector for just clicked facet, e (event)
+                        this.setState({facet_datas: d["d"], summary_page: 0, startdisplay:0});
+                      }.bind(this),
+                      error: function(xhr, status, err) {
+                        console.error(this.props.url, status, err.toString());
+                      }.bind(this)
+        });
+      }
+    }
+
+    this.setState({drag_l: false, drag_r: false,
+                   mouse_down_in_chart: false, summary_page: 0, mouse_is_dragging: false});
+  }
+
+  /**
+  * Set one of the dates: a start or end
+  */
+  set_date(date, start_end) {
+    let d = moment(date);
+
+    if (start_end == "start"){
+      let end = moment(this.state.end_selected, "YYYY-MM");
+      let min = moment(this.props.chart_bins[0]);
+      if ((d < end) &  (d>min)){
+        this.setState({start_selected:d.format("YYYY-MM"), summary_page: 0});
+      }
+    }
+    if (start_end == "end"){
+      let start = moment(this.state.start_selected, "YYYY-MM");
+
+      let max = moment(this.props.chart_bins[this.props.chart_bins.length -1]);
+
+      if (d > start & d < max){
+         this.setState({end_selected:d.format("YYYY-MM"), summary_page: 0});
+      }
+    }
+  }
+
+  /**
+  * The chart will now have drag_l is true
+  */
+  toggle_drag_start_l(){
+    this.setState({drag_l : true, summary_page: 0, mouse_is_dragging: true});
+  }
+
+  /**
+  * The chart will now have drag_r is true
+  */
+  toggle_drag_start_r(){
+    this.setState({drag_r : true, summary_page: 0, mouse_is_dragging: true});
+  }
+
+  /**
+  * This function will fire on mousedown if chart is in rectangle mode
+  */
+  mouse_down_in_chart_true(d){
+    this.setState({
+      mouse_down_in_chart: true,
+      mouse_is_dragging: true}, function(){
+        if (this.state.drag_l == false && this.state.drag_r == false){
+          this.set_dates(d, d);
+        }
+      });
+  }
+
   mouse_move_in_chart(p){
     if (this.state.mouse_down_in_chart){
       if (this.state.drag_l == false && this.state.drag_r == false){
@@ -107,11 +219,11 @@ export default class App extends React.Component{
       let buffer = 5;
       let chart = <Chart
            tooltip_width="160"
-           turn_on_rect_mode={this.turn_on_rect_mode}
+           turn_on_rect_mode={this.turn_on_rect_mode.bind(this)}
            mouse_move_in_chart={this.mouse_move_in_chart}
            f={this.state.f}
            q={this.props.q}
-           turnoff_drag={this.turnoff_drag}
+           turnoff_drag={this.turnoff_drag.bind(this)}
            handle_mouse_up_in_rect_mode={this.handle_mouse_up_in_rect_mode}
            toggle_both_drags_start={() => this.setState({drag_l: true, summary_page: 0, drag_r: true}) }
            toggle_drag_start_l={this.toggle_drag_start_l}
@@ -123,10 +235,10 @@ export default class App extends React.Component{
            y_axis_width={55}
            mode={this.state.mode}
            mouse_move_in_chart={this.mouse_move_in_chart.bind(this)}
-           mouse_up_in_chart={this.mouse_up_in_chart}
-           mouse_down_in_chart_true={this.mouse_down_in_chart_true}
+           mouse_up_in_chart={this.mouse_up_in_chart.bind(this)}
+           mouse_down_in_chart_true={this.mouse_down_in_chart_true.bind(this)}
            chart_mode={this.state.chart_mode}
-           qX={this.qX} set_date={this.set_date}
+           qX={this.qX} set_date={this.set_date.bind(this)}
            set_dates={this.set_dates}
            start_selected={this.state.start_selected}
            end_selected={this.state.end_selected}

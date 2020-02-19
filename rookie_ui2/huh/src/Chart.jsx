@@ -316,9 +316,9 @@ export default class Chart extends React.Component{
         return <svg></svg>;
       }
       if (this.props.f != -1){
-        return this.get_tooltip_q_and_f();
+        return <svg></svg>; // this.get_tooltip_q_and_f();
       }else{
-        return this.get_tooltip_q();
+        return <svg></svg>; //this.get_tooltip_q();
       }
    }
 
@@ -354,7 +354,7 @@ export default class Chart extends React.Component{
       l_left = <line style={{cursor: "col-resize"}} onMouseDown={this.props.toggle_drag_start_l} x1={start_pos} y1={this.props.height / 3} x2={start_pos} y2={this.props.height - (this.props.height / 3)} stroke={stroke_color_l} strokeWidth="6"/>
       l_right = <line style={{cursor: "col-resize"}} onMouseDown={this.props.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 3} x2={end_pos} y2={this.props.height - (this.props.height / 3)} stroke={stroke_color_r} strokeWidth="6"/>
     }
-    handle_mouseup = this.toggle_drag_stop;
+    handle_mouseup = this.toggle_drag_stop.bind(this);
     let tooltip = this.get_tooltip();
     let hilite = this.get_path_hilite(this.props.q_data);
     return (
