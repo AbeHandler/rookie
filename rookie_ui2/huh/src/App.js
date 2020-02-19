@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Jumbotron from 'react-bootstrap/Jumbotron';
 import Toast from 'react-bootstrap/Toast';
 import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 
 import Card from 'react-bootstrap/Card';
@@ -269,18 +270,20 @@ export default class App extends React.Component{
            mouse_up_in_chart={this.mouse_up_in_chart.bind(this)}
            mouse_down_in_chart_true={this.mouse_down_in_chart_true.bind(this)}
            chart_mode={this.state.chart_mode}
-           qX={this.qX} set_date={this.set_date.bind(this)}
+           qX={this.qX}
+           set_date={this.set_date.bind(this)}
            set_dates={this.set_dates.bind(this)}
            start_selected={this.state.start_selected}
            end_selected={this.state.end_selected}
            q_data={this.props.q_data}
            f_data={f_counts}
            belowchart="50"
-           height={100}
+           height={200}
+           x_axis_height = {50}
            keys={chart_bins}/>
 
-    return(<div>
+    return(<Container>
                   <QueryBar></QueryBar><ChartTitle q={"Q"} f={-1} ndocs={5} fX={this.fX} requery={this.requery}></ChartTitle>
-                  {chart}
-                  </div>)}
+                  <Row>{chart}</Row>
+                  </Container>)}
 }
