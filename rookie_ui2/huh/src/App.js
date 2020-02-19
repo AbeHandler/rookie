@@ -53,5 +53,8 @@ export default class App extends React.Component{
   requery(arg) {
       location.href= '/?q='+ arg + '&corpus=' + this.props.corpus;
   }
-  render() {return(<div><QueryBar></QueryBar><ChartTitle ndocs={5} fX={this.fX} requery={this.requery}></ChartTitle></div>)}
+  render() {return(<div>
+                  <QueryBar></QueryBar><ChartTitle q={"Q"} f={-1} ndocs={5} fX={this.fX} requery={this.requery}></ChartTitle>
+                  <Chart width={400} w={600} height={100} y_axis_width={55} q_data={q_data} f_data={f_counts} keys={chart_bins}></Chart>
+                  </div>)}
 }

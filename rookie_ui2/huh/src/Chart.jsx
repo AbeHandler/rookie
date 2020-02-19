@@ -23,11 +23,11 @@ export default class Chart extends React.Component{
       let end = new Date(_.last(this.props.keys));
 
       try{
-          return d3.time.scale()
+          return d3.scaleTime()
                             .domain([str, end])
                             .range([0, this.props.w - this.props.y_axis_width]);
       } catch(e){
-          return d3.time.scale()
+          return d3.scaleTime()
                             .domain([str, end])
                             .range([0, 0]); //has not loaded yet
       }
@@ -36,7 +36,7 @@ export default class Chart extends React.Component{
 
     get_y_scale(){
       let h = this.props.w / this.props.w_h_ratio;
-      return d3.scale.linear()
+      return d3.scaleLinear()
                             .domain([0, _.max(this.props.q_data)])
                             .range([0, this.props.height])
     }
@@ -93,15 +93,16 @@ export default class Chart extends React.Component{
       return output;
     }
 
-  getInitialState() {
+ constructor(props) {
+    super(props);
     let d1 = new Date(this.props.keys[0]);
     let d2 = new Date(this.props.keys[this.props.keys.length -1]);
     let scale = this.get_x_scale();
     let mouse_x = -1;
     let mouse_y = -1;
     let panel_width = 0;
-            
-    return {w: 0,
+    this.state = {
+            w: 0,
             panel_width: panel_width, 
             mouse_x: mouse_x,
             x_l: scale(d1),
@@ -109,7 +110,8 @@ export default class Chart extends React.Component{
             drag_l: this.props.drag_l,
             drag_r: this.props.drag_r,
             mouse_to_r_d: -1,
-            mouse_to_l_d: -1};
+            mouse_to_l_d: -1
+    };
   }
 
   lateralize(i, lateral_scale) {
