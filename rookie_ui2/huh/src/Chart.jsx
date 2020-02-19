@@ -70,7 +70,7 @@ export default class Chart extends React.Component{
       if (this.state.mouse_x == -1){
         opacity=0;
       }
-      let x_date = x_scale.invert(x_loc - this.props.y_axis_width - this.props.buffer);
+      let x_date = this.mouse2date(x_loc);
       let x_moment = moment(x_date);
       x_moment.startOf("month");
       let x_scaled = x_scale(x_moment);
@@ -119,30 +119,24 @@ export default class Chart extends React.Component{
     return lateral_scale(i);
   }
 
-  componentDidMount(){
+  handle_mouse_move(e_pageX) {
 
-        var width = ReactDOM.findDOMNode(this.refs.chart_panel).offsetWidth;
-        this.setState({panel_width:width});
-  }
-
-  handle_mouse_move(e_pageX, lateral_scale) {
-
-    let p = lateral_scale.invert(e_pageX - this.props.y_axis_width - this.props.buffer);
+    let p = this.mouse2date(e_pageX)
 
     //alert UI that mouse is moving
     this.props.mouse_move_in_chart(p);
 
     if (this.props.drag_r == true && this.props.drag_l == true){
       //set distance from mouse position to edges
-      let lateral_scale = this.get_x_scale();
-      let start_pos = lateral_scale(new Date(this.props.start_selected));
-      let end_pos = lateral_scale(new Date(this.props.end_selected));
+      let start_pos = this.start_date_x_position();
+      let end_pos = this.end_date_x_position();
       if (this.state.mouse_to_r_d == -1 && this.state.mouse_to_l_d == -1){
+        
         let rd = end_pos - e_pageX; //end position minus mouse position = right distance
         let ld = e_pageX - start_pos;
         this.setState({mouse_to_r_d: rd, mouse_to_l_d: ld});
       }
-      this.props.set_dates(lateral_scale.invert(e_pageX - this.state.mouse_to_l_d), lateral_scale.invert(e_pageX + this.state.mouse_to_r_d));
+      this.props.set_dates(this.mouse2date(e_pageX - this.state.mouse_to_l_d), this.mouse2date(e_pageX + this.state.mouse_to_r_d));
     } else if (this.props.drag_r == true && this.props.drag_l == false){
       this.props.set_date(p, "end");
     } else if (this.props.drag_l == true && this.props.drag_r == false){
@@ -151,6 +145,12 @@ export default class Chart extends React.Component{
   }
 
 
+  mouse2date(x_loc){
+     let x_loc_adjusted = x_loc - this.state.offset_left;
+     let lateral_scale = this.get_x_scale();
+     return lateral_scale.invert(x_loc_adjusted)
+  }
+
   /**
   * This function will fire on mousedown
   * @param {Event} e
@@ -158,16 +158,16 @@ export default class Chart extends React.Component{
   */
   handle_mouse_down(e, lateral_scale){
     if (this.props.chart_mode == "rectangle"){
-      this.props.mouse_down_in_chart_true(lateral_scale.invert(e.pageX - this.props.y_axis_width - this.props.buffer));
+      this.props.mouse_down_in_chart_true(this.mouse2date(e.pageX));
     }else{
-      this.props.turn_on_rect_mode(lateral_scale.invert(e.pageX - this.props.y_axis_width - this.props.buffer));
+      this.props.turn_on_rect_mode(this.mouse2date(e.pageX));
     }
   }
 
-  toggle_drag_stop(e_pageX, lateral_scale){
+  toggle_drag_stop(e_pageX){
     this.setState({ mouse_to_r_d: -1, mouse_to_l_d: -1,
                     mouse_to_r_d: -1, mouse_to_l_d: -1});
-    this.props.mouse_up_in_chart(lateral_scale.invert(e_pageX - this.props.y_axis_width - this.props.buffer));
+    this.props.mouse_up_in_chart(this.mouse2date(e_pageX));
   }
 
   get_stroke_color_r(){
@@ -186,153 +186,29 @@ export default class Chart extends React.Component{
     return stroke_color_l;
   }
 
-  get_tooltip_q(){
-      let x_loc = this.state.mouse_x;// - this.props.y_axis_width - this.props.buffer;
-      let y_scale = this.get_y_scale();
-      let x_scale = this.get_x_scale();
-      let opacity=1;
-      if (this.state.mouse_x == -1){
-        opacity=0;
-      }
-      let x_date = x_scale.invert(x_loc - this.props.y_axis_width - this.props.buffer);
-      let x_moment = moment(x_date);
-      x_moment.startOf("month");
-      let x_scaled = x_scale(x_moment);
-      let y_loc = this.props.height /2;
-      let dates = _.map(this.props.keys, function(o, i){return moment(o)});
-      let nstories = "";
-      for (let i = 0; i < dates.length; i++) {
-          if(dates[i].year() == x_moment.year() && dates[i].month() == x_moment.month()){
-              let diff = this.props.height - parseFloat(y_scale(this.props.q_data[i]));
-              y_loc = diff;
-              nstories = this.props.q_data[i];
-          }
-      }
-      if (nstories > 1){
-          nstories = nstories.toString() + " stories";
-      }else if (nstories == 1){
-          nstories = nstories.toString() + " story";
-      }else if (nstories == 0){
-          nstories = nstories.toString() + " stories";
-      }
-      let tooltip_height = 50;
-
-      y_loc = this.props.height/5;
-      //stop tooltip from extending past the edge of chart
-      let pad_r = 50; //leeway
-      if ((parseInt(this.props.tooltip_width) + x_scaled + this.props.y_axis_width + pad_r) > this.props.w){
-        x_scaled = this.props.w - this.props.y_axis_width - pad_r - this.props.tooltip_width;
-      }
-      if (this.state.mouse_x == -1){
-        opacity=0;
-        tooltip_height=0; //hard to disable selection, so just put off screen
-      }
-      let tool_w = this.props.q.visualWidth();
-      return <svg>
-              <g>
-              <rect x={x_scaled} rx="5" ry="5" y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width={tool_w + 110} fill="white"/>
-              <text style={{backgroundColor: "white"}} x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan style={{fontWeight: "bold"}}>{x_moment.format("MMM. YYYY")}</tspan>
-              <tspan x={x_scaled + 9} y={y_loc + 40}>{nstories}</tspan><tspan> for</tspan>
-              <tspan> </tspan><tspan style={{fontWeight: "bold", fill:"#0028a3"}}>{this.props.q}</tspan>
-              </text>
-              </g>
-             </svg>
-   }
-
-    get_tooltip_q_and_f(){
-      let x_loc = this.state.mouse_x;// - this.props.y_axis_width - this.props.buffer;
-      let y_scale = this.get_y_scale();
-      let x_scale = this.get_x_scale();
-      let opacity=1;
-      let x_date = x_scale.invert(x_loc - this.props.y_axis_width - this.props.buffer);
-      let x_moment = moment(x_date);
-      x_moment.startOf("month");
-      let x_scaled = x_scale(x_moment);
-      let y_loc = "";
-      let dates = _.map(this.props.keys, function(o, i){return moment(o)});
-      let nstories = "";
-      let fstories = "";
-      for (let i = 0; i < dates.length; i++) {
-          if(dates[i].year() == x_moment.year() && dates[i].month() == x_moment.month()){
-              let diff = this.props.height - parseFloat(y_scale(this.props.q_data[i]));
-              y_loc = diff;
-              nstories = this.props.q_data[i];
-              fstories = this.props.f_data[i];
-          }
-      }
-      let nstories_ct = nstories;
-      let fstories_ct = fstories;
-      if (nstories > 1 || nstories == 0){
-          nstories = nstories.toString() + " stories for ";
-      }else if (nstories == 1){
-          nstories = nstories.toString() + " story for ";
-      }
-      if (fstories > 1 || fstories == 0){
-          fstories = fstories.toString() + " mention ";
-      }else if (fstories == 1){
-          fstories = fstories.toString() + " mention ";
-      }
-      let tooltip_height = 75;
-      //if (y_loc > 20){  //stop tooltip from falling too low
-      y_loc = 0;
-      //}
-
-      let tool_w = "";
-      if (this.props.q.visualWidth() < this.props.f.visualWidth()){
-        tool_w = this.props.f.visualWidth();
-      }else{
-        tool_w = this.props.q.visualWidth();
-      }
-
-      tool_w += 100; //padding
-
-      if (nstories_ct >= 10){
-        tool_w += 15; // "5 stories vs 15 stories... overflows tooltip"
-      }
-
-      //stop tooltip from extending past the edge of chart
-      if ((tool_w + x_scaled) > this.props.w - this.props.y_axis_width - 5){
-        x_scaled = this.props.w - this.props.y_axis_width - tool_w - 10;
-      }
-      if (this.state.mouse_x == -1){
-        opacity=0;
-        tooltip_height=0; //hard to disable selection, so just put off screen
-      }
-      
-      
-      return <svg>
-              <g>
-              <rect rx="5" ry="5" x={x_scaled} y={y_loc} opacity={opacity} stroke="grey" strokeWidth="2" height={tooltip_height} width={tool_w} fill="white"/>
-              <text style={{backgroundColor: "white"}} x={x_scaled + 9} y={y_loc + 20} opacity={opacity} height="10" width="23" fill="black"><tspan style={{fontWeight: "bold"}}>{x_moment.format("MMM. YYYY")}</tspan>
-              <tspan x={x_scaled + 9} y={y_loc + 40}>{nstories}</tspan><tspan style={{fontWeight: "bold", fill:"#0028a3"}}>{this.props.q}</tspan>
-              <tspan x={x_scaled + 9} y={y_loc + 60}>{fstories}</tspan><tspan style={{fontWeight: "bold", fill:"#b33125"}}>{this.props.f}</tspan>
-              </text>
-              </g>
-             </svg>
-   }
-
-   get_tooltip(){
-      // no tooltip. important b.c otherwise ui does strange stuff w/ offscreen tooltip
-      if (this.state.mouse_x == -1){
-        return <svg></svg>;
-      }
-      if (this.props.f != -1){
-        return <svg></svg>; // this.get_tooltip_q_and_f();
-      }else{
-        return <svg></svg>; //this.get_tooltip_q();
-      }
-   }
-
-   turnoff_drag(){
+  turnoff_drag(){
     this.setState({ mouse_to_r_d: -1, mouse_to_l_d: -1, mouse_to_r_d: -1, mouse_to_l_d: -1}); 
     this.props.turnoff_drag();
   }
 
   componentDidMount() {
     const width = document.getElementById('chart_div').clientWidth;
-    console.log("ww")
-    console.log(width);
-    this.setState({"width": width});
+    var offset_left = document.getElementById('main_chart').offsetLeft
+    this.setState({"width": width,
+                   "panel_width":width,
+                   "offset_left":offset_left});
+  }
+
+  start_date_x_position(){
+    let dt = new Date(this.props.start_selected);
+    let x_scale = this.get_x_scale()
+    return x_scale(dt);
+  }
+
+  end_date_x_position(){
+    let dt = new Date(this.props.end_selected);
+    let x_scale = this.get_x_scale()
+    return x_scale(dt);
   }
 
   render() {
@@ -353,15 +229,19 @@ export default class Chart extends React.Component{
     }
     let stroke_color_r = this.get_stroke_color_r();
     let stroke_color_l = this.get_stroke_color_l();
-    let start_pos = lateral_scale(new Date(this.props.start_selected)) - this.props.y_axis_width;
-    let end_pos = lateral_scale(new Date(this.props.end_selected)) - this.props.y_axis_width;
+    
+    let start_pos =  this.start_date_x_position();
+    let end_pos = this.end_date_x_position();
+
+    let chart_width = this.props.w - this.props.y_axis_width - 5;
+
     if (start_pos < lateral_scale(_.first(this.props.keys))){
         start_pos = lateral_scale(_.first(this.props.keys));
     }
-    if (end_pos > this.props.w){
+    if (end_pos > chart_width){
         end_pos = lateral_scale(new Date(_.last(this.props.keys)));
     }
-    let chart_width = this.props.w - this.props.y_axis_width - 5;
+   
     let max = _.max(this.props.q_data);
     let rec, l_left, l_right, handle_mouseup;
     if (this.props.chart_mode == "rectangle"){
@@ -374,7 +254,8 @@ export default class Chart extends React.Component{
       l_right = ""
     }
     handle_mouseup = this.toggle_drag_stop.bind(this);
-    let tooltip = this.get_tooltip();
+    {/* let tooltip = this.get_tooltip(); */}
+    let tooltip  = "";
     let hilite = this.get_path_hilite(this.props.q_data);
 
 
@@ -388,9 +269,11 @@ export default class Chart extends React.Component{
 
     let q_line = <path onMouseLeave={e=>this.setState({mouse_x:-1, mouse_y:-1})} onMouseMove={e =>this.setState({mouse_x:e.pageX})} d={ps} fill="#0028a3" opacity=".25" stroke="grey"/>
 
-    let plot = <svg 
-            onMouseMove={e=> this.handle_mouse_move(e.pageX, lateral_scale)} onMouseLeave={this.turnoff_drag.bind(this)}
-            onMouseUp={e => handle_mouseup(e.pageX, lateral_scale)}
+    
+    let plot = <svg
+            onMouseMove={e=> this.handle_mouse_move(e.pageX)}
+            onMouseLeave={this.turnoff_drag.bind(this)}
+            onMouseUp={e => handle_mouseup(e.pageX)}
             onMouseDown={e => this.handle_mouse_down(e, lateral_scale)}
             width={this.state.width - this.props.y_axis_width}
             height={actual_plot_height}>
@@ -398,19 +281,15 @@ export default class Chart extends React.Component{
             {hilite_line}
             {f_line}
             {rec}
-            {tooltip}
             {l_left}
             {l_right}
             </svg>
-
     return (
         <Card ref="chart_panel" style={{"width": "100%"}}>
 
-        {/*   
-        <div style={{width: this.props.y_axis_width - 2, float: "left"}}>&nbsp;</div>
-        */}
 
-        <div id="chart_div" style={{"width": "100%"}}ref={this.myInput}>
+
+        <div id="chart_div" style={{"width": "100%"}} ref={this.myInput}>
 
         {/*   y axis area */}
         <div style={{"width": this.props.y_axis_width, "height": this.props.height, float: "left"}}>
@@ -432,7 +311,7 @@ export default class Chart extends React.Component{
         <div style={{"width": this.state.width - this.props.y_axis_width, "height": this.props.height, float: "left"}}>
 
               {/*  main chart here */}
-              <div style={{"width": actual_plot_width, "height": this.props.height - this.props.x_axis_height}}>
+              <div id="main_chart" style={{"width": actual_plot_width, "height": this.props.height - this.props.x_axis_height}}>
                 {plot}
               </div>
 

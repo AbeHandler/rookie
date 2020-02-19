@@ -62,6 +62,7 @@ export default class App extends React.Component{
                   end_selected:-1,
                   mouse_down_in_chart:true,
                   summary_page: 0,
+                  p: p,
                   mode: "docs"});
   }
 
@@ -281,7 +282,7 @@ export default class App extends React.Component{
            height={200}
            x_axis_height = {50}
            keys={chart_bins}/>
-    let debug = "mouse down=" + this.state.mouse_down_in_chart.toString();
+    let debug = "" + this.state.start_selected.toString() + "-" + "" + this.state.end_selected.toString();
     return(<div><Container>
                   <QueryBar></QueryBar><ChartTitle q={"Q"} f={-1} ndocs={5} fX={this.fX} requery={this.requery}></ChartTitle>
                   <Row>{chart}</Row>
