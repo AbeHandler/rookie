@@ -30,7 +30,17 @@ import './App.css';
 
 var moment = require('moment');
 
-export default class App extends React.Component{
+export default class TemporalLinePlot extends React.Component{
+
+  kill_drag(){
+    this.setState({drag_l: false,
+                   drag_r: false,
+                   mouse_down_in_chart: false, 
+                   summary_page: 0,
+                   mouse_is_dragging: false});
+  }
+
+
   /**
   * A handler for when user clicks the X by F. Adjust state so f=-1
   */
@@ -147,8 +157,7 @@ export default class App extends React.Component{
       }
     }
 
-    this.setState({drag_l: false, drag_r: false,
-                   mouse_down_in_chart: false, summary_page: 0, mouse_is_dragging: false});
+    this.kill_drag()
   }
 
   /**
@@ -243,9 +252,6 @@ export default class App extends React.Component{
       s = min;
     }
     if (e > max){
-      console.log("iiii")
-      console.log(e)
-      console.log(max)
       e = max;
     }
     if (s.format("YYYY-MM") === e.format("YYYY-MM")){
@@ -260,8 +266,24 @@ export default class App extends React.Component{
 
   }
 
+  componentDidMount() {
+      let width = document.getElementById('chart_row').clientWidth;
+
+      let chart_height = width / this.props.width_to_height_ratio;
+
+      let h = chart_height + this.props.x_axis_height;
+
+      this.setState({"width": width,
+                     "h": h,
+                     "chart_height":chart_height});
+  }
+
+
+
   render() {
+
       let buffer = 5;
+
       let chart = <Chart
            tooltip_width="160"
            turn_on_rect_mode={this.turn_on_rect_mode.bind(this)}
@@ -275,7 +297,7 @@ export default class App extends React.Component{
            toggle_drag_start_r={this.toggle_drag_start_r.bind(this)}
            drag_l={this.state.drag_l}
            drag_r={this.state.drag_r}
-           w={600}
+           width_to_height_ratio={this.props.width_to_height_ratio}
            buffer={buffer}
            y_axis_width={55}
            mode={this.state.mode}
@@ -290,14 +312,17 @@ export default class App extends React.Component{
            end_selected={this.state.end_selected}
            q_data={this.props.q_data}
            f_data={f_counts}
-           belowchart="50"
-           height={200}
-           x_axis_height = {50}
+           chart_height={this.state.chart_height}
+           height={this.state.h}
+           x_axis_height = {this.props.x_axis_height}
            keys={chart_bins}/>
 
-    let debug = this.state.mouse_date.toString() // "" + this.state.start_selected.toString() + "-" + "" + this.state.end_selected.toString();
+    let debug = "start: " + this.state.start_selected.toString() + ", " + "end: " +  this.state.end_selected.toString();
     return(<div><Container>
-                  <QueryBar></QueryBar><ChartTitle q={"Q"} f={-1} ndocs={5} fX={this.fX} requery={this.requery}></ChartTitle>
-                  <Row>{chart}</Row>
-                  </Container>{debug}</div>)}
+                  <Row id="chart_row">{chart}</Row>
+                  </Container>
+                  <Container>
+                  <Row>{debug}</Row>
+                  </Container>
+                  </div>)}
 }

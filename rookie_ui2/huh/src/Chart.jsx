@@ -35,10 +35,10 @@ export default class Chart extends React.Component{
   }
 
     get_y_scale(){
-      let h = this.props.w / this.props.w_h_ratio;
+      let h = this.state.width / this.props.width_to_height_ratio;
       return d3.scaleLinear()
                             .domain([0, _.max(this.props.q_data)])
-                            .range([0, this.props.height])
+                            .range([0, h])
     }
 
     get_path_string(input_datas, actual_plot_height){
@@ -259,15 +259,15 @@ export default class Chart extends React.Component{
                   fill="grey" />
       l_left = <line style={{cursor: "col-resize"}} 
                       onMouseDown={this.props.toggle_drag_start_l} x1={start_pos}
-                      y1={this.props.height / 3}
+                      y1={this.props.chart_height / 3}
                       x2={start_pos}
-                      y2={this.props.height - (this.props.height / 3)} stroke={stroke_color_l}
+                      y2={this.props.chart_height - (this.props.chart_height / 3)} stroke={stroke_color_l}
                       strokeWidth="6"/>
       l_right = <line style={{cursor: "col-resize"}} 
                       onMouseDown={this.props.toggle_drag_start_r} x1={end_pos}
-                      y1={this.props.height / 3}
+                      y1={this.props.chart_height / 3}
                       x2={end_pos}
-                      y2={this.props.height - (this.props.height / 3)} stroke={stroke_color_r}
+                      y2={this.props.chart_height - (this.props.chart_height / 3)} stroke={stroke_color_r}
                       strokeWidth="6"/>
     }else{
       rec = "";
