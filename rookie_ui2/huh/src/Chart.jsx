@@ -243,20 +243,32 @@ export default class Chart extends React.Component{
     let end_pos = this.end_date_x_position();
 
     let chart_width = this.props.w - this.props.y_axis_width - 5;
-
-    if (start_pos < lateral_scale(_.first(this.props.keys))){
-        start_pos = lateral_scale(_.first(this.props.keys));
-    }
-    if (end_pos > chart_width){
-        end_pos = lateral_scale(new Date(_.last(this.props.keys)));
-    }
    
     let max = _.max(this.props.q_data);
     let rec, l_left, l_right, handle_mouseup;
     if (this.props.chart_mode == "rectangle"){
-      rec = <rect style={{cursor: "pointer"}} onMouseDown={this.props.toggle_both_drags_start} y="0" x={start_pos} opacity={".2"} height={this.props.height} width={end_pos - start_pos} strokeWidth="3" stroke="black" fill="grey" />
-      l_left = <line style={{cursor: "col-resize"}} onMouseDown={this.props.toggle_drag_start_l} x1={start_pos} y1={this.props.height / 3} x2={start_pos} y2={this.props.height - (this.props.height / 3)} stroke={stroke_color_l} strokeWidth="6"/>
-      l_right = <line style={{cursor: "col-resize"}} onMouseDown={this.props.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 3} x2={end_pos} y2={this.props.height - (this.props.height / 3)} stroke={stroke_color_r} strokeWidth="6"/>
+      rec = <rect style={{cursor: "pointer"}}
+                  onMouseDown={this.props.toggle_both_drags_start}
+                  y="0"
+                  x={start_pos}
+                  opacity={".2"}
+                  height={this.props.height}
+                  width={end_pos - start_pos}
+                  strokeWidth="3"
+                  stroke="black"
+                  fill="grey" />
+      l_left = <line style={{cursor: "col-resize"}} 
+                      onMouseDown={this.props.toggle_drag_start_l} x1={start_pos}
+                      y1={this.props.height / 3}
+                      x2={start_pos}
+                      y2={this.props.height - (this.props.height / 3)} stroke={stroke_color_l}
+                      strokeWidth="6"/>
+      l_right = <line style={{cursor: "col-resize"}} 
+                      onMouseDown={this.props.toggle_drag_start_r} x1={end_pos}
+                      y1={this.props.height / 3}
+                      x2={end_pos}
+                      y2={this.props.height - (this.props.height / 3)} stroke={stroke_color_r}
+                      strokeWidth="6"/>
     }else{
       rec = "";
       l_left = "";
@@ -295,8 +307,6 @@ export default class Chart extends React.Component{
             </svg>
     return (
         <Card ref="chart_panel" style={{"width": "100%"}}>
-
-
 
         <div id="chart_div" style={{"width": "100%"}} ref={this.myInput}>
 
