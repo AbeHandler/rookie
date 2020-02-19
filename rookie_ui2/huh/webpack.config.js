@@ -4,6 +4,7 @@ const webpack = require("webpack");
 module.exports = {
   entry: "./src/index.js",
   mode: "development",
+  watch: true,
   module: {
     rules: [
       {
@@ -20,8 +21,8 @@ module.exports = {
   },
   resolve: { extensions: ["*", ".js", ".jsx"] },
   output: {
-    path: path.resolve(__dirname, "dist/"),
-    publicPath: "/dist/",
+    path: path.resolve(__dirname, "public/"),
+    publicPath: "public/",
     filename: "bundle.js"
   },
   devServer: {

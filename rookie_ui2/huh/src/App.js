@@ -104,7 +104,8 @@ export default class App extends React.Component{
     }
   }
   render() {
-      chart = <Chart
+      let buffer = 5;
+      let chart = <Chart
            tooltip_width="160"
            turn_on_rect_mode={this.turn_on_rect_mode}
            mouse_move_in_chart={this.mouse_move_in_chart}
@@ -137,6 +138,6 @@ export default class App extends React.Component{
 
     return(<div>
                   <QueryBar></QueryBar><ChartTitle q={"Q"} f={-1} ndocs={5} fX={this.fX} requery={this.requery}></ChartTitle>
-                  {chart}<Chart></Chart>
+                  {chart}
                   </div>)}
 }
