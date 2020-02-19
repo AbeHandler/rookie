@@ -131,12 +131,17 @@ export default class Chart extends React.Component{
       let start_pos = this.start_date_x_position();
       let end_pos = this.end_date_x_position();
       if (this.state.mouse_to_r_d == -1 && this.state.mouse_to_l_d == -1){
-        
-        let rd = end_pos - e_pageX; //end position minus mouse position = right distance
-        let ld = e_pageX - start_pos;
+        console.log("here");
+        let mouse_date = this.mouse2date(e_pageX);
+
+        let rd = end_pos // - e_pageX; //end position minus mouse position = right distance
+        let ld = e_pageX  //- start_pos;
         this.setState({mouse_to_r_d: rd, mouse_to_l_d: ld});
       }
-      this.props.set_dates(this.mouse2date(e_pageX - this.state.mouse_to_l_d), this.mouse2date(e_pageX + this.state.mouse_to_r_d));
+      this.props.set_dates(
+                            this.mouse2date(e_pageX - this.state.mouse_to_l_d), 
+                            this.mouse2date(e_pageX + this.state.mouse_to_r_d), 
+                            this.mouse2date(e_pageX));
     } else if (this.props.drag_r == true && this.props.drag_l == false){
       this.props.set_date(p, "end");
     } else if (this.props.drag_l == true && this.props.drag_r == false){
@@ -193,7 +198,7 @@ export default class Chart extends React.Component{
 
   componentDidMount() {
     const width = document.getElementById('chart_div').clientWidth;
-    var offset_left = document.getElementById('main_chart').offsetLeft
+    var offset_left = document.getElementById('main_chart').getBoundingClientRect().left;
     this.setState({"width": width,
                    "panel_width":width,
                    "offset_left":offset_left});
@@ -202,13 +207,17 @@ export default class Chart extends React.Component{
   start_date_x_position(){
     let dt = new Date(this.props.start_selected);
     let x_scale = this.get_x_scale()
-    return x_scale(dt);
+
+    let x_loc_adjusted = x_scale(dt);
+    return x_loc_adjusted;
   }
 
   end_date_x_position(){
     let dt = new Date(this.props.end_selected);
-    let x_scale = this.get_x_scale()
-    return x_scale(dt);
+    let x_scale = this.get_x_scale();
+
+    let x_loc_adjusted = x_scale(dt);
+    return x_loc_adjusted;
   }
 
   render() {

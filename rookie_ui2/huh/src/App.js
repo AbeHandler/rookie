@@ -86,6 +86,7 @@ export default class App extends React.Component{
                  start_selected:min,
                  end_selected:max,
                  selected_doc: -1,
+                 mouse_date: "",
                  selectedheadline: "",
                  selectedsents: [],
                  selectedpubdate: "",
@@ -202,6 +203,9 @@ export default class App extends React.Component{
   }
 
   mouse_move_in_chart(p){
+    let m = moment(p);
+    this.setState({"mouse_date":m.format("YYYY-MM")});
+
     if (this.state.mouse_down_in_chart){
       if (this.state.drag_l == false && this.state.drag_r == false){
         let start = moment(p).format("YYYY-MM");
@@ -221,26 +225,49 @@ export default class App extends React.Component{
   /**
   * Set both dates at once: start and end
   */
-  set_dates(start_date, end_date) {
+  set_dates(start_date, end_date, mouse_date) {
     let s = moment(start_date);
     let e = moment(end_date);
     let min = moment(this.props.chart_bins[0]);
     let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
+    let m = moment(mouse_date);
 
+    console.log("*** setting dates ***")
+    console.log("The mouse is at " + m.format("YYYY-MM"))
+    //console.log(e.format("YYYY-MM"))
+    let start = moment(this.state.start_selected)
+    let end = moment(this.state.end_selected)
+    let diff = Math.floor(end.diff(start, "days")/2);
+
+    console.log("The start is at " + start.format("YYYY-MM"))
+    console.log("The end is at " + end.format("YYYY-MM"))
+    console.log("The difference is " + diff)
+
+    s = m.clone().subtract(diff, 'days');
+    e = m.clone().add(diff, 'days');
+
+    console.log("The new start is " + s.format("YYYY-MM"));
+
+    console.log("The new end is " + e.format("YYYY-MM"));
 
     if (s <= e  & s > min & e < max & !(s.format("YYYY-MM") === e.format("YYYY-MM"))) {
       let newstate = {start_selected:s.format("YYYY-MM"),
                      end_selected:e.format("YYYY-MM"),
-                     summary_page: 0}
+                     summary_page: 0,
+                     mouse_date: m.format("YYYY-MM")}
       this.setState(newstate);
 
     }else if (s <= e  & s > min & e < max & s.format("YYYY-MM") === e.format("YYYY-MM")){
         // dates are equal
         e.add(1, "months");
-        let newstate = {start_selected:s.format("YYYY-MM"), end_selected:e.format("YYYY-MM"), summary_page: 0}
+        let newstate = {start_selected:s.format("YYYY-MM"),
+                        end_selected:e.format("YYYY-MM"),
+                        mouse_date: m.format("YYYY-MM"),
+                        summary_page: 0}
         if (e < max){
           this.setState({start_selected:s.format("YYYY-MM"),
                         end_selected:e.format("YYYY-MM"),
+                        mouse_date: m.format("YYYY-MM"),
                         summary_page: 0});
         }
     }else{
@@ -282,7 +309,8 @@ export default class App extends React.Component{
            height={200}
            x_axis_height = {50}
            keys={chart_bins}/>
-    let debug = "" + this.state.start_selected.toString() + "-" + "" + this.state.end_selected.toString();
+    console.log(this.state.mouse_date)
+    let debug = this.state.mouse_date.toString() // "" + this.state.start_selected.toString() + "-" + "" + this.state.end_selected.toString();
     return(<div><Container>
                   <QueryBar></QueryBar><ChartTitle q={"Q"} f={-1} ndocs={5} fX={this.fX} requery={this.requery}></ChartTitle>
                   <Row>{chart}</Row>
