@@ -215,6 +215,37 @@ export default class App extends React.Component{
       }
     }
   }
+
+  /**
+  * Set both dates at once: start and end
+  */
+  set_dates(start_date, end_date) {
+    let s = moment(start_date);
+    let e = moment(end_date);
+    let min = moment(this.props.chart_bins[0]);
+    let max = moment(this.props.chart_bins[this.props.chart_bins.length - 1]);
+
+
+    if (s <= e  & s > min & e < max & !(s.format("YYYY-MM") === e.format("YYYY-MM"))) {
+      let newstate = {start_selected:s.format("YYYY-MM"),
+                     end_selected:e.format("YYYY-MM"),
+                     summary_page: 0}
+      this.setState(newstate);
+
+    }else if (s <= e  & s > min & e < max & s.format("YYYY-MM") === e.format("YYYY-MM")){
+        // dates are equal
+        e.add(1, "months");
+        let newstate = {start_selected:s.format("YYYY-MM"), end_selected:e.format("YYYY-MM"), summary_page: 0}
+        if (e < max){
+          this.setState({start_selected:s.format("YYYY-MM"),
+                        end_selected:e.format("YYYY-MM"),
+                        summary_page: 0});
+        }
+    }else{
+      //console.log("skip");
+    }
+  }
+
   render() {
       let buffer = 5;
       let chart = <Chart
@@ -226,8 +257,8 @@ export default class App extends React.Component{
            turnoff_drag={this.turnoff_drag.bind(this)}
            handle_mouse_up_in_rect_mode={this.handle_mouse_up_in_rect_mode}
            toggle_both_drags_start={() => this.setState({drag_l: true, summary_page: 0, drag_r: true}) }
-           toggle_drag_start_l={this.toggle_drag_start_l}
-           toggle_drag_start_r={this.toggle_drag_start_r}
+           toggle_drag_start_l={this.toggle_drag_start_l.bind(this)}
+           toggle_drag_start_r={this.toggle_drag_start_r.bind(this)}
            drag_l={this.state.drag_l}
            drag_r={this.state.drag_r}
            w={600}
@@ -239,7 +270,7 @@ export default class App extends React.Component{
            mouse_down_in_chart_true={this.mouse_down_in_chart_true.bind(this)}
            chart_mode={this.state.chart_mode}
            qX={this.qX} set_date={this.set_date.bind(this)}
-           set_dates={this.set_dates}
+           set_dates={this.set_dates.bind(this)}
            start_selected={this.state.start_selected}
            end_selected={this.state.end_selected}
            q_data={this.props.q_data}
