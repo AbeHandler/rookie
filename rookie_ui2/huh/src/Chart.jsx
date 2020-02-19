@@ -353,8 +353,8 @@ export default class Chart extends React.Component{
     }
     let stroke_color_r = this.get_stroke_color_r();
     let stroke_color_l = this.get_stroke_color_l();
-    let start_pos = lateral_scale(new Date(this.props.start_selected));
-    let end_pos = lateral_scale(new Date(this.props.end_selected));
+    let start_pos = lateral_scale(new Date(this.props.start_selected)) - this.props.y_axis_width;
+    let end_pos = lateral_scale(new Date(this.props.end_selected)) - this.props.y_axis_width;
     if (start_pos < lateral_scale(_.first(this.props.keys))){
         start_pos = lateral_scale(_.first(this.props.keys));
     }
@@ -368,6 +368,10 @@ export default class Chart extends React.Component{
       rec = <rect style={{cursor: "pointer"}} onMouseDown={this.props.toggle_both_drags_start} y="0" x={start_pos} opacity={".2"} height={this.props.height} width={end_pos - start_pos} strokeWidth="3" stroke="black" fill="grey" />
       l_left = <line style={{cursor: "col-resize"}} onMouseDown={this.props.toggle_drag_start_l} x1={start_pos} y1={this.props.height / 3} x2={start_pos} y2={this.props.height - (this.props.height / 3)} stroke={stroke_color_l} strokeWidth="6"/>
       l_right = <line style={{cursor: "col-resize"}} onMouseDown={this.props.toggle_drag_start_r} x1={end_pos} y1={this.props.height / 3} x2={end_pos} y2={this.props.height - (this.props.height / 3)} stroke={stroke_color_r} strokeWidth="6"/>
+    }else{
+      rec = "";
+      l_left = "";
+      l_right = ""
     }
     handle_mouseup = this.toggle_drag_stop.bind(this);
     let tooltip = this.get_tooltip();
@@ -393,18 +397,17 @@ export default class Chart extends React.Component{
             {q_line}
             {hilite_line}
             {f_line}
+            {rec}
+            {tooltip}
+            {l_left}
+            {l_right}
             </svg>
 
     return (
         <Card ref="chart_panel" style={{"width": "100%"}}>
 
         {/*   
-        {tooltip}
-        {rec}
-        {l_left}
-        {l_right}
         <div style={{width: this.props.y_axis_width - 2, float: "left"}}>&nbsp;</div>
-        
         */}
 
         <div id="chart_div" style={{"width": "100%"}}ref={this.myInput}>
@@ -429,7 +432,7 @@ export default class Chart extends React.Component{
         <div style={{"width": this.state.width - this.props.y_axis_width, "height": this.props.height, float: "left"}}>
 
               {/*  main chart here */}
-              <div style={{"width": actual_plot_width, "height": this.props.height - this.props.x_axis_height, backgroundColor:"orange"}}>
+              <div style={{"width": actual_plot_width, "height": this.props.height - this.props.x_axis_height}}>
                 {plot}
               </div>
 
