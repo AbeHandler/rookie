@@ -118,7 +118,7 @@ traitlets==4.3.2
 tzlocal==2.0.0
 ujson==1.35
 Unidecode==1.1.1
-urllib3==1.25.3
+urllib3==1.25.8
 vulture==1.1
 wasabi==0.2.2
 wcwidth==0.1.7
